@@ -16,6 +16,7 @@ import af.shizuku.manager.service.AdbProxyService
 import af.shizuku.manager.utils.StockShizukuCompat
 import moe.shizuku.server.IShizukuService
 import rikka.shizuku.Shizuku
+import af.shizuku.manager.shiroikuma.showHouse
 
 /**
  * Root Integration Settings
@@ -125,7 +126,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                                 ShizukuSettings.syncAllPlusFeaturesToServer()
                             }
                             .setNegativeButton(android.R.string.cancel, null)
-                            .show()
+                            .showHouse()
                         return@setOnPreferenceChangeListener false
                     } else {
                         preferenceManager.sharedPreferences?.edit()?.putBoolean(key, newValue)?.apply()
@@ -183,7 +184,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                         Toast.makeText(context, context?.getString(R.string.su_path_preset_applied, presets[which]), Toast.LENGTH_SHORT).show()
                     }
                 }
-                .show()
+                .showHouse()
             true // Intercept click to show presets dialog first
         }
 

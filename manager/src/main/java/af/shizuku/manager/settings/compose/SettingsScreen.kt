@@ -279,6 +279,10 @@ fun SearchResultItem(
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
+        // FORK: every surface role is the same pure black here, so the half-alpha surfaceVariant
+        // fill is indistinguishable from the page — a search result needs a border to exist at all.
+        // Minor tier (grey): these are ordinary list rows, not sections.
+        border = af.shizuku.manager.shiroikuma.minorBorder(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Column(

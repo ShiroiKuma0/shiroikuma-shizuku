@@ -43,6 +43,7 @@ import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.HapticUtils
 import af.shizuku.manager.utils.ShizukuStateMachine
 import rikka.core.util.ClipboardUtils
+import af.shizuku.manager.shiroikuma.showHouse
 
 class OnboardingActivity : AppActivity() {
 
@@ -385,6 +386,6 @@ class OnboardingActivity : AppActivity() {
                 intent = Intent.createChooser(intent, getString(R.string.home_adb_dialog_view_command_button_send))
                 startActivity(intent)
             }
-            .show()
+            .showHouse()
     }
 }

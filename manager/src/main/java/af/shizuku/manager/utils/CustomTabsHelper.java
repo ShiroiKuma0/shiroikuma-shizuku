@@ -76,11 +76,14 @@ public class CustomTabsHelper {
                 try {
                     ClipboardUtils.put(context, url);
 
-                    new MaterialAlertDialogBuilder(context)
+                    // Fork: house look (black fill, yellow border). This is Java, so the Kotlin
+                    // `showHouse()` extension is not available — call the styler directly.
+                    androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(context)
                         .setTitle(R.string.dialog_cannot_open_browser_title)
                         .setMessage(HtmlCompat.fromHtml(context.getString(R.string.toast_copied_to_clipboard)))
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
+                    af.shizuku.manager.shiroikuma.ShiroikumaDialogs.INSTANCE.style(dialog);
                 } catch (Throwable ignored) {
                 }
             }
