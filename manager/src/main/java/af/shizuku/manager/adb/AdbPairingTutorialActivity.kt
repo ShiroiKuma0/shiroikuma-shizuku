@@ -25,6 +25,7 @@ import af.shizuku.manager.utils.SettingsHelper
 import af.shizuku.manager.utils.SettingsPage
 import af.shizuku.manager.utils.ShizukuStateMachine
 import rikka.compatibility.DeviceCompatibility
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 @RequiresApi(Build.VERSION_CODES.R)
 class AdbPairingTutorialActivity : AppBarActivity() {
@@ -40,7 +41,7 @@ class AdbPairingTutorialActivity : AppBarActivity() {
         if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
             // Permanently denied — guide user to settings
-            Toast.makeText(this, R.string.dialog_notif_permission_denied, Toast.LENGTH_LONG).show()
+            ShiroikumaToast.show(this, R.string.dialog_notif_permission_denied, Toast.LENGTH_LONG)
             SettingsPage.Notifications.NotificationSettings.launch(this)
         }
         // onResume() re-checks enabled state and starts service if now granted
@@ -51,7 +52,7 @@ class AdbPairingTutorialActivity : AppBarActivity() {
         val context = this
 
         if (!af.shizuku.manager.ShizukuApplication.isAdbNativeAvailable) {
-            Toast.makeText(this, R.string.adb_native_unavailable, Toast.LENGTH_LONG).show()
+            ShiroikumaToast.show(this, R.string.adb_native_unavailable, Toast.LENGTH_LONG)
             finish()
             return
         }
@@ -199,7 +200,7 @@ class AdbPairingTutorialActivity : AppBarActivity() {
                 }
 
                 if (mode == AppOpsManager.MODE_ERRORED) {
-                    Toast.makeText(this, R.string.adb_foreground_op_denied, Toast.LENGTH_LONG).show()
+                    ShiroikumaToast.show(this, R.string.adb_foreground_op_denied, Toast.LENGTH_LONG)
                 }
                 startService(intent)
             }
