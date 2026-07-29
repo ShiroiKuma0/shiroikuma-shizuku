@@ -60,7 +60,7 @@ public class ShizukuShellLoader {
         String authToken = System.getenv("SHIZUKU_TOKEN");
 
         Intent intent = new Intent("rikka.shizuku.intent.action.REQUEST_BINDER")
-                .setPackage("af.shizuku.plus.api")
+                .setPackage("shiroikuma.shizuku")
                 .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                 .putExtra("data", data);
 
