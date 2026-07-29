@@ -39,7 +39,17 @@ android {
         multiDexKeepProguard file("multidex-keep.pro")
         externalNativeBuild {
             cmake {
-                arguments = ["-DANDROID_STL=none", "-DANDROID_LD=lld", "-Wl,-z,max-page-size=16384"]
+                // SHIROIKUMA_PACKAGE_NAME hands our applicationId to the native starter, which
+                // resolves the manager APK with `pm path <package>` when it is invoked without
+                // --apk= (the manual `adb shell .../libshizuku.so` command). Upstream hardcoded
+                // its own ids there, so the manual start failed with "can't get path of manager"
+                // on this fork. Derived, not spelled — see starter.cpp and CLAUDE.md.
+                arguments = [
+                    "-DANDROID_STL=none",
+                    "-DANDROID_LD=lld",
+                    "-Wl,-z,max-page-size=16384",
+                    "-DSHIROIKUMA_PACKAGE_NAME=" + providers.gradleProperty("APP_ID").get()
+                ]
             }
         }
     }
