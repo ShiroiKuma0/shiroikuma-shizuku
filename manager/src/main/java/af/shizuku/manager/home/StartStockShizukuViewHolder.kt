@@ -14,6 +14,7 @@ import af.shizuku.manager.ktx.themeColor
 import af.shizuku.manager.utils.StockShizukuCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
+import af.shizuku.manager.shiroikuma.showHouse
 
 class StartStockShizukuViewHolder(
     private val binding: HomeStartRootBinding,
@@ -63,7 +64,7 @@ class StartStockShizukuViewHolder(
                 .setTitle("Incompatible Server Running")
                 .setMessage("The original Shizuku server is currently running in the background. Because of Android security constraints, 白い熊 雫 cannot communicate with or kill the original server.\n\nPlease completely restart your device to kill the original server, then start 白い熊 雫 using ADB or Root.")
                 .setPositiveButton(android.R.string.ok, null)
-                .show()
+                .showHouse()
         }
     }
 
