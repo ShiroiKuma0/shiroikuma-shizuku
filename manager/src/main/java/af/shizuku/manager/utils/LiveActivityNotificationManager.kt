@@ -17,15 +17,14 @@ object LiveActivityNotificationManager {
     private fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val channel =
-                NotificationChannel(
-                    CHANNEL_ID,
-                    "Shizuku+ Live Status",
-                    NotificationManager.IMPORTANCE_LOW,
-                ).apply {
-                    description = "Shows live Shizuku activity"
-                    setShowBadge(false)
-                }
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "白い熊 雫 Live Status",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Shows live Shizuku activity"
+                setShowBadge(false)
+            }
             manager.createNotificationChannel(channel)
         }
     }
@@ -46,7 +45,7 @@ object LiveActivityNotificationManager {
         return NotificationCompat
             .Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_server_ok_24)
-            .setContentTitle("Shizuku+ Active")
+            .setContentTitle("白い熊 雫 Active")
             .setContentText(status)
             .setContentIntent(pendingIntent)
             .setOngoing(true)

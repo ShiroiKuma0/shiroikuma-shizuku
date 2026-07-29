@@ -27,17 +27,16 @@ class BugReportDialog : DialogFragment() {
         val context = requireContext()
         binding = BugReportDialogBinding.inflate(layoutInflater)
 
-        val updateLink =
-            getString(R.string.bug_report_dialog_link_update)
-                .asLink("https://github.com/thejaustin/ShizukuPlus/releases/latest")
+        val updateLink = getString(R.string.bug_report_dialog_link_update)
+            .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest")
 
-        val wikiLink =
-            getString(R.string.bug_report_dialog_link_wiki)
-                .asLink("https://github.com/thejaustin/ShizukuPlus/releases/wiki#troubleshooting")
+        // Fork: upstream had "/releases/wiki" and "/releases/issues" here — both 404. Corrected
+        // to the real paths while repointing them at our fork.
+        val wikiLink = getString(R.string.bug_report_dialog_link_wiki)
+            .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/wiki#troubleshooting")
 
-        val issuesLink =
-            getString(R.string.bug_report_dialog_link_issues)
-                .asLink("https://github.com/thejaustin/ShizukuPlus/releases/issues")
+        val issuesLink = getString(R.string.bug_report_dialog_link_issues)
+            .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues")
 
         binding.apply {
             updateText.applyTemplateArgs(updateLink)
@@ -50,33 +49,13 @@ class BugReportDialog : DialogFragment() {
             .setTitle(R.string.settings_report_bug)
             .setView(binding.root)
             .setPositiveButton(R.string.action_open_github) { _, _ ->
-                CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/thejaustin/ShizukuPlus/issues/new")
-            }.setNegativeButton(R.string.bug_report_dialog_button_email) { _, _ ->
-                val plainBody =
-                    """
-                    Please describe the bug. Include steps to reproduce if possible, as well as any relevant images/logs.
-
-                    Device: ${Build.MANUFACTURER} ${Build.MODEL}
-                    Android Version: ${Build.VERSION.RELEASE}
-                    Shizuku Version: ${BuildConfig.VERSION_NAME}
-                    """.trimIndent()
-
-                val intent =
-                    Intent(
-                        Intent.ACTION_SENDTO,
-                        Uri.parse(
-                            "mailto:" + context.getString(R.string.support_email) +
-                                "?subject=" + Uri.encode("[ISSUE TITLE]") +
-                                "&body=" + Uri.encode(plainBody),
-                        ),
-                    )
-                try {
-                    context.startActivity(intent)
-                    dismiss()
-                } catch (_: ActivityNotFoundException) {
-                    Toast.makeText(context, context.getString(R.string.toast_no_email_app), Toast.LENGTH_SHORT).show()
-                }
-            }.setNeutralButton(android.R.string.cancel) { dialog, _ ->
+                CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues/new")
+            }
+            // Fork: the "email support" button is removed. It sent a device/OS/version report to
+            // the upstream author's support address (shizukuplus-support@thejaustin.com), which is
+            // both upstream branding and an outbound channel this fork does not have. See
+            // CLAUDE.md, "No phone-home".
+            .setNeutralButton(android.R.string.cancel) { dialog, _ ->
                 dialog.cancel()
             }.create()
     }

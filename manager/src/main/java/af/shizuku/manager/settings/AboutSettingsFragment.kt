@@ -236,12 +236,12 @@ class AboutSettingsFragment : BaseSettingsFragment() {
         }
 
         findPreference<Preference>("source_code")?.setOnPreferenceClickListener {
-            CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/thejaustin/ShizukuPlus")
+            CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/ShiroiKuma0/shiroikuma-shizuku")
             true
         }
 
         findPreference<Preference>("open_source_licenses")?.setOnPreferenceClickListener {
-            CustomTabsHelper.launchUrlOrCopy(requireContext(), "https://github.com/thejaustin/ShizukuPlus/blob/main/OPEN_SOURCE_LICENSES.md")
+            CustomTabsHelper.launchUrlOrCopy(requireContext(), "https://github.com/ShiroiKuma0/shiroikuma-shizuku/blob/custom/OPEN_SOURCE_LICENSES.md")
             true
         }
 

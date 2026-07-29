@@ -249,55 +249,17 @@ class ChangelogDialogFragment : BottomSheetDialogFragment() {
         // Populate earlier / version history chips
         if (releases.size > 1 || combinedNewRelease != null) {
             earlierSection.isVisible = true
-            chipGroup.isSingleSelection = true
-            chipGroup.isSelectionRequired = true
-
-            earlierSectionTitle?.setText(
-                if (newReleases.isNotEmpty()) {
-                    R.string.changelog_version_history
-                } else {
-                    R.string.changelog_earlier_releases
-                },
-            )
-
-            // 1. "All New" chip if multiple new releases
-            if (combinedNewRelease != null) {
-                val combinedChip =
-                    Chip(requireContext()).apply {
-                        text = combinedNewRelease.tag
-                        isCheckable = true
-                        isChecked = true
-                        chipIcon = ContextCompat.getDrawable(context, R.drawable.ic_autorenew)
-                        isChipIconVisible = true
-                        setEnsureMinTouchTargetSize(true)
-                        setOnClickListener {
-                            HapticUtils.segmentTick(this)
-                            displayRelease(combinedNewRelease, isCombined = true)
-                        }
-                    }
-                chipGroup.addView(combinedChip)
-            }
-
-            // 2. Individual release chips
-            releases.forEachIndexed { index, release ->
-                val chip =
-                    Chip(requireContext()).apply {
-                        text =
-                            if (release.isNew) {
-                                "${release.tag} • ${getString(R.string.changelog_tag_new)}"
-                            } else {
-                                release.tag
-                            }
-                        isCheckable = true
-                        isChecked = (combinedNewRelease == null && index == 0)
-                        if (release.isNew) {
-                            chipIcon = ContextCompat.getDrawable(context, R.drawable.ic_bolt_24)
-                            isChipIconVisible = true
-                        }
-                        setEnsureMinTouchTargetSize(true)
-                        setOnClickListener {
-                            HapticUtils.segmentTick(this)
-                            displayRelease(release)
+            previous.forEach { (prevTag, _, _) ->
+                val chip = Chip(requireContext()).apply {
+                    text = prevTag
+                    isCheckable = false
+                    setEnsureMinTouchTargetSize(true)
+                    setOnClickListener {
+                        try {
+                            startActivity(Intent(Intent.ACTION_VIEW,
+                                Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/tag/$prevTag")))
+                        } catch (e: Exception) {
+                            Timber.w(e, "Failed to open release $prevTag")
                         }
                     }
                 chipGroup.addView(chip)
@@ -361,12 +323,8 @@ class ChangelogDialogFragment : BottomSheetDialogFragment() {
         // "View on GitHub" links to the currently selected release's page
         btnGithub.setOnClickListener {
             try {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://github.com/thejaustin/ShizukuPlus/releases/tag/$currentSelectedTag"),
-                    ),
-                )
+                startActivity(Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/tag/$tagName")))
             } catch (e: Exception) {
                 Timber.w(e, "Failed to open release page for $currentSelectedTag")
             }

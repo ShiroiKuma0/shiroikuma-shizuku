@@ -227,14 +227,10 @@ object ShizukuReceiverStarter {
             nm.createNotificationChannel(channel)
         }
 
-        val webpageIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/thejaustin/ShizukuPlus/wiki#shizuku-isnt-starting-on-boot-for-me"))
-        val pendingWebpageIntent =
-            PendingIntent.getActivity(
-                context,
-                0,
-                webpageIntent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-            )
+        val webpageIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/wiki#shizuku-isnt-starting-on-boot-for-me"))
+        val pendingWebpageIntent = PendingIntent.getActivity(
+            context, 0, webpageIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val msg = context.getString(R.string.wadb_permission_error_notification_content)
 
