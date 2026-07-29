@@ -25,6 +25,7 @@ import rikka.core.util.ClipboardUtils
 import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AutomationViewHolder(
     private val binding: HomeAutomationBinding,
@@ -120,7 +121,7 @@ class AutomationViewHolder(
                                 extrasEditText.setText("auth:$newEncryptedToken")
                             }
                         })
-                        .show()
+                        .showHouse()
                 }
             }
 

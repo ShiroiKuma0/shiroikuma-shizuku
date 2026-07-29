@@ -3,52 +3,69 @@ package af.shizuku.manager.worker
 import android.content.Context
 import androidx.work.ListenableWorker.Result
 import androidx.work.WorkerParameters
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.utils.AppContextManager
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.every
+import io.kotest.matchers.string.shouldNotContain
 import io.mockk.mockk
-import io.mockk.mockkConstructor
-import io.mockk.mockkObject
-import io.mockk.mockkStatic
-import io.mockk.unmockkAll
-import java.net.URL
-import timber.log.Timber
+import java.io.File
 
+/**
+ * FORK GUARD — this worker must never contact anything.
+ *
+ * Upstream ran `RemoteDbSyncWorker` as a 24-hourly periodic job that fetched `app-context-db.json`
+ * from the upstream author's GitHub repo. This fork removed that: the app sends nothing to upstream
+ * and nothing anywhere else, so the worker is neutered and its scheduling is gone.
+ *
+ * Upstream's own test exercised the fetch-and-retry behaviour, and additionally never compiled — it
+ * imported `af.shizuku.manager.utils.AppContextManager`, while the class lives in
+ * `af.shizuku.manager.database`. Replaced here with the guarantee that actually matters.
+ */
 class RemoteDbSyncWorkerTest : FunSpec({
 
     val context: Context = mockk(relaxed = true)
     val workerParams: WorkerParameters = mockk(relaxed = true)
 
-    beforeTest {
-        mockkStatic(ShizukuSettings::class)
-        mockkObject(AppContextManager)
-    }
-
-    afterTest {
-        unmockkAll()
-    }
-
-    test("doWork returns success when cache is fresh") {
-        // Return a recent timestamp to skip fetch
-        every { ShizukuSettings.getLastDbUpdate() } returns System.currentTimeMillis() - 1000L
-
+    test("doWork is a no-op that always succeeds") {
+        // No network mocking of any kind: if this worker ever tries to open a connection again, the
+        // test fails on its own rather than passing against a mock that hides it.
         val worker = RemoteDbSyncWorker(context, workerParams)
-        val result = worker.doWork()
-
-        result shouldBe Result.success()
+        worker.doWork() shouldBe Result.success()
     }
 
-    test("doWork returns retry when fetch throws exception") {
-        every { ShizukuSettings.getLastDbUpdate() } returns 0L
+    test("the worker source contains no network call and no upstream URL") {
+        // A behavioural test cannot prove absence cheaply — a rebase that restored the fetch would
+        // still "succeed" if the network happened to be down. Reading the source can.
+        val source = File(
+            File(".").canonicalFile,
+            "src/main/java/af/shizuku/manager/worker/RemoteDbSyncWorker.kt"
+        )
+        check(source.isFile) { "RemoteDbSyncWorker source not found at ${source.path}" }
+        // Comments are stripped first: the class doc deliberately *names* what was removed
+        // ("fetched … over plain HttpURLConnection"), and matching that would be a false positive
+        // that punishes documenting the decision.
+        val text = source.readText()
+            .replace(Regex("""/\*.*?\*/""", RegexOption.DOT_MATCHES_ALL), "")
+            .replace(Regex("""//.*"""), "")
 
-        mockkConstructor(URL::class)
-        every { anyConstructed<URL>().openConnection() } throws RuntimeException("Simulated network error")
-
-        val worker = RemoteDbSyncWorker(context, workerParams)
-        val result = worker.doWork()
-
-        result shouldBe Result.retry()
+        withClue("RemoteDbSyncWorker opens a network connection again — the fetch was restored.") {
+            text shouldNotContain "openConnection"
+        }
+        withClue("RemoteDbSyncWorker uses HttpURLConnection again — the fetch was restored.") {
+            text shouldNotContain "HttpURLConnection"
+        }
+        withClue("RemoteDbSyncWorker points at upstream's repo again.") {
+            text shouldNotContain "githubusercontent"
+        }
+        withClue("RemoteDbSyncWorker enqueues periodic work again — scheduling was restored.") {
+            text shouldNotContain "PeriodicWorkRequestBuilder"
+        }
     }
 })
+
+private inline fun withClue(clue: String, block: () -> Unit) {
+    try {
+        block()
+    } catch (e: AssertionError) {
+        throw AssertionError(clue, e)
+    }
+}
