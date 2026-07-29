@@ -53,9 +53,27 @@ class SettingsActivity : AppActivity(), PreferenceFragmentCompat.OnPreferenceSta
                     },
                     onContainerCreated = {
                         if (savedInstanceState == null && supportFragmentManager.findFragmentById(R.id.fragment_container) == null) {
+                            // Fork: long-pressing the home settings cog asks for the 白い熊 雫 UI page
+                            // directly, so open it instead of the settings root. The root is pushed
+                            // underneath first, so Back still lands on Settings rather than exiting.
+                            val openHouseUi = intent?.getBooleanExtra(
+                                af.shizuku.manager.shiroikuma.ShiroikumaUiFragment.EXTRA_OPEN_SHIROIKUMA_UI,
+                                false
+                            ) == true
                             supportFragmentManager.beginTransaction()
                                 .replace(R.id.fragment_container, SettingsFragment())
                                 .commit()
+                            if (openHouseUi) {
+                                supportFragmentManager.beginTransaction()
+                                    .setReorderingAllowed(true)
+                                    .replace(
+                                        R.id.fragment_container,
+                                        af.shizuku.manager.shiroikuma.ShiroikumaUiFragment()
+                                    )
+                                    .addToBackStack(null)
+                                    .commit()
+                                currentTitle = "白い熊 雫 UI"
+                            }
                         }
                     }
                 )
