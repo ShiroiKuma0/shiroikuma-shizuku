@@ -124,7 +124,7 @@ class ChangelogDialogFragment : BottomSheetDialogFragment() {
                     setOnClickListener {
                         try {
                             startActivity(Intent(Intent.ACTION_VIEW,
-                                Uri.parse("https://github.com/thejaustin/ShizukuPlus/releases/tag/$prevTag")))
+                                Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/tag/$prevTag")))
                         } catch (e: Exception) {
                             Timber.w(e, "Failed to open release $prevTag")
                         }
@@ -140,7 +140,7 @@ class ChangelogDialogFragment : BottomSheetDialogFragment() {
         view.findViewById<MaterialButton>(R.id.btn_github).setOnClickListener {
             try {
                 startActivity(Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/thejaustin/ShizukuPlus/releases/tag/$tagName")))
+                    Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/tag/$tagName")))
             } catch (e: Exception) {
                 Timber.w(e, "Failed to open release page for $tagName")
             }

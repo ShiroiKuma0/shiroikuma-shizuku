@@ -17,7 +17,7 @@ object CrashReporter {
         val sb = StringBuilder()
 
         // 1. Header
-        sb.append("## Shizuku+ Manual Crash Report\n\n")
+        sb.append("## 白い熊 雫 Manual Crash Report\n\n")
         sb.append("Please describe what you were doing when the crash occurred.\n\n")
 
         // 2. Persistent Crash (if available)
@@ -45,7 +45,7 @@ object CrashReporter {
         if (EnvironmentUtils.isTCL()) {
             sb.append("- **TCL Device Detected**\n")
         }
-        sb.append("- **Shizuku+ Version:** ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})\n")
+        sb.append("- **白い熊 雫 Version:** ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})\n")
         sb.append("- **Rooted:** ${Shell.isAppGrantedRoot()}\n")
 
         // Detailed Diagnostics (from Service Doctor logic)
@@ -103,7 +103,7 @@ object CrashReporter {
     fun getGitHubReportUrl(context: Context): String {
         val report = generateReport(context)
         val title = "Manual Crash Report: ${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
-        return "https://github.com/thejaustin/ShizukuPlus/issues/new" +
+        return "https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues/new" +
                "?title=" + Uri.encode(title) +
                "&body=" + Uri.encode(report)
     }
