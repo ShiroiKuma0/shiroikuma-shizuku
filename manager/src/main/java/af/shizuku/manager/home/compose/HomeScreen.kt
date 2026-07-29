@@ -26,8 +26,15 @@ import af.shizuku.manager.ShizukuSettings
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     isEditMode: Boolean,
@@ -35,6 +42,7 @@ fun HomeScreen(
     showEmptyState: Boolean,
     onStopClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onSettingsLongClick: () -> Unit,
     onHelpClick: () -> Unit,
     onDoneClick: () -> Unit,
     onRestoreHomeCards: () -> Unit,
@@ -68,7 +76,21 @@ fun HomeScreen(
                                 contentDescription = stringResource(id = R.string.action_stop)
                             )
                         }
-                        IconButton(onClick = onSettingsClick) {
+                        // Fork: the cog takes a LONG-PRESS straight to the 白い熊 雫 UI page.
+                        // An IconButton has no long-press, so the cog is a combinedClickable box.
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .clip(CircleShape)
+                                .combinedClickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = LocalIndication.current,
+                                    onClick = onSettingsClick,
+                                    onLongClick = onSettingsLongClick
+                                )
+                                .padding(8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_settings_outline_24),
                                 contentDescription = stringResource(id = R.string.settings_title)

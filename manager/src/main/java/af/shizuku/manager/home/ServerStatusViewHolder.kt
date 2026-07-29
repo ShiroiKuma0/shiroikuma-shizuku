@@ -19,6 +19,7 @@ import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuApiConstants
 
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
+import af.shizuku.manager.shiroikuma.showHouse
 
 class ServerStatusViewHolder(private val binding: HomeServerStatusBinding, root: View) :
     BaseViewHolder<ServiceStatus>(root) {
@@ -85,7 +86,7 @@ class ServerStatusViewHolder(private val binding: HomeServerStatusBinding, root:
                 .setNeutralButton(R.string.update_view_on_github) { _, _ ->
                     af.shizuku.manager.utils.CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues")
                 }
-                .show()
+                .showHouse()
         }
 
         // S-Pen / DeX Mouse Hover Effect (Expressive Polish)

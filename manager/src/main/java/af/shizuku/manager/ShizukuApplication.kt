@@ -549,6 +549,14 @@ class ShizukuApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         ThemeDelegateManager.setDelegate(ThemeDelegateImpl())
+        // FORK: install the live 白い熊 雫 theme provider BEFORE any Activity composes, so the very
+        // first frame already carries the user's own colours and typeface rather than the static
+        // overlay's defaults. See ShiroikumaTheme.
+        af.shizuku.manager.shiroikuma.ShiroikumaTheme.install(this)
+        // Every DialogFragment gets the house black fill + yellow border automatically. Material's
+        // dialog builder overrides the themed window background, and there is no stroke attribute to
+        // set, so this is the only way short of editing ~40 files. See ShiroikumaDialogs.
+        af.shizuku.manager.shiroikuma.ShiroikumaDialogs.installGlobalStyling(this)
         super.onCreate()
 
         // 0. Initialize Timber

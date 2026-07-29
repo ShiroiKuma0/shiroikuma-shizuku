@@ -72,5 +72,11 @@ class ThemeDelegateImpl : ThemeDelegate {
         }
 
         theme.applyStyle(ThemeHelper.getThemeStyleRes(context), true)
+
+        // FORK: the house black-yellow baseline goes on LAST so it wins over dynamic colour, the
+        // custom accents and the black-night overlay. Compose reads the resolved attributes from
+        // this theme (see core/ui AppTheme), so this one line is what makes both halves of the app
+        // come up black-and-yellow on a fresh install, with no user action.
+        theme.applyStyle(R.style.ThemeOverlay_Shiroikuma, true)
     }
 }

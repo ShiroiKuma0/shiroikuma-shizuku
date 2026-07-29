@@ -16,6 +16,7 @@ import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import af.shizuku.manager.utils.StockShizukuCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
+import af.shizuku.manager.shiroikuma.showHouse
 
 class StartStockShizukuViewHolder(
     private val binding: HomeStartRootBinding,
@@ -69,7 +70,7 @@ class StartStockShizukuViewHolder(
                 .setTitle(R.string.stock_shizuku_conflict_dialog_title)
                 .setMessage(R.string.stock_shizuku_conflict_dialog_message)
                 .setPositiveButton(android.R.string.ok, null)
-                .show()
+                .showHouse()
         }
     }
 

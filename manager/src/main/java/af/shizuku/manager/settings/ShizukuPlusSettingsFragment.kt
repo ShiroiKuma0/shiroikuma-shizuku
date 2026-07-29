@@ -21,8 +21,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rikka.html.text.toHtml
 import af.shizuku.manager.R
+import timber.log.Timber
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.automation.AutomationService
+import af.shizuku.manager.admin.DhizukuAdminReceiver
 import af.shizuku.manager.security.BiometricLock
 import androidx.biometric.BiometricPrompt
 import af.shizuku.manager.ShizukuSettings.Keys.*
@@ -42,6 +44,7 @@ import android.security.keystore.KeyPermanentlyInvalidatedException
 import javax.crypto.AEADBadTagException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import af.shizuku.manager.shiroikuma.showHouse
 
 class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
 
@@ -535,36 +538,103 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 clearDeviceOwner(ctx)
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showHouse()
     }
 
+    /**
+     * Give up Device Owner — or Profile Owner, which upstream added alongside it.
+     *
+     * This is the **only** clean way out: once an app is Device Owner it cannot be uninstalled
+     * normally and `dpm remove-active-admin` refuses, so if this path fails the remaining exit is a
+     * factory reset. That makes silent or vague failure unacceptable here — upstream reported one
+     * generic toast and swallowed the exception, which left no way to tell "not device owner" from
+     * "SecurityException" from "cleared, but the flag survived".
+     *
+     * So: report the real reason, verify the clear actually took effect (the API is documented as
+     * best-effort), and make the text copyable so it can be acted on.
+     */
     private fun clearDeviceOwner(ctx: Context) {
+        val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+        if (dpm == null) {
+            showClearDeviceOwnerFailure(ctx, "DevicePolicyManager unavailable on this device.")
+            return
+        }
+        val wasDeviceOwner = dpm.isDeviceOwnerApp(ctx.packageName)
+        val wasProfileOwner = dpm.isProfileOwnerApp(ctx.packageName)
+        if (!wasDeviceOwner && !wasProfileOwner) {
+            showClearDeviceOwnerFailure(
+                ctx,
+                "This app is neither Device Owner nor Profile Owner, so there is nothing to clear.\n\n" +
+                    "Package: ${ctx.packageName}"
+            )
+            return
+        }
+        val role = if (wasDeviceOwner) "Device Owner" else "Profile Owner"
+
         try {
-            val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            if (dpm.isDeviceOwnerApp(ctx.packageName)) {
+            if (wasDeviceOwner) {
                 dpm.clearDeviceOwnerApp(ctx.packageName)
-            } else if (dpm.isProfileOwnerApp(ctx.packageName)) {
-                val admin = android.content.ComponentName(ctx, af.shizuku.manager.admin.DhizukuAdminReceiver::class.java)
-                dpm.clearProfileOwner(admin)
+            } else {
+                dpm.clearProfileOwner(ComponentName(ctx, DhizukuAdminReceiver::class.java))
             }
-            Toast.makeText(ctx, R.string.dhizuku_clear_owner_success, Toast.LENGTH_LONG).show()
-            // Refresh the UI to reflect the change
-            val dhizukuPref = findPreference<TwoStatePreference>(KEY_DHIZUKU_MODE)
-            if (dhizukuPref != null) {
-                ShizukuSettings.setDhizukuModeEnabled(false)
-                dhizukuPref.isChecked = false
-                updateDhizukuDeviceOwnerStatus(dhizukuPref)
-            }
-        } catch (e: Exception) {
-            Toast.makeText(ctx, R.string.dhizuku_clear_owner_failure, Toast.LENGTH_LONG).show()
+        } catch (e: Throwable) {
+            Timber.e(e, "clearing $role failed")
+            showClearDeviceOwnerFailure(
+                ctx,
+                "${e.javaClass.simpleName}: ${e.message ?: "no message"}\n\n" +
+                    "Package: ${ctx.packageName}\n\n" +
+                    "The device is still $role. Do NOT uninstall the app in this state — " +
+                    "removing it while it holds $role leaves a factory reset as the only exit."
+            )
+            return
+        }
+
+        // Both clear calls are documented as best-effort, so confirm rather than assume.
+        if (dpm.isDeviceOwnerApp(ctx.packageName) || dpm.isProfileOwnerApp(ctx.packageName)) {
+            showClearDeviceOwnerFailure(
+                ctx,
+                "The call returned without error, but this app is still reported as $role.\n\n" +
+                    "Package: ${ctx.packageName}\n\n" +
+                    "Do NOT uninstall the app in this state."
+            )
+            return
+        }
+
+        Toast.makeText(ctx, R.string.dhizuku_clear_owner_success, Toast.LENGTH_LONG).show()
+        val dhizukuPref = findPreference<TwoStatePreference>(KEY_DHIZUKU_MODE)
+        if (dhizukuPref != null) {
+            ShizukuSettings.setDhizukuModeEnabled(false)
+            dhizukuPref.isChecked = false
+            updateDhizukuDeviceOwnerStatus(dhizukuPref)
         }
     }
 
+    /** A dialog, not a toast: this text has to survive long enough to be read and copied. */
+    private fun showClearDeviceOwnerFailure(ctx: Context, detail: String) {
+        val body = getString(R.string.dhizuku_clear_owner_failure) + "\n\n" + detail
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle(R.string.dhizuku_clear_owner_failure_title)
+            .setMessage(body)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNeutralButton(R.string.dhizuku_clear_owner_copy) { _, _ ->
+                val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.setPrimaryClip(ClipData.newPlainText("device owner error", body))
+                Toast.makeText(ctx, R.string.dhizuku_setup_copied, Toast.LENGTH_SHORT).show()
+            }
+            .showHouse()
+            .also { af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(it) }
+    }
+
     private fun showDhizukuSetupDialog(ctx: Context) {
-        // applicationId (shiroikuma.shizuku) differs from namespace (af.shizuku.manager),
-        // so the full class name must be explicit rather than using the shorthand dot notation.
+        // DERIVED, never spelled out. applicationId (shiroikuma.shizuku) differs from namespace
+        // (af.shizuku.manager), so the `pkg/.Receiver` shorthand would expand against the
+        // applicationId and name a class that does not exist — dpm would fail, or worse look like
+        // it succeeded. ComponentName(context, Class) takes the package from the context and the
+        // fully-qualified name from the class itself, so this stays correct even if the receiver is
+        // renamed or moved. Getting this wrong costs a factory reset, so it must not be a literal.
+        // See CLAUDE.md, "Never assume applicationId == namespace".
         val command = "adb shell dpm set-device-owner " +
-            "${ctx.packageName}/af.shizuku.manager.admin.DhizukuAdminReceiver"
+            ComponentName(ctx, DhizukuAdminReceiver::class.java).flattenToString()
         MaterialAlertDialogBuilder(ctx)
             .setTitle(R.string.dhizuku_setup_title)
             .setMessage(getString(R.string.dhizuku_setup_message, command))
@@ -574,7 +644,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 Toast.makeText(ctx, R.string.dhizuku_setup_copied, Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showHouse()
     }
 
     private fun showGeneralHelpDialog() {
@@ -583,7 +653,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             .setTitle(R.string.settings_shizuku_plus_features)
             .setMessage(getString(R.string.help_general_plus_summary).toHtml())
             .setPositiveButton(android.R.string.ok, null)
-            .show()
+            .showHouse()
     }
 
     private fun showExperimentalWarning(prefKey: String, onConfirm: () -> Unit) {
@@ -597,7 +667,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 onConfirm()
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showHouse()
     }
 
     private fun checkAppIntegrations() {

@@ -17,6 +17,7 @@ import af.shizuku.manager.ktx.toHtml
 import af.shizuku.manager.BuildConfig
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.preference.TwoStatePreference
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AdvancedSettingsFragment : BaseSettingsFragment() {
 
@@ -88,7 +89,7 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
-                .show()
+                .showHouse()
             true
         }
 
@@ -113,7 +114,7 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                         .setNegativeButton(android.R.string.cancel) { _, _ ->
                             (pref as? TwoStatePreference)?.isChecked = false
                         }
-                        .show()
+                        .showHouse()
                     false
                 } else {
                     context.packageManager.setComponentEnabled(launcherAlias, true)

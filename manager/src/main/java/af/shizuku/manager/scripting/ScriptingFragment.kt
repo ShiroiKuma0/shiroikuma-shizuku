@@ -31,6 +31,7 @@ import af.shizuku.manager.R
 import af.shizuku.manager.databinding.ItemScriptSnippetBinding
 import af.shizuku.manager.database.ScriptSnippetManager
 import af.shizuku.manager.database.ScriptSnippetRoom
+import af.shizuku.manager.shiroikuma.showHouse
 
 class ScriptingFragment : Fragment() {
 
@@ -131,7 +132,7 @@ class ScriptingFragment : Fragment() {
                     cm.setPrimaryClip(ClipData.newPlainText(snippet.title, output))
                     Toast.makeText(ctx, R.string.scripting_output_copied, Toast.LENGTH_SHORT).show()
                 }
-                .show()
+                .showHouse()
         }
     }
 
@@ -184,7 +185,7 @@ class ScriptingFragment : Fragment() {
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showHouse()
     }
 
     private fun showDeleteConfirmation(snippet: ScriptSnippetRoom) {
@@ -198,7 +199,7 @@ class ScriptingFragment : Fragment() {
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showHouse()
     }
 
     internal class SnippetAdapter(

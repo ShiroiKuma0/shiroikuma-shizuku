@@ -30,6 +30,7 @@ import android.content.ContextWrapper
 import android.view.ContextThemeWrapper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import af.shizuku.manager.utils.SettingsPage
+import af.shizuku.manager.shiroikuma.showHouse
 
 object AdbStarter {
     private const val TAG = "AdbStarter"
@@ -124,7 +125,7 @@ object AdbStarter {
                                 SettingsPage.Developer.Options.launch(activity)
                             }
                             .setNegativeButton(android.R.string.cancel, null)
-                            .show()
+                            .showHouse()
                     } else {
                         // Fallback for non-activity context
                         val themedContext = ContextThemeWrapper(context, R.style.AppTheme)
