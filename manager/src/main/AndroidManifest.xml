@@ -61,15 +61,15 @@
         android:label="@string/permission_group_label" />
 
     <permission
-        android:name="shiroikuma.shizuku.permission.MANAGER"
+        android:name="af.shizuku.plus.permission.MANAGER"
         android:protectionLevel="signature" />
-    <uses-permission android:name="shiroikuma.shizuku.permission.MANAGER" />
+    <uses-permission android:name="af.shizuku.plus.permission.MANAGER" />
 
     <!-- NOT flavor-scoped: this permission name is baked in as a literal constant in the
          client-facing api/provider library (ShizukuProvider.PERMISSION) that third-party apps
          compile against, so it must stay stable across flavors. -->
     <permission
-        android:name="shiroikuma.shizuku.permission.API_V23"
+        android:name="af.shizuku.plus.permission.API_V23"
         android:description="@string/permission_description"
         android:icon="@drawable/ic_system_icon"
         android:label="@string/permission_label"
@@ -116,12 +116,13 @@
              doesn't apply to, so both are safe to declare together. -->
         <meta-data android:name="com.samsung.android.keepalive.density" android:value="true" />
         <meta-data android:name="com.samsung.android.multidisplay.keep_process_alive" android:value="true" />
-
-        <meta-data android:name="io.sentry.dsn" android:value="${sentryDsn}" />
+        <!-- Fork: crash reporting is OFF. The DSN is empty (hardwired in manager/build.gradle)
+             and auto-init stays false, so the Sentry SDK is never armed and never opens a
+             connection. Upstream's screenshot / view-hierarchy / traces switches are removed
+             outright — with no DSN they are moot, and leaving them would misrepresent what this
+             build does. This app sends nothing anywhere. See CLAUDE.md, "No phone-home". -->
+        <meta-data android:name="io.sentry.dsn" android:value="" />
         <meta-data android:name="io.sentry.auto-init" android:value="false" />
-        <meta-data android:name="io.sentry.traces-sample-rate" android:value="0.2" />
-        <meta-data android:name="io.sentry.attach-screenshot" android:value="true" />
-        <meta-data android:name="io.sentry.attach-view-hierarchy" android:value="true" />
 
         <!-- Main launcher activity -->
         <activity
@@ -278,7 +279,7 @@
             android:name=".legacy.LegacyIsNotSupportedActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:permission="shiroikuma.shizuku.permission.API_V23"
+            android:permission="af.shizuku.plus.permission.API_V23"
             android:theme="@style/GrantPermissions">
             <intent-filter>
                 <action android:name="${applicationId}.intent.action.REQUEST_AUTHORIZATION" />

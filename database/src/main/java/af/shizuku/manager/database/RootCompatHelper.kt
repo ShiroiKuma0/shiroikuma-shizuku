@@ -56,7 +56,7 @@ object RootCompatHelper {
     )
 
     /**
-     * Automatically configures a root app to use the Shizuku+ SU Bridge.
+     * Automatically configures a root app to use the 白い熊 雫 SU Bridge.
      * Uses global settings for apps that support it; falls back to direct shared_prefs
      * editing when Shizuku is running as root (UID 0).
      */
@@ -322,7 +322,7 @@ object RootCompatHelper {
                 "features that require true root — e.g. reading another app's private data — cannot, " +
                 "even though the app may detect \"root\".")
         }
-        sb.append("\n\nRemember: the calling app must be authorized in Shizuku+ before its own commands " +
+        sb.append("\n\nRemember: the calling app must be authorized in 白い熊 雫 before its own commands " +
             "through the bridge succeed.")
 
         BridgeSelfTest(deployed && uid != null, sb.toString())

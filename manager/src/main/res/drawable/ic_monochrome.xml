@@ -1,23 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 白い熊 雫: the traced mark as a themed (monochrome) icon. Stroke-only, single tint;
+     the hexagon is dropped here because at themed-icon sizes the overlap reads as noise. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="432"
-    android:viewportHeight="432"
-    android:tint="?attr/colorControlNormal">
-    <!-- Hexagon ring — flat-top hexagon matching the launcher art bounding box
-         (x: 134–311, y: 145–303 in 432-unit space, centre 222.5,224, r=88.5).
-         Stroke-only so the shape reads as the recognisable Shizuku hexagon outline
-         under one-colour themed-icon and notification-shade rendering, rather than
-         the opaque "+" blob shown previously. -->
+    android:viewportWidth="108"
+    android:viewportHeight="108">
     <path
-        android:fillColor="#00000000"
+        android:pathData="M42.52,32.52 C43.97,32.32 45.87,34.41 47.27,35.89 C48.66,37.36 49.30,40.22 50.88,41.38 C52.46,42.54 54.77,42.02 56.75,42.85 C58.74,43.68 60.74,45.87 62.79,46.36 C64.84,46.86 67.17,45.68 69.04,45.82 C70.92,45.96 73.33,46.29 74.02,47.20 C74.71,48.12 73.87,49.57 73.18,51.30 C72.49,53.02 70.38,55.32 69.89,57.55 C69.39,59.78 70.38,62.55 70.21,64.67 C70.04,66.79 69.62,68.37 68.87,70.27 C68.12,72.18 66.99,74.54 65.69,76.10 C64.39,77.65 63.38,79.00 61.07,79.59 C58.75,80.18 55.28,80.17 51.79,79.63 C48.31,79.10 43.83,78.11 40.15,76.37 C36.47,74.63 32.44,71.76 29.70,69.20 C26.96,66.64 24.80,63.09 23.72,61.00 C22.65,58.92 23.03,58.20 23.24,56.69 C23.46,55.18 23.89,53.76 25.01,51.95 C26.14,50.13 28.04,47.54 30.02,45.81 C32.00,44.09 35.45,43.05 36.88,41.60 C38.31,40.14 37.66,38.58 38.60,37.07 C39.54,35.56 41.08,32.72 42.52,32.52 Z"
         android:strokeColor="@android:color/white"
-        android:strokeWidth="20"
+        android:strokeWidth="3.6"
         android:strokeLineJoin="round"
-        android:pathData="M 311.0,224.0 L 266.75,300.64 L 178.25,300.64 L 134.0,224.0 L 178.25,147.36 L 266.75,147.36 Z" />
-    <!-- Plus badge — upper-right shoulder of the hexagon (centre 285,170).
-         Coordinates kept in sync with ic_launcher_foreground.xml (×4 viewport scale). -->
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M 277.88,141.50 h 14.25 v 21.38 h 21.38 v 14.25 h -21.38 v 21.38 h -14.25 v -21.38 h -21.38 v -14.25 h 21.38 z" />
+        android:strokeLineCap="round" />
+    <path android:pathData="M41.51,50.70 a1.79,1.79 0 1,0 3.59,0 a1.79,1.79 0 1,0 -3.59,0 Z" android:fillColor="@android:color/white" />
+    <path android:pathData="M57.69,58.33 a1.65,1.65 0 1,0 3.30,0 a1.65,1.65 0 1,0 -3.30,0 Z" android:fillColor="@android:color/white" />
 </vector>

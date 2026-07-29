@@ -1049,7 +1049,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 if (cmd.length == 1 || cmd[1].startsWith("-")) {
                     if (isFeatureEnabled("root_busybox_mocking")) {
                         LOGGER.i("SUBridge: mocking busybox version string");
-                        return newProcessInternal(new String[]{"echo", "BusyBox v1.36.1 (Shizuku+ Built-in)"}, env, dir);
+                        return newProcessInternal(new String[]{"echo", "BusyBox v1.36.1 (白い熊 雫 Built-in)"}, env, dir);
                     }
                 } else {
                     String[] newCmd = new String[cmd.length - 1];
@@ -1064,7 +1064,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             if (isFeatureEnabled("su_bridge") && (baseCmd.equals("sh") || baseCmd.endsWith("/sh")) && cmd.length >= 3 && (cmd[1].equals("-c") || cmd[1].equals("--command"))) {
                 String originalScript = cmd[2];
                 if (!originalScript.startsWith("magisk() {")) {
-                    String mockHeader = "magisk() { if [ \"$1\" = \"-v\" ] || [ \"$1\" = \"--version\" ]; then echo \"26.4:MAGISKSU\"; elif [ \"$1\" = \"-V\" ]; then echo 26400; else echo \"Magisk v26.4 (26400) - Shizuku+ Bridge Mode\"; fi; }; " +
+                    String mockHeader = "magisk() { if [ \"$1\" = \"-v\" ] || [ \"$1\" = \"--version\" ]; then echo \"26.4:MAGISKSU\"; elif [ \"$1\" = \"-V\" ]; then echo 26400; else echo \"Magisk v26.4 (26400) - 白い熊 雫 Bridge Mode\"; fi; }; " +
                                         "su() { if [ \"$1\" = \"-v\" ] || [ \"$1\" = \"--version\" ]; then echo \"26.4:MAGISKSU\"; elif [ \"$1\" = \"-V\" ]; then echo 26400; elif [ \"$1\" = \"-c\" ]; then shift; eval \"$@\"; else eval \"$@\"; fi; }; " +
                                         "getenforce() { echo Permissive; }; ";
                     cmd[2] = mockHeader + originalScript;
@@ -1231,7 +1231,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                                 return newProcessInternal(new String[]{"echo", "26400"}, env, dir);
                             }
                         }
-                        return newProcessInternal(new String[]{"echo", "Magisk v26.4 (26400) - Shizuku+ Bridge Mode"}, env, dir);
+                        return newProcessInternal(new String[]{"echo", "Magisk v26.4 (26400) - 白い熊 雫 Bridge Mode"}, env, dir);
                     }
                 } else if (baseCmd.equals("pm") && cmd.length > 3 && cmd[1].equals("grant")) {
                     if (isFeatureEnabled("root_auto_grant")) {
@@ -2057,12 +2057,12 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             data.enforceInterface(ShizukuApiConstants.BINDER_DESCRIPTOR);
             enforceCallingPermission("isCustomApiEnabled");
             reply.writeNoException();
-            reply.writeInt(1); // Shizuku+ server always has it enabled at server level if running
+            reply.writeInt(1); // 白い熊 雫 server always has it enabled at server level if running
             return true;
         } else if (code == ServerConstants.BINDER_TRANSACTION_getDhizukuBinder) {
             data.enforceInterface(ShizukuApiConstants.BINDER_DESCRIPTOR);
             enforceCallingPermission("getDhizukuBinder");
-            // In Shizuku+, we share the DevicePolicyManager binder if Dhizuku mode is "active"
+            // In 白い熊 雫, we share the DevicePolicyManager binder if Dhizuku mode is "active"
             // (The manager app controls this via settings, but the server just provides the binder if asked)
             IBinder dpm = ServiceManager.getService(Context.DEVICE_POLICY_SERVICE);
             reply.writeNoException();
@@ -2581,7 +2581,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     public boolean isHidden(int uid) throws RemoteException {
         ShizukuConfig.PackageEntry entry = configManager.find(uid);
         if (entry != null) {
-            // Check if it's hidden in Shizuku+ terms (this might need to be linked to ShizukuSettings in the future,
+            // Check if it's hidden in 白い熊 雫 terms (this might need to be linked to ShizukuSettings in the future,
             // but for now the manager app handles the 'hidden' state via its own shared prefs).
             // Actually, the server's 'isHidden' might be used for something else.
             // Let's ensure it returns the correct state if we ever sync hidden state to server.

@@ -69,7 +69,7 @@ class UpdateManager(private val context: Context) {
         // whatever thread called downloadUpdate() (previously janked/risked ANR on slow storage
         // or with many stale APKs to clean up).
         scope.launch(Dispatchers.IO) {
-            val fileName = "Shizuku+-v$versionName.apk"
+            val fileName = "白い熊 雫-v$versionName.apk"
             val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
 
             // Check if file already exists and delete it
@@ -93,7 +93,7 @@ class UpdateManager(private val context: Context) {
                 .setMimeType("application/vnd.android.package-archive")
 
             // Add after-download broadcast
-            request.addRequestHeader("User-Agent", "Shizuku+/${versionName}")
+            request.addRequestHeader("User-Agent", "白い熊 雫/${versionName}")
 
             try {
                 downloadId = downloadManager.enqueue(request)

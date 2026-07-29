@@ -25,11 +25,16 @@ import java.util.TimeZone
 object UpdateChecker {
 
     private const val TAG = "UpdateChecker"
-    private const val RELEASES_URL = "https://api.github.com/repos/thejaustin/ShizukuPlus/releases"
+    // FORK: OUR releases, never upstream's. Upstream builds are signed with a different key and
+    // could never install over ours, so offering them as "updates" would be both broken and wrong
+    // branding. This is also the ONLY outbound request this app can make, and it happens only when
+    // 白い熊 taps "Check for updates" — the automatic startup poll is off (see
+    // ShizukuSettings.isAutoUpdateEnabled). See CLAUDE.md, "No phone-home".
+    private const val RELEASES_URL = "https://api.github.com/repos/ShiroiKuma0/shiroikuma-shizuku/releases"
     private const val LATEST_URL = "$RELEASES_URL/latest"
     // Fallback: GitHub's Atom feed is served from github.com CDN — different IP range
     // than api.github.com, so routing issues specific to that host don't affect it.
-    private const val ATOM_URL = "https://github.com/thejaustin/ShizukuPlus/releases.atom"
+    private const val ATOM_URL = "https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases.atom"
     private const val CONNECT_TIMEOUT_MS = 5_000
     private const val READ_TIMEOUT_MS = 8_000
     private const val RETRY_DELAY_MS = 2_000L
@@ -201,7 +206,7 @@ object UpdateChecker {
             requestMethod = "GET"
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
-            setRequestProperty("User-Agent", "Shizuku+/${BuildConfig.VERSION_NAME}")
+            setRequestProperty("User-Agent", "白い熊 雫/${BuildConfig.VERSION_NAME}")
         }
         try {
             if (connection.responseCode != HttpURLConnection.HTTP_OK) return null
@@ -253,7 +258,7 @@ object UpdateChecker {
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
             setRequestProperty("Accept", "application/vnd.github.v3+json")
-            setRequestProperty("User-Agent", "Shizuku+/${BuildConfig.VERSION_NAME}")
+            setRequestProperty("User-Agent", "白い熊 雫/${BuildConfig.VERSION_NAME}")
         }
         try {
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {

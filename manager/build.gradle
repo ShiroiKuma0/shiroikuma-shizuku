@@ -8,7 +8,6 @@ plugins {
     id "dev.rikka.tools.refine"
     id "dev.rikka.tools.autoresconfig"
     id "dev.rikka.tools.materialthemebuilder"
-    id "io.sentry.android.gradle"
     id "org.jetbrains.kotlin.plugin.serialization" version "2.2.20"
     id "com.diffplug.spotless"
     id "com.mikepenz.aboutlibraries.plugin"
@@ -28,9 +27,13 @@ android {
         ndk {
             abiFilters "arm64-v8a"
         }
-        def sentryDsn = project.findProperty('SENTRY_DSN') ?: ''
-        buildConfigField "String", "SENTRY_DSN", "\"${sentryDsn}\""
-        manifestPlaceholders = [sentryDsn: sentryDsn]
+        // Fork: HARDWIRED EMPTY, not read from a property. An empty DSN makes
+        // ShizukuApplication.initializeSentryEarly() return before SentryAndroid.init(), so the
+        // SDK is never armed and has no transport — every Sentry.captureException /
+        // addBreadcrumb call site across the app becomes a no-op that performs no I/O.
+        // This fork sends nothing anywhere. See CLAUDE.md, "No phone-home".
+        buildConfigField "String", "SENTRY_DSN", "\"\""
+        manifestPlaceholders = [sentryDsn: '']
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         multiDexKeepProguard file("multidex-keep.pro")
@@ -323,33 +326,10 @@ android {
     }
 }
 
-sentry {
-    org = "af-developments"
-    projectName = "shizukuplus"
-    def sentryToken = System.getenv("SENTRY_AUTH_TOKEN") ?: project.findProperty("SENTRY_AUTH_TOKEN")
-    authToken = sentryToken ?: ""
-    
-    if (sentryToken == null || sentryToken.isEmpty()) {
-        uploadNativeSymbols = false
-        includeNativeSources = false
-        includeSourceContext = false
-        autoUploadProguardMapping = provider { false }
-    } else {
-        uploadNativeSymbols = true
-        includeNativeSources = true
-        includeSourceContext = true
-        autoUploadProguardMapping = provider { true }
-    }
-    
-    // Track releases with git commit info
-    ignoredBuildTypes = ["debug"]
-
-    // Project uses Glance (compose-based widgets) but not full compose-ui.
-    // Disable Sentry's compose bytecode instrumentation to avoid R8 missing-class errors.
-    tracingInstrumentation {
-        enabled = false
-    }
-}
+// Fork: upstream's `sentry { … }` configuration block is REMOVED along with the plugin. It
+// pointed at the upstream author's Sentry org (af-developments/shizukuplus) and, whenever a
+// SENTRY_AUTH_TOKEN was present, uploaded this build's ProGuard mapping and native debug
+// symbols there. This fork sends nothing anywhere. See CLAUDE.md, "No phone-home".
 
 // ---------------------------------------------------------------------------------------------
 // shiroikuma-shizuku: the one command that produces a shippable build.
