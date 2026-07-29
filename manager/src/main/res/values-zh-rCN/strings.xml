@@ -9,8 +9,8 @@
     <string name="home_status_service_user_root">root</string>
     <string name="home_status_service_user_adb">adb</string>
     
-    <!-- Shizuku+ Strings -->
-    <string name="settings_shizuku_plus_features">Shizuku+ 功能</string>
+    <!-- 白い熊 雫 Strings -->
+    <string name="settings_shizuku_plus_features">白い熊 雫 功能</string>
     <string name="settings_plus_category_performance">性能与加速</string>
     <string name="settings_plus_category_network">网络与隐私</string>
     <string name="settings_plus_category_intelligence">智能与连续性</string>
@@ -290,8 +290,8 @@
     <string name="settings_category_material_you">Material You</string>
     <string name="settings_category_language">语言</string>
 
-    <string name="root_hub_magic_setup_all_summary">Shizuku+ 已为您配置了 %d 个应用！</string>
-    <string name="root_hub_magic_setup_success">Magic Setup 完成！Shizuku+ 已为您配置了 %s。</string>
+    <string name="root_hub_magic_setup_all_summary">白い熊 雫 已为您配置了 %d 个应用！</string>
+    <string name="root_hub_magic_setup_success">Magic Setup 完成！白い熊 雫 已为您配置了 %s。</string>
     <string name="root_hub_magic_setup_fail">Magic Setup 失败。请尝试手动复制路径。</string>
     <string name="root_hub_magic_setup_all_no_apps">未找到支持自动化设置的 root 应用。</string>
     <string name="root_hub_path_copied">SU 路径已复制到剪贴板</string>
