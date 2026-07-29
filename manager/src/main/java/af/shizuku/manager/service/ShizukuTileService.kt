@@ -12,6 +12,7 @@ import af.shizuku.manager.MainActivity
 import af.shizuku.manager.utils.ShizukuStateMachine
 
 import androidx.work.WorkManager
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ShizukuTileService : TileService() {
 
@@ -90,7 +91,7 @@ class ShizukuTileService : TileService() {
                 }
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to update Shizuku state: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            ShiroikumaToast.show(this, "Failed to update Shizuku state: ${e.localizedMessage}", Toast.LENGTH_SHORT)
         }
     }
 }
