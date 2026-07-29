@@ -71,6 +71,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.platform.LocalContext
 import af.shizuku.core.ui.AppActivity
 import af.shizuku.manager.home.compose.HomeScreen
+import af.shizuku.manager.shiroikuma.showHouse
 
 open class HomeActivity : AppActivity(), MavericksView {
 
@@ -214,18 +215,24 @@ open class HomeActivity : AppActivity(), MavericksView {
                                 runCatching { Shizuku.exit() }
                             }
                             .setNegativeButton(android.R.string.cancel, null)
-                            .show()
+                            .showHouse()
                     }
                 },
                 onSettingsClick = {
                     startActivity(Intent(this, SettingsActivity::class.java))
+                },
+                // Fork: long-press the cog to land straight on the 白い熊 雫 UI page.
+                onSettingsLongClick = {
+                    startActivity(
+                        af.shizuku.manager.shiroikuma.ShiroikumaUiFragment.intent(this)
+                    )
                 },
                 onHelpClick = {
                     MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.settings_shizuku_plus_features)
                         .setMessage(getString(R.string.help_general_plus_summary).toHtml())
                         .setPositiveButton(android.R.string.ok, null)
-                        .show()
+                        .showHouse()
                 },
                 onRestoreHomeCards = { adapter.restoreAllCards() },
                 recyclerViewProvider = { ctx, paddingValues ->
@@ -237,6 +244,16 @@ open class HomeActivity : AppActivity(), MavericksView {
                             paddingRight,
                             (paddingValues.calculateBottomPadding().value * density).toInt()
                         )
+                        // FORK: the home cards are View holders inside a RecyclerView, so the
+                        // Compose theme cannot reach them — apply the 白い熊 雫 knobs to the tree.
+                        // Cards recycle, so re-apply on layout; the applier is idempotent.
+                        if (getTag(R.id.home_shiroikuma_themed) == null) {
+                            setTag(R.id.home_shiroikuma_themed, true)
+                            viewTreeObserver.addOnGlobalLayoutListener {
+                                af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
+                                    .applyToTree(this, tintBackground = false)
+                            }
+                        }
                     }
                 }
             )
@@ -711,7 +728,7 @@ open class HomeActivity : AppActivity(), MavericksView {
             }
         }
 
-        builder.show()
+        builder.showHouse()
     }
 
     companion object {

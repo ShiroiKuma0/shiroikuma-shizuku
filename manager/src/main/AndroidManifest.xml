@@ -38,6 +38,14 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
+    <!-- Fork: the 保存復元 backup folder is a REAL filesystem path (no SAF) shared by every sister
+         app, so writing there needs All-Files-Access. Declaring it is not holding it — the export
+         path checks Environment.isExternalStorageManager() before touching the directory and
+         reports ERROR:no-storage-access when it is false. -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
     <uses-permission
         android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
@@ -598,6 +606,27 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+        <!-- ===== 保存復元 automation (the 白い熊 自由作業盤 batch-backup contract) ===============
+             Exported with NO android:permission — the caller cannot hold one, so the token IS the
+             gate (AutomationAuth: master switch default OFF + a 24-byte SecureRandom token,
+             compared constant-time). The receiver only validates and hands off; the export itself
+             runs in StateExportService, because goAsync() does not extend the broadcast window and
+             overrunning it would ANR this app mid-write. -->
+        <receiver
+            android:name="af.shizuku.manager.shiroikuma.automation.StateExportReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="${applicationId}.action.EXPORT_STATE" />
+                <action android:name="${applicationId}.action.LIST_CATEGORIES" />
+                <action android:name="${applicationId}.action.CANCEL_EXPORT" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="af.shizuku.manager.shiroikuma.automation.StateExportService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
     </application>
 
 </manifest>

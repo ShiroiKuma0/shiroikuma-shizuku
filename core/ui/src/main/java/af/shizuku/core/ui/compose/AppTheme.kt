@@ -111,12 +111,27 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    var colorScheme = remember(context, darkTheme, themeVersion) { androidColorScheme(context, darkTheme) }
+
+    // FORK: the 白い熊 雫 UI page installs a live provider (see AppThemeOverride), so a colour the
+    // user just moved a slider to reaches every Compose screen. `revision` is in the remember key
+    // so an edit actually recomposes instead of reusing the scheme from before it. With no provider
+    // installed this is exactly upstream's behaviour.
+    //
+    // `themeVersion` is upstream's own counter, bumped by SettingsActivity.onThemeChanged(). It
+    // replaced the Activity.recreate() that used to follow an accent/icon/blur change, so it has to
+    // sit in BOTH keys: drop it from the fallback and upstream's settings stop taking effect until
+    // a navigation, drop it from the override and the same happens whenever our provider is live.
+    val revision = AppThemeOverride.revision
+    val override = remember(context, darkTheme, revision, themeVersion) {
+        AppThemeOverride.colorSchemeProvider?.invoke(context, darkTheme)
+    }
+    var colorScheme = override
+        ?: remember(context, darkTheme, themeVersion) { androidColorScheme(context, darkTheme) }
 
     // Belt-and-suspenders: ThemeOverlay.Black (applied via onApplyUserThemeResource) already
     // forces colorSurface/android:colorBackground to black, so this should be redundant with the
     // read above - kept in case a future overlay change misses one of the two attributes.
-    if (darkTheme && isBlackNightTheme) {
+    if (override == null && darkTheme && isBlackNightTheme) {
         colorScheme = colorScheme.copy(
             background = Color.Black,
             surface = Color.Black
@@ -125,9 +140,14 @@ fun AppTheme(
 
     val shapes = if (isOneUi) OneUiShapes else Shapes()
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        shapes = shapes,
-        content = content
-    )
+    // FORK: the house typography override rides alongside upstream's shapes — both have to reach
+    // MaterialTheme, so `shapes` is passed on BOTH branches. Dropping it from the typography branch
+    // would silently undo One UI's corner radii for exactly the users who have a custom font set.
+    val typography = remember(context, revision) { AppThemeOverride.typographyProvider?.invoke(context) }
+
+    if (typography != null) {
+        MaterialTheme(colorScheme = colorScheme, shapes = shapes, typography = typography, content = content)
+    } else {
+        MaterialTheme(colorScheme = colorScheme, shapes = shapes, content = content)
+    }
 }

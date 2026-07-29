@@ -10,6 +10,7 @@ import af.shizuku.manager.automation.locale.LocalePluginContract.BUNDLE_KEY_ACTI
 import af.shizuku.manager.automation.locale.LocalePluginContract.EXTRA_BUNDLE
 import af.shizuku.manager.automation.locale.LocalePluginContract.EXTRA_STRING_BLURB
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import af.shizuku.manager.shiroikuma.showHouse
 
 /**
  * com.twofortyfouram.locale.intent.action.EDIT_SETTING handler: lets Tasker/Locale-compatible
@@ -35,7 +36,7 @@ class LocaleActionEditActivity : AppActivity() {
                 setResult(RESULT_CANCELED)
                 finish()
             }
-            .show()
+            .showHouse()
     }
 
     private fun finishWithResult(action: String) {

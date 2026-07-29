@@ -26,6 +26,15 @@
         android:title="@string/settings_main_category_personalization"
         app:collapsible="false">
 
+        <!-- Fork: the house customization page. Also reachable by long-pressing the settings cog
+             on the home screen. -->
+        <Preference
+            android:key="nav_shiroikuma_ui"
+            android:title="白い熊 雫 UI"
+            android:summary="Colours, fonts, shape, spacing — and the 保存復元 export/import"
+            android:icon="@drawable/ic_palette_24"
+            android:fragment="af.shizuku.manager.shiroikuma.ShiroikumaUiFragment" />
+
         <Preference
             android:key="nav_personalization"
             android:title="@string/settings_category_appearance"
