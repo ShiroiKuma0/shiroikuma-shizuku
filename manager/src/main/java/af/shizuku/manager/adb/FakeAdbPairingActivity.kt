@@ -42,7 +42,7 @@ class FakeAdbPairingActivity : Activity() {
 
         AlertDialog.Builder(this)
             .setTitle("Allow fake ADB connection?")
-            .setMessage("An app is trying to connect to Shizuku+ via the Fake Local ADB server.\n\nRSA key fingerprint:\n$hash")
+            .setMessage("An app is trying to connect to 白い熊 雫 via the Fake Local ADB server.\n\nRSA key fingerprint:\n$hash")
             .setPositiveButton("Allow") { _, _ ->
                 currentResult.set(true)
                 currentLatch?.countDown()
