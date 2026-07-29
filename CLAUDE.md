@@ -88,18 +88,40 @@ upstream Shizuku+.
 | Version logic | pinned upstream props + the `* 10000` fork block | `build.gradle` |
 | Signing | `signing.properties` → `~/.android-keystores/shiroikuma-shizuku.jks` | `signing.gradle` |
 | Single ABI | `ndk { abiFilters "arm64-v8a" }` | `manager/build.gradle` |
-| Telemetry | `SENTRY_DSN=` (empty — Sentry becomes a no-op) | `gradle.properties` |
-| Update target | `ShiroiKuma0/shiroikuma-shizuku` releases | `manager/…/update/UpdateChecker.kt` |
+| Telemetry | none — see "No phone-home" below | many |
+| Update target | `ShiroiKuma0/shiroikuma-shizuku` releases, manual only | `manager/…/update/UpdateChecker.kt` |
 | Help / issue links | our fork | `manager/…/Helps.kt` and the home/watchdog/crash links |
-
-**Telemetry is off deliberately.** Upstream ships a live Sentry DSN in `gradle.properties`, which
-would send every crash and breadcrumb from 白い熊's device to the upstream author's Sentry account.
-An empty DSN makes the SDK a no-op. Never restore it while resolving a rebase conflict.
 
 **The update checker points at our releases, not upstream's.** Upstream builds are signed with a
 different key and could never install over ours, so offering them as "updates" would be both broken
 and wrong branding. Our release tags carry **no `v` prefix** (upstream's do), and the tag must equal
 the fork `versionName` so the checker never re-offers the installed build.
+
+## No phone-home (a standing fork requirement)
+
+**白い熊's rule, 2026-07-29: this app sends nothing to upstream, and nothing anywhere else.** Every
+automatic outbound path upstream ships is removed. Treat any change that reintroduces one as a
+regression, not a feature — and re-check this whole table after every rebase.
+
+| Upstream path | What it did | State here |
+| --- | --- | --- |
+| Sentry SDK | crashes, breadcrumbs, ANRs → the upstream author's Sentry account | DSN hardwired `""` in `manager/build.gradle`; `initializeSentryEarly()` returns before `SentryAndroid.init()`; manifest DSN empty, auto-init false |
+| Sentry Gradle plugin | ProGuard mappings + native debug symbols → sentry.io at build time | plugin removed from `settings.gradle` and `manager/build.gradle`; upstream's `sentry { … }` block deleted |
+| `RemoteDbSyncWorker` | 24-hourly `WorkManager` fetch of `app-context-db.json` from upstream's repo | not scheduled (`ShizukuApplication`); the worker itself now *cancels* the work and its `doWork` is a no-op |
+| "Update app database" | pulled `apps.json` from upstream's repo | removed; the row reports it is disabled |
+| `VirusTotalClient` | SHA-256 of every installed APK + the API key → VirusTotal | returns "disabled", no connection |
+| `PithusClient` | SHA-256 of every installed APK → `beta.pithus.org` | returns "disabled", no connection |
+| `HomeActivity.checkForUpdates()` | polled the releases API on every app start | `isAutoUpdateEnabled()` now defaults **false** (upstream: true) |
+| "Email support" button | device / OS / version report → the upstream author's address | button removed; `support_email` blanked |
+| `.github/workflows/` | `app.yml` injected a Sentry DSN and uploaded debug symbols, triggered on pushes to `master` | whole `.github/` directory removed (also FUNDING.yml and the issue templates) |
+
+The **only** outbound request the app can make is the update check, and only when 白い熊 taps
+"Check for updates" — it reads our own releases and sends nothing about the device.
+
+Note the Sentry SDK is still a *dependency*: ~14 upstream files call `Sentry.captureException` /
+`addBreadcrumb` / `startTransaction`, and with the SDK unarmed those are inert no-ops with no
+transport. Keeping them avoids permanent rebase conflicts in files we otherwise never touch. If you
+ever remove the dependency, every one of those call sites has to go with it.
 
 ## Two strings that deliberately keep upstream's name
 
@@ -111,10 +133,18 @@ that are hard to diagnose, because it still builds and still launches.
 | `af.shizuku.plus.api.intent.extra.BINDER` | The key the privileged server uses to hand the binder to the manager. The receiving side is `rikka.shizuku.ShizukuProvider.EXTRA_BINDER` in the **`api` submodule**, which we do not fork. Rename it and the service never connects. Appears in `ServiceStarter.kt`, `ShizukuManagerProvider.kt`, `ShizukuService.java`. |
 | `af.shizuku.plus.API` | A meta-data key **third-party client apps** set to advertise Plus-API support, read by `AuthorizationManager.isPlusApiSupported`. Rename it and no client is ever detected as Plus-capable. |
 
-By contrast the **custom permissions must** carry our app id
-(`shiroikuma.shizuku.permission.API_V23` / `.MANAGER`): two installed apps cannot declare the same
-custom permission, so keeping upstream's would make our APK fail to install with
-`INSTALL_FAILED_DUPLICATE_PERMISSION` whenever upstream's Shizuku+ is present.
+The **custom permissions also keep upstream's names** — `af.shizuku.plus.permission.API_V23` and
+`af.shizuku.plus.permission.MANAGER` (declared in `manager/src/main/AndroidManifest.xml`, mirrored in
+`manager/…/Manifest.java`, `server/…/ServerConstants.java` and `server/…/BinderSender.java`). They
+match `ShizukuProvider.PERMISSION` in the `api` submodule, so leaving them alone keeps client
+compatibility exact.
+
+> ⚠ **The consequence, decided deliberately (白い熊, 2026-07-29): this build is NOT installable
+> alongside upstream's Shizuku+.** Two apps cannot declare the same custom permission, so installing
+> both fails with `INSTALL_FAILED_DUPLICATE_PERMISSION` (upstream's own issue #316). Coexistence with
+> **stock Shizuku** (`moe.shizuku.privileged.api`) is unaffected and still works. If we ever *do*
+> want to sit beside upstream's Shizuku+, the fix is to prefix these two permissions with our app id
+> — and then also patch the `api` submodule, which hardcodes the old name.
 
 ## How this app reaches its clients (read before touching the app id)
 

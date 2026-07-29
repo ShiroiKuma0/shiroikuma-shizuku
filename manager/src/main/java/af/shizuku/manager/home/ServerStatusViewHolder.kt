@@ -109,9 +109,9 @@ class ServerStatusViewHolder(
                 .setMessage(R.string.sentry_offline_notice_learn_more)
                 .setPositiveButton(android.R.string.ok, null)
                 .setNeutralButton(R.string.update_view_on_github) { _, _ ->
-                    af.shizuku.manager.utils.CustomTabsHelper
-                        .launchUrlOrCopy(context, "https://github.com/thejaustin/ShizukuPlus/issues")
-                }.show()
+                    af.shizuku.manager.utils.CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues")
+                }
+                .show()
         }
 
         // S-Pen / DeX Mouse Hover Effect (Expressive Polish)

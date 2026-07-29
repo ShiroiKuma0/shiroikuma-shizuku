@@ -36,5 +36,5 @@ check.log
 smoke-test.log
 ktlint
 
-# Local build output — compat.apk is built by CI and should not be committed
-manager/src/main/assets/compat.apk
+# Fork: build artifact — copyCompatApkRelease/Debug generates this from the :compat module.
+/manager/src/main/assets/compat.apk

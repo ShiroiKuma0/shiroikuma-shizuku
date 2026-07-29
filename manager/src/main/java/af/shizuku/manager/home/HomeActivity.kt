@@ -795,11 +795,9 @@ open class HomeActivity :
 
         val openReleases = {
             startActivity(
-                android.content
-                    .Intent(
-                        android.content.Intent.ACTION_VIEW,
-                        android.net.Uri.parse("https://github.com/thejaustin/ShizukuPlus/releases"),
-                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+                android.content.Intent(android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases"))
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }
 

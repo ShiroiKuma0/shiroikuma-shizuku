@@ -643,16 +643,13 @@ class RootCompatibilityActivity : AppBarActivity() {
                     }
 
                     holder.itemView.setOnClickListener {
-                        val url =
-                            when (pkg) {
-                                "dev.ukanth.ufirewall" -> "https://f-droid.org/packages/dev.ukanth.ufirewall/"
-                                "com.machiav3lli.neo_backup" -> "https://f-droid.org/packages/com.machiav3lli.neo_backup/"
-                                "samolego.canta" -> "https://f-droid.org/packages/samolego.canta/"
-                                "com.aistra.hail" -> "https://f-droid.org/packages/com.aistra.hail/"
-                                "thejaustin.afdroid" -> "https://github.com/thejaustin/afdroid/releases"
-                                "thejaustin.hexodus" -> "https://github.com/thejaustin/Hexodus/releases"
-                                else -> "https://play.google.com/store/apps/details?id=$pkg"
-                            }
+                        val url = when (pkg) {
+                            "dev.ukanth.ufirewall" -> "https://f-droid.org/packages/dev.ukanth.ufirewall/"
+                            "com.machiav3lli.neo_backup" -> "https://f-droid.org/packages/com.machiav3lli.neo_backup/"
+                            "samolego.canta" -> "https://f-droid.org/packages/samolego.canta/"
+                            "com.aistra.hail" -> "https://f-droid.org/packages/com.aistra.hail/"
+                            else -> "https://play.google.com/store/apps/details?id=$pkg"
+                        }
                         try {
                             startActivity(
                                 Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
