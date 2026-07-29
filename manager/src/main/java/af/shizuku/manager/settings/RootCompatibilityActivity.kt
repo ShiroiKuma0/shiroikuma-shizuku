@@ -46,6 +46,7 @@ import af.shizuku.manager.shell.ShellTutorialActivity
 import rikka.shizuku.Shizuku
 import af.shizuku.manager.database.RootSupportLevel
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class RootCompatibilityActivity : AppBarActivity() {
 
@@ -128,16 +129,16 @@ class RootCompatibilityActivity : AppBarActivity() {
             af.shizuku.core.ui.compose.Button(
                 onClick = {
                     val path = resolvedSuPath ?: run {
-                        Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT).show()
+                        ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT)
                         return@Button
                     }
                     lifecycleScope.launch {
                         val count = RootCompatHelper.autoSetupAll(this@RootCompatibilityActivity, path)
                         if (!isFinishing && !isDestroyed) {
                             if (count > 0) {
-                                Toast.makeText(this@RootCompatibilityActivity, getString(R.string.su_bridge_magic_setup_all_summary, count), Toast.LENGTH_LONG).show()
+                                ShiroikumaToast.show(this@RootCompatibilityActivity, getString(R.string.su_bridge_magic_setup_all_summary, count), Toast.LENGTH_LONG)
                             } else {
-                                Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_magic_setup_all_no_apps, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_magic_setup_all_no_apps, Toast.LENGTH_SHORT)
                             }
                         }
                     }
@@ -268,7 +269,7 @@ class RootCompatibilityActivity : AppBarActivity() {
     private fun copyToClipboard(text: String) {
         val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         cm.setPrimaryClip(ClipData.newPlainText("su path", text))
-        Toast.makeText(this, R.string.su_bridge_path_copied, Toast.LENGTH_SHORT).show()
+        ShiroikumaToast.show(this, R.string.su_bridge_path_copied, Toast.LENGTH_SHORT)
     }
 
     private fun launchOrStore(pkg: String) {
@@ -298,7 +299,7 @@ class RootCompatibilityActivity : AppBarActivity() {
 
     /** Runs the SU Bridge self-test off the main thread and shows the result in a dialog. */
     private fun runSelfTest() {
-        Toast.makeText(this, R.string.su_bridge_self_test_running, Toast.LENGTH_SHORT).show()
+        ShiroikumaToast.show(this, R.string.su_bridge_self_test_running, Toast.LENGTH_SHORT)
         lifecycleScope.launch {
             val result = RootCompatHelper.selfTest(this@RootCompatibilityActivity)
             if (isFinishing) return@launch
@@ -311,7 +312,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                 .setNeutralButton(R.string.su_bridge_self_test_copy) { _, _ ->
                     val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     cm.setPrimaryClip(ClipData.newPlainText("SU Bridge self-test", result.report))
-                    Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_self_test_copied, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_self_test_copied, Toast.LENGTH_SHORT)
                 }
                 .showHouse()
         }
@@ -426,7 +427,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                                 copyToClipboard(path)
                                 launchOrStore(pkg)
                             } else {
-                                Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT)
                             }
                         }
                     ) {
@@ -459,7 +460,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                             onClick = {
                                 val path = resolvedSuPath
                                 if (path == null) {
-                                    Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT).show()
+                                    ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT)
                                     return@Button
                                 }
                                 // Capture app name before the coroutine — holder may be recycled
@@ -468,10 +469,10 @@ class RootCompatibilityActivity : AppBarActivity() {
                                 lifecycleScope.launch {
                                     val success = RootCompatHelper.autoSetup(this@RootCompatibilityActivity, pkg, path)
                                     if (success) {
-                                        Toast.makeText(this@RootCompatibilityActivity, this@RootCompatibilityActivity.getString(R.string.su_bridge_magic_setup_success, appName), Toast.LENGTH_LONG).show()
+                                        ShiroikumaToast.show(this@RootCompatibilityActivity, this@RootCompatibilityActivity.getString(R.string.su_bridge_magic_setup_success, appName), Toast.LENGTH_LONG)
                                         launchOrStore(pkg)
                                     } else {
-                                        Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_magic_setup_fail, Toast.LENGTH_SHORT).show()
+                                        ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_magic_setup_fail, Toast.LENGTH_SHORT)
                                     }
                                 }
                             }

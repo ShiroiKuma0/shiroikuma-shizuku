@@ -70,9 +70,18 @@
     </style>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">?android:attr/colorBackground</item>
+        <!-- FORK: pure black, spelled out — NOT ?android:attr/colorBackground.
+             The splash theme is applied by the SYSTEM before the Activity exists, so
+             ThemeDelegateImpl has not yet layered ThemeOverlay.Shiroikuma on anything; the
+             attribute therefore resolved against Theme.SplashScreen's own light parent and the
+             splash came up GREY behind our black-and-yellow icon. A literal colour is the only
+             thing that is correct this early. -->
+        <item name="windowSplashScreenBackground">@color/shizuku_black</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-        <item name="postSplashScreenTheme">@style/Theme.Light</item>
+        <!-- Was Theme.Light — the LIGHT theme — which flashed white between the splash and the
+             first frame. The house look is dark. -->
+        <item name="postSplashScreenTheme">@style/Theme</item>
+        <item name="android:windowBackground">@color/shizuku_black</item>
     </style>
 
     <!-- ===== 白い熊 雫 house dialog: black fill, YELLOW BORDER, yellow text and buttons. ===== -->

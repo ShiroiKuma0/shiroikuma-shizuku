@@ -42,6 +42,7 @@ import rikka.lifecycle.Status
 import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.fixEdgeEffect
 import java.util.Objects
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 open class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callbacks {
 
@@ -134,7 +135,7 @@ open class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callb
                     runOnUiThread {
                         if (isFinishing || isDestroyed) return@runOnUiThread
                         finish()
-                        Toast.makeText(this, Objects.toString(it.error, "unknown"), Toast.LENGTH_SHORT).show()
+                        ShiroikumaToast.show(this, Objects.toString(it.error, "unknown"), Toast.LENGTH_SHORT)
                     }
                     Timber.w("load apps failed", it.error)
                 }
@@ -349,7 +350,7 @@ open class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callb
             "open_app" -> {
                 val intent = packageManager.getLaunchIntentForPackage(item.packageName)
                 if (intent != null) startActivity(intent, opts)
-                else Toast.makeText(this, R.string.app_management_no_launcher, Toast.LENGTH_SHORT).show()
+                else ShiroikumaToast.show(this, R.string.app_management_no_launcher, Toast.LENGTH_SHORT)
             }
             "app_info" -> startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -365,7 +366,7 @@ open class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callb
                     }
                     adapter.notifyItemChanged(0) // update summary
                 } catch (e: SecurityException) {
-                    Toast.makeText(this, R.string.app_management_dialog_adb_is_limited_title, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(this, R.string.app_management_dialog_adb_is_limited_title, Toast.LENGTH_SHORT)
                 }
             }
             "hide_from_list" -> onHideApp(item.packageName)

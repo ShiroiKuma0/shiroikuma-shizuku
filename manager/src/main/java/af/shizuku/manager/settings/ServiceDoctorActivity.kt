@@ -34,6 +34,7 @@ import af.shizuku.manager.utils.SettingsPage
 import af.shizuku.manager.utils.ShizukuStateMachine
 import rikka.shizuku.Shizuku
 import timber.log.Timber
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ServiceDoctorActivity : AppBarActivity() {
 
@@ -281,9 +282,9 @@ class ServiceDoctorActivity : AppBarActivity() {
                                         try { p.destroy() } catch (_: Exception) {}
                                     }
                                 }
-                                withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, R.string.service_doctor_fix_phantom_attempted, Toast.LENGTH_SHORT).show() }
+                                withContext(Dispatchers.Main) { ShiroikumaToast.show(this@ServiceDoctorActivity, R.string.service_doctor_fix_phantom_attempted, Toast.LENGTH_SHORT) }
                             } else {
-                                withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, R.string.service_doctor_fix_requires_service, Toast.LENGTH_SHORT).show() }
+                                withContext(Dispatchers.Main) { ShiroikumaToast.show(this@ServiceDoctorActivity, R.string.service_doctor_fix_requires_service, Toast.LENGTH_SHORT) }
                             }
                         } catch (e: Exception) {
                             val isNullProcess = e is IllegalStateException && e.message?.contains("null remote process") == true
@@ -296,7 +297,7 @@ class ServiceDoctorActivity : AppBarActivity() {
                                 } else {
                                     getString(R.string.service_doctor_fix_failed, e.message)
                                 }
-                                Toast.makeText(this@ServiceDoctorActivity, msg, Toast.LENGTH_LONG).show()
+                                ShiroikumaToast.show(this@ServiceDoctorActivity, msg, Toast.LENGTH_LONG)
                             }
                         }
                     }

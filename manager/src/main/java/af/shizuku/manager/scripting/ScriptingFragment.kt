@@ -34,6 +34,7 @@ import af.shizuku.manager.databinding.ItemScriptSnippetBinding
 import af.shizuku.manager.database.ScriptSnippetManager
 import af.shizuku.manager.database.ScriptSnippetRoom
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ScriptingFragment : Fragment() {
 
@@ -95,7 +96,7 @@ class ScriptingFragment : Fragment() {
 
     private fun runSnippet(snippet: ScriptSnippetRoom) {
         val ctx = context ?: return
-        Toast.makeText(ctx, getString(R.string.scripting_running, snippet.title), Toast.LENGTH_SHORT).show()
+        ShiroikumaToast.show(ctx, getString(R.string.scripting_running, snippet.title), Toast.LENGTH_SHORT)
         viewLifecycleOwner.lifecycleScope.launch {
             val result = ScriptSnippetManager.run(snippet.script)
             if (!isAdded) return@launch
@@ -115,7 +116,7 @@ class ScriptingFragment : Fragment() {
                 .setNeutralButton(R.string.scripting_copy_output) { _, _ ->
                     val cm = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     cm.setPrimaryClip(ClipData.newPlainText(snippet.title, output))
-                    Toast.makeText(ctx, R.string.scripting_output_copied, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(ctx, R.string.scripting_output_copied, Toast.LENGTH_SHORT)
                 }
                 .showHouse()
         }
@@ -162,7 +163,7 @@ class ScriptingFragment : Fragment() {
                 val title = titleInput.text.toString().trim()
                 val script = scriptInput.text.toString().trim()
                 if (title.isEmpty() || script.isEmpty()) {
-                    Toast.makeText(ctx, R.string.scripting_title_and_script_required, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(ctx, R.string.scripting_title_and_script_required, Toast.LENGTH_SHORT)
                     return@setPositiveButton
                 }
                 viewLifecycleOwner.lifecycleScope.launch {

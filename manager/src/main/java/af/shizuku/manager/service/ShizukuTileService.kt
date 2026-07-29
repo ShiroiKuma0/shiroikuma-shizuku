@@ -14,6 +14,7 @@ import af.shizuku.manager.starter.Starter
 import af.shizuku.manager.utils.ShizukuStateMachine
 import af.shizuku.manager.worker.AdbStartWorker
 import androidx.work.WorkManager
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import com.topjohnwu.superuser.Shell
 
 class ShizukuTileService : TileService() {
@@ -76,16 +77,12 @@ class ShizukuTileService : TileService() {
                         getString(R.string.tile_subtitle_starting)
                     else
                         getString(R.string.tile_subtitle_stopping)
-                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(this, msg, Toast.LENGTH_SHORT)
                 }
                 else -> startShizuku()
             }
         } catch (e: Exception) {
-            Toast.makeText(
-                this,
-                getString(R.string.tile_state_update_failed, e.localizedMessage),
-                Toast.LENGTH_SHORT
-            ).show()
+            ShiroikumaToast.show(this, getString(R.string.tile_state_update_failed, e.localizedMessage), Toast.LENGTH_SHORT)
         }
     }
 
