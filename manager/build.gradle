@@ -15,11 +15,19 @@ plugins {
 }
 
 android {
+    // Code namespace stays upstream's — only the installed applicationId differs, so rebases
+    // never turn into a mass-rename conflict.
     namespace = "af.shizuku.manager"
     defaultConfig {
-        applicationId = "af.shizuku.plus.api"
+        applicationId = providers.gradleProperty("APP_ID").get()
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
+        // Fork: 白い熊's phone is arm64. Upstream builds a universal APK carrying all four ABIs;
+        // we package arm64-v8a only, which matches the APK filename convention and roughly halves
+        // the download.
+        ndk {
+            abiFilters "arm64-v8a"
+        }
         def sentryDsn = project.findProperty('SENTRY_DSN') ?: ''
         buildConfigField "String", "SENTRY_DSN", "\"${sentryDsn}\""
         manifestPlaceholders = [sentryDsn: sentryDsn]
@@ -48,10 +56,13 @@ android {
     }
     flavorDimensions = ["distribution"]
     productFlavors {
+        // The flavor we ship. Coexists with stock Shizuku: it does not claim the stock package
+        // name or the stock provider authority — stock-API clients reach us through the bundled
+        // Compat Hub stub (see the :compat module) instead.
         shizukuplus {
             dimension = "distribution"
-            applicationId = "af.shizuku.plus.api"
-            resValue "string", "app_name", "Shizuku+"
+            applicationId = providers.gradleProperty("APP_ID").get()
+            resValue "string", "app_name", "白い熊 雫"
         }
         dropin {
             dimension = "distribution"
@@ -337,6 +348,53 @@ sentry {
     // Disable Sentry's compose bytecode instrumentation to avoid R8 missing-class errors.
     tracingInstrumentation {
         enabled = false
+    }
+}
+
+// ---------------------------------------------------------------------------------------------
+// shiroikuma-shizuku: the one command that produces a shippable build.
+//
+//   ./gradlew buildApk
+//
+// Assembles the signed shizukuplus release, copies it to ~/tmp under the house filename, and
+// bumps BUILD_NUMBER in gradle.properties so the next build is a fresh +N (never overwrite an
+// older APK — that is a standing rule).
+// ---------------------------------------------------------------------------------------------
+tasks.register("buildApk") {
+    description = "Build the release APK, copy it to ~/tmp, and bump BUILD_NUMBER for next time."
+    group = "build"
+    dependsOn("assembleShizukuplusRelease")
+
+    def fvName = rootProject.ext.versionName
+    def fvCode = rootProject.ext.versionCode
+    def currentBuildNumber = rootProject.ext.forkBuildNumber
+    def releaseApkDir = layout.buildDirectory.dir("outputs/apk/shizukuplus/release")
+    def userHome = providers.systemProperty("user.home")
+    def propsFile = rootProject.file("gradle.properties")
+
+    doLast {
+        def apkName = "shiroikuma-shizuku_${fvName}_arm64-v8a.apk"
+        def outputDir = releaseApkDir.get().asFile
+        def targetDir = new File(userHome.get(), "tmp")
+        targetDir.mkdirs()
+
+        def apk = outputDir.listFiles({ _, name -> name.endsWith(".apk") } as FilenameFilter)?.find()
+        if (apk == null) {
+            throw new GradleException("No APK found in ${outputDir}")
+        }
+
+        def targetFile = new File(targetDir, apkName)
+        java.nio.file.Files.copy(apk.toPath(), targetFile.toPath(),
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        println("[1;36m>>> ${targetFile.absolutePath}[0m")
+        println("[1;36m>>> versionCode ${fvCode}[0m")
+
+        // Auto-increment BUILD_NUMBER for the next build.
+        def nextBuildNumber = currentBuildNumber + 1
+        propsFile.text = propsFile.text.replace(
+            "BUILD_NUMBER=${currentBuildNumber}\n",
+            "BUILD_NUMBER=${nextBuildNumber}\n")
+        println("[1;36m>>> BUILD_NUMBER bumped to ${nextBuildNumber}[0m")
     }
 }
 

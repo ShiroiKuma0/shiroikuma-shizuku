@@ -8,12 +8,18 @@ import af.shizuku.starter.util.IContentProviderCompat
 import kotlinx.coroutines.*
 import rikka.hidden.compat.ActivityManagerApis
 import rikka.shizuku.ShizukuApiConstants
+import rikka.shizuku.starter.BuildConfig
 import rikka.shizuku.server.UserService
 import java.util.*
 
 object ServiceStarter {
 
     private const val TAG = "ShizukuServiceStarter"
+    // WIRE PROTOCOL, NOT IDENTITY — deliberately keeps upstream's string even though our
+    // applicationId is shiroikuma.shizuku. The receiving side is ShizukuProvider in the `api`
+    // submodule (rikka.shizuku.ShizukuProvider.EXTRA_BINDER), which we do not fork; rename this
+    // and the binder handoff silently stops working. Same for the two mirrors of this key in
+    // ShizukuManagerProvider.kt and ShizukuService.java.
     private const val EXTRA_BINDER = "af.shizuku.plus.api.intent.extra.BINDER"
 
     // Fallback only: used if a caller built the command line without --manager= (e.g. an
@@ -22,7 +28,7 @@ object ServiceStarter {
     // ServerConstants.MANAGER_APPLICATION_ID (which flips to the Drop-In id when that's the
     // flavor actually installed) - hardcoding the Plus id here made every UserService start fail
     // with "provider is null" on Drop-In-only installs (#371).
-    private const val DEFAULT_MANAGER_PACKAGE_NAME = "af.shizuku.plus.api"
+    private const val DEFAULT_MANAGER_PACKAGE_NAME = BuildConfig.MANAGER_APPLICATION_ID
 
     val DEBUG_ARGS: String by lazy {
         val sdk = Build.VERSION.SDK_INT
@@ -101,6 +107,11 @@ object ServiceStarter {
         Log.i(TAG, "service exited")
     }
 
+    // packageName is threaded in from the server's already-resolved MANAGER_APPLICATION_ID via
+    // the --manager= CLI arg (upstream bbcf4fd1). This process is a fresh app_process per
+    // UserService and cannot see the server's own state, so the fork's old hand-written literal
+    // here was the same hazard the shell loader had — and this is the better fix, because the
+    // value now comes from the one process that actually knows.
     private suspend fun sendBinder(
         binder: IBinder,
         token: String,
