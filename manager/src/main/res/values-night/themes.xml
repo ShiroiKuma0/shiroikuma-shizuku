@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- FORK: must stay in step with values/themes.xml — BOTH define Theme.App.Starting, and the
+         one that applies depends on the device's dark-mode setting. Editing only the values/ copy
+         left the splash grey in night mode, which is exactly what happened.
+
+         The background is the literal black, not ?android:attr/colorBackground: the splash theme is
+         applied by the SYSTEM before the Activity exists, so ThemeDelegateImpl has not yet layered
+         ThemeOverlay.Shiroikuma on anything and the attribute resolves against Theme.SplashScreen's
+         own parent. -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">?android:attr/colorBackground</item>
+        <item name="windowSplashScreenBackground">@color/shizuku_black</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
         <item name="postSplashScreenTheme">@style/Theme</item>
+        <item name="android:windowBackground">@color/shizuku_black</item>
     </style>
 </resources>
