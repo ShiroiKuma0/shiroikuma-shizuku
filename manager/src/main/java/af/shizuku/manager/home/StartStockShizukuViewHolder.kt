@@ -16,6 +16,7 @@ import af.shizuku.manager.utils.StockShizukuCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class StartStockShizukuViewHolder(
     private val binding: HomeStartRootBinding,
@@ -59,7 +60,7 @@ class StartStockShizukuViewHolder(
                 }
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                     start.isEnabled = true
-                    android.widget.Toast.makeText(activity, "Restarting via Root...", android.widget.Toast.LENGTH_SHORT).show()
+                    af.shizuku.manager.shiroikuma.ShiroikumaToast.show(activity, "Restarting via Root...", android.widget.Toast.LENGTH_SHORT)
                 }
             }
         } else {
