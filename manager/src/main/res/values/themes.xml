@@ -75,4 +75,111 @@
         <item name="postSplashScreenTheme">@style/Theme.Light</item>
     </style>
 
+    <!-- ===== 白い熊 雫 house dialog: black fill, YELLOW BORDER, yellow text and buttons. ===== -->
+    <style name="Theme.Shiroikuma.Dialog" parent="Theme.Material3.Dark.Dialog.Alert">
+        <!-- Same olive trap as the app overlay: a dialog is an elevated surface. -->
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="elevationOverlayColor">@color/shizuku_black</item>
+        <item name="elevationOverlayAccentColor">@android:color/transparent</item>
+        <item name="colorPrimary">@color/shizuku_yellow</item>
+        <item name="colorSurface">@color/shizuku_black</item>
+        <item name="colorOnSurface">@color/shizuku_yellow</item>
+        <item name="colorOnSurfaceVariant">@color/shizuku_yellow</item>
+        <item name="colorSurfaceContainerHigh">@color/shizuku_black</item>
+        <item name="android:textColorPrimary">@color/shizuku_yellow</item>
+        <item name="android:textColorSecondary">@color/shizuku_yellow</item>
+        <!-- AppCompat's select_dialog list layouts colour their text from the NON-android attr,
+             so both have to be set or list dialogs come out grey. -->
+        <item name="textColorAlertDialogListItem">@color/shizuku_yellow</item>
+        <item name="android:textColorAlertDialogListItem">@color/shizuku_yellow</item>
+        <item name="colorControlNormal">@color/shizuku_yellow</item>
+        <item name="colorControlActivated">@color/shizuku_yellow</item>
+        <item name="android:colorControlNormal">@color/shizuku_yellow</item>
+        <item name="android:colorControlActivated">@color/shizuku_yellow</item>
+        <item name="android:windowBackground">@drawable/shiroikuma_dialog_bg</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Theme.Shiroikuma.Dialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Theme.Shiroikuma.Dialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Theme.Shiroikuma.Dialog.Button</item>
+    </style>
+
+    <style name="Theme.Shiroikuma.Dialog.Button" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/shizuku_yellow</item>
+        <item name="rippleColor">@color/shizuku_yellow_dim</item>
+    </style>
+
+    <!-- ===== FORK: the house black-yellow baseline, applied LAST by ThemeDelegateImpl. ==========
+         This is the static half of the 白い熊 雫 look: it puts pure black and pure yellow on every
+         Material attribute, so every View screen and (because Compose reads the resolved Activity
+         theme) every Compose screen comes up black-and-yellow with no user action.
+
+         The live half is ShiroikumaTheme/ShiroikumaViewTheme, which layer the user's own knob
+         values on top — a colour a slider just moved cannot live in a static resource.
+
+         NOTE every *Container role is a FLAT near-black surface, never a low-alpha accent: Material
+         composites containers as primary-over-surface, and yellow over black composites to OLIVE. -->
+    <style name="ThemeOverlay.Shiroikuma" parent="">
+        <item name="colorPrimary">@color/shizuku_yellow</item>
+        <item name="colorOnPrimary">@color/shizuku_black</item>
+        <item name="colorPrimaryContainer">@color/shizuku_black</item>
+        <item name="colorOnPrimaryContainer">@color/shizuku_yellow</item>
+        <item name="colorSecondary">@color/shizuku_yellow</item>
+        <item name="colorOnSecondary">@color/shizuku_black</item>
+        <item name="colorSecondaryContainer">@color/shizuku_black</item>
+        <item name="colorOnSecondaryContainer">@color/shizuku_yellow</item>
+        <item name="colorTertiary">@color/shizuku_yellow</item>
+        <item name="colorOnTertiary">@color/shizuku_black</item>
+        <item name="colorTertiaryContainer">@color/shizuku_black</item>
+        <item name="colorOnTertiaryContainer">@color/shizuku_yellow</item>
+
+        <item name="android:colorBackground">@color/shizuku_black</item>
+        <item name="colorOnBackground">@color/shizuku_yellow</item>
+        <item name="colorSurface">@color/shizuku_black</item>
+        <item name="colorOnSurface">@color/shizuku_yellow</item>
+        <item name="colorSurfaceVariant">@color/shizuku_black</item>
+        <item name="colorOnSurfaceVariant">@color/shizuku_yellow_dim</item>
+        <item name="colorSurfaceContainer">@color/shizuku_black</item>
+        <item name="colorSurfaceContainerLow">@color/shizuku_black</item>
+        <item name="colorSurfaceContainerLowest">@color/shizuku_black</item>
+        <item name="colorSurfaceContainerHigh">@color/shizuku_black</item>
+        <item name="colorSurfaceContainerHighest">@color/shizuku_black</item>
+        <item name="colorSurfaceBright">@color/shizuku_black</item>
+        <item name="colorSurfaceDim">@color/shizuku_black</item>
+        <item name="colorSurfaceInverse">@color/shizuku_yellow</item>
+        <item name="colorOnSurfaceInverse">@color/shizuku_black</item>
+
+        <item name="colorOutline">@color/shizuku_yellow</item>
+        <item name="colorOutlineVariant">@color/shizuku_grey</item>
+        <item name="colorError">@color/shizuku_red</item>
+        <item name="colorOnError">@color/shizuku_black</item>
+        <item name="colorErrorContainer">@color/shizuku_black</item>
+        <item name="colorOnErrorContainer">@color/shizuku_red</item>
+
+        <!-- ⛔ THE OLIVE KILLER. Material's elevation overlay blends colorSurface with the
+             elevation-overlay colour (colorPrimary by default) at an alpha derived from elevation.
+             Black surface + yellow primary composites to a muddy GREEN — which is what every raised
+             Material View surface (dialogs, cards, sheets, app bars) came out as. Compose is already
+             covered by surfaceTint = Transparent in ShiroikumaTheme; this is the View-world twin.
+             Never re-enable it while the palette is yellow-on-black. -->
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="elevationOverlayColor">@color/shizuku_black</item>
+        <item name="elevationOverlayAccentColor">@android:color/transparent</item>
+
+        <item name="colorControlNormal">@color/shizuku_yellow</item>
+        <item name="colorControlActivated">@color/shizuku_yellow</item>
+        <item name="colorControlHighlight">@color/shizuku_yellow_dim</item>
+        <item name="colorAccent">@color/shizuku_yellow</item>
+        <item name="appColorPrimary">@color/shizuku_yellow</item>
+
+        <item name="android:textColorPrimary">@color/shizuku_yellow</item>
+        <item name="android:textColorSecondary">@color/shizuku_yellow_dim</item>
+        <item name="android:textColorTertiary">@color/shizuku_yellow_dim</item>
+        <item name="android:textColorHint">@color/shizuku_yellow_dim</item>
+        <item name="android:windowBackground">@color/shizuku_black</item>
+
+        <!-- Dialogs raised by upstream screens follow the house look too. -->
+        <item name="alertDialogTheme">@style/Theme.Shiroikuma.Dialog</item>
+        <item name="android:alertDialogTheme">@style/Theme.Shiroikuma.Dialog</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Shiroikuma.Dialog</item>
+    </style>
+
 </resources>

@@ -94,20 +94,33 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    var colorScheme = remember(context, darkTheme) { androidColorScheme(context, darkTheme) }
+
+    // FORK: the 白い熊 雫 UI page installs a live provider (see AppThemeOverride), so a colour the
+    // user just moved a slider to reaches every Compose screen. `revision` is in the remember key
+    // so an edit actually recomposes instead of reusing the scheme from before it. With no provider
+    // installed this is exactly upstream's behaviour.
+    val revision = AppThemeOverride.revision
+    val override = remember(context, darkTheme, revision) {
+        AppThemeOverride.colorSchemeProvider?.invoke(context, darkTheme)
+    }
+    var colorScheme = override
+        ?: remember(context, darkTheme) { androidColorScheme(context, darkTheme) }
 
     // Belt-and-suspenders: ThemeOverlay.Black (applied via onApplyUserThemeResource) already
     // forces colorSurface/android:colorBackground to black, so this should be redundant with the
     // read above - kept in case a future overlay change misses one of the two attributes.
-    if (darkTheme && isBlackNightTheme) {
+    if (override == null && darkTheme && isBlackNightTheme) {
         colorScheme = colorScheme.copy(
             background = Color.Black,
             surface = Color.Black
         )
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
+    val typography = remember(context, revision) { AppThemeOverride.typographyProvider?.invoke(context) }
+
+    if (typography != null) {
+        MaterialTheme(colorScheme = colorScheme, typography = typography, content = content)
+    } else {
+        MaterialTheme(colorScheme = colorScheme, content = content)
+    }
 }

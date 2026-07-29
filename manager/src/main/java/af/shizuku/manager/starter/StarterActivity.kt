@@ -37,6 +37,7 @@ import af.shizuku.manager.utils.ShizukuStateMachine
 import af.shizuku.manager.databinding.StarterActivityBinding
 import rikka.lifecycle.Resource
 import rikka.lifecycle.Status
+import af.shizuku.manager.shiroikuma.showHouse
 
 private class NotRootedException: Exception()
 
@@ -100,7 +101,7 @@ class StarterActivity : AppBarActivity() {
                         binding.cancelButton.visibility = View.VISIBLE
                         viewModel.retry()
                     }
-                    .show()
+                    .showHouse()
             }
             binding.text1.text = output
             binding.scrollView.post { binding.scrollView.scrollTo(0, Int.MAX_VALUE) }
