@@ -37,7 +37,7 @@ public class PlusShell {
     }
 
     private static void printHelp() {
-        LOGGER.i("Shizuku+ CLI Helper (plus)");
+        LOGGER.i("白い熊 雫 CLI Helper (plus)");
         LOGGER.w("Usage: plus [command] [args]");
         LOGGER.i("");
         LOGGER.i("Commands:");
@@ -119,7 +119,7 @@ public class PlusShell {
         IShizukuService service = IShizukuService.Stub.asInterface(binder);
         IVirtualMachineManager vmManager = service.getVirtualMachineManager();
         if (vmManager == null) {
-            LOGGER.e("Error: VM Manager feature is disabled in Shizuku+ settings.");
+            LOGGER.e("Error: VM Manager feature is disabled in 白い熊 雫 settings.");
             return;
         }
 
@@ -179,7 +179,7 @@ public class PlusShell {
         IShizukuService service = IShizukuService.Stub.asInterface(binder);
         af.shizuku.server.IActivityManagerPlus am = service.getActivityManagerPlus();
         if (am == null) {
-            LOGGER.e("Error: Activity Manager Plus feature is disabled in Shizuku+ settings.");
+            LOGGER.e("Error: Activity Manager Plus feature is disabled in 白い熊 雫 settings.");
             return;
         }
 
@@ -263,7 +263,7 @@ public class PlusShell {
         IShizukuService service = IShizukuService.Stub.asInterface(binder);
         IAICorePlus aicore = service.getAICorePlus();
         if (aicore == null) {
-            LOGGER.e("Error: AICore+ feature is disabled in Shizuku+ settings.");
+            LOGGER.e("Error: AICore+ feature is disabled in 白い熊 雫 settings.");
             return;
         }
 
@@ -343,7 +343,7 @@ public class PlusShell {
         IShizukuService service = IShizukuService.Stub.asInterface(binder);
         IStorageProxy storage = service.getStorageProxy();
         if (storage == null) {
-            LOGGER.e("Error: Storage Proxy feature is disabled in Shizuku+ settings.");
+            LOGGER.e("Error: Storage Proxy feature is disabled in 白い熊 雫 settings.");
             return;
         }
 
@@ -411,12 +411,12 @@ public class PlusShell {
         if (enabled) {
             LOGGER.i("Current Target: " + (target != null ? target : "None (Default)"));
         }
-        LOGGER.i("Note: Spoof targets are managed via Shizuku+ Settings > Root Compatibility.");
+        LOGGER.i("Note: Spoof targets are managed via 白い熊 雫 Settings > Root Compatibility.");
     }
 
     private static void handleDoctor(IBinder binder) throws RemoteException {
         IShizukuService service = IShizukuService.Stub.asInterface(binder);
-        LOGGER.i("Shizuku+ System Doctor Diagnostics");
+        LOGGER.i("白い熊 雫 System Doctor Diagnostics");
         LOGGER.i("==================================");
         LOGGER.i("Server Version: " + service.getVersion());
         LOGGER.i("Server UID: " + service.getUid());

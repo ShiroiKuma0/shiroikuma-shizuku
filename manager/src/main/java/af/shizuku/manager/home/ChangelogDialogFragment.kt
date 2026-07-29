@@ -89,7 +89,7 @@ class ChangelogDialogFragment : DialogFragment() {
             .setPositiveButton(R.string.changelog_close, null)
             .setNeutralButton(R.string.changelog_view_on_github) { _, _ ->
                 try {
-                    val url = "https://github.com/thejaustin/ShizukuPlus/releases/tag/$tagName"
+                    val url = "https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/tag/$tagName"
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 } catch (e: Exception) {
                     Timber.w(e, "Failed to open release page for $tagName")

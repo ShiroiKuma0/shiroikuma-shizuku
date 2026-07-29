@@ -31,7 +31,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
         private const val KEY_UPDATE_CHANNEL = "update_channel"
         private const val KEY_CHECK_FOR_UPDATE = "check_for_update"
         private const val KEY_LAST_CHECK = "last_check_time"
-        private const val RELEASES_URL = "https://github.com/thejaustin/ShizukuPlus/releases"
+        private const val RELEASES_URL = "https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases"
     }
 
     override fun getTitle(): CharSequence? = getString(R.string.settings_about)
@@ -68,12 +68,12 @@ class AboutSettingsFragment : BaseSettingsFragment() {
 
         // 2. Setup standard links
         findPreference<Preference>("source_code")?.setOnPreferenceClickListener {
-            CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/thejaustin/ShizukuPlus")
+            CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/ShiroiKuma0/shiroikuma-shizuku")
             true
         }
 
         findPreference<Preference>("open_source_licenses")?.setOnPreferenceClickListener {
-            CustomTabsHelper.launchUrlOrCopy(requireContext(), "https://github.com/thejaustin/ShizukuPlus/blob/main/OPEN_SOURCE_LICENSES.md")
+            CustomTabsHelper.launchUrlOrCopy(requireContext(), "https://github.com/ShiroiKuma0/shiroikuma-shizuku/blob/custom/OPEN_SOURCE_LICENSES.md")
             true
         }
 

@@ -1,109 +1,41 @@
 package af.shizuku.manager.worker
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import af.shizuku.manager.BuildConfig
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.database.AppContextManager
 import timber.log.Timber
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.concurrent.TimeUnit
 
+/**
+ * FORK: neutered. Does nothing, contacts nobody.
+ *
+ * Upstream ran this as a 24-hourly periodic [androidx.work.PeriodicWorkRequest] that fetched
+ * `app-context-db.json` from the upstream author's GitHub repo over plain
+ * [java.net.HttpURLConnection], sending a `Shizuku+/<version>` User-Agent plus ETag /
+ * If-Modified-Since headers on every cycle. That is a recurring automatic call-out from
+ * 白い熊's device, so it is gone: no URL, no fetch, no scheduling.
+ *
+ * The class is kept (rather than deleted) as a deliberate tripwire — [schedule] now *cancels*
+ * the work instead of enqueuing it, so if an upstream rebase restores the
+ * `RemoteDbSyncWorker.schedule(this)` call in `ShizukuApplication`, the result is still zero
+ * network traffic, and any job left enqueued by an older build is torn down.
+ *
+ * This app sends nothing anywhere. See CLAUDE.md, "No phone-home".
+ */
 class RemoteDbSyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     companion object {
         private const val WORK_NAME = "remote_app_db_sync"
-        private const val DB_URL =
-            "https://raw.githubusercontent.com/thejaustin/ShizukuPlus/master/app-context-db.json"
-        private const val CONNECT_TIMEOUT_MS = 8_000
-        private const val READ_TIMEOUT_MS = 12_000
-        // Only re-fetch if the cached data is older than 20 hours
-        private const val MIN_REFRESH_INTERVAL_MS = 20 * 60 * 60 * 1_000L
 
+        /** Cancels any previously-enqueued sync instead of scheduling one. */
         fun schedule(context: Context) {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            val request = PeriodicWorkRequestBuilder<RemoteDbSyncWorker>(24, TimeUnit.HOURS)
-                .setConstraints(constraints)
-                .setInitialDelay(5, TimeUnit.MINUTES)
-                .build()
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
-                request
-            )
+            runCatching { WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME) }
+            Timber.d("RemoteDbSync: disabled in this fork — nothing scheduled")
         }
     }
 
     override suspend fun doWork(): Result {
-        val lastUpdate = ShizukuSettings.getLastDbUpdate()
-        if (lastUpdate > 0 && System.currentTimeMillis() - lastUpdate < MIN_REFRESH_INTERVAL_MS) {
-            Timber.d("RemoteDbSync: skipping — cache is fresh (last update ${(System.currentTimeMillis() - lastUpdate) / 3600_000}h ago)")
-            return Result.success()
-        }
-
-        return try {
-            val json = fetch(DB_URL)
-            if (json != null) {
-                AppContextManager.updateDatabase(json)
-                Timber.d("RemoteDbSync: app context database updated successfully")
-            } else {
-                Timber.w("RemoteDbSync: server returned empty or error response")
-            }
-            Result.success()
-        } catch (e: Exception) {
-            Timber.w(e, "RemoteDbSync: network fetch failed, will retry next cycle")
-            Result.retry()
-        }
-    }
-
-    private fun fetch(urlString: String): String? {
-        val connection = (URL(urlString).openConnection() as HttpURLConnection).apply {
-            requestMethod = "GET"
-            connectTimeout = CONNECT_TIMEOUT_MS
-            readTimeout = READ_TIMEOUT_MS
-            setRequestProperty("User-Agent", "Shizuku+/${BuildConfig.VERSION_NAME}")
-            setRequestProperty("Accept", "application/json")
-
-            ShizukuSettings.getRemoteDbEtag()?.let {
-                setRequestProperty("If-None-Match", it)
-            }
-            ShizukuSettings.getRemoteDbLastModified()?.let {
-                setRequestProperty("If-Modified-Since", it)
-            }
-        }
-        return try {
-            when (connection.responseCode) {
-                HttpURLConnection.HTTP_OK -> {
-                    val etag = connection.getHeaderField("ETag")
-                    val lastModified = connection.getHeaderField("Last-Modified")
-
-                    ShizukuSettings.setRemoteDbEtag(etag)
-                    ShizukuSettings.setRemoteDbLastModified(lastModified)
-
-                    connection.inputStream.bufferedReader().use { it.readText() }.takeIf { it.isNotBlank() }
-                }
-                HttpURLConnection.HTTP_NOT_MODIFIED -> {
-                    Timber.d("RemoteDbSync: 304 Not Modified — using local cache")
-                    // If not modified, the cache is implicitly fresh, update the timestamp
-                    ShizukuSettings.setLastDbUpdate(System.currentTimeMillis())
-                    null
-                }
-                else -> {
-                    Timber.w("RemoteDbSync: HTTP ${connection.responseCode} from $urlString")
-                    null
-                }
-            }
-        } finally {
-            connection.disconnect()
-        }
+        Timber.d("RemoteDbSync: disabled in this fork — no-op")
+        return Result.success()
     }
 }

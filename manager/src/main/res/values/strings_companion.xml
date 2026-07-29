@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">Stock Shizuku Detected</string>
-    <string name="companion_conflict_description">Having stock Shizuku installed alongside Shizuku+ can cause permission conflicts and app crashes. To ensure Shizuku+ functions correctly, please uninstall or disable the stock Shizuku app.\n\nYou can do this via:\n1. Settings -> Apps -> Shizuku -> Disable/Uninstall\n2. Below buttons (if Shizuku+ service is running)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">Having stock Shizuku installed alongside 白い熊 雫 can cause permission conflicts and app crashes. To ensure 白い熊 雫 functions correctly, please uninstall or disable the stock Shizuku app.\n\nYou can do this via:\n1. Settings -> Apps -> Shizuku -> Disable/Uninstall\n2. Below buttons (if 白い熊 雫 service is running)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">Disable Stock</string>
     <string name="companion_action_uninstall">Uninstall Stock</string>
     <string name="companion_disable_success">Stock Shizuku has been disabled successfully.</string>
-    <string name="companion_disable_failure">Failed to disable Stock Shizuku. Ensure Shizuku+ is running or use ADB manually.</string>
+    <string name="companion_disable_failure">Failed to disable Stock Shizuku. Ensure 白い熊 雫 is running or use ADB manually.</string>
     <string name="companion_action_disabling">Disabling…</string>
 
     <string name="compat_hub_installed_title">Compat Hub Installed</string>
-    <string name="compat_hub_installed_desc">Third-party apps (like SwiftBackup) will now seamlessly detect Shizuku+.</string>
+    <string name="compat_hub_installed_desc">Third-party apps (like SwiftBackup) will now seamlessly detect 白い熊 雫.</string>
     <string name="compat_hub_missing_title">Compat Hub Required</string>
-    <string name="compat_hub_missing_desc">Third-party apps that explicitly check for stock Shizuku will not detect Shizuku+. Install the lightweight Compat Hub to allow apps to detect Shizuku+.</string>
+    <string name="compat_hub_missing_desc">Third-party apps that explicitly check for stock Shizuku will not detect 白い熊 雫. Install the lightweight Compat Hub to allow apps to detect 白い熊 雫.</string>
     <string name="compat_hub_install_btn">Install Compat Hub</string>
     <string name="compat_hub_installing">Installing…</string>
     <string name="compat_hub_install_success">Compat Hub installed successfully!</string>
-    <string name="compat_hub_install_fail">Failed to install. Ensure Shizuku+ or Root is active.</string>
+    <string name="compat_hub_install_fail">Failed to install. Ensure 白い熊 雫 or Root is active.</string>
     <string name="compat_hub_install_fail_detail">Install failed: %1$s</string>
     <string name="compat_hub_install_fail_restricted">Can\'t install: blocked by a device restriction (e.g. Samsung Auto Blocker). Disable Auto Blocker in Settings → Security → Auto Blocker and retry.</string>
     <string name="compat_hub_install_signature_conflict">Can\'t install: a different app (e.g. stock Shizuku) is already installed as moe.shizuku.privileged.api with an incompatible signature. Uninstall it first.</string>

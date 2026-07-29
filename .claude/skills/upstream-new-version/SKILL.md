@@ -137,9 +137,33 @@ Conflict-prone files, and the shape each must end up in:
 - **`build.gradle`** (root) — our fork-version block replaces upstream's
   `versionCode = gitCommitCount` / `versionName = "Shizuku+ …"`. Keep ours; do **not** let the
   rebase restore the git-commit-count formula. `getGitCommitCount()` itself may stay (unused).
-- **`gradle.properties`** — keep `UPSTREAM_VERSION_CODE`, `UPSTREAM_VERSION_NAME`, `BUILD_NUMBER`,
-  `APP_ID`, and the **empty `SENTRY_DSN`**. Upstream ships its own DSN on that line; taking their
-  side silently re-points crash reporting at the upstream author's Sentry account.
+- **`gradle.properties`** — keep `UPSTREAM_VERSION_CODE`, `UPSTREAM_VERSION_NAME`, `BUILD_NUMBER`
+  and `APP_ID`. (`SENTRY_DSN` is no longer read from here — the BuildConfig value is hardwired empty
+  in `manager/build.gradle`. If a rebase reintroduces the property, leave it empty.)
+
+- **⛔ The no-phone-home layer — re-verify ALL of it after every sync.** This is a standing
+  requirement (白い熊, 2026-07-29): the app sends nothing to upstream and nothing anywhere else.
+  Upstream actively develops these paths, so each sync will try to bring them back:
+
+  | File | What must hold |
+  | --- | --- |
+  | `settings.gradle`, `manager/build.gradle` | the `io.sentry.android.gradle` plugin is **not** applied and upstream's `sentry { … }` block is **absent** (it uploads mappings + native symbols to sentry.io) |
+  | `manager/build.gradle` | `buildConfigField "String", "SENTRY_DSN", "\"\""` — hardwired empty, never read from a property |
+  | `manager/…/ShizukuApplication.kt` | `initializeSentryEarly()` returns **before** `SentryAndroid.init()`; the `RemoteDbSyncWorker.schedule(this)` call stays **removed** |
+  | `manager/src/main/AndroidManifest.xml` | `io.sentry.dsn` empty, `io.sentry.auto-init` false |
+  | `manager/…/worker/RemoteDbSyncWorker.kt` | `schedule()` **cancels** the work; `doWork()` is a no-op; no URL, no fetch |
+  | `manager/…/settings/AdvancedSettingsFragment.kt` | "update app database" does **not** fetch `apps.json` |
+  | `manager/…/installer/verifier/VirusTotalClient.kt`, `PithusClient.kt` | no network call; both return the "disabled" result |
+  | `manager/…/ShizukuSettings.java` | `isAutoUpdateEnabled()` defaults **false** (upstream defaults true → a startup poll on every launch) |
+  | `manager/…/settings/BugReportDialog.kt` | no "email support" button (it reported device/OS/version to the upstream author's address) |
+  | `manager/src/main/res/values/strings_untranslatable.xml` | `support_email` empty |
+  | `.github/` | still **absent** — `app.yml` injected a Sentry DSN and uploaded debug symbols, and triggered on pushes to `master`, which we push every sync |
+
+  Quick audit — anything that fetches must be `UpdateChecker` only:
+  ```bash
+  grep -rn "openConnection\|OkHttpClient" --include=*.kt --include=*.java \
+    manager/src/main server/src/main common/src database/src
+  ```
 - **`manager/build.gradle`** — keep all of:
   1. `applicationId = providers.gradleProperty("APP_ID").get()` in `defaultConfig` **and** in the
      `shizukuplus` flavor (namespace `af.shizuku.manager` stays **unchanged**).
@@ -167,11 +191,11 @@ Conflict-prone files, and the shape each must end up in:
   - `af.shizuku.plus.API` (the meta-data key read by `AuthorizationManager.isPlusApiSupported`) is
     declared by *third-party client apps*, not by us. Renaming it means no client is ever detected
     as Plus-API-capable.
-- **Custom permission names** — `shiroikuma.shizuku.permission.API_V23` / `.MANAGER` (in
-  `manager/src/main/AndroidManifest.xml`, `manager/…/Manifest.java`, `server/…/ServerConstants.java`,
-  `server/…/BinderSender.java`). These **must** carry our app id: two installed apps cannot declare
-  the same custom permission, so upstream's `af.shizuku.plus.permission.*` would make our APK fail to
-  install with `INSTALL_FAILED_DUPLICATE_PERMISSION` whenever upstream's Shizuku+ is also present.
+- **Custom permission names stay upstream's** — `af.shizuku.plus.permission.API_V23` / `.MANAGER`.
+  They match `ShizukuProvider.PERMISSION` in the `api` submodule, which keeps client compatibility
+  exact. 白い熊 decided (2026-07-29) that this build is **not** meant to sit beside upstream's
+  Shizuku+, so the duplicate-permission conflict does not apply. Coexistence with **stock Shizuku**
+  is unaffected. Take upstream's side on any conflict here.
 - **`manager/src/main/java/af/shizuku/manager/Helps.kt`** — every wiki/README/releases URL must point
   at **`ShiroiKuma0/shiroikuma-shizuku`**, never upstream.
 - **`manager/…/update/UpdateChecker.kt`** — `RELEASES_URL` and `ATOM_URL` must stay pointed at our

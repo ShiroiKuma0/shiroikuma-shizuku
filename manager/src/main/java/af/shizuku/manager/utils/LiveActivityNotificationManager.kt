@@ -19,7 +19,7 @@ object LiveActivityNotificationManager {
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Shizuku+ Live Status",
+                "白い熊 雫 Live Status",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description = "Shows live Shizuku activity"
@@ -36,7 +36,7 @@ object LiveActivityNotificationManager {
         )
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_server_ok_24)
-            .setContentTitle("Shizuku+ Active")
+            .setContentTitle("白い熊 雫 Active")
             .setContentText(status)
             .setContentIntent(pendingIntent)
             .setOngoing(true)

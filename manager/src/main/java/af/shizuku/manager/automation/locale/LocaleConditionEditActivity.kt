@@ -10,7 +10,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * com.twofortyfouram.locale.intent.action.EDIT_CONDITION handler. Only one condition exists
- * ("Shizuku+ service is running"), so this is just a confirmation dialog rather than a picker.
+ * ("白い熊 雫 service is running"), so this is just a confirmation dialog rather than a picker.
  */
 class LocaleConditionEditActivity : AppActivity() {
 
