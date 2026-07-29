@@ -44,6 +44,7 @@ import af.shizuku.manager.database.RootCompatHelper
 import rikka.shizuku.Shizuku
 import af.shizuku.manager.database.RootSupportLevel
 import io.sentry.Sentry
+import af.shizuku.manager.shiroikuma.showHouse
 
 class RootCompatibilityActivity : AppBarActivity() {
 
@@ -286,7 +287,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                     cm.setPrimaryClip(ClipData.newPlainText("SU Bridge self-test", result.report))
                     Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_self_test_copied, Toast.LENGTH_SHORT).show()
                 }
-                .show()
+                .showHouse()
         }
     }
 
