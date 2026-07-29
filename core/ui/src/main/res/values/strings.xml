@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name" translatable="false">Shizuku+</string>
+    <string name="app_name" translatable="false">白い熊 雫</string>
     <!-- To translators: you can leave your here -->
-    <string name="translation_contributors">thejaustin</string>
-    <string name="translation_url">https://github.com/thejaustin/ShizukuPlus</string>
+    <string name="translation_contributors">白い熊</string>
+    <string name="translation_url">https://github.com/ShiroiKuma0/shiroikuma-shizuku</string>
     <!-- UI Settings - Expressive -->
     <string name="settings_expressive_title">Expressive Design (M3E)</string>
     <string name="settings_expressive_shapes">Expressive Icon Shapes</string>
@@ -103,10 +103,10 @@
     <string name="doctor_tip_secure_folder"><b>Secure Folder Detected</b>: Shizuku works best in the Main User (Owner). Running inside Secure Folder or a Work Profile may require starting the server from the Main User first.</string>
     <string name="doctor_tip_phantom_process"><b>Phantom Process Killer</b>: Android 12-15+ may kill Shizuku if too many commands are run. The \'Fix\' button attempts to disable this limit.</string>
     <string name="doctor_tip_samsung_optimization"><b>Samsung Auto-Optimization</b>: Disable \'Auto Restart\' in Device Care to prevent Shizuku from being killed at night.</string>
-    <string name="doctor_tip_samsung_sleeping"><b>Samsung Sleeping Apps</b>: Ensure Shizuku+ is added to the <b>\'Never sleeping apps\'</b> list in *Device Care > Battery > Background usage limits* to prevent background service termination.</string>
+    <string name="doctor_tip_samsung_sleeping"><b>Samsung Sleeping Apps</b>: Ensure 白い熊 雫 is added to the <b>\'Never sleeping apps\'</b> list in *Device Care > Battery > Background usage limits* to prevent background service termination.</string>
     <string name="doctor_tip_s22_ultra_exynos"><b>S22 Ultra (Exynos)</b>: If service response is sluggish, try disabling <b>\'RAM Plus\'</b> in Device Care > Memory.</string>
     <string name="doctor_tip_s22_ultra_snapdragon"><b>S22 Ultra (Snapdragon)</b>: Ensure \'Enhanced Processing\' is enabled in Quick Settings for maximum command throughput.</string>
-    <string name="doctor_system_well_configured">Your system seems well-configured for Shizuku+.</string>
+    <string name="doctor_system_well_configured">Your system seems well-configured for 白い熊 雫.</string>
     <!-- Root Compatibility -->
     <string name="su_bridge_other_detected_apps">Other Detected Root Apps</string>
     <string name="su_bridge_installed_root_app">Installed Root App</string>
@@ -205,7 +205,7 @@
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[It\'s highly possible that your device manufacturer limits the permission of adb.<p>There may be a solution for your system in <b><a href=\"%1$s\">this document</a></b>.]]></string>
     <string name="app_management_item_summary_requires_root">* requires Shizuku runs with root</string>
     <string name="app_management_item_summary_partial_root">⚠ Partially supported — some functions still need Shizuku with root</string>
-    <string name="app_management_item_summary_requires_plus">* requires Shizuku+ Enhanced API</string>
+    <string name="app_management_item_summary_requires_plus">* requires 白い熊 雫 Enhanced API</string>
     <string name="app_management_item_summary_shizuku_aware">Shizuku-aware: Supports Shizuku natively</string>
     <string name="app_management_item_context">About this app: %s</string>
     <string name="app_management_enhancements">Enhancements</string>
@@ -227,7 +227,7 @@
     <string name="terminal_export_files">Export files</string>
     <string name="terminal_tutorial_2">Use your terminal app to copy the files to its private files directory.</string>
     <string name="terminal_tutorial_2_description">Tip: If your terminal app\'s home directory (~) is in the private files directory, placing the files there will allow you to run %1$s without writing the path.\n\nOtherwise, you can create an alias for %2$s in your terminal app\'s %3$s configuration file.</string>
-    <string name="terminal_tutorial_3">Open a shell or run a Shizuku+ command:</string>
+    <string name="terminal_tutorial_3">Open a shell or run a 白い熊 雫 command:</string>
     <string name="rish_description"><![CDATA[With %1$s, you can run shell commands in any terminal app.<p>Tap to learn more about how to use it.]]></string>
     <!-- Settings — swipe customisation -->
     <string name="settings_swipe_right">Swipe right action</string>
@@ -245,14 +245,14 @@
     <string name="settings_lp_toggle_permission">Toggle Shizuku permission</string>
     <string name="settings_lp_hide_from_list">Hide from list</string>
     <!-- Onboarding -->
-    <string name="onboarding_welcome_title">Welcome to Shizuku+</string>
+    <string name="onboarding_welcome_title">Welcome to 白い熊 雫</string>
     <string name="onboarding_welcome_desc">An enhanced Shizuku with powerful app management features. Swipe gestures, quick actions, and customizable experiences — all in one place.</string>
     <string name="onboarding_swipe_title">Default Gestures</string>
     <string name="onboarding_swipe_desc">By default, in the app management list, swipe right to open an app or swipe left to view its system settings page.</string>
     <string name="onboarding_gestures_title">Custom Gestures</string>
     <string name="onboarding_gestures_desc">You can fully customize these swipe actions in Settings. Choose from Open App, App Info, Toggle Permission, or Hide from List.</string>
     <string name="onboarding_longpress_title">Customize Experience</string>
-    <string name="onboarding_longpress_desc">Choose which actions appear when you long-press an app, or enable Shizuku+ exclusive features like Dhizuku Mode.</string>
+    <string name="onboarding_longpress_desc">Choose which actions appear when you long-press an app, or enable 白い熊 雫 exclusive features like Dhizuku Mode.</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_get_started">Get Started</string>
@@ -326,16 +326,16 @@
     <string name="settings_reset_adb_keys_summary">Delete existing ADB keys and certificates. Useful if pairing is stuck or KeyStore is corrupted.</string>
     <string name="settings_reset_adb_keys_success">ADB keys cleared</string>
     <string name="settings_reset_adb_keys_error">Failed to reset ADB keys</string>
-    <!-- Shizuku+ Features -->
-    <string name="settings_shizuku_plus_features">Shizuku+ Features</string>
+    <!-- 白い熊 雫 Features -->
+    <string name="settings_shizuku_plus_features">白い熊 雫 Features</string>
     <string name="settings_dhizuku_mode">Dhizuku Mode</string>
     <string name="settings_dhizuku_mode_summary">Delegate Device Owner (DevicePolicyManager) privileges to apps that support Dhizuku.</string>
-    <string name="dhizuku_device_owner_label">Shizuku+ (Dhizuku Mode)</string>
+    <string name="dhizuku_device_owner_label">白い熊 雫 (Dhizuku Mode)</string>
     <string name="dhizuku_device_owner_desc">Required for Dhizuku Mode to share Device Owner privileges with authorized apps.</string>
     <string name="dhizuku_device_owner_enabled">Dhizuku Device Owner Enabled</string>
     <string name="dhizuku_device_owner_disabled">Dhizuku Device Owner Disabled</string>
-    <string name="settings_enhanced_api">Shizuku+ Enhanced API</string>
-    <string name="settings_enhanced_api_summary">Enable advanced system interfaces for power users. Required for all exclusive Shizuku+ features.</string>
+    <string name="settings_enhanced_api">白い熊 雫 Enhanced API</string>
+    <string name="settings_enhanced_api_summary">Enable advanced system interfaces for power users. Required for all exclusive 白い熊 雫 features.</string>
     <string name="settings_shell_interceptor">Shell Accelerator</string>
     <string name="settings_shell_interceptor_summary">Accelerate shell commands via native APIs. Improves performance for MacroDroid and Tasker tasks.</string>
     <string name="settings_avf_manager">Virtual Machine Manager (AVF)</string>
@@ -358,7 +358,7 @@
     <string name="settings_plus_app_setup_title">Setup Integration</string>
     <string name="settings_plus_app_open">Open App</string>
     <string name="settings_plus_learn_more">Learn more</string>
-    <string name="help_general_plus_summary">Shizuku+ extends the core Shizuku framework with powerful system-level bridges. These features allow third-party automation tools like MacroDroid and Tasker, as well as theming engines like Hex Installer, to perform privileged actions natively and securely. Each feature is designed to bridge the gap between root-only capabilities and the standard Android API, ensuring high performance and deep system integration for your favorite power-user apps.</string>
+    <string name="help_general_plus_summary">白い熊 雫 extends the core Shizuku framework with powerful system-level bridges. These features allow third-party automation tools like MacroDroid and Tasker, as well as theming engines like Hex Installer, to perform privileged actions natively and securely. Each feature is designed to bridge the gap between root-only capabilities and the standard Android API, ensuring high performance and deep system integration for your favorite power-user apps.</string>
     <!-- Detailed Help Strings -->
     <string name="help_dhizuku_title">About Dhizuku Mode</string>
     <string name="help_dhizuku_detail">Dhizuku allows Shizuku to share its Device Owner (DevicePolicyManager) privileges with third-party apps. This is essential for apps like Dhizuku Manager or certain kiosk-mode tools that need to manage system policies without being the sole Device Owner themselves.</string>
@@ -369,7 +369,7 @@
     <string name="help_storage_proxy_title">About Storage Bridge</string>
     <string name="help_storage_proxy_detail">The Storage Bridge provides authenticated, high-speed access to restricted filesystem paths like /data/data/ (app data) and /data/app/ (APK files). This allows backup tools like Neo Backup to function without full root access, while maintaining security through Shizuku\'s permission model.</string>
     <string name="help_continuity_bridge_title">About Multi-Device Continuity</string>
-    <string name="help_continuity_bridge_detail">Continuity Bridge allows Shizuku+ devices on the same network to hand off tasks and synchronize clipboard/app state. This utilizes the Android 17 Handoff APIs (backported where possible) to allow seamless transitions of automation tasks between your phone and tablet.</string>
+    <string name="help_continuity_bridge_detail">Continuity Bridge allows 白い熊 雫 devices on the same network to hand off tasks and synchronize clipboard/app state. This utilizes the Android 17 Handoff APIs (backported where possible) to allow seamless transitions of automation tasks between your phone and tablet.</string>
     <string name="help_ai_core_plus_title">About Intelligence Bridge</string>
     <string name="help_ai_core_plus_detail">The Intelligence Bridge grants AI assistants privileged access to screen content and NPU scheduling. It enables features like "Circle to Search" or screen-aware context for local LLMs by providing high-performance, window-aware frame capture that bypasses standard Android screen recording restrictions.</string>
     <string name="help_window_manager_plus_title">About Window Tuner</string>
@@ -419,7 +419,7 @@
     <string name="settings_experimental_root_experimental">Experimental Root Compatibility (Experimental)</string>
     <string name="settings_spoof_device_experimental">Spoof Device Identity (Experimental)</string>
     <string name="settings_open_source_licenses">Open source licenses</string>
-    <string name="settings_open_source_licenses_summary">Open source libraries used by Shizuku+</string>
+    <string name="settings_open_source_licenses_summary">Open source libraries used by 白い熊 雫</string>
     <string name="settings_experimental_warning_title">Experimental Feature</string>
     <string name="settings_experimental_warning_message">This feature is experimental and may cause system instability or crashes. Are you sure you want to enable it?</string>
     <string name="settings_spoof_target">Target Device</string>
@@ -435,9 +435,9 @@
     <string name="settings_fake_su">SU Bridge (su wrapper)</string>
     <string name="settings_fake_su_summary">Provide a Shizuku-backed \'su\' binary for legacy root apps that support custom paths.</string>
     <string name="settings_root_integration_hub">Root Integration Hub</string>
-    <string name="settings_root_integration_hub_summary">Configure and manage root apps to work with Shizuku+ privileges.</string>
+    <string name="settings_root_integration_hub_summary">Configure and manage root apps to work with 白い熊 雫 privileges.</string>
     <string name="settings_root_compatibility_hub">Root Compatibility Hub</string>
-    <string name="settings_root_compatibility_hub_summary">Configure and manage root apps to work with Shizuku+ privileges.</string>
+    <string name="settings_root_compatibility_hub_summary">Configure and manage root apps to work with 白い熊 雫 privileges.</string>
     <string name="su_bridge_title">SU Bridge</string>
     <string name="su_bridge_description">Provide root access to apps that don\'t support Shizuku by creating a custom \'su\' binary.</string>
     <string name="su_bridge_suggested_apps">Suggested Apps</string>
@@ -449,10 +449,10 @@
     <string name="su_bridge_setup_all">Setup All</string>
     <string name="su_bridge_setup_all_success">Automatic setup attempted for all compatible apps.</string>
     <string name="su_bridge_magic_setup">Magic Setup</string>
-    <string name="su_bridge_magic_setup_success">Magic Setup completed! Shizuku+ has configured %s for you.</string>
+    <string name="su_bridge_magic_setup_success">Magic Setup completed! 白い熊 雫 has configured %s for you.</string>
     <string name="su_bridge_magic_setup_fail">Magic Setup failed. Please use manual copy path instead.</string>
     <string name="su_bridge_magic_setup_all">Magic Setup All</string>
-    <string name="su_bridge_magic_setup_all_summary">Shizuku+ configured %d apps for you!</string>
+    <string name="su_bridge_magic_setup_all_summary">白い熊 雫 configured %d apps for you!</string>
     <string name="su_bridge_magic_setup_all_no_apps">No supported root apps found for automation.</string>
     <string name="su_bridge_copy_open">Copy path &amp; open</string>
     <string name="su_bridge_no_export">No SU path set. Export Shizuku files first from the Home screen.</string>
@@ -464,7 +464,7 @@
     <string name="su_bridge_step_1">1. Export Shizuku files from the Home screen.</string>
     <string name="su_bridge_step_2">2. In your root app, look for "SU Path" or "Binary Path" in its settings.</string>
     <string name="su_bridge_step_3">3. Change it to the path of the exported \'su\' file.</string>
-    <string name="su_bridge_step_4">4. For apps without a custom path setting, enable "SU Bridge" in Shizuku+ settings. This automatically redirects many legacy su calls.</string>
+    <string name="su_bridge_step_4">4. For apps without a custom path setting, enable "SU Bridge" in 白い熊 雫 settings. This automatically redirects many legacy su calls.</string>
     <string name="su_bridge_app_instruction">Set path in Settings > %s</string>
     <string name="su_bridge_path_label">Exported su path</string>
     <string name="su_bridge_su_path_label">Exported su path</string>
@@ -496,7 +496,7 @@
     <string name="manual_report_copied_dialog_title">Report Copied</string>
     <string name="manual_report_copied_dialog_message">The report has been copied to your clipboard. Would you like to open GitHub Issues now, or share the report as a file instead?</string>
     <string name="manual_report_copied_dialog_share">Share File</string>
-    <string name="crash_detected_dialog_message">Shizuku+ detected a crash from your last session. Would you like to generate a report to help us fix it?</string>
+    <string name="crash_detected_dialog_message">白い熊 雫 detected a crash from your last session. Would you like to generate a report to help us fix it?</string>
     <string name="crash_detected_dialog_short_message">The report is copied. Open GitHub to paste it, or share the report as a file instead?</string>
     <string name="crash_detected_dialog_ignore">Ignore</string>
     <string name="shortcut_open_terminal">Open Terminal</string>
@@ -534,8 +534,8 @@
     <string name="doctor_status_restricted_bg">Restricted background execution</string>
     <string name="doctor_tip_xiaomi">Xiaomi/HyperOS: Enable "USB Debugging (Security Settings)" in Developer Options.</string>
     <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus: Disable "Permission Monitoring" in Developer Options to prevent background service kills.</string>
-    <string name="doctor_tip_tcl_background">TCL: Ensure Shizuku+ is added to "Auto-start" and "High background power consumption" allowlists in Settings.</string>
-    <string name="doctor_tip_battery">Disable battery optimization for Shizuku+ to prevent it from being killed in the background.</string>
+    <string name="doctor_tip_tcl_background">TCL: Ensure 白い熊 雫 is added to "Auto-start" and "High background power consumption" allowlists in Settings.</string>
+    <string name="doctor_tip_battery">Disable battery optimization for 白い熊 雫 to prevent it from being killed in the background.</string>
     <string name="doctor_tip_adb">Wireless debugging must be active for Shizuku to start in non-root mode after a reboot.</string>
     <string name="doctor_button_fix">Fix</string>
     <!-- Snackbar -->
@@ -624,7 +624,7 @@
     <!-- Misc -->
     <string name="dialog_cannot_open_browser_title">Can\'t start browser</string>
     <string name="toast_copied_to_clipboard">Copied to clipboard</string>
-    <string name="accessibility_service_description">Provides pairing support for devices (e.g., TVs and Samsung One UI phones) where notifications or split screen cannot be used easily.\n\nEnables Shizuku+ to extract the pairing code from the wireless debugging pairing screen. It will disable itself once the pairing code is found.</string>
+    <string name="accessibility_service_description">Provides pairing support for devices (e.g., TVs and Samsung One UI phones) where notifications or split screen cannot be used easily.\n\nEnables 白い熊 雫 to extract the pairing code from the wireless debugging pairing screen. It will disable itself once the pairing code is found.</string>
     <!-- Messages for legacy -->
     <string name="dialog_legacy_not_support_title">%1$s does not support modern Shizuku</string>
     <string name="dialog_legacy_not_support_message"><![CDATA[Legacy Shizuku has been deprecated since March 2019. Also, legacy Shizuku does not work on newer Android systems.<p>Please ask the developer of <b>%1$s</b> to update.]]></string>
@@ -710,7 +710,7 @@
     <string name="empty_state_description_no_home_cards">You\'ve hidden all home screen cards. Go to Settings to restore them.</string>
     <string name="empty_state_action_restore_home_cards">Restore cards</string>
     <string name="empty_state_title_no_plus_features">All features disabled</string>
-    <string name="empty_state_description_no_plus_features">You\'ve disabled all Shizuku+ features. Enable features to see them here.</string>
+    <string name="empty_state_description_no_plus_features">You\'ve disabled all 白い熊 雫 features. Enable features to see them here.</string>
     <string name="empty_state_title_activity_log_empty">No activity recorded</string>
     <string name="empty_state_description_activity_log_empty">Shizuku API calls and events will appear here when activity logging is enabled.</string>
     <string name="empty_state_title_hidden_apps">No hidden apps</string>
@@ -744,17 +744,17 @@
     <string name="update_notification_channel">Update Notifications</string>
     <string name="update_notification_channel_description">Notifications for app update downloads and installations</string>
     <string name="update_downloading_title">Downloading update</string>
-    <string name="update_downloading_description">Downloading Shizuku+ %1$s…</string>
+    <string name="update_downloading_description">Downloading 白い熊 雫 %1$s…</string>
     <string name="update_downloading_progress">Downloading %1$s - %2$d%%</string>
     <string name="update_ready_title">Update ready to install</string>
-    <string name="update_ready_description">Shizuku+ %1$s is ready to install</string>
+    <string name="update_ready_description">白い熊 雫 %1$s is ready to install</string>
     <string name="update_install_now">Install now</string>
     <string name="update_download_failed_title">Download failed</string>
     <string name="update_download_failed_message">Failed to download the update. Please try again.</string>
     <!-- Migration Dialog -->
 <string name="migration_dialog_title">Important: Reinstall Required</string>
-    <string name="migration_dialog_message">Shizuku+ changed its package ID from moe.shizuku.privileged.api to shiroikuma.shizuku. Your old version and this version are treated as separate apps, so a direct update was not possible.\n\nYou can migrate your settings from the old version and then uninstall it.</string>
-    <string name="migration_dialog_message_root">Shizuku+ changed its package ID from moe.shizuku.privileged.api to shiroikuma.shizuku. Your old version and this version are treated as separate apps, so a direct update was not possible.\n\nRoot access is available — tap Migrate Settings to copy your settings from the old version, then uninstall it.</string>
+    <string name="migration_dialog_message">白い熊 雫 changed its package ID from moe.shizuku.privileged.api to shiroikuma.shizuku. Your old version and this version are treated as separate apps, so a direct update was not possible.\n\nYou can migrate your settings from the old version and then uninstall it.</string>
+    <string name="migration_dialog_message_root">白い熊 雫 changed its package ID from moe.shizuku.privileged.api to shiroikuma.shizuku. Your old version and this version are treated as separate apps, so a direct update was not possible.\n\nRoot access is available — tap Migrate Settings to copy your settings from the old version, then uninstall it.</string>
     <string name="migration_migrate_settings">Migrate Settings</string>
     <string name="migration_uninstall_old">Uninstall Old Version</string>
     <string name="migration_dismiss">Dismiss</string>
@@ -788,7 +788,7 @@
     <!-- Settings backup/restore -->
     <string name="settings_backup_category">Backup &amp; Restore</string>
     <string name="settings_export_title">Export Settings</string>
-    <string name="settings_export_summary">Save all Shizuku+ settings to a JSON file</string>
+    <string name="settings_export_summary">Save all 白い熊 雫 settings to a JSON file</string>
     <string name="settings_import_title">Import Settings</string>
     <string name="settings_import_summary">Restore settings from a previously exported JSON file</string>
     <string name="settings_export_success">Settings exported successfully</string>
@@ -801,7 +801,7 @@
     <string name="changelog_title">What\'s New</string>
     <string name="changelog_close">Close</string>
     <string name="aicore_plus_label">AICore+ Automation Bridge</string>
-    <string name="aicore_plus_description">Required for Shizuku+ AICore+ features. Provides privileged UI hierarchy dumping and physical input simulation for AI-driven automation. Does not observe passwords or personal data.</string>
+    <string name="aicore_plus_description">Required for 白い熊 雫 AICore+ features. Provides privileged UI hierarchy dumping and physical input simulation for AI-driven automation. Does not observe passwords or personal data.</string>
     <!-- Common action labels -->
     <string name="action_clear_all">Clear All</string>
     <string name="action_continue">Continue</string>
@@ -818,7 +818,7 @@
     <string name="accessibility_service_monitoring">Accessibility service active: monitoring for pairing code…</string>
     <!-- Dhizuku Device Owner Setup -->
     <string name="dhizuku_setup_title">Set Up Device Owner</string>
-    <string name="dhizuku_setup_message">Dhizuku Mode requires Shizuku+ to be set as Device Owner. Run this command once via ADB while USB debugging is enabled:\n\n%1$s\n\nAfter running the command, restart Shizuku.</string>
+    <string name="dhizuku_setup_message">Dhizuku Mode requires 白い熊 雫 to be set as Device Owner. Run this command once via ADB while USB debugging is enabled:\n\n%1$s\n\nAfter running the command, restart Shizuku.</string>
     <string name="dhizuku_setup_copy">Copy Command</string>
     <string name="dhizuku_setup_copied">Command copied to clipboard</string>
     <string name="dhizuku_status_active">Device Owner: Active</string>
@@ -845,7 +845,7 @@
     <string name="settings_companion_fallback">Crash Fallback</string>
     <string name="settings_companion_fallback_summary">After 3 consecutive crashes, show an option to open stock Shizuku in the crash notification</string>
     <string name="home_companion_title">Stock Shizuku</string>
-    <string name="home_companion_description">Stock Shizuku is installed. Use it as a fallback if Shizuku+ has issues.</string>
+    <string name="home_companion_description">Stock Shizuku is installed. Use it as a fallback if 白い熊 雫 has issues.</string>
     <string name="home_companion_not_installed">Stock Shizuku is not installed. Install it from GitHub to use as a fallback.</string>
     <string name="home_companion_open">Open</string>
     <string name="home_companion_install">Install</string>
@@ -861,9 +861,9 @@
     <string name="root_hub_global_config_desc">All apps use this path. Auto Setup will attempt to configure supported apps for you.</string>
     <string name="root_hub_setup_all">Setup All</string>
     <string name="root_hub_setup_all_success">Attempted auto setup for all compatible apps.</string>
-    <string name="root_hub_magic_setup_all_summary">Shizuku+ configured %d apps for you!</string>
+    <string name="root_hub_magic_setup_all_summary">白い熊 雫 configured %d apps for you!</string>
     <string name="root_hub_magic_setup_all_no_apps">No root apps found that support automated setup.</string>
-    <string name="root_hub_magic_setup_success">Magic Setup complete! Shizuku+ configured %s for you.</string>
+    <string name="root_hub_magic_setup_success">Magic Setup complete! 白い熊 雫 configured %s for you.</string>
     <string name="root_hub_magic_setup_fail">Magic Setup failed. Please try copying the path manually.</string>
     <string name="root_hub_path_copied">SU path copied to clipboard</string>
     <string name="root_hub_no_export">SU path not set. Please export the Shizuku files from the home screen first.</string>
