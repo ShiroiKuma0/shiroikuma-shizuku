@@ -34,6 +34,7 @@ import af.shizuku.manager.utils.SettingsPage
 import af.shizuku.manager.utils.ShizukuStateMachine
 import rikka.shizuku.Shizuku
 import io.sentry.Sentry
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ServiceDoctorActivity : AppBarActivity() {
 
@@ -248,13 +249,13 @@ class ServiceDoctorActivity : AppBarActivity() {
                                         try { p.destroy() } catch (_: Exception) {}
                                     }
                                 }
-                                withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, R.string.service_doctor_fix_phantom_attempted, Toast.LENGTH_SHORT).show() }
+                                withContext(Dispatchers.Main) { ShiroikumaToast.show(this@ServiceDoctorActivity, R.string.service_doctor_fix_phantom_attempted, Toast.LENGTH_SHORT) }
                             } else {
-                                withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, R.string.service_doctor_fix_requires_service, Toast.LENGTH_SHORT).show() }
+                                withContext(Dispatchers.Main) { ShiroikumaToast.show(this@ServiceDoctorActivity, R.string.service_doctor_fix_requires_service, Toast.LENGTH_SHORT) }
                             }
                         } catch (e: Exception) {
                             Sentry.captureException(e)
-                            withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, getString(R.string.service_doctor_fix_failed, e.message), Toast.LENGTH_LONG).show() }
+                            withContext(Dispatchers.Main) { ShiroikumaToast.show(this@ServiceDoctorActivity, getString(R.string.service_doctor_fix_failed, e.message), Toast.LENGTH_LONG) }
                         }
                     }
                 }
