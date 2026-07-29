@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import rikka.shizuku.Shizuku
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ShizukuCompanionViewHolder(
     private val binding: HomeShizukuCompanionBinding,
@@ -92,11 +93,11 @@ class ShizukuCompanionViewHolder(
                 scope.launch {
                     val success = runPrivilegedCommand("pm disable-user --user 0 ${StockShizukuCompat.PACKAGE}")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(
+                        ShiroikumaToast.show(
                             v.context,
                             if (success) R.string.companion_disable_success else R.string.companion_disable_failure,
                             Toast.LENGTH_SHORT
-                        ).show()
+                        )
                         homeModel.reload()
                     }
                 }
@@ -107,7 +108,7 @@ class ShizukuCompanionViewHolder(
                 // shouldn't route dropin builds into this branch (isCompatAppInstalled() now treats
                 // self as already occupying the role), but this is the hard stop that actually
                 // prevents the destructive install regardless of how this click was reached.
-                Toast.makeText(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT)
             } else {
                 // Must be on external storage, not the app's private cache/files dir: `pm install`
                 // runs via a shell process spawned by Shizuku.newProcess (UID 2000) or root, neither
@@ -123,7 +124,7 @@ class ShizukuCompanionViewHolder(
                         }
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT)
                     return@setOnClickListener
                 }
 
@@ -137,11 +138,11 @@ class ShizukuCompanionViewHolder(
                         // ignore
                     }
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(
+                        ShiroikumaToast.show(
                             v.context,
                             if (success) R.string.compat_hub_install_success else R.string.compat_hub_install_fail,
                             Toast.LENGTH_SHORT
-                        ).show()
+                        )
                         homeModel.reload()
                     }
                 }

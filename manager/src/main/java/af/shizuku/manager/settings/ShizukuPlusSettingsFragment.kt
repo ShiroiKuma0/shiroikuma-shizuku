@@ -36,6 +36,7 @@ import android.security.keystore.KeyPermanentlyInvalidatedException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
 
@@ -67,9 +68,9 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 ctx.contentResolver.openOutputStream(uri)?.use { os ->
                     OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
                 }
-                Toast.makeText(ctx, "Backup exported successfully", Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(ctx, "Backup exported successfully", Toast.LENGTH_SHORT)
             } catch (e: Exception) {
-                Toast.makeText(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG).show()
+                ShiroikumaToast.show(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG)
             }
             return@registerForActivityResult
         }
@@ -82,15 +83,15 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                     ctx.contentResolver.openOutputStream(uri)?.use { os ->
                         OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
                     }
-                    Toast.makeText(ctx, "Backup exported successfully", Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(ctx, "Backup exported successfully", Toast.LENGTH_SHORT)
                 } catch (e: Exception) {
-                    Toast.makeText(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG).show()
+                    ShiroikumaToast.show(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG)
                 }
             }, onError = { errCode ->
-                Toast.makeText(ctx, "Authentication failed ($errCode)", Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(ctx, "Authentication failed ($errCode)", Toast.LENGTH_SHORT)
             }, crypto = BiometricPrompt.CryptoObject(cipher))
         } catch (e: Exception) {
-            Toast.makeText(ctx, "Backup failed: ${e.message}", Toast.LENGTH_LONG).show()
+            ShiroikumaToast.show(ctx, "Backup failed: ${e.message}", Toast.LENGTH_LONG)
         }
     }
 
@@ -111,9 +112,9 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 try {
                     val cipher = CryptoUtils.getCipherForDecryption(iv, userAuthRequired = false)
                     BackupRestoreManager.restoreFromPayload(ctx, payload, cipher)
-                    Toast.makeText(ctx, "Backup restored successfully. Please restart the app.", Toast.LENGTH_LONG).show()
+                    ShiroikumaToast.show(ctx, "Backup restored successfully. Please restart the app.", Toast.LENGTH_LONG)
                 } catch (e: Exception) {
-                    Toast.makeText(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG).show()
+                    ShiroikumaToast.show(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG)
                 }
                 return@registerForActivityResult
             }
@@ -122,15 +123,15 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             lock.authenticate(onSuccess = { crypto ->
                 try {
                     BackupRestoreManager.restoreFromPayload(ctx, payload, crypto?.cipher ?: cipher)
-                    Toast.makeText(ctx, "Backup restored successfully. Please restart the app.", Toast.LENGTH_LONG).show()
+                    ShiroikumaToast.show(ctx, "Backup restored successfully. Please restart the app.", Toast.LENGTH_LONG)
                 } catch (e: Exception) {
-                    Toast.makeText(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG).show()
+                    ShiroikumaToast.show(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG)
                 }
             }, onError = { errCode ->
-                Toast.makeText(ctx, "Authentication failed ($errCode)", Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(ctx, "Authentication failed ($errCode)", Toast.LENGTH_SHORT)
             }, crypto = BiometricPrompt.CryptoObject(cipher))
         } catch (e: Exception) {
-            Toast.makeText(ctx, "Restore failed: ${e.message}", Toast.LENGTH_LONG).show()
+            ShiroikumaToast.show(ctx, "Restore failed: ${e.message}", Toast.LENGTH_LONG)
         }
     }
 
@@ -196,10 +197,10 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
                 val admin = ComponentName(ctx, af.shizuku.manager.admin.DhizukuAdminReceiver::class.java)
                 dpm.setScreenCaptureDisabled(admin, enabled)
-                Toast.makeText(ctx, if (enabled) "Screen Capture Disabled Globally" else "Screen Capture Enabled", Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(ctx, if (enabled) "Screen Capture Disabled Globally" else "Screen Capture Enabled", Toast.LENGTH_SHORT)
                 true
             } catch (e: Exception) {
-                Toast.makeText(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG).show()
+                ShiroikumaToast.show(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG)
                 false
             }
         }
@@ -213,14 +214,14 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 val admin = ComponentName(ctx, af.shizuku.manager.admin.DhizukuAdminReceiver::class.java)
                 if (enabled) {
                     dpm.addUserRestriction(admin, android.os.UserManager.DISALLOW_USB_FILE_TRANSFER)
-                    Toast.makeText(ctx, "USB Data Locked Down", Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(ctx, "USB Data Locked Down", Toast.LENGTH_SHORT)
                 } else {
                     dpm.clearUserRestriction(admin, android.os.UserManager.DISALLOW_USB_FILE_TRANSFER)
-                    Toast.makeText(ctx, "USB Data Unlocked", Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(ctx, "USB Data Unlocked", Toast.LENGTH_SHORT)
                 }
                 true
             } catch (e: Exception) {
-                Toast.makeText(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG).show()
+                ShiroikumaToast.show(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG)
                 false
             }
         }
@@ -256,11 +257,11 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                         }
                     }
                     withContext(Dispatchers.Main) {
-                        message?.let { Toast.makeText(ctx, it, Toast.LENGTH_SHORT).show() }
+                        message?.let { ShiroikumaToast.show(ctx, it, Toast.LENGTH_SHORT) }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG).show()
+                        ShiroikumaToast.show(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG)
                     }
                 }
             }
@@ -289,7 +290,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             try {
                 createBackupLauncher.launch("ShizukuPlus_Settings_$dateStr.json")
             } catch (e: android.content.ActivityNotFoundException) {
-                Toast.makeText(requireContext(), "No file manager app found to save the backup", Toast.LENGTH_LONG).show()
+                ShiroikumaToast.show(requireContext(), "No file manager app found to save the backup", Toast.LENGTH_LONG)
             }
             true
         }
@@ -299,7 +300,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             try {
                 restoreBackupLauncher.launch(arrayOf("application/json", "*/*"))
             } catch (e: android.content.ActivityNotFoundException) {
-                Toast.makeText(requireContext(), "No file manager app found to open the backup", Toast.LENGTH_LONG).show()
+                ShiroikumaToast.show(requireContext(), "No file manager app found to open the backup", Toast.LENGTH_LONG)
             }
             true
         }
@@ -504,7 +505,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             return
         }
 
-        Toast.makeText(ctx, R.string.dhizuku_clear_owner_success, Toast.LENGTH_LONG).show()
+        ShiroikumaToast.show(ctx, R.string.dhizuku_clear_owner_success, Toast.LENGTH_LONG)
         val dhizukuPref = findPreference<TwoStatePreference>(KEY_DHIZUKU_MODE)
         if (dhizukuPref != null) {
             ShizukuSettings.setDhizukuModeEnabled(false)
@@ -523,7 +524,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             .setNeutralButton(R.string.dhizuku_clear_owner_copy) { _, _ ->
                 val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(ClipData.newPlainText("device owner error", body))
-                Toast.makeText(ctx, R.string.dhizuku_setup_copied, Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(ctx, R.string.dhizuku_setup_copied, Toast.LENGTH_SHORT)
             }
             .showHouse()
             .also { af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(it) }
@@ -545,7 +546,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             .setPositiveButton(R.string.dhizuku_setup_copy) { _, _ ->
                 val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(ClipData.newPlainText("dpm command", command))
-                Toast.makeText(ctx, R.string.dhizuku_setup_copied, Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(ctx, R.string.dhizuku_setup_copied, Toast.LENGTH_SHORT)
             }
             .setNegativeButton(android.R.string.cancel, null)
             .showHouse()
