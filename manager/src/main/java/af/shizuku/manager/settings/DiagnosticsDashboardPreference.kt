@@ -21,6 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class DiagnosticsDashboardPreference @JvmOverloads constructor(
     context: Context,
@@ -113,7 +114,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                 context.startActivity(intent)
                             } catch (anfe: Exception) {
-                                Toast.makeText(context, "Could not open battery settings", Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(context, "Could not open battery settings", Toast.LENGTH_SHORT)
                             }
                         }
                     }
@@ -127,11 +128,11 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             } != null
                         } else false
                         if (!opened) {
-                            Toast.makeText(
+                            ShiroikumaToast.show(
                                 context,
                                 "Go to Feature Hub → Security & Access → Shadow Binder to select apps",
                                 Toast.LENGTH_LONG
-                            ).show()
+                            )
                         }
                     }
                     "dhizuku_not_owner" -> {
@@ -147,7 +148,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             .setPositiveButton("Copy Command") { _, _ ->
                                 val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 cm.setPrimaryClip(ClipData.newPlainText("dpm command", cmd))
-                                Toast.makeText(context, "Command copied", Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(context, "Command copied", Toast.LENGTH_SHORT)
                             }
                             .setNegativeButton("Dismiss", null)
                             .showHouse()

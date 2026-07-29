@@ -43,6 +43,7 @@ import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.ShizukuStateMachine
 import rikka.core.util.ClipboardUtils
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class OnboardingActivity : AppActivity() {
 
@@ -367,7 +368,7 @@ class OnboardingActivity : AppActivity() {
             )
             .setPositiveButton(R.string.home_adb_dialog_view_command_copy_button) { _, _ ->
                 if (ClipboardUtils.put(this, Starter.adbCommand)) {
-                    Toast.makeText(this, R.string.toast_copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(this, R.string.toast_copied_to_clipboard, Toast.LENGTH_SHORT)
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
