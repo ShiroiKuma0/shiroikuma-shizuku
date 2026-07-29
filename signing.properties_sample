@@ -1,0 +1,14 @@
+# shiroikuma-shizuku release signing.
+#
+# Copy to `signing.properties` (gitignored) and fill in the real values. Without it,
+# `signing.gradle` silently falls back to the Android debug keystore — the release APK
+# then installs as a DIFFERENT signing identity and cannot update an existing install.
+#
+# The real password is recorded in
+#   ~/〇/[666] 私資料/[666][27] 暗号/android-keystores.org
+# with a backup of the .jks in the `android-keystores/` directory next to it.
+
+KEYSTORE_FILE=/home/shiroikuma/.android-keystores/shiroikuma-shizuku.jks
+KEYSTORE_PASSWORD=<store password>
+KEYSTORE_ALIAS=shizuku
+KEYSTORE_ALIAS_PASSWORD=<key password — same as the store password>
