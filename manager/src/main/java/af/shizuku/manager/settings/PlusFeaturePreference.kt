@@ -18,6 +18,7 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import af.shizuku.manager.R
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class PlusFeaturePreference(context: Context, attrs: AttributeSet) : SwitchPreferenceCompat(context, attrs) {
 
@@ -121,9 +122,9 @@ class PlusFeaturePreference(context: Context, attrs: AttributeSet) : SwitchPrefe
         if (intent != null) {
             context.startActivity(intent)
         } else {
-            android.widget.Toast.makeText(
+            af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
                 context, R.string.app_management_no_launcher, android.widget.Toast.LENGTH_SHORT
-            ).show()
+            )
         }
     }
 
