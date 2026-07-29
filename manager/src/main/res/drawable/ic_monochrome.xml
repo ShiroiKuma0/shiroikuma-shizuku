@@ -1,27 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 白い熊 雫: the traced mark as a themed (monochrome) icon. Stroke-only, single tint;
+     the hexagon is dropped here because at themed-icon sizes the overlap reads as noise. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="432"
-    android:viewportHeight="432"
-    android:tint="?attr/colorControlNormal">
-    <!-- Hexagon ring, cat silhouette, and Plus badge are kept as distinct
-         non-overlapping shapes here (unlike the old single evenOdd path)
-         because merging them produced an illegible blob once the OS
-         re-tints this layer to a single flat color for Themed Icons. -->
+    android:viewportWidth="108"
+    android:viewportHeight="108">
     <path
-        android:fillColor="@android:color/white"
-        android:fillType="evenOdd"
-        android:pathData="M 216.0,117.0 L 292.2,161.0 L 292.2,249.0 L 216.0,293.0 L 139.8,249.0 L 139.8,161.0 Z M 150.2,167.0 L 150.2,243.0 L 216.0,281.0 L 281.8,243.0 L 281.8,167.0 L 216.0,129.0 Z" />
-    <group
-        android:translateX="0"
-        android:translateY="432"
-        android:scaleX="0.1"
-        android:scaleY="-0.1">
-        <path
-            android:fillColor="@android:color/white"
-            android:pathData="M1023 2626 c-97 -105 -182 -257 -183 -327 0 -23 -8 -29 -60 -48 -217 -79 -484 -367 -557 -599 -49 -157 -19 -288 104 -461 145 -202 475 -456 726 -556 206 -82 493 -138 722 -139 l141 -1 76 38 c156 77 292 273 354 512 31 117 43 332 25 428 -10 57 -10 60 20 104 76 110 154 307 161 407 3 39 2 40 -43 57 -100 38 -261 48 -393 24 l-79 -14 -61 43 c-127 91 -352 184 -452 187 -49 2 -50 3 -68 45 -29 70 -90 158 -155 223 -68 68 -176 151 -196 151 -7 0 -44 -33 -82 -74z" />
-    </group>
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M 334,56 h 20 v 30 h 30 v 20 h -30 v 30 h -20 v -30 h -30 v -20 h 30 z" />
+        android:pathData="M42.52,32.52 C43.97,32.32 45.87,34.41 47.27,35.89 C48.66,37.36 49.30,40.22 50.88,41.38 C52.46,42.54 54.77,42.02 56.75,42.85 C58.74,43.68 60.74,45.87 62.79,46.36 C64.84,46.86 67.17,45.68 69.04,45.82 C70.92,45.96 73.33,46.29 74.02,47.20 C74.71,48.12 73.87,49.57 73.18,51.30 C72.49,53.02 70.38,55.32 69.89,57.55 C69.39,59.78 70.38,62.55 70.21,64.67 C70.04,66.79 69.62,68.37 68.87,70.27 C68.12,72.18 66.99,74.54 65.69,76.10 C64.39,77.65 63.38,79.00 61.07,79.59 C58.75,80.18 55.28,80.17 51.79,79.63 C48.31,79.10 43.83,78.11 40.15,76.37 C36.47,74.63 32.44,71.76 29.70,69.20 C26.96,66.64 24.80,63.09 23.72,61.00 C22.65,58.92 23.03,58.20 23.24,56.69 C23.46,55.18 23.89,53.76 25.01,51.95 C26.14,50.13 28.04,47.54 30.02,45.81 C32.00,44.09 35.45,43.05 36.88,41.60 C38.31,40.14 37.66,38.58 38.60,37.07 C39.54,35.56 41.08,32.72 42.52,32.52 Z"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3.6"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round" />
+    <path android:pathData="M41.51,50.70 a1.79,1.79 0 1,0 3.59,0 a1.79,1.79 0 1,0 -3.59,0 Z" android:fillColor="@android:color/white" />
+    <path android:pathData="M57.69,58.33 a1.65,1.65 0 1,0 3.30,0 a1.65,1.65 0 1,0 -3.30,0 Z" android:fillColor="@android:color/white" />
 </vector>
