@@ -74,7 +74,7 @@ class ShizukuGlanceWidget : GlanceAppWidget() {
 
             Column(modifier = GlanceModifier.defaultWeight()) {
                 Text(
-                    text = "Shizuku+",
+                    text = "白い熊 雫",
                     style = TextStyle(
                         color = ColorProvider(R.color.widget_title),
                         fontSize = 16.sp,

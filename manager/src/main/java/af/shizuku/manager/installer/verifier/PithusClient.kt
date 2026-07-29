@@ -1,51 +1,29 @@
 package af.shizuku.manager.installer.verifier
 
-import af.shizuku.manager.ShizukuSettings
-import org.json.JSONObject
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
 
+/**
+ * FORK: disabled. Contacts nobody.
+ *
+ * Upstream sent the SHA-256 of every APK being installed to `beta.pithus.org`, a third-party
+ * threat-intelligence service, and read back a risk score. That discloses which apps 白い熊
+ * installs — and when — to an outside party, so the lookup is gone: no URL, no connection, no
+ * API key read.
+ *
+ * The class is kept so the verifier registry and its settings row keep compiling across
+ * rebases; it now always reports "not checked" without touching the network.
+ *
+ * This app sends nothing anywhere. See CLAUDE.md, "No phone-home".
+ */
 class PithusClient : ApkVerificationClient {
     override val name = "Pithus Threat Intel"
     override val preferenceKey = "verify_apk_pithus"
 
-    override suspend fun verifyApk(apkFile: File, sha256: String): VerificationResult {
-        return try {
-            val apiKey = ShizukuSettings.getPithusApiKey()
-            val url = URL("https://beta.pithus.org/api/beta/search/hash/$sha256/")
-            val conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 15_000
-            conn.readTimeout = 15_000
-            conn.requestMethod = "GET"
-            if (apiKey.isNotBlank()) {
-                conn.setRequestProperty("Authorization", "Token $apiKey")
-            }
-            val code = conn.responseCode
-            if (code == HttpURLConnection.HTTP_NOT_FOUND) {
-                conn.disconnect()
-                return VerificationResult(isSafe = true, methodsUsed = listOf(name), riskScore = 0,
-                    details = "Pithus: hash not in database.")
-            }
-            if (code != HttpURLConnection.HTTP_OK) {
-                conn.disconnect()
-                return VerificationResult(isSafe = true, methodsUsed = listOf(name), riskScore = 0,
-                    details = "Pithus: HTTP $code, skipped.")
-            }
-            val body = conn.inputStream.use { it.bufferedReader().readText() }
-            conn.disconnect()
-            val json = JSONObject(body)
-            val riskScore = json.optInt("risk_score", 0)
-            val isSafe = riskScore < 50
-            VerificationResult(
-                isSafe = isSafe,
-                methodsUsed = listOf(name),
-                riskScore = riskScore,
-                details = "Pithus: risk score $riskScore/100."
-            )
-        } catch (e: Exception) {
-            VerificationResult(isSafe = true, methodsUsed = listOf(name), riskScore = 0,
-                details = "Pithus: lookup failed (${e.message}), skipped.")
-        }
-    }
+    override suspend fun verifyApk(apkFile: File, sha256: String): VerificationResult =
+        VerificationResult(
+            isSafe = true,
+            methodsUsed = listOf(name),
+            riskScore = 0,
+            details = "Pithus: disabled in this build — no data left the device."
+        )
 }

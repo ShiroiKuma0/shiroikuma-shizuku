@@ -1172,8 +1172,15 @@ public class ShizukuSettings {
     }
 
     // Auto Update Settings (Shizuku+ additions)
+    /**
+     * FORK: defaults to <b>false</b> (upstream defaulted to true).
+     * <p>
+     * When true, {@code HomeActivity.checkForUpdates()} polls the releases API on every app
+     * start (once a day). This fork does not call out automatically — the update check runs
+     * only when 白い熊 taps "Check for updates" in About. See CLAUDE.md, "No phone-home".
+     */
     public static boolean isAutoUpdateEnabled() {
-        return getPreferences().getBoolean(Keys.KEY_AUTO_UPDATE_ENABLED, true);
+        return getPreferences().getBoolean(Keys.KEY_AUTO_UPDATE_ENABLED, false);
     }
 
     public static void setAutoUpdateEnabled(boolean enabled) {

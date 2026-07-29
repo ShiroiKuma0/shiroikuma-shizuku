@@ -35,3 +35,6 @@ build_failure.log
 check.log
 smoke-test.log
 ktlint
+
+# Fork: build artifact — copyCompatApkRelease/Debug generates this from the :compat module.
+/manager/src/main/assets/compat.apk

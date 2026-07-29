@@ -42,7 +42,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
 /**
- * Shizuku+ Application class
+ * 白い熊 雫 Application class
  *
  * Initialization order:
  * 1. Sentry (for crash reporting)
@@ -104,6 +104,22 @@ class ShizukuApplication : Application(), Configuration.Provider {
      * Initialize Sentry FIRST to catch all crashes including early startup failures
      */
     private fun initializeSentryEarly() {
+        // ---------------------------------------------------------------------------------
+        // FORK: crash reporting is OFF, unconditionally. This app sends nothing anywhere.
+        //
+        // Upstream initialises Sentry against its own DSN, which would ship every crash,
+        // breadcrumb trail and ANR from this device to the upstream author's account. The
+        // DSN is hardwired empty in manager/build.gradle, and this early return means
+        // SentryAndroid.init() is never reached even if a rebase restores it. With the SDK
+        // unarmed it has no transport, so the ~14 Sentry.captureException/addBreadcrumb call
+        // sites left elsewhere in the app are inert no-ops — they are kept only so upstream
+        // files we do not otherwise touch stay conflict-free on rebase.
+        //
+        // Do NOT "restore" this. See CLAUDE.md, "No phone-home".
+        // ---------------------------------------------------------------------------------
+        return
+
+        @Suppress("UNREACHABLE_CODE")
         if (BuildConfig.SENTRY_DSN.isEmpty()) {
             Timber.w("Sentry DSN is empty, skipping initialization")
             return
@@ -523,16 +539,12 @@ class ShizukuApplication : Application(), Configuration.Provider {
             }
         }
 
-        val userManager = getSystemService(Context.USER_SERVICE) as? UserManager
-        if (userManager == null || userManager.isUserUnlocked) {
-            try {
-                RemoteDbSyncWorker.schedule(this)
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to schedule RemoteDbSyncWorker")
-            }
-        } else {
-            Timber.w("Direct Boot mode: skipping RemoteDbSyncWorker scheduling")
-        }
+        // FORK: the periodic remote-database sync is NOT scheduled. Upstream enqueues a
+        // 24-hourly WorkManager job that fetches app-context-db.json from the upstream author's
+        // GitHub repo — a recurring, fully automatic call-out from this device that we do not
+        // want. The worker class itself is also neutered (see RemoteDbSyncWorker), so a rebase
+        // that restores this call still results in no network traffic.
+        // This app sends nothing anywhere. See CLAUDE.md, "No phone-home".
     }
 
     override fun onCreate() {
@@ -641,7 +653,7 @@ class ShizukuApplication : Application(), Configuration.Provider {
             Sentry.captureException(e)
         }
 
-        Timber.d("Shizuku+ ${BuildConfig.VERSION_NAME} initialization complete")
+        Timber.d("白い熊 雫 ${BuildConfig.VERSION_NAME} initialization complete")
         Sentry.addBreadcrumb(Breadcrumb("App initialization complete"))
     }
 }

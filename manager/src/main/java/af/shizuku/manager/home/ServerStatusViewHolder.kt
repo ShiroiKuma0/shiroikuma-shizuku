@@ -83,7 +83,7 @@ class ServerStatusViewHolder(private val binding: HomeServerStatusBinding, root:
                 .setMessage(R.string.sentry_offline_notice_learn_more)
                 .setPositiveButton(android.R.string.ok, null)
                 .setNeutralButton(R.string.update_view_on_github) { _, _ ->
-                    af.shizuku.manager.utils.CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/thejaustin/ShizukuPlus/issues")
+                    af.shizuku.manager.utils.CustomTabsHelper.launchUrlOrCopy(context, "https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues")
                 }
                 .show()
         }
