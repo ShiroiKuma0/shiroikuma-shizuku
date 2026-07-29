@@ -14,6 +14,11 @@ import java.util.*
 object ServiceStarter {
 
     private const val TAG = "ShizukuServiceStarter"
+    // WIRE PROTOCOL, NOT IDENTITY — deliberately keeps upstream's string even though our
+    // applicationId is shiroikuma.shizuku. The receiving side is ShizukuProvider in the `api`
+    // submodule (rikka.shizuku.ShizukuProvider.EXTRA_BINDER), which we do not fork; rename this
+    // and the binder handoff silently stops working. Same for the two mirrors of this key in
+    // ShizukuManagerProvider.kt and ShizukuService.java.
     private const val EXTRA_BINDER = "af.shizuku.plus.api.intent.extra.BINDER"
 
     val DEBUG_ARGS: String by lazy {
@@ -88,7 +93,7 @@ object ServiceStarter {
     }
 
     private suspend fun sendBinder(binder: IBinder, token: String, retry: Boolean = true): Boolean = withContext(Dispatchers.IO) {
-        val packageName = "af.shizuku.plus.api"
+        val packageName = "shiroikuma.shizuku"
         val name = "$packageName.shizuku"
         val userId = 0
         var provider: IContentProvider? = null
