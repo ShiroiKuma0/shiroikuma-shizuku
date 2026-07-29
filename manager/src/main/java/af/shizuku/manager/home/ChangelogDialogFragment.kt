@@ -107,4 +107,17 @@ class ChangelogDialogFragment : DialogFragment() {
 
         return dialog
     }
+
+    /**
+     * FORK: the house look — black fill, **yellow border**.
+     *
+     * It has to happen here rather than on the builder: `MaterialAlertDialogBuilder` installs its
+     * own `MaterialShapeDrawable` window background during `show()`, which overrides the bordered
+     * `android:windowBackground` our dialog theme sets. `onStart()` runs after the dialog is shown,
+     * so this is the first point at which the background can be replaced for good.
+     */
+    override fun onStart() {
+        super.onStart()
+        dialog?.let { af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(it) }
+    }
 }

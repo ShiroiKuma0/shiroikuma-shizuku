@@ -146,6 +146,17 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setDivider(null)
+
+        // FORK: Compose's theme cannot reach androidx.preference rows, so the 白い熊 雫 knobs are
+        // applied to the View tree here — every settings screen inherits it from this base class.
+        // Rows are recycled, so re-apply on each layout pass rather than once; the applier is
+        // idempotent and skips anything already carrying a house layout.
+        if (this !is af.shizuku.manager.shiroikuma.ShiroikumaUiFragment) {
+            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.applyToTree(view)
+            listView?.viewTreeObserver?.addOnGlobalLayoutListener {
+                af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.applyToTree(listView, tintBackground = false)
+            }
+        }
     }
 
     /**
@@ -153,6 +164,8 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
      */
     protected fun showDialog(builder: MaterialAlertDialogBuilder) {
         val dialog = builder.show()
+        // Fork: these are not DialogFragments, so the global hook does not see them — style here.
+        runCatching { af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(dialog) }
         activeDialogs.add(dialog)
         dialog.setOnDismissListener { activeDialogs.remove(dialog) }
     }
