@@ -23,6 +23,7 @@ import af.shizuku.manager.utils.HapticUtils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AppPickerPreference(context: Context, attrs: AttributeSet?) : Preference(context, attrs) {
 
@@ -240,7 +241,7 @@ class AppPickerPreference(context: Context, attrs: AttributeSet?) : Preference(c
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
-                .show()
+                .showHouse()
         }
     }
 
