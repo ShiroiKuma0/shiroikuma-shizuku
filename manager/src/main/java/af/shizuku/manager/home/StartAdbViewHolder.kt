@@ -21,6 +21,7 @@ import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
+import af.shizuku.manager.shiroikuma.showHouse
 
 class StartAdbViewHolder(
     private val binding: HomeStartAdbBinding,
@@ -70,7 +71,7 @@ class StartAdbViewHolder(
                     )
                     context.startActivity(intent)
                 }
-                .show()
+                .showHouse()
         }
         binding.text1.movementMethod = LinkMovementMethod.getInstance()
         binding.text1.text = androidx.core.text.HtmlCompat.fromHtml(

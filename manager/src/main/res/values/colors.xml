@@ -26,4 +26,12 @@
     <color name="system_accent2_600">#5E5E5E</color>
     <color name="system_accent3_600">#7D5260</color>
     <color name="system_accent1_400">#D0BCFF</color>
+    <!-- 白い熊 雫 house palette. Pure black + pure yellow (NOT Material amber). -->
+    <color name="shizuku_black">#FF000000</color>
+    <color name="shizuku_yellow">#FFFFFF00</color>
+    <color name="shizuku_yellow_dim">#FFCCCC66</color>
+    <color name="shizuku_red">#FFFF6666</color>
+    <!-- The MINOR border: for ordinary items that need to be told apart from the black ground
+         without shouting. Groups and major items keep the yellow border. -->
+    <color name="shizuku_grey">#FF4A4A4A</color>
 </resources>

@@ -201,13 +201,30 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    var colorScheme = remember(context, darkTheme, themeVersion) { androidColorScheme(context, darkTheme) }
 
-    // Belt-and-suspenders alongside ThemeOverlay.Black / ThemeOverlay.Black.Plus applied via
-    // onApplyUserThemeResource. AMOLED mode forces background + base surfaces to black with
-    // subtle near-black elevated containers. AMOLED+ additionally collapses all containers to
-    // pure black so cards blend completely with the panel.
-    if (darkTheme && isBlackNightTheme) {
+    // FORK: the 白い熊 雫 UI page installs a live provider (see AppThemeOverride), so a colour the
+    // user just moved a slider to reaches every Compose screen. `revision` is in the remember key
+    // so an edit actually recomposes instead of reusing the scheme from before it. With no provider
+    // installed this is exactly upstream's behaviour.
+    //
+    // `themeVersion` is upstream's own counter, bumped by SettingsActivity.onThemeChanged(). It
+    // replaced the Activity.recreate() that used to follow an accent/icon/blur change, so it has to
+    // sit in BOTH keys: drop it from the fallback and upstream's settings stop taking effect until
+    // a navigation, drop it from the override and the same happens whenever our provider is live.
+    val revision = AppThemeOverride.revision
+    val override = remember(context, darkTheme, revision, themeVersion) {
+        AppThemeOverride.colorSchemeProvider?.invoke(context, darkTheme)
+    }
+    var colorScheme = override
+        ?: remember(context, darkTheme, themeVersion) { androidColorScheme(context, darkTheme) }
+
+    // FORK: the `override == null` guard is ours — when the 白い熊 雫 house override is live
+    // (the default, installed in ShizukuApplication.onCreate) it already builds a role-by-role
+    // pure-black scheme, so this block must NOT run over it and drag the containers back to
+    // upstream's near-black. With no override installed this is upstream's own belt-and-suspenders
+    // alongside ThemeOverlay.Black: AMOLED forces background + base surfaces black with subtle
+    // near-black elevated containers, and AMOLED+ collapses every container to pure black.
+    if (override == null && darkTheme && isBlackNightTheme) {
         colorScheme = colorScheme.copy(
             background = Color.Black,
             surface = Color.Black,
@@ -225,7 +242,11 @@ fun AppTheme(
         isOneUi -> OneUiShapes
         else -> Shapes()
     }
-    val typography = if (isOneUi) OneUiTypography else Typography()
+    // FORK: the house typography override wins over upstream's One UI typography when the 白い熊 雫
+    // UI page has one installed; with no provider this is exactly upstream's choice. `shapes` reaches
+    // MaterialTheme on either branch, so a custom font never undoes the rounded/sharp corner setting.
+    val houseTypography = remember(context, revision) { AppThemeOverride.typographyProvider?.invoke(context) }
+    val typography = houseTypography ?: if (isOneUi) OneUiTypography else Typography()
 
     MaterialTheme(
         colorScheme = colorScheme,

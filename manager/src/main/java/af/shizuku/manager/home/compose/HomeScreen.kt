@@ -3,13 +3,18 @@ package af.shizuku.manager.home.compose
 import android.content.Context
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -32,7 +37,7 @@ import af.shizuku.core.ui.compose.ButtonSize
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     isEditMode: Boolean,
@@ -41,6 +46,7 @@ fun HomeScreen(
     isOneUi: Boolean = ShizukuSettings.isOneUiThemeEnabled(),
     onStopClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onSettingsLongClick: () -> Unit,
     onHelpClick: () -> Unit,
     onDoneClick: () -> Unit,
     onRestoreHomeCards: () -> Unit,
@@ -146,7 +152,22 @@ fun HomeScreen(
                                     contentDescription = stringResource(id = R.string.action_stop)
                                 )
                             }
-                            IconButton(onClick = onSettingsClick) {
+                            // Fork: the cog takes a LONG-PRESS straight to the 白い熊 雫 UI page.
+                            // An IconButton has no long-press, so the cog is a combinedClickable box
+                            // sized to match the 48dp IconButton touch target it sits beside.
+                            Box(
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .clip(CircleShape)
+                                    .combinedClickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = LocalIndication.current,
+                                        onClick = onSettingsClick,
+                                        onLongClick = onSettingsLongClick
+                                    )
+                                    .padding(8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_settings_outline_24),
                                     contentDescription = stringResource(id = R.string.settings_title)
