@@ -16,6 +16,10 @@ import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.TypefaceSpan
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import af.shizuku.manager.R
+import af.shizuku.manager.adb.AdbPairingAccessibilityService
+import af.shizuku.manager.utils.SettingsPage
+import af.shizuku.manager.shiroikuma.showHouse
 
 fun Context.showAccessibilityDialog() {
     if (isAccessibilityEnabled()) {
@@ -167,7 +171,7 @@ private fun Context.showPermissionDialog() {
             }
         }.setNeutralButton(R.string.action_continue) { _, _ -> showEnableDialog() }
         .setNegativeButton(android.R.string.cancel, null)
-        .show()
+        .showHouse()
 }
 
 private fun Context.showEnableDialog() {
@@ -177,7 +181,7 @@ private fun Context.showEnableDialog() {
         .setPositiveButton(R.string.enable) { _, _ ->
             SettingsPage.Accessibility.launch(this)
         }.setNegativeButton(android.R.string.cancel, null)
-        .show()
+        .showHouse()
 }
 
 private fun Context.showNavigateDialog() {
@@ -187,7 +191,7 @@ private fun Context.showNavigateDialog() {
         .setPositiveButton(R.string.development_settings) { _, _ ->
             SettingsPage.Developer.HighlightWirelessDebugging.launch(this)
         }.setNegativeButton(android.R.string.cancel, null)
-        .show()
+        .showHouse()
 }
 
 private fun Context.getEnabledAccessibilityServices(): List<String>? {

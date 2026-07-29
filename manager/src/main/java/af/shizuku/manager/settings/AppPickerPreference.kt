@@ -22,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AppPickerPreference(
     context: Context,
@@ -272,8 +273,9 @@ class AppPickerPreference(
                         persistString(result)
                         updateSummary(result)
                     }
-                }.setNegativeButton(android.R.string.cancel, null)
-                .show()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .showHouse()
         }
     }
 

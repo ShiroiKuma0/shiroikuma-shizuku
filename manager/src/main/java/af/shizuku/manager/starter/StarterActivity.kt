@@ -29,12 +29,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import rikka.lifecycle.Resource
 import rikka.lifecycle.Status
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.util.concurrent.TimeoutException
-import javax.net.ssl.SSLProtocolException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import af.shizuku.manager.shiroikuma.showHouse
 
 private class NotRootedException : Exception()
 
@@ -98,7 +93,8 @@ class StarterActivity : AppBarActivity() {
                         binding.progressIndicator.visibility = View.VISIBLE
                         binding.cancelButton.visibility = View.VISIBLE
                         viewModel.retry()
-                    }.show()
+                    }
+                    .showHouse()
             }
             binding.text1.text = output
             binding.scrollView.post { binding.scrollView.scrollTo(0, Int.MAX_VALUE) }

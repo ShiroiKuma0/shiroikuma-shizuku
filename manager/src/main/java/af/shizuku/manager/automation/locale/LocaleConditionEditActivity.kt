@@ -7,6 +7,7 @@ import af.shizuku.manager.automation.locale.LocalePluginContract.EXTRA_STRING_BL
 import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import af.shizuku.manager.shiroikuma.showHouse
 
 /**
  * com.twofortyfouram.locale.intent.action.EDIT_CONDITION handler. Only one condition exists
@@ -26,7 +27,8 @@ class LocaleConditionEditActivity : AppActivity() {
             }.setOnCancelListener {
                 setResult(RESULT_CANCELED)
                 finish()
-            }.show()
+            }
+            .showHouse()
     }
 
     private fun finishWithResult() {

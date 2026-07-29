@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import af.shizuku.core.ui.AppActivity
+import af.shizuku.manager.R
+import af.shizuku.manager.shiroikuma.showHouse
 
 // Extends AppActivity (not plain AppCompatActivity) so onApplyUserThemeResource/
 // computeUserThemeKey actually run - without it, the manifest's Theme.App.DialogHost
@@ -53,6 +56,6 @@ class AdbPairingDialogActivity : AppActivity() {
                 finish()
             }.setNegativeButton(android.R.string.cancel) { _, _ -> finish() }
             .setOnCancelListener { finish() }
-            .show()
+            .showHouse()
     }
 }

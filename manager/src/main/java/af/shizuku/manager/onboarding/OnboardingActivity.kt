@@ -36,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import rikka.core.util.ClipboardUtils
+import af.shizuku.manager.shiroikuma.showHouse
 
 class OnboardingActivity : AppActivity() {
     private lateinit var binding: ActivityOnboardingBinding
@@ -425,6 +426,7 @@ class OnboardingActivity : AppActivity() {
                 intent.putExtra(Intent.EXTRA_TEXT, Starter.adbCommand)
                 intent = Intent.createChooser(intent, getString(R.string.home_adb_dialog_view_command_button_send))
                 startActivity(intent)
-            }.show()
+            }
+            .showHouse()
     }
 }

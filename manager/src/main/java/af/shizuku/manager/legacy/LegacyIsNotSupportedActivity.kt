@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import rikka.html.text.HtmlCompat
+import af.shizuku.manager.shiroikuma.showHouse
 
 class LegacyIsNotSupportedActivity : AppActivity() {
     companion object {
@@ -52,29 +53,30 @@ class LegacyIsNotSupportedActivity : AppActivity() {
         val v3Support = ai.metaData?.getBoolean("af.shizuku.client.V3_SUPPORT") == true
         if (v3Support) {
             MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.dialog_requesting_legacy_title, label))
-                .setMessage(getString(R.string.dialog_requesting_legacy_message, label).toHtml(HtmlCompat.FROM_HTML_OPTION_TRIM_WHITESPACE))
-                .setPositiveButton(android.R.string.ok, null)
-                .setNeutralButton(R.string.dialog_requesting_legacy_button_open_shizuku) { _, _ ->
-                    startActivity(
-                        Intent(this, MainActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    )
-                }.setOnDismissListener {
-                    setResult(RESULT_ERROR)
-                    finish()
-                }.setCancelable(false)
-                .show()
+                    .setTitle(getString(R.string.dialog_requesting_legacy_title, label))
+                    .setMessage(getString(R.string.dialog_requesting_legacy_message, label).toHtml(HtmlCompat.FROM_HTML_OPTION_TRIM_WHITESPACE))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setNeutralButton(R.string.dialog_requesting_legacy_button_open_shizuku) { _, _ ->
+                        startActivity(Intent(this, MainActivity::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    }
+                    .setOnDismissListener {
+                        setResult(RESULT_ERROR)
+                        finish()
+                    }
+                    .setCancelable(false)
+                    .showHouse()
         } else {
             MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.dialog_legacy_not_support_title, label))
-                .setMessage(getString(R.string.dialog_legacy_not_support_message, label).toHtml(HtmlCompat.FROM_HTML_OPTION_TRIM_WHITESPACE))
-                .setPositiveButton(android.R.string.ok, null)
-                .setOnDismissListener {
-                    setResult(RESULT_ERROR)
-                    finish()
-                }.setCancelable(false)
-                .show()
+                    .setTitle(getString(R.string.dialog_legacy_not_support_title, label))
+                    .setMessage(getString(R.string.dialog_legacy_not_support_message, label).toHtml(HtmlCompat.FROM_HTML_OPTION_TRIM_WHITESPACE))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setOnDismissListener {
+                        setResult(RESULT_ERROR)
+                        finish()
+                    }
+                    .setCancelable(false)
+                    .showHouse()
         }
     }
 }

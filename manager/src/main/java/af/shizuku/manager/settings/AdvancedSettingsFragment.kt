@@ -18,6 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.preference.TwoStatePreference
 import android.content.ClipData
 import android.content.ClipboardManager
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AdvancedSettingsFragment : BaseSettingsFragment() {
     override fun getTitle(): CharSequence? = getString(R.string.settings_main_nav_advanced_diagnostics_title)
@@ -92,8 +93,9 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                         Timber.tag("AdvancedSettings").e(e, "Failed to reset ADB keys")
                         Toast.makeText(context, R.string.settings_reset_adb_keys_error, Toast.LENGTH_LONG).show()
                     }
-                }.setNegativeButton(android.R.string.cancel, null)
-                .show()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .showHouse()
             true
         }
 
@@ -149,7 +151,8 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                             (pref as? TwoStatePreference)?.isChecked = true
                         }.setNegativeButton(android.R.string.cancel) { _, _ ->
                             (pref as? TwoStatePreference)?.isChecked = false
-                        }.show()
+                        }
+                        .showHouse()
                     false
                 } else {
                     context.packageManager.setComponentEnabled(launcherAlias, true)
