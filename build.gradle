@@ -19,12 +19,40 @@ def getGitCommitCount() {
     }
 }
 
-def gitCommitCount = getGitCommitCount()
-def baseVersionName = "13.6.0"
+// ---------------------------------------------------------------------------------------------
+// shiroikuma-shizuku fork versioning.
+//
+// Upstream derives its versionCode from `git rev-list --count HEAD` and its versionName from that
+// same count ("Shizuku+ 13.6.0.r2178"). We cannot reuse that directly: on `custom` the count
+// includes OUR commits, so every fork commit would silently inflate the version and the number
+// would no longer mean "the upstream release we are based on".
+//
+// Instead the upstream numbers are PINNED in gradle.properties and refreshed by the
+// `upstream-new-version` skill on each sync:
+//   UPSTREAM_VERSION_CODE  — upstream's versionCode (its commit count) at our base, e.g. 2178
+//   UPSTREAM_VERSION_NAME  — upstream's version without the brand prefix, e.g. 13.6.0.r2178
+//   BUILD_NUMBER           — OUR increment, bumped by every buildApk, reset to 1 on each sync
+//
+// Fork versionName = "<UPSTREAM_VERSION_NAME>+<BUILD_NUMBER>"    e.g. 13.6.0.r2178+1
+// Fork versionCode = UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER    e.g. 21780001
+//
+// Ceiling check: versionCode must stay under Android's hard limit of 2100000000, so
+// UPSTREAM_VERSION_CODE must stay under 210000. It is ~2178 (one per upstream commit), so there is
+// room for roughly a century of upstream development.
+// ---------------------------------------------------------------------------------------------
+def upstreamVersionCode = Integer.parseInt(project.property("UPSTREAM_VERSION_CODE").toString())
+def upstreamVersionName = project.property("UPSTREAM_VERSION_NAME").toString()
+def shiroikumaBuild = Integer.parseInt(project.property("BUILD_NUMBER").toString())
+
 ext {
-    versionCode = gitCommitCount
-    versionName = "Shizuku+ ${baseVersionName}.r${gitCommitCount}"
+    versionCode = upstreamVersionCode * 10000 + shiroikumaBuild
+    versionName = "${upstreamVersionName}+${shiroikumaBuild}"
+    forkUpstreamVersionCode = upstreamVersionCode
+    forkUpstreamVersionName = upstreamVersionName
+    forkBuildNumber = shiroikumaBuild
 }
+
+logger.lifecycle("shiroikuma-shizuku ${ext.versionName} (versionCode ${ext.versionCode})")
 
 subprojects {
     apply plugin: "io.gitlab.arturbosch.detekt"
