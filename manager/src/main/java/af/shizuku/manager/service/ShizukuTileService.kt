@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.work.WorkManager
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import com.topjohnwu.superuser.Shell
 
 class ShizukuTileService : TileService() {
@@ -78,20 +79,16 @@ class ShizukuTileService : TileService() {
                     }
                 }
                 ShizukuStateMachine.State.STARTING -> {
-                    Toast.makeText(this, getString(R.string.tile_subtitle_starting), Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(this, getString(R.string.tile_subtitle_starting), Toast.LENGTH_SHORT)
                     openApp()
                 }
                 ShizukuStateMachine.State.STOPPING -> {
-                    Toast.makeText(this, getString(R.string.tile_subtitle_stopping), Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(this, getString(R.string.tile_subtitle_stopping), Toast.LENGTH_SHORT)
                 }
                 else -> startShizuku()
             }
         } catch (e: Exception) {
-            Toast.makeText(
-                this,
-                getString(R.string.tile_state_update_failed, e.localizedMessage),
-                Toast.LENGTH_SHORT
-            ).show()
+            ShiroikumaToast.show(this, getString(R.string.tile_state_update_failed, e.localizedMessage), Toast.LENGTH_SHORT)
         }
     }
 
@@ -115,7 +112,7 @@ class ShizukuTileService : TileService() {
                     (ShizukuSettings.getLastPort() in 1..65535 && AdbPortProber.isPortOpen(ShizukuSettings.getLastPort(), 50))
                 withContext(Dispatchers.Main) {
                     if (!hasLoopback && !isWifiOk && !hasWriteSecure) {
-                        Toast.makeText(this@ShizukuTileService, R.string.tile_open_app_required, Toast.LENGTH_SHORT).show()
+                        ShiroikumaToast.show(this@ShizukuTileService, R.string.tile_open_app_required, Toast.LENGTH_SHORT)
                         openApp()
                         return@withContext
                     }

@@ -24,6 +24,7 @@ import java.net.ConnectException
 import io.sentry.Sentry
 import io.sentry.Breadcrumb
 import io.sentry.SentryLevel
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AdbPairingAccessibilityService : AccessibilityService() {
 
@@ -43,7 +44,7 @@ class AdbPairingAccessibilityService : AccessibilityService() {
         val isTv = EnvironmentUtils.isTelevision()
 
         if (!(isTv || isSamsung) || !EnvironmentUtils.isTlsSupported()) {
-            Toast.makeText(this, getString(R.string.toast_accessibility_tv_only), Toast.LENGTH_SHORT).show()
+            ShiroikumaToast.show(this, getString(R.string.toast_accessibility_tv_only), Toast.LENGTH_SHORT)
             disableSelf()
             return
         }
@@ -61,7 +62,7 @@ class AdbPairingAccessibilityService : AccessibilityService() {
             }
             startActivity(intent)
         } else {
-            Toast.makeText(this, R.string.accessibility_service_monitoring, Toast.LENGTH_SHORT).show()
+            ShiroikumaToast.show(this, R.string.accessibility_service_monitoring, Toast.LENGTH_SHORT)
         }
 
         // Auto-disable after 60 seconds to prevent lingering background usage
@@ -72,7 +73,7 @@ class AdbPairingAccessibilityService : AccessibilityService() {
                 Sentry.addBreadcrumb(Breadcrumb("Pairing discovery timed out").apply {
                     level = SentryLevel.WARNING
                 })
-                Toast.makeText(this@AdbPairingAccessibilityService, getString(R.string.toast_pairing_timeout), Toast.LENGTH_LONG).show()
+                ShiroikumaToast.show(this@AdbPairingAccessibilityService, getString(R.string.toast_pairing_timeout), Toast.LENGTH_LONG)
                 disableSelf()
             }
         }
@@ -180,7 +181,7 @@ class AdbPairingAccessibilityService : AccessibilityService() {
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@AdbPairingAccessibilityService, toastMsg, Toast.LENGTH_LONG).show()
+                    ShiroikumaToast.show(this@AdbPairingAccessibilityService, toastMsg, Toast.LENGTH_LONG)
                 }
                 disableSelf()
             }

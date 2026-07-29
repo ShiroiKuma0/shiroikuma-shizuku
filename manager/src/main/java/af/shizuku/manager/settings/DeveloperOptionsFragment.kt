@@ -13,6 +13,7 @@ import af.shizuku.manager.ShizukuSettings.Keys.*
 import af.shizuku.manager.utils.CrashHandler
 import af.shizuku.manager.utils.CrashReporter
 import af.shizuku.manager.utils.CustomTabsHelper
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class DeveloperOptionsFragment : BaseSettingsFragment() {
 
@@ -78,7 +79,7 @@ class DeveloperOptionsFragment : BaseSettingsFragment() {
                             clipboard.setPrimaryClip(android.content.ClipData.newPlainText(
                                 ctx.getString(R.string.manual_report_clipboard_label), report))
 
-                            Toast.makeText(ctx, R.string.manual_report_toast_copied, Toast.LENGTH_LONG).show()
+                            ShiroikumaToast.show(ctx, R.string.manual_report_toast_copied, Toast.LENGTH_LONG)
 
                             val url = CrashReporter.getGitHubReportUrl(ctx)
                             CustomTabsHelper.launchUrlOrCopy(ctx, url)

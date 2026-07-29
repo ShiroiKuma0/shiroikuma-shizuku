@@ -11,6 +11,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AppManagementSettingsFragment : BaseSettingsFragment() {
 
@@ -50,7 +51,7 @@ class AppManagementSettingsFragment : BaseSettingsFragment() {
                     onSave = { key ->
                         if (key.isBlank()) {
                             (pref as TwoStatePreference).isChecked = false
-                            Toast.makeText(context, R.string.verify_virustotal_key_required, Toast.LENGTH_SHORT).show()
+                            ShiroikumaToast.show(context, R.string.verify_virustotal_key_required, Toast.LENGTH_SHORT)
                         } else {
                             ShizukuSettings.setVirusTotalApiKey(key)
                             (pref as TwoStatePreference).isChecked = true

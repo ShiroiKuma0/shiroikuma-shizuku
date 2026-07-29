@@ -7,6 +7,7 @@ import af.shizuku.manager.BuildConfig
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.utils.CustomTabsHelper
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AboutSettingsFragment : BaseSettingsFragment() {
 
@@ -25,7 +26,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
             summary = BuildConfig.VERSION_NAME
             setOnPreferenceClickListener {
                 if (ShizukuSettings.isVectorEnabled()) {
-                    Toast.makeText(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT)
                     return@setOnPreferenceClickListener true
                 }
 
@@ -34,10 +35,10 @@ class AboutSettingsFragment : BaseSettingsFragment() {
                     ShizukuSettings.setVectorEnabled(true)
                     SettingsSearchEngine.reset()
                     navDevOptions?.let { setChildAvailable(it, true) }
-                    Toast.makeText(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT)
                     versionClickCount = 0
                 } else if (versionClickCount > 2) {
-                    Toast.makeText(context, context.getString(R.string.settings_developer_options_click_more, 7 - versionClickCount), Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, context.getString(R.string.settings_developer_options_click_more, 7 - versionClickCount), Toast.LENGTH_SHORT)
                 }
                 true
             }
