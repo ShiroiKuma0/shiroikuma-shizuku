@@ -42,6 +42,7 @@ import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import rikka.shizuku.Shizuku
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AppViewHolder(private val binding: AppListItemBinding) :
     BaseViewHolder<PackageInfo>(binding.root), View.OnClickListener, View.OnLongClickListener {
@@ -152,7 +153,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                     else -> MaterialAlertDialogBuilder(context)
                         .setTitle(appLabel)
                         .setItems(enabled.map { it.label }.toTypedArray()) { _, i -> enabled[i].run() }
-                        .show()
+                        .showHouse()
                 }
             }
         }
@@ -365,7 +366,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                     adapter.notifyItemChanged(pos)
                 }
             }
-            .show()
+            .showHouse()
     }
 
     override fun onBind() {

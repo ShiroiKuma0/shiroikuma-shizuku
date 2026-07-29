@@ -161,6 +161,166 @@ The **`dropin` flavor** (applicationId `moe.shizuku.privileged.api`) is upstream
 *replacement*. We never build it — it is incompatible with our own app id by definition. `buildApk`
 targets **`shizukuplus`** only.
 
+## ⛔ Never assume `applicationId` == `namespace`
+
+`applicationId` is **`shiroikuma.shizuku`**; the code `namespace` is **`af.shizuku.manager`**. They
+differ on purpose — renaming the namespace would make every rebase a mass-conflict — and that makes
+**any component reference built by assuming they are equal wrong**. The `pkg/.Receiver` shorthand
+expands against the *applicationId*, so `shiroikuma.shizuku/.admin.DhizukuAdminReceiver` names a
+class that does not exist.
+
+The sharp edge is the Device Owner setup command. A wrong component there means `dpm
+set-device-owner` fails — or appears to succeed — and once an app *is* Device Owner it cannot be
+uninstalled normally and `dpm remove-active-admin` refuses. Being wrong there costs a factory reset.
+
+**Derive, never spell:**
+
+```kotlin
+// Right — package from the context, FQCN from the class; a rename moves it automatically.
+ComponentName(ctx, DhizukuAdminReceiver::class.java).flattenToString()
+
+// Wrong — expands against the applicationId; names a class that does not exist.
+"${ctx.packageName}/.admin.DhizukuAdminReceiver"
+
+// Also wrong — correct today, silently stale after any rename or move.
+"${ctx.packageName}/af.shizuku.manager.admin.DhizukuAdminReceiver"
+```
+
+**Where deriving is impossible, a test guards it.** The `:compat` module addresses us with string
+literals (`ForwardActivity`, `ForwardReceiver`) because it does not — and must not — depend on
+`:manager`. `manager/src/test/…/ComponentNameContractTest.kt` reads compat's real source, extracts
+every `setClassName(...)` literal, and asserts the package equals `BuildConfig.APPLICATION_ID` and
+that a source file exists for the named class. Rename `RequestPermissionActivity` or
+`BinderRequestReceiver` and the **build** fails, instead of the Compat Hub silently failing on a
+device. The same test asserts the two identifiers stay distinct, so the shorthand forms can never
+start working by accident.
+
+Run it with `./gradlew :manager:testShizukuplusDebugUnitTest`.
+
+> Note: `:manager`'s unit tests did **not** compile upstream — `RemoteDbSyncWorkerTest` imported
+> `af.shizuku.manager.utils.AppContextManager`, but the class lives in `af.shizuku.manager.database`.
+> That test now guards the no-phone-home contract instead, so the suite is green and worth running.
+
+## The 白い熊 雫 UI page (`shiroikuma/`)
+
+The whole house layer lives in one package,
+`manager/src/main/java/af/shizuku/manager/shiroikuma/`, so it survives upstream rebases as a
+self-contained unit.
+
+| File | Role |
+| --- | --- |
+| `ShiroikumaUiPrefs.kt` | Every settable attribute + the persisted store; the `Category` enum that the page, the export ZIP and the automation contract all share |
+| `ShiroikumaFonts.kt` | External `.ttf`/`.otf` import, listing, deletion, cached typefaces |
+| `ColorPicker.kt` | The RGBA picker — four sliders, live preview, one-click prefilled swatches |
+| `FontPicker.kt` | Font list, each row **rendered in its own glyphs**; long-press deletes an import |
+| `ShiroikumaPreferences.kt` | The preference widgets: category / sub-category / item / seekbar / colour swatch / live preview / automation-token rows |
+| `ShiroikumaDialogs.kt` | The house dialog: black fill, **yellow border**, yellow buttons |
+| `ShiroikumaUiFragment.kt` | The page itself |
+| `ShiroikumaBackup.kt` | The category ZIP: headless export/import core, atomic `.part` write, backup listing |
+| `ExportImportPanel.kt` | The Kōjiki-format export/import panel |
+| `automation/AutomationAuth.kt`, `automation/StateExportReceiver.kt`, `automation/StateExportService.kt` | The 保存復元 automation contract |
+
+**Page conventions (kxkb style — keep them).** Headings are big, bold, accent-coloured and
+underlined **only as wide as their own text**, each top-level section preceded by a thin full-width
+hairline. Items indent one step per level — **36 → 54 → 72 → 90 dp** — sub-headings included, and row
+padding stays **tight**; the only generous space is above a section heading. Every group carries a
+live preview. Colour pickers are **RGBA** (four sliders) with one-click prefilled swatches above.
+Every size is a slider, and border/thickness/roundness sliders reach **0**.
+
+The layouts carrying that grammar are `res/layout/preference_*_shizuku*.xml` — do not restyle the
+page by editing individual rows.
+
+**Reached from** Settings → 白い熊 雫 UI, and by **long-pressing the settings cog** on the home
+screen (`HomeScreen.onSettingsLongClick` — a Compose `IconButton` has no long-press, so the cog is a
+`combinedClickable` box; `SettingsActivity` reads `EXTRA_OPEN_SHIROIKUMA_UI` and pushes the page on
+top of the settings root so Back still lands on Settings).
+
+**Defaults are the house look** — pure black `#000000` with pure yellow `#FFFF00` (not Material
+amber). A fresh install is black-and-yellow with no user action.
+
+### How the knobs reach the rest of the app
+
+The app is **hybrid** — Compose (home, settings chrome) over View-based `androidx.preference`
+screens and RecyclerView home cards — so the look is driven from three places that must stay in
+step. A knob that only moves its own preview is a bug.
+
+| Layer | Mechanism |
+| --- | --- |
+| **Static baseline** | `ThemeOverlay.Shiroikuma` in `values/themes.xml`, applied **last** by `ThemeDelegateImpl.onApplyUserThemeResource` so it wins over dynamic colour, the custom accents and the black-night overlay. Compose reads the resolved Activity attributes, so this one line is what makes both halves come up black-and-yellow on a fresh install. |
+| **Live, Compose** | `ShiroikumaTheme` builds a `ColorScheme` + `Typography` from the store and installs it through `core/ui`'s `AppThemeOverride` (a hook, so `core:ui` never has to depend on `manager`). Installed in `ShizukuApplication.onCreate`, before any Activity composes. |
+| **Live, Views** | `ShiroikumaViewTheme.applyToTree` recolours and re-types the preference rows and home cards, hooked from `BaseSettingsFragment.onViewCreated` and the home `recyclerViewProvider`. Rows recycle, so it re-runs on layout; it is idempotent. |
+
+Three things to keep right:
+
+- **`AppThemeOverride.revision` is in the `remember` key.** Without it Compose reuses the scheme it
+  cached before the edit and the change appears only after a navigation.
+- **Never put live knob values in `ThemeDelegateImpl.getThemeKey`.** A changed key triggers
+  `recreate()`, so dragging a slider would recreate the Activity on every frame. The static overlay
+  is constant; the live values are applied without a recreate, by design.
+- **Every `*Container` role is a flat near-black surface, never a low-alpha accent** — in the XML
+  overlay *and* in `ShiroikumaTheme`. Material composites containers as primary-over-surface, and
+  yellow over black composites to **olive**. That is why the scheme is built role by role instead of
+  handing colours to `darkColorScheme()` and letting it derive the rest, and why `surfaceTint` is
+  `Color.Transparent` (so tonal elevation never drags a surface back toward the accent).
+
+The UI page itself is marked `ShiroikumaViewTheme.markSkipped` — it is styled by its own house
+layouts, and letting the generic applier walk it would flatten the sub-heading and dim-summary
+colours back to body text.
+
+### ⛔ Every container filled with a `surface*` role MUST carry a visible border
+
+**This is a standing rule, and breaking it makes UI disappear rather than look wrong.**
+
+In this theme `surface`, `surfaceVariant` and all five `surfaceContainer*` roles are the **same pure
+black as the page**. Upstream's dark theme told containers apart by *tonal lift* — `surfaceContainerHigh`
+was a lighter grey than the background, and that alone was what made a card visible. Flattening every
+role to black removes that, so **a container with no border is invisible**, not merely flat.
+
+Two tiers, and both are user-settable in the UI page's Colours section:
+
+| Tier | Colour | Scheme role | Use for |
+| --- | --- | --- | --- |
+| **Major** | yellow `#FFFF00` (`KEY_COLOR_BORDER`) | `outline` | groups, sections, the home cards, panels, dialogs — anything that is a heading in its own right |
+| **Minor** | grey `#4A4A4A` (`KEY_COLOR_BORDER_MINOR`) | `outlineVariant` | ordinary items: list rows, metric tiles, search results — separated from the ground without shouting |
+
+How to comply, per layer:
+
+- **Compose** — pass `border = majorBorder()` or `minorBorder()` from `ShiroikumaCompose.kt`. They
+  read the card-border width slider and return `null` at 0, so "off" stays reachable.
+- **Views** — `ShiroikumaViewTheme` already sets `strokeColor`/`strokeWidth` on every
+  `MaterialCardView` it walks (major tier — the home cards are the case that matters). A container
+  that is *not* a `MaterialCardView` needs its own `GradientDrawable` stroke.
+- **Never** rely on a `surface*` fill, an alpha over it, or tonal elevation to make something
+  visible. `surfaceTint` is transparent here, so elevation contributes nothing at all.
+
+The same trap bites indicators: a `LinearProgressIndicator` whose `trackColor` is `surfaceVariant`
+has an invisible unfilled portion — use `outlineVariant`.
+
+Known compliant call sites: `SettingsScreen.kt` (search results), `SystemHubScreens.kt` (memory card,
+`MetricCard`, progress track), `home_item_container.xml` via the View applier, and everything drawn
+by hand in `ExportImportPanel` / `ShiroikumaPreferences` / `ShiroikumaDialogs`. **If you add a Compose
+`Card`, `Surface` or sheet, add a border in the same commit.**
+
+**Export/Import.** One ZIP per export, `shiroikuma-shizuku_<yyyy-MM-dd_HH-mm-ss>.zip` (the mandatory
+family convention: no version, no suffix — every sister app's backups share one directory), holding
+`manifest.json` + one JSON per category + `fonts/`. Import **merges** and skips absent categories.
+Written **atomically**: `<name>.part` renamed only after the archive is closed, and deleted on any
+failure or cancel — a truncated archive would otherwise silently become "the latest backup".
+
+The dialog chain is specified: a **successful export** closes the info dialog, the panel *and* the
+UI page; a **successful import** does the same on either button ("Restart now" also restarts).
+**Failures leave the panel open.** The no-backup-folder message is **red** until a folder is set —
+in the panel and on the UI page row alike.
+
+**Automation (保存復元).** Token-gated, master switch **default OFF**, both rows **inside** the
+Export/Import section. `EXPORT_STATE` / `LIST_CATEGORIES` / `CANCEL_EXPORT` on one exported receiver
+with **no `android:permission`** — the token is the gate. The receiver only validates and hands off
+to `StateExportService`: `goAsync()` does not extend the broadcast window, and overrunning it ANRs
+this app mid-write. Replies are **plain broadcasts** with `FLAG_INCLUDE_STOPPED_PACKAGES` — never a
+Binder, never the ordered-broadcast result (EMUI severs both). Progress carries **real counts, never
+a percentage**, with `item` naming the category id being written so the caller highlights the right
+row. The token prefs file is deliberately absent from the export ZIP.
+
 ## Repo layout (upstream ShizukuPlus)
 
 - `manager/` — the app: home, authorization UI, settings, logs, widgets, the Plus bridges.

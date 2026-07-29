@@ -3,4 +3,7 @@
     <item name="tag_app_icon_package" type="id" />
     <item name="accessibility_action_swipe_right" type="id" />
     <item name="accessibility_action_swipe_left" type="id" />
+    <!-- Fork: marks a RecyclerView whose tree already has the 白い熊 雫 re-theme listener attached,
+         so it is installed exactly once rather than on every provider invocation. -->
+    <item name="home_shiroikuma_themed" type="id" />
 </resources>

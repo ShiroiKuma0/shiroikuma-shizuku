@@ -18,6 +18,7 @@ import af.shizuku.manager.update.UpdateChecker
 import af.shizuku.manager.update.UpdateManager
 import org.koin.android.ext.android.inject
 import timber.log.Timber
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AboutSettingsFragment : BaseSettingsFragment() {
 
@@ -129,7 +130,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
                         pref.value = "dev"
                     }
                     .setNegativeButton(android.R.string.cancel, null)
-                    .show()
+                    .showHouse()
                 false
             } else {
                 ShizukuSettings.setUpdateChannel("stable")
@@ -232,7 +233,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
                 }
         }
 
-        builder.show()
+        builder.showHouse()
     }
 
     private fun showUpToDateDialog() {
@@ -241,7 +242,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
             .setTitle(R.string.update_up_to_date_title)
             .setMessage(getString(R.string.update_up_to_date_message, BuildConfig.VERSION_NAME))
             .setPositiveButton(R.string.ok, null)
-            .show()
+            .showHouse()
     }
 
     private fun showErrorDialog() {
@@ -251,7 +252,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
             .setMessage(R.string.update_error_message)
             .setPositiveButton(R.string.ok, null)
             .setNeutralButton(R.string.update_view_on_github) { _, _ -> openReleasesPage() }
-            .show()
+            .showHouse()
     }
 
     private fun showPermissionRequiredDialog() {
@@ -265,7 +266,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
                 .setTitle(R.string.update_permission_required_title)
                 .setMessage(R.string.update_permission_required_message)
                 .setPositiveButton(R.string.ok, null)
-                .show()
+                .showHouse()
         }
     }
 

@@ -10,6 +10,7 @@ import af.shizuku.manager.R
 import af.shizuku.core.ui.AppActivity
 import af.shizuku.manager.ktx.toHtml
 import rikka.html.text.HtmlCompat
+import af.shizuku.manager.shiroikuma.showHouse
 
 class LegacyIsNotSupportedActivity : AppActivity() {
 
@@ -64,7 +65,7 @@ class LegacyIsNotSupportedActivity : AppActivity() {
                         finish()
                     }
                     .setCancelable(false)
-                    .show()
+                    .showHouse()
         } else {
             MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.dialog_legacy_not_support_title, label))
@@ -75,7 +76,7 @@ class LegacyIsNotSupportedActivity : AppActivity() {
                         finish()
                     }
                     .setCancelable(false)
-                    .show()
+                    .showHouse()
         }
     }
 }
