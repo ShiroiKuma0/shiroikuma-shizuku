@@ -27,6 +27,7 @@ import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AutomationViewHolder(
     private val binding: HomeAutomationBinding,
@@ -64,7 +65,7 @@ class AutomationViewHolder(
             val authToken = af.shizuku.manager.ShizukuSettings.getAuthToken()
             val encryptedToken = af.shizuku.manager.utils.IntentCrypto.encrypt(authToken)
             if (encryptedToken == null) {
-                Toast.makeText(context, R.string.home_automation_token_encrypt_failed, Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(context, R.string.home_automation_token_encrypt_failed, Toast.LENGTH_SHORT)
                 return@setOnClickListener
             }
 
@@ -91,11 +92,11 @@ class AutomationViewHolder(
                             ClipboardUtils.put(context, input.text) &&
                             Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2
                         ) {
-                            Toast.makeText(
+                            ShiroikumaToast.show(
                                 context,
                                 context.getString(R.string.toast_copied_to_clipboard),
                                 Toast.LENGTH_SHORT,
-                            ).show()
+                            )
                         }
                     }
                 }
@@ -118,7 +119,7 @@ class AutomationViewHolder(
                             // AuthenticatedReceiver couldn't verify, so a copied automation failed.
                             val newEncryptedToken = af.shizuku.manager.utils.IntentCrypto.encrypt(newToken)
                             if (newEncryptedToken == null) {
-                                Toast.makeText(context, R.string.home_automation_token_encrypt_failed, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(context, R.string.home_automation_token_encrypt_failed, Toast.LENGTH_SHORT)
                             } else {
                                 extrasEditText.setText("auth:$newEncryptedToken")
                             }

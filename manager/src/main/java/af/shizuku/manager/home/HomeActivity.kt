@@ -27,6 +27,7 @@ import com.airbnb.mvrx.withState
 import com.airbnb.mvrx.Success
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -294,6 +295,7 @@ open class HomeActivity : AppActivity(), MavericksView {
 
         // Initial status load
         homeModel.reload()
+        startBinderPolling()
 
         homeModel.onEach(HomeState::serviceStatus) {
             if (it is Success) {
@@ -643,6 +645,40 @@ open class HomeActivity : AppActivity(), MavericksView {
         appsModel.load()
     }
 
+    /**
+     * FORK: poll the binder while the home screen is actually in front of the user.
+     *
+     * The state machine registers [Shizuku.addBinderReceivedListenerSticky], so in principle a
+     * service that starts outside the app pushes RUNNING straight to the UI. In practice that
+     * callback is delayed or missed on some devices — upstream says so itself in
+     * `Starter.waitForBinder`, and works around it there by polling `pingBinder()`. It never
+     * applied the same workaround here, so starting Shizuku externally (the manual
+     * `adb shell .../libshizuku.so`) left the card reading "not running" until the Activity was
+     * left and re-entered and `onResume` re-checked.
+     *
+     * `update()` pings the binder and, when alive, sets RUNNING — which notifies the existing
+     * `stateListener` and refreshes the cards through the normal path. Nothing new is wired; this
+     * just drives what is already there. It also catches the mirror case: the service dying
+     * externally is now noticed while the screen is open instead of on the next resume.
+     *
+     * Cost is one binder transaction per tick (a null check when no binder exists), and only while
+     * RESUMED — it stops the moment the screen is backgrounded.
+     */
+    private fun startBinderPolling() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.RESUMED) {
+                while (true) {
+                    val before = ShizukuStateMachine.get()
+                    val now = ShizukuStateMachine.update()
+                    // update() notifies listeners itself on a real transition; this only covers the
+                    // first observation after the Activity comes back into view.
+                    if (now != before) checkServerStatus()
+                    delay(BINDER_POLL_INTERVAL_MS)
+                }
+            }
+        }
+    }
+
     override fun onPause() {
         super.onPause()
         SnackbarHelper.dismiss()
@@ -769,6 +805,9 @@ open class HomeActivity : AppActivity(), MavericksView {
     companion object {
         const val EXTRA_SHOW_PAIRING_DIALOG = "show_pairing_dialog"
         const val EXTRA_START_SERVICE_VIA_WADB = "start_service_via_wadb"
+
+        /** Fork: how often to ping the binder while the home screen is visible. */
+        private const val BINDER_POLL_INTERVAL_MS = 1500L
     }
 
 }

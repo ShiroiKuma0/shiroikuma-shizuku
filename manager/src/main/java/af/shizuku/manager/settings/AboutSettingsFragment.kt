@@ -19,6 +19,7 @@ import af.shizuku.manager.update.UpdateManager
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AboutSettingsFragment : BaseSettingsFragment() {
 
@@ -49,7 +50,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
             summary = BuildConfig.VERSION_NAME
             setOnPreferenceClickListener {
                 if (ShizukuSettings.isVectorEnabled()) {
-                    Toast.makeText(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT)
                     return@setOnPreferenceClickListener true
                 }
 
@@ -58,10 +59,10 @@ class AboutSettingsFragment : BaseSettingsFragment() {
                     ShizukuSettings.setVectorEnabled(true)
                     SettingsSearchEngine.reset()
                     findPreference<Preference>("nav_developer_options")?.isVisible = true
-                    Toast.makeText(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT)
                     versionClickCount = 0
                 } else if (versionClickCount > 2) {
-                    Toast.makeText(context, context.getString(R.string.settings_developer_options_click_more, 7 - versionClickCount), Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, context.getString(R.string.settings_developer_options_click_more, 7 - versionClickCount), Toast.LENGTH_SHORT)
                 }
                 true
             }
@@ -171,7 +172,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
 
     private fun checkForUpdate() {
         val context = context ?: return
-        Toast.makeText(context, R.string.update_checking, Toast.LENGTH_SHORT).show()
+        ShiroikumaToast.show(context, R.string.update_checking, Toast.LENGTH_SHORT)
         val channel = ShizukuSettings.getUpdateChannel()
         lifecycleScope.launch {
             try {

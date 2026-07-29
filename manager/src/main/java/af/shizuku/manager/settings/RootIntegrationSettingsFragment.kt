@@ -19,6 +19,7 @@ import af.shizuku.manager.utils.StockShizukuCompat
 import moe.shizuku.server.IShizukuService
 import rikka.shizuku.Shizuku
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 /**
  * Root Integration Settings
@@ -183,7 +184,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                         // so push the new path to the server explicitly.
                         suPathPref.text = chosen
                         ShizukuSettings.syncAllPlusFeaturesToServer()
-                        Toast.makeText(context, context?.getString(R.string.su_path_preset_applied, presets[which]), Toast.LENGTH_SHORT).show()
+                        ShiroikumaToast.show(context, getString(R.string.su_path_preset_applied, presets[which]), Toast.LENGTH_SHORT)
                     }
                 }
                 .showHouse()

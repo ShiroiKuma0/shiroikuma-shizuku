@@ -171,8 +171,13 @@ class AdbPairDialogFragment : DialogFragment() {
                             binding.pairingCode.error = context.getString(R.string.paring_code_is_wrong)
                         }
                         is AdbKeyException -> {
-                            Toast.makeText(context, context.getString(R.string.adb_error_key_store), Toast.LENGTH_LONG)
-                                .apply { setGravity(Gravity.CENTER, 0, 0) }.show()
+                            // The house flash centres itself, so upstream's setGravity call goes
+                            // with it — it is a no-op for system text toasts on API 30+ anyway.
+                            af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
+                                context,
+                                context.getString(R.string.adb_error_key_store),
+                                Toast.LENGTH_LONG
+                            )
                         }
                         else -> Unit
                     }
