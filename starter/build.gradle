@@ -6,7 +6,14 @@ plugins {
 android {
     namespace = "rikka.shizuku.starter"
     buildFeatures {
-        buildConfig = false
+        buildConfig = true
+    }
+    defaultConfig {
+        // Same single source of truth as :shell and :manager — gradle.properties APP_ID. Only the
+        // fallback for a command line built without --manager=; the real value is threaded in from
+        // the server. A literal here would be upstream's id, i.e. wrong for this fork.
+        buildConfigField "String", "MANAGER_APPLICATION_ID",
+            "\"${providers.gradleProperty("APP_ID").get()}\""
     }
 
 
