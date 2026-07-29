@@ -61,7 +61,7 @@ class StartStockShizukuViewHolder(
             val activity = v.context.asActivity<android.app.Activity>() ?: return
             com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
                 .setTitle("Incompatible Server Running")
-                .setMessage("The original Shizuku server is currently running in the background. Because of Android security constraints, Shizuku+ cannot communicate with or kill the original server.\n\nPlease completely restart your device to kill the original server, then start Shizuku+ using ADB or Root.")
+                .setMessage("The original Shizuku server is currently running in the background. Because of Android security constraints, 白い熊 雫 cannot communicate with or kill the original server.\n\nPlease completely restart your device to kill the original server, then start 白い熊 雫 using ADB or Root.")
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         }
@@ -71,7 +71,7 @@ class StartStockShizukuViewHolder(
         start.isEnabled = true
         start.text = "Fix Conflict"
         binding.title.text = "Incompatible Server Detected"
-        binding.text1.text = "The original Shizuku server is running in the background. It is incompatible with Shizuku+ and blocks it from starting."
+        binding.text1.text = "The original Shizuku server is running in the background. It is incompatible with 白い熊 雫 and blocks it from starting."
         binding.icon.setImageResource(R.drawable.ic_warning_24)
 
         // Proper Material error-container two-tone instead of a hardcoded Color.RED tint on the

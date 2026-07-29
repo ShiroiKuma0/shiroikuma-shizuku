@@ -15,12 +15,7 @@ import android.widget.Toast
 import timber.log.Timber
 import af.shizuku.manager.ktx.toHtml
 import af.shizuku.manager.BuildConfig
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import af.shizuku.manager.database.AppContextManager
 import androidx.preference.TwoStatePreference
 
 class AdvancedSettingsFragment : BaseSettingsFragment() {
@@ -31,37 +26,13 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
         setPreferencesFromResource(R.xml.settings_advanced, rootKey)
         val context = requireContext()
 
+        // FORK: the "update app database" action no longer fetches anything. Upstream pulled
+        // database/apps.json straight from the upstream author's GitHub repo; this fork does not
+        // call out to upstream (or anywhere else), so the row now just says so. The bundled
+        // database still works — it simply is not refreshed over the network.
+        // This app sends nothing anywhere. See CLAUDE.md, "No phone-home".
         findPreference<Preference>("update_app_database")?.setOnPreferenceClickListener {
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val url = java.net.URL("https://raw.githubusercontent.com/thejaustin/ShizukuPlus/master/database/apps.json")
-                    val connection = url.openConnection() as java.net.HttpURLConnection
-                    val content = try {
-                        connection.instanceFollowRedirects = true
-                        connection.requestMethod = "GET"
-                        connection.connectTimeout = 10_000
-                        connection.readTimeout = 10_000
-
-                        val responseCode = connection.responseCode
-                        if (responseCode != java.net.HttpURLConnection.HTTP_OK) {
-                            throw java.io.IOException("HTTP $responseCode from GitHub")
-                        }
-
-                        connection.inputStream.use { it.bufferedReader().readText() }
-                    } finally {
-                        connection.disconnect()
-                    }
-                    withContext(Dispatchers.Main) {
-                        AppContextManager.updateDatabase(content)
-                        Toast.makeText(context, R.string.settings_update_app_database_success, Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    Timber.w("update app database failed", e)
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, R.string.settings_update_app_database_error, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+            Toast.makeText(context, R.string.settings_update_app_database_disabled, Toast.LENGTH_SHORT).show()
             true
         }
 
