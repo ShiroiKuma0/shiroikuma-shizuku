@@ -45,6 +45,7 @@ import android.view.ContextThemeWrapper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import af.shizuku.manager.utils.SettingsPage
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 object AdbStarter {
     private const val TAG = "AdbStarter"
@@ -157,7 +158,7 @@ object AdbStarter {
                     } else {
                         // Fallback for non-activity context
                         val themedContext = ContextThemeWrapper(context, R.style.AppTheme)
-                        Toast.makeText(themedContext, R.string.adb_error_ssl_message, Toast.LENGTH_LONG).show()
+                        ShiroikumaToast.show(themedContext, R.string.adb_error_ssl_message, Toast.LENGTH_LONG)
                     }
                 }
             }
@@ -201,14 +202,11 @@ object AdbStarter {
             if (EnvironmentUtils.getAdbTcpPort() > 0) {
                 ShizukuStateMachine.update()
                 withContext(Dispatchers.Main) {
-                    val errorMsg =
-                        when (it) {
-                            is AdbKeyException -> context.getString(R.string.adb_error_key_store)
-                            else -> it.message
-                        }
-                    Toast
-                        .makeText(context, context.getString(R.string.adb_error_stop_tcp) + ". ${errorMsg?.take(80)}", Toast.LENGTH_LONG)
-                        .show()
+                    val errorMsg = when (it) {
+                        is AdbKeyException -> context.getString(R.string.adb_error_key_store)
+                        else -> it.message
+                    }
+                    ShiroikumaToast.show(context, context.getString(R.string.adb_error_stop_tcp) + ". ${errorMsg?.take(80)}", Toast.LENGTH_LONG)
                 }
             }
         }

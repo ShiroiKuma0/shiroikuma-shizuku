@@ -13,6 +13,13 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.ShizukuSettings.Keys.*
+import af.shizuku.manager.utils.CrashHandler
+import af.shizuku.manager.utils.CrashReporter
+import af.shizuku.manager.utils.CustomTabsHelper
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class DeveloperOptionsFragment : BaseSettingsFragment() {
     override fun getTitle(): CharSequence? = getString(R.string.settings_developer_options)
@@ -84,7 +91,7 @@ class DeveloperOptionsFragment : BaseSettingsFragment() {
                                 ),
                             )
 
-                            Toast.makeText(ctx, R.string.manual_report_toast_copied, Toast.LENGTH_LONG).show()
+                            ShiroikumaToast.show(ctx, R.string.manual_report_toast_copied, Toast.LENGTH_LONG)
 
                             val url = CrashReporter.getGitHubReportUrl(ctx)
                             CustomTabsHelper.launchUrlOrCopy(ctx, url)

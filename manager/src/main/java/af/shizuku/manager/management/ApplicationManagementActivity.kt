@@ -47,6 +47,7 @@ import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.fixEdgeEffect
 import timber.log.Timber
 import java.util.Objects
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 open class ApplicationManagementActivity :
     AppBarActivity(),
@@ -204,7 +205,7 @@ open class ApplicationManagementActivity :
                     runOnUiThread {
                         if (isFinishing || isDestroyed) return@runOnUiThread
                         finish()
-                        Toast.makeText(this, Objects.toString(it.error, "unknown"), Toast.LENGTH_SHORT).show()
+                        ShiroikumaToast.show(this, Objects.toString(it.error, "unknown"), Toast.LENGTH_SHORT)
                     }
                     Timber.w("load apps failed", it.error)
                 }
@@ -486,11 +487,8 @@ open class ApplicationManagementActivity :
         when (action) {
             "open_app" -> {
                 val intent = packageManager.getLaunchIntentForPackage(item.packageName)
-                if (intent != null) {
-                    startActivity(intent, opts)
-                } else {
-                    Toast.makeText(this, R.string.app_management_no_launcher, Toast.LENGTH_SHORT).show()
-                }
+                if (intent != null) startActivity(intent, opts)
+                else ShiroikumaToast.show(this, R.string.app_management_no_launcher, Toast.LENGTH_SHORT)
             }
             "app_info" ->
                 startActivity(
@@ -525,12 +523,8 @@ open class ApplicationManagementActivity :
                         }
                     } catch (_: SecurityException) {
                         withContext(Dispatchers.Main) {
-                            Toast
-                                .makeText(
-                                    this@ApplicationManagementActivity,
-                                    R.string.app_management_dialog_adb_is_limited_title,
-                                    Toast.LENGTH_SHORT,
-                                ).show()
+                            ShiroikumaToast.show(this@ApplicationManagementActivity,
+                                R.string.app_management_dialog_adb_is_limited_title, Toast.LENGTH_SHORT)
                         }
                     }
                 }
