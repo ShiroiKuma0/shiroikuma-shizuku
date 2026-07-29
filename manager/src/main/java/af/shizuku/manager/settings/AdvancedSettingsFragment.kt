@@ -18,6 +18,7 @@ import af.shizuku.manager.BuildConfig
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.preference.TwoStatePreference
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AdvancedSettingsFragment : BaseSettingsFragment() {
 
@@ -33,7 +34,7 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
         // database still works — it simply is not refreshed over the network.
         // This app sends nothing anywhere. See CLAUDE.md, "No phone-home".
         findPreference<Preference>("update_app_database")?.setOnPreferenceClickListener {
-            Toast.makeText(context, R.string.settings_update_app_database_disabled, Toast.LENGTH_SHORT).show()
+            ShiroikumaToast.show(context, R.string.settings_update_app_database_disabled, Toast.LENGTH_SHORT)
             true
         }
 
@@ -81,11 +82,11 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                         val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
                         keyStore.load(null)
                         keyStore.deleteEntry("_adbkey_encryption_key_")
-                        Toast.makeText(context, R.string.settings_reset_adb_keys_success, Toast.LENGTH_SHORT).show()
+                        ShiroikumaToast.show(context, R.string.settings_reset_adb_keys_success, Toast.LENGTH_SHORT)
                         (activity as? SettingsActivity)?.onThemeChanged()
                     } catch (e: Exception) {
                         Timber.tag("AdvancedSettings").e(e, "Failed to reset ADB keys")
-                        Toast.makeText(context, R.string.settings_reset_adb_keys_error, Toast.LENGTH_LONG).show()
+                        ShiroikumaToast.show(context, R.string.settings_reset_adb_keys_error, Toast.LENGTH_LONG)
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
