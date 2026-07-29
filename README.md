@@ -1,198 +1,106 @@
 <div align="center">
 
-[ DEVELOPMENT PAUSED ]
+<img src="manager/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="120" alt="白い熊 雫 icon" />
 
-I got a new phone (S22U → S26U) recently and am in the process of setting up my development environment on this device! I'll be back soon! 
+# 白い熊 雫
 
-Please keep submitting issues you're experiencing, and feel free to open pull requests if you think you can help improve the codebase as well! 
+**Lend system-level APIs to ordinary apps — with nothing phoning home.**
 
-I'm looking for contributors and collaborators to keep the vision alive and stabilize the project, so feel free to reach out!
+A fork of [ShizukuPlus](https://github.com/thejaustin/ShizukuPlus), itself a fork of
+[Shizuku](https://github.com/RikkaApps/Shizuku): it starts a privileged process over **adb** or
+**root** and hands that privilege to apps that ask for it.
 
-# Shizuku+
+This fork is **de-branded, black-yellow, and silent** — every telemetry and call-home path upstream
+shipped has been removed. Installs as `shiroikuma.shizuku`.
 
-The advanced privileged-process manager for Android.
-
-An enhanced version of [Shizuku](https://github.com/RikkaApps/Shizuku) built on top of [thedjchi/Shizuku](https://github.com/thedjchi/Shizuku), with quality-of-life improvements, backported optimizations, and exclusive Plus APIs.
-
-Shizuku lets normal apps use system-level APIs directly via a privileged process started with adb or root. Shizuku+ keeps full compatibility while adding features for power users and developers.
-
-[![Stars](https://img.shields.io/github/stars/thejaustin/ShizukuPlus?style=for-the-badge&color=bfb330&labelColor=807820)](https://github.com/thejaustin/ShizukuPlus/stargazers)
-[![Downloads](https://img.shields.io/github/downloads/thejaustin/ShizukuPlus/total?style=for-the-badge&color=bf7830&labelColor=805020)](https://github.com/thejaustin/ShizukuPlus/releases)
-[![Latest Release](https://img.shields.io/github/v/release/thejaustin/ShizukuPlus?style=for-the-badge&color=3060bf&labelColor=204080&label=Latest)](https://github.com/thejaustin/ShizukuPlus/releases/latest)
+**📥 Latest release: [`13.6.0.r2178+1`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
-## ⬇️ Download
+---
 
-Get the latest release from [GitHub Releases](https://github.com/thejaustin/ShizukuPlus/releases).
+## 🔇 No phone-home
 
-## 🐛 Recent Fixes
+This is the headline difference from upstream. The app makes **no automatic network request of any
+kind**. Removed outright:
 
-### Critical Stability Fixes (r2287)
-- **Launch crash on some OEM builds** ([#422](https://github.com/thejaustin/ShizukuPlus/issues/422)): a notification icon carrying a theme-attribute tint (`android:tint="?attr/..."`) could fail to resolve in the system's own theme context, crashing the app with `RemoteServiceException: Couldn't create icon StatusBarIcon` (observed on Samsung OneUI 3.1/Android 11). Fixed 4 affected icons and added an automated regression check (`scripts/dev/check-notification-icons.sh` + a JUnit test) so it can't silently reappear.
-- **Dev/Beta update channel silently matched Stable** ([#407](https://github.com/thejaustin/ShizukuPlus/issues/407)): the channel picker fetched the newest release by creation date instead of its `prerelease` flag, and CI never actually marked dev/beta builds as GitHub prereleases in the first place — both are now fixed, so the channel setting has real effect again.
-- **SU Bridge self-test failure messages were generic** ([#402](https://github.com/thejaustin/ShizukuPlus/issues/402)): now shows the actual deploy failure reason (exit code/stderr) instead of a one-size-fits-all message.
+| Upstream behaviour | Here |
+| --- | --- |
+| **Sentry crash reporting** — every crash, breadcrumb trail and ANR sent to the upstream author's Sentry account | Gone. The Gradle plugin is not applied, the DSN is hardwired empty, and `SentryAndroid.init()` is never reached, so the SDK is never armed and has no transport. |
+| **Sentry build-time uploads** — ProGuard mappings and native debug symbols pushed to sentry.io | Gone with the plugin. |
+| **24-hourly remote database sync** — a `WorkManager` job fetching `app-context-db.json` from the upstream repo on a timer | Gone. The worker now *cancels* itself instead of scheduling. |
+| **"Update app database"** — pulled `apps.json` from the upstream repo | Gone. The bundled database is used as shipped. |
+| **VirusTotal lookup** — SHA-256 of every APK you install, plus your API key, sent to VirusTotal | Gone. No connection, no key read. |
+| **Pithus lookup** — SHA-256 of every APK you install sent to `beta.pithus.org` | Gone. No connection. |
+| **Automatic update poll** — releases API hit on every app start | Off by default, and repointed at *this* repo. |
+| **"Email support"** — device, OS and version report to the upstream author's support address | Button removed. |
+| **Upstream CI** — workflows that injected a Sentry DSN and uploaded debug symbols | Removed. |
 
-### Critical Server Fixes
-- **`attachApplication` binder regression** (commits `8fbe5e47`, `c702a5c`): Fixed a dead-code bug in `Service.onTransact()` where `attachApplication` (binder code 17) was in an unreachable `else` block. This caused ALL API v13+ clients (Morphe, InstallerX, Droid-ify, ObtainX, Obtainium, Termux rish, MT Manager) to fail with `PackageInstaller.asBinder() NullPointerException` or `Not an attached client`.
-- **Shell consent persistence** (commit `9f2c01e8`): Shell clients (rish) were always re-prompted even after `Allow always`. Fixed by propagating `callingUid` through the consent intent chain via `Os.getuid()` in `ShizukuShellLoader`.
-- **SU bridge dex redeploy** (commit `252d6315`): SU bridge self-test was writing to an already-open file descriptor; fixed by clearing the file before rewriting.
-- **Live activity notification respecting toggle** (commit `252d6315`): `ActivityLogSettingsImpl.showNotification()` didn't check the live-activity setting before posting, so disabling the toggle didn't prevent re-notification on the next logged action.
+What remains is exactly one outbound request, and only when **you tap "Check for updates"**: a read
+of this repository's own releases. Nothing about the device is sent.
 
-### Manager App / UI Fixes
-- **Redesigned App Icon**: Added a "Plus" badge in the upper right of the app icon across the board, natively integrating with the original hexagon geometry.
-- **Themed Icon Support**: Implemented a fully vector Material You monochrome icon, enabling the app icon (including the new Plus badge) to respond flawlessly to expressive theme color changes.
-- **Theme change black screen eliminated** (commit `14c529a9`): All appearance settings (accent, icon style, blur, OneUI theme, etc.) now update the UI via Compose recomposition instead of `Activity.recreate()`, eliminating 1-2 second black screens.
-- **Authentic Samsung OneUI one-handed mode**: One-handed mode now scales content to 75% with bottom-center pivot (matching Samsung's actual behavior) instead of the broken top-padding approach. A follow-up fix corrected an initial corner-anchored pivot that squeezed all content into the bottom-right corner.
-- **OneUI Settings header typography** (commit `1c17f3e9`): Settings LargeTopAppBar uses ExtraBold (W800) title at 28sp matching Samsung OneUI 6/7.
-- **Bottom navigation bar overlap** (commits `b5ea9e35`, `ff7bb7d6`, `a49baf00`): Fixed Feature Hub, Settings preferences, Activity Log list, and App search bar all being obscured by the floating bottom nav bar.
-- **Dhizuku Mode setting persistence** (commit `a8251831`): Toggle state now persists immediately.
-- **Update channel respects Dev/Beta** (commit `bbe3ab76`): UpdateChecker now fetches pre-releases when Dev/Beta channel is selected and matches the correct APK asset (Plus vs Drop-In).
-- **"Shizuku is running" status icon**: reverted a garbled server-rack/checkmark redesign back to a clean circle-checkmark glyph.
-- **Update download hang**: silent auto-install via root/Shizuku had no timeout and could wedge forever on a stuck root prompt, leaving the download stuck with no install prompt. Now times out after 5s and falls back to the system installer.
-- **Update progress notification vibration**: progress notification now only alerts once instead of re-buzzing on every progress tick.
-- **Empty logs in manual crash reports** ([#405](https://github.com/thejaustin/ShizukuPlus/issues/405), [#397](https://github.com/thejaustin/ShizukuPlus/issues/397), [#317](https://github.com/thejaustin/ShizukuPlus/issues/317)): the logcat tail filter silenced almost everything; now captures the last 300 unfiltered lines.
+---
 
-## ✨ Shizuku+ Core Features
+## 🎨 The look
 
-*   **Universal Privilege Provider**: Combines **Root**, **ADB Shell**, and **Dhizuku (Device Owner)** into a single unified interface.
-*   **OneUI 8+ Theming Fix**: Provides the necessary **Overlay Manager Plus** bridge (using stable **OverlayManagerTransaction** on Android 14+) to allow engines like Hex Installer or Substratum to function on Android 16/17 and OneUI 8+.
-*   **Dhizuku Mode (Integrated Device Owner)**: Share the system `DevicePolicyManager` binder with any app that has Shizuku permissions. Shizuku+ can now be set as a **Device Owner** via ADB, providing a unified rootless management platform.
-*   **Customizable Gestures**: Configure swipe left, swipe right, and long-press actions for any app in the management list.
-*   **In-App Changelogs**: Instantly view what's new after an update without leaving the app.
-*   **Bulk Management**: Multi-select apps to grant/revoke permissions or hide them in one tap.
-*   **Activity Log**: Audit trail of API calls and `su` bridge commands, complete with app icons and real-time dispatch.
-*   **Root Compatibility Hub**: Dedicated dashboard to configure and manage legacy root apps with **Granular Module Control** (Magisk Mocking, Auto-Grant, File Interceptor, etc.).
-*   **Universal SU Automation**: One-tap 'Magic Setup' to configure all installed root apps to use the Shizuku+ SU Bridge.
-*   **Service Doctor**: In-app diagnostic tool to troubleshoot and fix service startup issues (now optimized for Samsung Auto Blocker on S22 Ultra).
-*   **Integrated Feature Guides**: Every "Plus" feature now includes a dedicated **Information Icon** and detailed technical "About" guide to help users master advanced integrations.
-*   **Quick Settings Tile**: Conveniently view and toggle the service status from your notification panel.
+Pure black with pure yellow `#FFFF00`. The launcher icon is the house **traced mark** — the Shizuku
+mascot and its hexagon redrawn as uniform-width yellow line-art on black, with a matching monochrome
+layer for themed icons.
 
-## 🚀 Plus API Features
+---
 
-Shizuku+ provides exclusive system interfaces for advanced automation and tools:
+## 🧩 Installing side-by-side
 
-*   **AICore+ Automation Bridge**: A privileged `AccessibilityService` proxy for AI-driven automation. Supports XML UI hierarchy dumping and physical input simulation (tap/swipe) without requiring root.
-*   **AVF (Virtual Machine) Manager**: Manage isolated Linux/Microdroid VMs with VirtIO-GPU acceleration.
-*   **Privileged Storage Proxy**: Authenticated access to restricted paths like `/data/data/` or `/data/app/` for backups and file management.
-*   **Device Spoofing (Identity Bridge)**: Project hardware identities of modern flagships (Pixel 9 Pro XL, S24 Ultra, etc.) to bypass device-specific restrictions.
-*   **Intelligence Bridge (AI Core Plus)**: Privileged NPU scheduling and screen context intelligence.
-*   **Window Manager Plus**: Force free-form resizing, manage the system "Bubble Bar," and resilient overlays.
-*   **System Theming Bridge (Overlay Manager Plus)**: Expose privileged overlay management for rootless theming (like Hex Installer).
-*   **Network & DNS Governor**: Manage Private DNS and iptables routing for rootless ad-blockers and firewalls.
-*   **Deep Process Control (Activity Manager Plus)**: Allow advanced process managers to deeply kill apps and set standby buckets.
-*   **Continuity Bridge**: Secure state and task handoff between Shizuku+-enabled devices.
+The app id is `shiroikuma.shizuku`, so it does not collide with stock Shizuku. Third-party apps
+still find it:
 
-## 🛠️ Backporting & Optimizations
+- Apps written against the **stock** Shizuku API reach it through the bundled **Compat Hub**
+  (package `moe.shizuku.privileged.api`), installed on demand from the home screen once the service
+  is running.
+- Apps written against the **Plus** API reach it directly.
 
-Shizuku+ makes regular Shizuku apps faster and more compatible without any code changes:
+Upstream's `dropin` flavour — which *replaces* stock Shizuku by claiming its package name — is not
+built here.
 
-*   **Transparent Shell Interceptor**: Intercepts common `pm`, `am`, and `settings` commands and routes them through high-performance native APIs.
-*   **Legacy Compatibility Bridges**:
-    *   **Local ADB Proxy**: Emulates an ADB server on port 15555, allowing legacy apps to use Shizuku privileges without keeping the system Wireless ADB enabled.
-    *   **SU Bridge (su wrapper)**: A Shizuku-backed `su` binary drop-in replacement for non-rooted apps that support custom root paths.
-*   **`plus` CLI Helper**: Adds a privileged command-line utility to the `rish` environment for advanced terminal use.
-*   **Dynamic App Database**: Fetches the latest app descriptions and enhancement suggestions from GitHub to keep the UI up-to-date.
+---
 
-## ⚙️ Modular Control
+## 🔧 What it does (inherited from upstream)
 
-Everything in Shizuku+ is optional. Use the **Plus Features** category in Settings to toggle:
-*   Transparent Shell Interception
-*   Individual Plus APIs (AVF, Storage, Intelligence, etc.)
-*   Home screen card visibility
-*   Activity Logging
+Everything upstream's feature set provides is intact: the unified **root / ADB / Dhizuku** privilege
+provider, the transparent shell interceptor, the SU bridge and local ADB proxy, the Plus APIs
+(storage proxy, window manager, overlay/theming bridge, network governor, process control, AVF),
+the activity log, gestures, bulk management, Service Doctor, and the quick-settings tile.
 
-## 🔌 Third-Party App Compatibility
+See upstream's documentation for the details of those features.
 
-Shizuku+ installs under its own package (`af.shizuku.plus.api`) so it can coexist with stock Shizuku. Because most Shizuku-aware apps look specifically for the `moe.shizuku.privileged.api` package, Shizuku+ ships a lightweight **Compat Hub** — a tiny companion app that registers that package name and forwards binder/permission requests to Shizuku+.
+---
 
-**If third-party apps don't detect Shizuku+:**
-1. Start the Shizuku+ service (ADB or root).
-2. On the home screen, use the **Compat Hub** card to install the companion (it's bundled in the app; installation goes through the running service, so start the service first).
-3. Re-open the third-party app — it should now detect Shizuku and receive the service binder.
+## 🏗️ Build
 
-Alternatively, install the **drop-in** build, which registers as `moe.shizuku.privileged.api` directly (do not install it alongside stock Shizuku).
+```bash
+git submodule update --init --recursive       # the api/ submodule is required
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME=$HOME/android-sdk
+./gradlew buildApk
+```
 
-## ☑️ Requirements
+`buildApk` assembles the signed `shizukuplus` release, copies it to `~/tmp` as
+`shiroikuma-shizuku_<version>_arm64-v8a.apk`, and bumps the build counter.
 
-**Minimum: Android 7+ · Fully supported through Android 17 (SDK 37)**
-- **Root mode:** Requires a rooted device
-- **Wireless Debugging mode:** Android 11+ and all Android TVs
-- **PC mode:** All devices
-- **Start on boot:** Available only with Wireless Debugging or Root mode
+**Versioning.** Upstream derives its version from its git commit count, which cannot be reused on a
+fork (our own commits would inflate it). The upstream numbers are pinned in `gradle.properties` and
+refreshed on each sync; `BUILD_NUMBER` is this fork's increment:
 
-On **Android 16+**, Shizuku+ requests the new Local Network Protection permissions so wireless-debugging discovery and pairing keep working; on **Android 17**, it transparently handles the hidden-API `deviceId` change so authorized apps still appear and permission grants still apply.
+- `versionName = <UPSTREAM_VERSION_NAME>+<BUILD_NUMBER>` → `13.6.0.r2178+1`
+- `versionCode = UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER` → `21780001`
 
-## 📱 Developer Guide
+Single-ABI **arm64-v8a**; upstream packages a universal APK.
 
-See the [Shizuku+-API](https://github.com/thejaustin/ShizukuPlus-API) repository for documentation on the exclusive Plus APIs.
-
-## 🙏 Acknowledgements & Licenses
-
-Shizuku+ is a community-driven enhancement and fork of [thedjchi/Shizuku](https://github.com/thedjchi/Shizuku), which is itself a fork of the original [RikkaApps/Shizuku](https://github.com/RikkaApps/Shizuku). This project is not affiliated with the original RikkaApps team.
-
-Thanks to the following upstream contributors and projects whose work makes Shizuku+ possible:
-
-- **[RikkaApps / Rikka](https://github.com/RikkaApps)** — For the foundational Shizuku project and its elegant API design.
-- **[thedjchi](https://github.com/thedjchi)** — For the intermediate fork and quality-of-life improvements, and for carrying the **Android 17 (SDK 37) compatibility** work that Shizuku+'s A17 support is adapted from.
-- **[kerneldroid / Nightzuku](https://github.com/kerneldroid/Nightzuku)** — Origin of the Android 17 hidden-API `deviceId` compatibility approach (the `Android17Compat` / `InstalledPackagesCompat` reflection layer) and Local Network Protection handling that this fork's A17 support descends from.
-- **[LandonMoran](https://github.com/LandonMoran)** — For porting Nightzuku's Android 17 support into the thedjchi fork and **verifying it end-to-end on a physical Android 17 device** (pairing, service start, and the authorized-apps list), which is the field validation Shizuku+'s port builds on.
-- **[Muntashir Akon](https://github.com/MuntashirAkon)** — For the aShell You codebase, which inspired the terminal and shell automation features.
-- **[iamr0s](https://github.com/iamr0s)** — For Dhizuku, enabling the unified Device Owner privilege mode, and AndroidAppProcess for standalone Java process execution.
-- **[pascua28](https://github.com/pascua28)** — For native Samsung System UID 1000 escalation integration.
-- **[kerneldroid](https://github.com/kerneldroid)** — For the Nightzuku fork, which inspired our Android 16/17 (SDK 37) hidden API resilience (handling `deviceId`) and UI modernizations.
-- **[ShizukuExt-SystemUID](https://github.com/ShizukuExt)** — For conceptualizing systemic UID 1000 privilege escalation beyond standard limits.
-
-### Upstream Projects
-
-| Project | Author | License | Role |
-|---------|--------|---------|------|
-| [Shizuku](https://github.com/RikkaApps/Shizuku) | RikkaApps / Rikka | Apache 2.0 | Foundational privileged-process architecture |
-| [Shizuku (fork)](https://github.com/thedjchi/Shizuku) | thedjchi | Apache 2.0 | Intermediate fork with QoL improvements; carried the Android 17 compat work Shizuku+ adapted |
-| [Nightzuku](https://github.com/kerneldroid/Nightzuku) | kerneldroid | Apache 2.0 | Origin of the Android 17 hidden-API `deviceId` + Local Network Protection compatibility approach |
-| [Shizuku (fork)](https://github.com/pascua28/Shizuku) | pascua28 | Apache 2.0 | Samsung UID 1000 system execution exploit |
-| [Nightzuku](https://github.com/kerneldroid/Nightzuku) | kerneldroid | Apache 2.0 | Android 16/17 API resilience & UI modernizations |
-| [ShizukuExt-SystemUID](https://github.com/ShizukuExt) | ShizukuExt Team | Apache 2.0 | System UID privilege escalation concepts |
-| [Dhizuku](https://github.com/iamr0s/Dhizuku) | iamr0s | Apache 2.0 | Device Owner binder sharing (Dhizuku Mode) |
-| [AndroidAppProcess](https://github.com/iamr0s/AndroidAppProcess) | iamr0s | LGPL-3.0 | Standalone high-privileged Java process wrapper |
-
-### Open Source Libraries
-
-| Library | Author | License |
-|---------|--------|---------|
-| [AndroidX Jetpack](https://developer.android.com/jetpack) | Google / AOSP | Apache 2.0 |
-| [Material Components](https://github.com/material-components/material-components-android) | Google | Apache 2.0 |
-| [Material Symbols](https://fonts.google.com/icons) | Google | Apache 2.0 |
-| [Kotlin / Coroutines / Serialization](https://github.com/JetBrains/kotlin) | JetBrains | Apache 2.0 |
-| [RikkaX Libraries](https://github.com/RikkaApps) (appcompat, material, insets, html, recyclerview, preference, lifecycle, parcelablelist) | Rikka | Apache 2.0 |
-| [Hidden API / Refine](https://github.com/RikkaApps/HiddenApiCompat) | Rikka | Apache 2.0 |
-| [Mavericks (MvRx)](https://github.com/airbnb/mavericks) | Airbnb | Apache 2.0 |
-| [Lottie](https://github.com/airbnb/lottie-android) | Airbnb | Apache 2.0 |
-| [Coil](https://github.com/coil-kt/coil) | Coil Contributors | Apache 2.0 |
-| [Koin](https://github.com/InsertKoinIO/koin) | Koin Contributors | Apache 2.0 |
-| [Timber](https://github.com/JakeWharton/timber) | Jake Wharton | Apache 2.0 |
-| [libsu](https://github.com/topjohnwu/libsu) | topjohnwu | Apache 2.0 |
-| [AndroidHiddenApiBypass](https://github.com/LSPosed/AndroidHiddenApiBypass) | LSPosed | Apache 2.0 |
-| [libcxx](https://github.com/lsposed/libcxx) | LSPosed / LLVM | Apache 2.0 + LLVM Exception |
-| [AppIconLoader](https://github.com/zhanghai/AppIconLoader) | Zhang Hai | Apache 2.0 |
-| [BoringSSL (NDK)](https://github.com/vvb2060/ndk-boringssl) | vvb2060 / Google | Apache 2.0 / ISC |
-| [Gson](https://github.com/google/gson) | Google | Apache 2.0 |
-| [LeakCanary](https://github.com/square/leakcanary) | Square | Apache 2.0 |
-| [AboutLibraries](https://github.com/mikepenz/AboutLibraries) | Mike Penz | Apache 2.0 |
-| [Bouncy Castle](https://www.bouncycastle.org/) | Legion of Bouncy Castle | MIT |
-| [Sentry Android SDK](https://github.com/getsentry/sentry-java) | Sentry | MIT |
-| [SQLite (C Recovery API / CLI)](https://sqlite.org/) | D. Richard Hipp / SQLite Consortium | Public Domain |
-
-Full license texts and per-library details: [OPEN_SOURCE_LICENSES.md](OPEN_SOURCE_LICENSES.md) | [NOTICE](NOTICE)
+---
 
 ## 📃 License
 
-[Apache 2.0](LICENSE)
+[Apache 2.0](LICENSE), as upstream. Upstream's acknowledgements, third-party attributions and full
+license inventory are preserved in [OPEN_SOURCE_LICENSES.md](OPEN_SOURCE_LICENSES.md) and
+[NOTICE](NOTICE) — this fork claims none of that work.
 
-### Acknowledgments
-- Special thanks to **AkayamiShurui42** for the proactive security research and stability patches (Reference: #239).
-- Thank you to **AlexeiCrystal** for identifying MIUI crash bugs and suggesting the Compat Hub workaround for legacy apps (#241, #242).
-- Thank you to **ddnexus** and **kai-bash** for highlighting the Device Owner factory reset trap and Google Backup conflicts (#237).
-- Thank you to **Kevinco1** for feedback on root compat app detection issues (#243).
-- Thank you to **aragortsantiago6-beep** and **Scoop2389** (Pixel 9a) and **ConversionRituals** (Xiaomi) for on-device Android 16/17 testing, crash reports, and logs that drove the SDK 37 hidden-API and Local Network Protection compatibility fixes (#317, #323).
-- Thank you to **gmm96** for extensive multi-round logcat debugging across several builds that pinned down the Cached Apps Freezer binder-delivery bug (#371).
+Not affiliated with RikkaApps, thedjchi, or the ShizukuPlus author.
