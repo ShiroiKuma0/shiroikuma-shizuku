@@ -20,6 +20,7 @@ import androidx.preference.PreferenceViewHolder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.shiroikuma.showHouse
 
 class DiagnosticsDashboardPreference @JvmOverloads constructor(
     context: Context,
@@ -146,7 +147,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                                 Toast.makeText(context, "Command copied", Toast.LENGTH_SHORT).show()
                             }
                             .setNegativeButton("Dismiss", null)
-                            .show()
+                            .showHouse()
                     }
                 }
             }
@@ -168,7 +169,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                     notifyChanged()
                 }
                 .setNegativeButton("Cancel", null)
-                .show()
+                .showHouse()
         }
     }
 
