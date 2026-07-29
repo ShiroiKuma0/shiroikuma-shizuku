@@ -32,13 +32,29 @@
 #define EXIT_FATAL_KILL 9
 #define EXIT_FATAL_BINDER_BLOCKED_BY_SELINUX 10
 
-#define PACKAGE_NAME "af.shizuku.plus.api"
-// This same starter.cpp is built into both the shizukuplus flavor (applicationId
-// af.shizuku.plus.api) and the dropin flavor (applicationId moe.shizuku.privileged.api). When
-// invoked without --apk= (e.g. manually via `adb shell libshizuku.so`, the documented "start via
-// computer" command), the PACKAGE_NAME fallback below only ever queried the shizukuplus name,
-// so `pm path` always came back empty on a dropin install and start failed with
-// "can't get path of manager" even though the app was genuinely installed.
+// FORK: DERIVED FROM applicationId, never spelled out here.
+//
+// When the starter is invoked WITHOUT --apk= — which is exactly the documented
+// `adb shell .../libshizuku.so` "start from a computer" command — it resolves the manager APK by
+// running `pm path` over the names below. Upstream hardcoded its own two application ids, so on
+// this fork (applicationId shiroikuma.shizuku) both lookups came back empty and the start died
+// with "fatal: can't get path of manager", even though the app was installed. Starting from
+// inside the app always worked, because Starter.internalCommand appends --apk= and skips this
+// path entirely — which is why the bug only ever showed up on the manual command.
+//
+// PACKAGE_NAME is now injected by CMake from the APP_ID gradle property (see CMakeLists.txt and
+// manager/build.gradle), so it follows the applicationId automatically instead of drifting.
+// ComponentNameContractTest asserts the wiring is still in place.
+// See CLAUDE.md, "Never assume applicationId == namespace".
+#ifndef SHIROIKUMA_PACKAGE_NAME
+#define SHIROIKUMA_PACKAGE_NAME "shiroikuma.shizuku"
+#endif
+#define PACKAGE_NAME SHIROIKUMA_PACKAGE_NAME
+// Upstream's `dropin` flavor keeps the stock package name. We never build it, but the fallback
+// costs nothing and keeps that flavor working if it is ever built. Upstream's OWN shizukuplus id
+// (af.shizuku.plus.api) is deliberately NOT in the list: we are never that package, and querying
+// it would mean loading a DIFFERENT app's APK whenever upstream's build happens to be installed
+// alongside ours.
 #define PACKAGE_NAME_DROPIN "moe.shizuku.privileged.api"
 #define SERVER_NAME "shizuku_plus_server"
 #define SERVER_CLASS_PATH "rikka.shizuku.server.ShizukuService"
