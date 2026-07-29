@@ -50,7 +50,7 @@ class StartStockShizukuViewHolder(
 
         if (hasRoot || hasShizuku) {
             val starterCmd = af.shizuku.manager.starter.Starter.internalCommand
-            val cmd = "am force-stop moe.shizuku.privileged.api && am force-stop af.shizuku.plus.api && nohup sh -c 'sleep 1 && $starterCmd' >/dev/null 2>&1 &"
+            val cmd = "am force-stop moe.shizuku.privileged.api && am force-stop shiroikuma.shizuku && nohup sh -c 'sleep 1 && $starterCmd' >/dev/null 2>&1 &"
             val activity = v.context.asActivity<android.app.Activity>() ?: return
             start.isEnabled = false
             scope.launch(kotlinx.coroutines.Dispatchers.IO) {
