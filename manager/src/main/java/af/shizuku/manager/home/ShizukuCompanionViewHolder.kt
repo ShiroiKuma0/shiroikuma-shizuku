@@ -26,6 +26,7 @@ import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import rikka.shizuku.Shizuku
 import timber.log.Timber
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ShizukuCompanionViewHolder(
     private val binding: HomeShizukuCompanionBinding,
@@ -99,11 +100,11 @@ class ShizukuCompanionViewHolder(
                         // Re-enable unconditionally so a reload Fail (e.g. binder death) doesn't
                         // leave the button permanently locked — onBind() resets it on success.
                         binding.button1.isEnabled = true
-                        Toast.makeText(
+                        ShiroikumaToast.show(
                             v.context,
                             if (success) R.string.companion_disable_success else R.string.companion_disable_failure,
                             Toast.LENGTH_SHORT
-                        ).show()
+                        )
                         homeModel.reload()
                     }
                 }
@@ -114,12 +115,12 @@ class ShizukuCompanionViewHolder(
                 // shouldn't route dropin builds into this branch (isCompatAppInstalled() now treats
                 // self as already occupying the role), but this is the hard stop that actually
                 // prevents the destructive install regardless of how this click was reached.
-                Toast.makeText(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT)
             } else if (StockShizukuCompat.isPackageOccupiedByDifferentSigner(v.context)) {
                 // #412: pm install -r always fails with INSTALL_FAILED_UPDATE_INCOMPATIBLE here
                 // (opaquely, before this check existed) - something else, e.g. genuine stock
                 // Shizuku, already occupies moe.shizuku.privileged.api with a different cert.
-                Toast.makeText(v.context, R.string.compat_hub_install_signature_conflict, Toast.LENGTH_LONG).show()
+                ShiroikumaToast.show(v.context, R.string.compat_hub_install_signature_conflict, Toast.LENGTH_LONG)
             } else {
                 setBusy(v.context, R.string.compat_hub_installing)
                 scope.launch {
@@ -138,7 +139,7 @@ class ShizukuCompanionViewHolder(
                     }
                     if (apkBytes == null) {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT).show()
+                            ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT)
                             homeModel.reload()
                         }
                         return@launch
@@ -216,12 +217,13 @@ class ShizukuCompanionViewHolder(
                         Timber.tag("ShizukuCompanion").e("compat hub install failed: %s", installOutput.take(1000))
                     }
                     withContext(Dispatchers.Main) {
+                        // Upstream's per-reason message selection, routed through the house toast.
                         when {
                             success ->
-                                Toast.makeText(v.context, R.string.compat_hub_install_success, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(v.context, R.string.compat_hub_install_success, Toast.LENGTH_SHORT)
                             systemInstallerUri != null -> {
                                 // Device blocks newProcess — open system installer as fallback.
-                                Toast.makeText(v.context, R.string.compat_hub_install_fail_newprocess, Toast.LENGTH_LONG).show()
+                                ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail_newprocess, Toast.LENGTH_LONG)
                                 try {
                                     val intent = Intent(Intent.ACTION_VIEW).apply {
                                         setDataAndType(systemInstallerUri, "application/vnd.android.package-archive")
@@ -234,14 +236,14 @@ class ShizukuCompanionViewHolder(
                                 }
                             }
                             installOutput.contains("INSTALL_FAILED_INSUFFICIENT_STORAGE") ->
-                                Toast.makeText(v.context, R.string.compat_hub_install_fail_storage, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail_storage, Toast.LENGTH_SHORT)
                             installOutput.contains("INSTALL_FAILED_NO_MATCHING_ABIS") ->
-                                Toast.makeText(v.context, R.string.compat_hub_install_fail_abi, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail_abi, Toast.LENGTH_SHORT)
                             installOutput.contains("INSTALL_FAILED_USER_RESTRICTED") ||
                             installOutput.contains("INSTALL_FAILED_VERIFICATION_FAILURE") ||
                             installOutput.contains("INSTALL_FAILED_BLOCKED") ||
                             installOutput.contains("INSTALL_FAILED_POLICY_ERROR") ->
-                                Toast.makeText(v.context, R.string.compat_hub_install_fail_restricted, Toast.LENGTH_LONG).show()
+                                ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail_restricted, Toast.LENGTH_LONG)
                             else -> {
                                 val errorSnippet = installOutput
                                     .lines()
@@ -249,13 +251,13 @@ class ShizukuCompanionViewHolder(
                                     ?.trim()
                                     ?.take(80)
                                 if (errorSnippet != null) {
-                                    Toast.makeText(
+                                    ShiroikumaToast.show(
                                         v.context,
                                         v.context.getString(R.string.compat_hub_install_fail_detail, errorSnippet),
                                         Toast.LENGTH_LONG
-                                    ).show()
+                                    )
                                 } else {
-                                    Toast.makeText(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT).show()
+                                    ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT)
                                 }
                             }
                         }

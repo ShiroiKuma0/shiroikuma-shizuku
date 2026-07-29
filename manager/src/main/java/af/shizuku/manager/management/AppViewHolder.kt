@@ -43,6 +43,7 @@ import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import rikka.shizuku.Shizuku
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AppViewHolder(private val binding: AppListItemBinding) :
     BaseViewHolder<PackageInfo>(binding.root), View.OnClickListener, View.OnLongClickListener {
@@ -108,7 +109,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
             }
             val clipboard = v.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             clipboard.setPrimaryClip(ClipData.newPlainText("package_name", packageName))
-            Toast.makeText(v.context, R.string.app_management_package_copied, Toast.LENGTH_SHORT).show()
+            ShiroikumaToast.show(v.context, R.string.app_management_package_copied, Toast.LENGTH_SHORT)
         }
     }
 
@@ -176,7 +177,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                     ActivityLogManager.log(appLabel, capturedPackage, "Long-press: open_app")
                     val intent = pm.getLaunchIntentForPackage(capturedPackage)
                     if (intent != null) launchActivity(context, intent)
-                    else Toast.makeText(context, R.string.app_management_no_launcher, Toast.LENGTH_SHORT).show()
+                    else ShiroikumaToast.show(context, R.string.app_management_no_launcher, Toast.LENGTH_SHORT)
                 })
             }
             if (ShizukuSettings.getLongPressAppInfo()) {
@@ -242,17 +243,17 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                                     val success = if (isFrozen) amPlus.unfreezeApp(capturedPackage) else amPlus.freezeApp(capturedPackage)
                                     withContext(Dispatchers.Main) {
                                         if (success) {
-                                            Toast.makeText(context, if (isFrozen) R.string.toast_app_unfrozen else R.string.toast_app_frozen, Toast.LENGTH_SHORT).show()
+                                            ShiroikumaToast.show(context, if (isFrozen) R.string.toast_app_unfrozen else R.string.toast_app_frozen, Toast.LENGTH_SHORT)
                                             ActivityLogManager.log(appLabel, capturedPackage, "Long-press: ${if (isFrozen) "unfreeze" else "freeze"}")
                                             val pos = adapterPosition
                                             if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) adapter.notifyItemChanged(pos)
                                         } else {
-                                            Toast.makeText(context, R.string.toast_operation_failed, Toast.LENGTH_SHORT).show()
+                                            ShiroikumaToast.show(context, R.string.toast_operation_failed, Toast.LENGTH_SHORT)
                                         }
                                     }
                                 } catch (e: Exception) {
                                     withContext(Dispatchers.Main) {
-                                        Toast.makeText(context, context.getString(R.string.toast_error_with_message, e.message), Toast.LENGTH_SHORT).show()
+                                        ShiroikumaToast.show(context, context.getString(R.string.toast_error_with_message, e.message), Toast.LENGTH_SHORT)
                                     }
                                 }
                             }

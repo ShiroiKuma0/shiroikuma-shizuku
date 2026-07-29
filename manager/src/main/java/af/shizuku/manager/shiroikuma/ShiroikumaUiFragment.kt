@@ -130,7 +130,7 @@ class ShiroikumaUiFragment : BaseSettingsFragment() {
                     clipboard?.setPrimaryClip(
                         android.content.ClipData.newPlainText("token", AutomationAuth.token(ctx))
                     )
-                    android.widget.Toast.makeText(ctx, "Token copied", android.widget.Toast.LENGTH_SHORT).show()
+                    af.shizuku.manager.shiroikuma.ShiroikumaToast.show(ctx, "Token copied", android.widget.Toast.LENGTH_SHORT)
                     true
                 }
             }

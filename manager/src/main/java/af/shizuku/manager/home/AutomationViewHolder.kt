@@ -27,6 +27,7 @@ import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AutomationViewHolder(
     private val binding: HomeAutomationBinding,
@@ -68,7 +69,7 @@ class AutomationViewHolder(
             // accept both encrypted (bare base64) and raw-plaintext values via constant-time
             // MessageDigest comparison, so this graceful degradation is safe.
             if (encryptedToken == null) {
-                Toast.makeText(context, R.string.home_automation_token_encrypt_failed, Toast.LENGTH_SHORT).show()
+                ShiroikumaToast.show(context, R.string.home_automation_token_encrypt_failed, Toast.LENGTH_SHORT)
             }
 
             val sheetBinding = HomeAutomationBottomSheetBinding.inflate(
@@ -109,11 +110,11 @@ class AutomationViewHolder(
                             ClipboardUtils.put(context, input.text) &&
                             Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2
                         ) {
-                            Toast.makeText(
+                            ShiroikumaToast.show(
                                 context,
                                 context.getString(R.string.toast_copied_to_clipboard),
                                 Toast.LENGTH_SHORT,
-                            ).show()
+                            )
                         }
                     }
                 }
@@ -135,7 +136,7 @@ class AutomationViewHolder(
                             if (newEncryptedToken == null) {
                                 // AndroidKeyStore unavailable: show a warning but still populate the
                                 // field with the raw token so the automation can be saved and used.
-                                Toast.makeText(context, R.string.home_automation_token_encrypt_failed, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(context, R.string.home_automation_token_encrypt_failed, Toast.LENGTH_SHORT)
                                 extrasEditText.setText(newToken)
                             } else {
                                 // As with the initial display, set only the base64 body — the

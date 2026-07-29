@@ -21,6 +21,7 @@ import af.shizuku.manager.onboarding.OnboardingActivity
 import af.shizuku.manager.update.UpdateChecker
 import af.shizuku.manager.utils.ShizukuStateMachine
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class MainActivity : HomeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,7 +85,7 @@ class MainActivity : HomeActivity() {
                         backupFile.delete()
                         // Notify user or refresh UI if needed
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@MainActivity, R.string.migration_success_message, Toast.LENGTH_LONG).show()
+                            ShiroikumaToast.show(this@MainActivity, R.string.migration_success_message, Toast.LENGTH_LONG)
                         }
                     }
                 } catch (e: Exception) {

@@ -23,6 +23,7 @@ import rikka.recyclerview.BaseViewHolder.Creator
 
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class StartAdbViewHolder(
     private val binding: HomeStartAdbBinding,
@@ -54,11 +55,11 @@ class StartAdbViewHolder(
                 )
                 .setPositiveButton(R.string.home_adb_dialog_view_command_copy_button) { _, _ ->
                     if (ClipboardUtils.put(context, Starter.adbCommand)) {
-                        Toast.makeText(
+                        ShiroikumaToast.show(
                             context,
                             context.getString(R.string.toast_copied_to_clipboard),
                             Toast.LENGTH_SHORT
-                        ).show()
+                        )
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)

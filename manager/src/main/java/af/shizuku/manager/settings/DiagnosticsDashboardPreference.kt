@@ -22,6 +22,7 @@ import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.automation.AutomationService
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class DiagnosticsDashboardPreference @JvmOverloads constructor(
     context: Context,
@@ -124,7 +125,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                 context.startActivity(intent)
                             } catch (anfe: Exception) {
-                                Toast.makeText(context, R.string.diagnostics_battery_settings_open_failed, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(context, R.string.diagnostics_battery_settings_open_failed, Toast.LENGTH_SHORT)
                             }
                         }
                     }
@@ -138,11 +139,11 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             } != null
                         } else false
                         if (!opened) {
-                            Toast.makeText(
+                            ShiroikumaToast.show(
                                 context,
                                 R.string.diagnostics_shadow_binder_navigate_hint,
                                 Toast.LENGTH_LONG
-                            ).show()
+                            )
                         }
                     }
                     "dhizuku_not_owner" -> {
@@ -154,7 +155,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             .setPositiveButton(R.string.diagnostics_copy_command) { _, _ ->
                                 val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 cm.setPrimaryClip(ClipData.newPlainText("dpm command", cmd))
-                                Toast.makeText(context, R.string.diagnostics_command_copied, Toast.LENGTH_SHORT).show()
+                                ShiroikumaToast.show(context, R.string.diagnostics_command_copied, Toast.LENGTH_SHORT)
                             }
                             .setNegativeButton(R.string.diagnostics_dismiss, null)
                             .showHouse()

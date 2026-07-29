@@ -3,6 +3,8 @@ package af.shizuku.manager
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import java.io.File
 
 /**
@@ -82,6 +84,51 @@ class ComponentNameContractTest : FunSpec({
             ) {
                 candidates.any { it.isFile } shouldBe true
             }
+        }
+    }
+
+    // ---- native ---------------------------------------------------------------------------
+    // The rename that created this fork swept .kt/.java/.xml and MISSED .cpp, so the native
+    // starter kept querying upstream's application ids and every manual
+    // `adb shell .../libshizuku.so` died with "fatal: can't get path of manager". These lock the
+    // replacement wiring in place.
+
+    test("the native starter does not hardcode an application id") {
+        val starter = File(moduleDir, "src/main/jni/starter.cpp")
+        check(starter.isFile) { "starter.cpp not found at ${starter.path}" }
+        val text = starter.readText()
+
+        withClue(
+            "starter.cpp names upstream's own applicationId. It resolves the manager APK with " +
+                "`pm path`, so that would load a DIFFERENT app's APK whenever upstream's build is " +
+                "installed alongside ours."
+        ) {
+            text shouldNotContain "\"af.shizuku.plus.api\""
+        }
+        withClue(
+            "starter.cpp no longer takes its package from SHIROIKUMA_PACKAGE_NAME — the injected " +
+                "applicationId. Hardcoding it here is what broke the manual ADB start."
+        ) {
+            text shouldContain "SHIROIKUMA_PACKAGE_NAME"
+        }
+    }
+
+    test("the applicationId is injected into the native build") {
+        val cmake = File(moduleDir, "src/main/jni/CMakeLists.txt")
+        val gradle = File(moduleDir, "build.gradle")
+        check(cmake.isFile && gradle.isFile) { "native build files not found" }
+
+        withClue("CMakeLists.txt no longer turns SHIROIKUMA_PACKAGE_NAME into a compile definition.") {
+            cmake.readText() shouldContain "target_compile_definitions"
+        }
+        withClue(
+            "manager/build.gradle no longer passes -DSHIROIKUMA_PACKAGE_NAME to CMake, so the " +
+                "native starter would fall back to its compiled-in default and drift from APP_ID."
+        ) {
+            gradle.readText() shouldContain "-DSHIROIKUMA_PACKAGE_NAME="
+        }
+        withClue("build.gradle should derive the value from the APP_ID property, not spell it out.") {
+            gradle.readText() shouldContain "providers.gradleProperty(\"APP_ID\")"
         }
     }
 
