@@ -20,6 +20,9 @@ import rikka.shizuku.server.ktx.workerHandler
 class ShizukuManagerProvider : ShizukuProvider() {
 
     companion object {
+        // WIRE PROTOCOL, NOT IDENTITY — must stay byte-equal to
+        // rikka.shizuku.ShizukuProvider.EXTRA_BINDER in the `api` submodule, which this class
+        // extends. Do not "fix" it to match our applicationId.
         private const val EXTRA_BINDER = "af.shizuku.plus.api.intent.extra.BINDER"
         private const val METHOD_SEND_USER_SERVICE = "sendUserService"
     }
