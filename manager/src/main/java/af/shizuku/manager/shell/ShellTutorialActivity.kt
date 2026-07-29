@@ -16,8 +16,7 @@ import androidx.core.view.isVisible
 import rikka.compatibility.DeviceCompatibility
 import rikka.html.text.HtmlCompat
 import rikka.insets.*
-import timber.log.Timber
-import kotlin.math.roundToInt
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ShellTutorialActivity : AppBarActivity() {
     companion object {
@@ -106,20 +105,16 @@ class ShellTutorialActivity : AppBarActivity() {
             ShizukuSettings.setExportDirUri(tree.toString())
             updateCommandTexts()
 
-            val toastMsg =
-                if (successCount == totalCount) {
-                    getString(R.string.shell_export_success)
-                } else if (successCount == 0) {
-                    getString(R.string.shell_export_failed)
-                } else {
-                    getString(R.string.shell_export_partial, successCount, totalCount)
-                }
-            android.widget.Toast
-                .makeText(
-                    this@ShellTutorialActivity,
-                    toastMsg,
-                    if (successCount == totalCount) android.widget.Toast.LENGTH_SHORT else android.widget.Toast.LENGTH_LONG,
-                ).show()
+            val toastMsg = if (successCount == totalCount) {
+                getString(R.string.shell_export_success)
+            } else if (successCount == 0) {
+                getString(R.string.shell_export_failed)
+            } else {
+                getString(R.string.shell_export_partial, successCount, totalCount)
+            }
+            af.shizuku.manager.shiroikuma.ShiroikumaToast.show(this@ShellTutorialActivity, toastMsg,
+                if (successCount == totalCount) android.widget.Toast.LENGTH_SHORT else android.widget.Toast.LENGTH_LONG
+            )
         }
 
     override fun getLayoutId() = R.layout.terminal_tutorial_activity
@@ -187,9 +182,7 @@ class ShellTutorialActivity : AppBarActivity() {
                     openDocumentsTree.launch(null)
                 } catch (e: android.content.ActivityNotFoundException) {
                     Timber.tag(TAG).w("No file picker available on this device: ${e.message}")
-                    android.widget.Toast
-                        .makeText(this@ShellTutorialActivity, R.string.no_file_picker, android.widget.Toast.LENGTH_LONG)
-                        .show()
+                    af.shizuku.manager.shiroikuma.ShiroikumaToast.show(this@ShellTutorialActivity, R.string.no_file_picker, android.widget.Toast.LENGTH_LONG)
                 }
             }
             button2.setOnClickListener { v: View -> CustomTabsHelper.launchUrlOrCopy(v.context, Helps.RISH.get()) }

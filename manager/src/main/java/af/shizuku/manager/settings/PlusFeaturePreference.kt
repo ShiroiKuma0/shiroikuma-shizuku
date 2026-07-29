@@ -15,7 +15,10 @@ import androidx.preference.PreferenceViewHolder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.materialswitch.MaterialSwitch
+import af.shizuku.manager.R
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+
+class PlusFeaturePreference(context: Context, attrs: AttributeSet) : GrayableIconSwitchPreference(context, attrs) {
 
 class PlusFeaturePreference(
     context: Context,
@@ -202,12 +205,9 @@ class PlusFeaturePreference(
         if (intent != null) {
             context.startActivity(intent)
         } else {
-            android.widget.Toast
-                .makeText(
-                    context,
-                    R.string.app_management_no_launcher,
-                    android.widget.Toast.LENGTH_SHORT,
-                ).show()
+            af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
+                context, R.string.app_management_no_launcher, android.widget.Toast.LENGTH_SHORT
+            )
         }
     }
 

@@ -7,18 +7,7 @@ import af.shizuku.manager.home.ChangelogDialogFragment
 import af.shizuku.manager.update.UpdateChecker
 import af.shizuku.manager.update.UpdateManager
 import af.shizuku.manager.utils.CustomTabsHelper
-import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.TwoStatePreference
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
-import timber.log.Timber
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AboutSettingsFragment : BaseSettingsFragment() {
     companion object {
@@ -49,7 +38,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
             summary = BuildConfig.VERSION_NAME
             setOnPreferenceClickListener {
                 if (ShizukuSettings.isVectorEnabled()) {
-                    Toast.makeText(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT)
                     return@setOnPreferenceClickListener true
                 }
 
@@ -58,10 +47,10 @@ class AboutSettingsFragment : BaseSettingsFragment() {
                     ShizukuSettings.setVectorEnabled(true)
                     SettingsSearchEngine.reset()
                     navDevOptions?.let { setChildAvailable(it, true) }
-                    Toast.makeText(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, R.string.settings_developer_options_revealed, Toast.LENGTH_SHORT)
                     versionClickCount = 0
                 } else if (versionClickCount > 2) {
-                    Toast.makeText(context, context.getString(R.string.settings_developer_options_click_more, 7 - versionClickCount), Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(context, context.getString(R.string.settings_developer_options_click_more, 7 - versionClickCount), Toast.LENGTH_SHORT)
                 }
                 true
             }

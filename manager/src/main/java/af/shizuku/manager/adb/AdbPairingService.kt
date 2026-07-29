@@ -17,6 +17,7 @@ import kotlinx.coroutines.*
 import rikka.core.ktx.unsafeLazy
 import timber.log.Timber
 import java.net.ConnectException
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 @TargetApi(Build.VERSION_CODES.R)
 class AdbPairingService : Service() {
@@ -154,7 +155,7 @@ class AdbPairingService : Service() {
     }
 
     override fun onTimeout(startId: Int) {
-        Toast.makeText(this, R.string.toast_pairing_timeout, Toast.LENGTH_SHORT).show()
+        ShiroikumaToast.show(this, R.string.toast_pairing_timeout, Toast.LENGTH_SHORT)
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }

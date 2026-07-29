@@ -25,6 +25,7 @@ import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.automation.AutomationService
 import af.shizuku.manager.shiroikuma.showHouse
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class DiagnosticsDashboardPreference
     @JvmOverloads
@@ -124,58 +125,37 @@ class DiagnosticsDashboardPreference
                                 af.shizuku.manager.utils.SettingsHelper
                                     .requestIgnoreBatteryOptimizations(context)
                             } catch (_: Exception) {
-                                try {
-                                    val intent = Intent(Settings.ACTION_SETTINGS)
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    context.startActivity(intent)
-                                } catch (_: Exception) {
-                                    Toast.makeText(context, R.string.diagnostics_battery_settings_open_failed, Toast.LENGTH_SHORT).show()
-                                }
+                                ShiroikumaToast.show(context, R.string.diagnostics_battery_settings_open_failed, Toast.LENGTH_SHORT)
                             }
                         }
-                        "shadow_binder_no_apps" -> {
-                            val activity = context as? androidx.fragment.app.FragmentActivity
-                            val frag =
-                                activity
-                                    ?.supportFragmentManager
-                                    ?.findFragmentById(R.id.fragment_container)
-                            val opened =
-                                if (frag is ShizukuPlusSettingsFragment) {
-                                    frag.findPreference<Preference>("shadow_binder_hidden_packages")?.let {
-                                        frag.onPreferenceTreeClick(it)
-                                    } != null
-                                } else {
-                                    false
-                                }
-                            if (!opened) {
-                                Toast
-                                    .makeText(
-                                        context,
-                                        R.string.diagnostics_shadow_binder_navigate_hint,
-                                        Toast.LENGTH_LONG,
-                                    ).show()
-                            }
+                    }
+                    "shadow_binder_no_apps" -> {
+                        val activity = context as? androidx.fragment.app.FragmentActivity
+                        val frag = activity?.supportFragmentManager
+                            ?.findFragmentById(R.id.fragment_container)
+                        val opened = if (frag is ShizukuPlusSettingsFragment) {
+                            frag.findPreference<Preference>("shadow_binder_hidden_packages")?.let {
+                                frag.onPreferenceTreeClick(it)
+                            } != null
+                        } else false
+                        if (!opened) {
+                            ShiroikumaToast.show(
+                                context,
+                                R.string.diagnostics_shadow_binder_navigate_hint,
+                                Toast.LENGTH_LONG
+                            )
                         }
-                        "dhizuku_not_owner" -> {
-                            val cmd =
-                                "adb shell dpm set-device-owner " +
-                                    "${context.packageName}/.admin.DhizukuAdminReceiver"
-                            MaterialAlertDialogBuilder(context)
-                                .setTitle(R.string.diagnostics_device_owner_setup_title)
-                                .setMessage(context.getString(R.string.diagnostics_device_owner_setup_message, cmd))
-                                .setPositiveButton(R.string.diagnostics_copy_command) { _, _ ->
-                                    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    cm.setPrimaryClip(ClipData.newPlainText("dpm command", cmd))
-                                    Toast.makeText(context, R.string.diagnostics_command_copied, Toast.LENGTH_SHORT).show()
-                                }.setNegativeButton(R.string.diagnostics_dismiss, null)
-                                .show()
-                        }
-                        "automation_service_stopped" -> {
-                            try {
-                                context.startService(Intent(context, AutomationService::class.java))
-                                notifyChanged()
-                            } catch (_: Exception) {
-                                Toast.makeText(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT).show()
+                    }
+                    "dhizuku_not_owner" -> {
+                        val cmd = "adb shell dpm set-device-owner " +
+                            "${context.packageName}/.admin.DhizukuAdminReceiver"
+                        MaterialAlertDialogBuilder(context)
+                            .setTitle(R.string.diagnostics_device_owner_setup_title)
+                            .setMessage(context.getString(R.string.diagnostics_device_owner_setup_message, cmd))
+                            .setPositiveButton(R.string.diagnostics_copy_command) { _, _ ->
+                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                cm.setPrimaryClip(ClipData.newPlainText("dpm command", cmd))
+                                ShiroikumaToast.show(context, R.string.diagnostics_command_copied, Toast.LENGTH_SHORT)
                             }
                             .setNegativeButton(R.string.diagnostics_dismiss, null)
                             .showHouse()

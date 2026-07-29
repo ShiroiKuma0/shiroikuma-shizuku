@@ -5,6 +5,8 @@ import android.app.admin.DeviceAdminReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import af.shizuku.manager.R
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class DhizukuAdminReceiver : DeviceAdminReceiver() {
     override fun onEnabled(
@@ -12,7 +14,7 @@ class DhizukuAdminReceiver : DeviceAdminReceiver() {
         intent: Intent,
     ) {
         super.onEnabled(context, intent)
-        Toast.makeText(context, R.string.dhizuku_device_owner_enabled, Toast.LENGTH_SHORT).show()
+        ShiroikumaToast.show(context, R.string.dhizuku_device_owner_enabled, Toast.LENGTH_SHORT)
         try {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
             val componentName = android.content.ComponentName(context, DhizukuAdminReceiver::class.java)
@@ -27,6 +29,6 @@ class DhizukuAdminReceiver : DeviceAdminReceiver() {
         intent: Intent,
     ) {
         super.onDisabled(context, intent)
-        Toast.makeText(context, R.string.dhizuku_device_owner_disabled, Toast.LENGTH_SHORT).show()
+        ShiroikumaToast.show(context, R.string.dhizuku_device_owner_disabled, Toast.LENGTH_SHORT)
     }
 }

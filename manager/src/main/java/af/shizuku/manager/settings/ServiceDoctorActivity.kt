@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
 import timber.log.Timber
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ServiceDoctorActivity : AppBarActivity() {
     private lateinit var checkListAdapter: CheckListAdapter
@@ -573,7 +574,19 @@ class ServiceDoctorActivity : AppBarActivity() {
                                             }
                                         }
                                     }
-                                    withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, R.string.service_doctor_fix_phantom_attempted, Toast.LENGTH_SHORT).show() }
+                                }
+                                withContext(Dispatchers.Main) { ShiroikumaToast.show(this@ServiceDoctorActivity, R.string.service_doctor_fix_phantom_attempted, Toast.LENGTH_SHORT) }
+                            } else {
+                                withContext(Dispatchers.Main) { ShiroikumaToast.show(this@ServiceDoctorActivity, R.string.service_doctor_fix_requires_service, Toast.LENGTH_SHORT) }
+                            }
+                        } catch (e: Exception) {
+                            val isNullProcess = e is IllegalStateException && e.message?.contains("null remote process") == true
+                            Timber.w(e, "Phantom process fix failed")
+                            withContext(Dispatchers.Main) {
+                                val msg = if (isNullProcess && EnvironmentUtils.isSamsung()) {
+                                    getString(R.string.service_doctor_fix_blocked_samsung)
+                                } else if (isNullProcess) {
+                                    getString(R.string.service_doctor_fix_blocked_generic)
                                 } else {
                                     withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, R.string.service_doctor_fix_requires_service, Toast.LENGTH_SHORT).show() }
                                 }
@@ -591,6 +604,7 @@ class ServiceDoctorActivity : AppBarActivity() {
                                         }
                                     Toast.makeText(this@ServiceDoctorActivity, msg, Toast.LENGTH_LONG).show()
                                 }
+                                ShiroikumaToast.show(this@ServiceDoctorActivity, msg, Toast.LENGTH_LONG)
                             }
                         }
                     },
