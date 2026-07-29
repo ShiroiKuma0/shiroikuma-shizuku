@@ -18,6 +18,7 @@ import androidx.preference.TwoStatePreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
+import af.shizuku.manager.shiroikuma.showHouse
 
 /**
  * Root Integration Settings
@@ -173,8 +174,9 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                                     ?.apply()
                                 pref.isChecked = true
                                 ShizukuSettings.syncAllPlusFeaturesToServer()
-                            }.setNegativeButton(android.R.string.cancel, null)
-                            .show()
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .showHouse()
                         return@setOnPreferenceChangeListener false
                     } else if (newValue && key == "root_magisk_mocking_enabled") {
                         val ctx = context ?: return@setOnPreferenceChangeListener false
@@ -265,7 +267,8 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                         ShizukuSettings.syncAllPlusFeaturesToServer()
                         Toast.makeText(context, context?.getString(R.string.su_path_preset_applied, presets[which]), Toast.LENGTH_SHORT).show()
                     }
-                }.show()
+                }
+                .showHouse()
             true // Intercept click to show presets dialog first
         }
 

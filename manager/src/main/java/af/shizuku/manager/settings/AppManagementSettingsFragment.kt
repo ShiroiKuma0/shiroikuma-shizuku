@@ -10,6 +10,9 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AppManagementSettingsFragment : BaseSettingsFragment() {
     companion object {
@@ -159,6 +162,6 @@ class AppManagementSettingsFragment : BaseSettingsFragment() {
                 startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(getKeyUrl)))
             }
         }
-        builder.show()
+        builder.showHouse()
     }
 }

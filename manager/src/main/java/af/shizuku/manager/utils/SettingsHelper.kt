@@ -7,7 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
-import androidx.activity.result.ActivityResultLauncher
+import af.shizuku.manager.R
+import af.shizuku.manager.utils.SettingsPage
+import af.shizuku.manager.shiroikuma.showHouse
 
 object SettingsHelper {
     fun launchOrHighlightWirelessDebugging(context: Context) {
@@ -87,11 +89,10 @@ object SettingsHelper {
             .setPositiveButton(R.string.home_adb_dialog_view_command_copy_button) { _, _ ->
                 val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                 cm.setPrimaryClip(android.content.ClipData.newPlainText("adb command", command))
-                android.widget.Toast
-                    .makeText(context, R.string.toast_copied_to_clipboard, android.widget.Toast.LENGTH_SHORT)
-                    .show()
-            }.setNegativeButton(android.R.string.cancel, null)
-            .show()
+                android.widget.Toast.makeText(context, R.string.toast_copied_to_clipboard, android.widget.Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .showHouse()
     }
 
     fun isAccessibilityServiceEnabled(

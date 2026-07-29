@@ -21,6 +21,10 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.automation.AutomationService
+import af.shizuku.manager.shiroikuma.showHouse
 
 class DiagnosticsDashboardPreference
     @JvmOverloads
@@ -175,6 +179,15 @@ class DiagnosticsDashboardPreference
                             } catch (_: Exception) {
                                 Toast.makeText(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT).show()
                             }
+                            .setNegativeButton(R.string.diagnostics_dismiss, null)
+                            .showHouse()
+                    }
+                    "automation_service_stopped" -> {
+                        try {
+                            context.startService(Intent(context, AutomationService::class.java))
+                            notifyChanged()
+                        } catch (_: Exception) {
+                            Toast.makeText(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -184,8 +197,10 @@ class DiagnosticsDashboardPreference
                     sp?.edit()?.putStringSet("diagnostics_dismissed", newDismissed)?.apply()
                     notifyChanged()
                 }
-                listContainer.addView(itemView)
-            }
+                .setNegativeButton(android.R.string.cancel, null)
+                .showHouse()
+        }
+    }
 
             btnDisable?.setOnClickListener {
                 MaterialAlertDialogBuilder(context)

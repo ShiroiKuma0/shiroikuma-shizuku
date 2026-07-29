@@ -31,6 +31,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import af.shizuku.core.ui.EmptyStateView
+import af.shizuku.manager.R
+import af.shizuku.manager.databinding.ItemScriptSnippetBinding
+import af.shizuku.manager.database.ScriptSnippetManager
+import af.shizuku.manager.database.ScriptSnippetRoom
+import af.shizuku.manager.shiroikuma.showHouse
 
 class ScriptingFragment : Fragment() {
     private val adapter =
@@ -141,7 +147,8 @@ class ScriptingFragment : Fragment() {
                     val cm = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     cm.setPrimaryClip(ClipData.newPlainText(snippet.title, output))
                     Toast.makeText(ctx, R.string.scripting_output_copied, Toast.LENGTH_SHORT).show()
-                }.show()
+                }
+                .showHouse()
         }
     }
 
@@ -204,8 +211,9 @@ class ScriptingFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     ScriptSnippetManager.save(existing?.id, title, script, autoRunCheck.isChecked)
                 }
-            }.setNegativeButton(android.R.string.cancel, null)
-            .show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .showHouse()
     }
 
     private fun showDeleteConfirmation(snippet: ScriptSnippetRoom) {
@@ -217,8 +225,9 @@ class ScriptingFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     ScriptSnippetManager.delete(snippet)
                 }
-            }.setNegativeButton(android.R.string.cancel, null)
-            .show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .showHouse()
     }
 
     internal class SnippetAdapter(

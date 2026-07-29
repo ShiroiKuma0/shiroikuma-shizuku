@@ -26,6 +26,25 @@ import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.database.ActivityLogManager
+import af.shizuku.manager.adb.AdbClient
+import af.shizuku.manager.adb.AdbKey
+import af.shizuku.manager.adb.PreferenceAdbKeyStore
+import af.shizuku.manager.starter.Starter
+import af.shizuku.manager.utils.EnvironmentUtils
+import af.shizuku.manager.utils.ShizukuStateMachine
+import io.sentry.Sentry
+import android.app.Activity
+import android.content.ContextWrapper
+import android.view.ContextThemeWrapper
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import af.shizuku.manager.utils.SettingsPage
+import af.shizuku.manager.shiroikuma.showHouse
 
 object AdbStarter {
     private const val TAG = "AdbStarter"
@@ -132,8 +151,9 @@ object AdbStarter {
                             .setMessage(R.string.adb_error_ssl_message)
                             .setPositiveButton(R.string.adb_error_ssl_button_reset) { _, _ ->
                                 SettingsPage.Developer.Options.launch(activity)
-                            }.setNegativeButton(android.R.string.cancel, null)
-                            .show()
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .showHouse()
                     } else {
                         // Fallback for non-activity context
                         val themedContext = ContextThemeWrapper(context, R.style.AppTheme)

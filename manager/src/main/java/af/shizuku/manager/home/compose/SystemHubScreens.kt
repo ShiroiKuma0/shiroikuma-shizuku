@@ -115,7 +115,10 @@ fun ServerMetricsScreen() {
         MetricCard(title = stringResource(R.string.active_connections), value = clientCountText)
         Card(
             shape = RoundedCornerShape(24.dp),
-            modifier = Modifier.fillMaxWidth(),
+            // FORK: the card fill is the same pure black as the page — without a border it is
+            // invisible. Minor tier (grey): a metric tile, not a section heading.
+            border = af.shizuku.manager.shiroikuma.minorBorder(),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(stringResource(R.string.server_memory_usage), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -124,7 +127,9 @@ fun ServerMetricsScreen() {
                     progress = { memoryProgress },
                     modifier = Modifier.fillMaxWidth().height(12.dp),
                     color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    // FORK: surfaceVariant is black here, so the unfilled part of the bar was
+                    // invisible against the page — use the minor border grey instead.
+                    trackColor = MaterialTheme.colorScheme.outlineVariant,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(memoryDetails, style = MaterialTheme.typography.labelLarge)
@@ -140,7 +145,9 @@ fun MetricCard(
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        modifier = Modifier.fillMaxWidth(),
+        // FORK: see the memory card above — black on black without this.
+        border = af.shizuku.manager.shiroikuma.minorBorder(),
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

@@ -13,7 +13,12 @@ import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
+import af.shizuku.manager.R
+import af.shizuku.manager.home.ChangelogDialogFragment
+import af.shizuku.manager.home.HomeActivity
+import af.shizuku.manager.update.UpdateChecker
+import af.shizuku.manager.utils.ShizukuStateMachine
+import af.shizuku.manager.shiroikuma.showHouse
 
 class MainActivity : HomeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,14 +165,13 @@ class MainActivity : HomeActivity() {
                 .setTitle(R.string.manual_report_title)
                 .setMessage(R.string.crash_detected_dialog_message)
                 .setPositiveButton(R.string.manual_report_button_github) { _, _ ->
-                    af.shizuku.manager.utils.CrashReporter
-                        .shareAsFile(this)
-                    af.shizuku.manager.utils.CrashHandler
-                        .clearLastCrash(this)
-                }.setNegativeButton(R.string.crash_detected_dialog_ignore) { _, _ ->
-                    af.shizuku.manager.utils.CrashHandler
-                        .clearLastCrash(this)
-                }.show()
+                    af.shizuku.manager.utils.CrashReporter.shareAsFile(this)
+                    af.shizuku.manager.utils.CrashHandler.clearLastCrash(this)
+                }
+                .setNegativeButton(R.string.crash_detected_dialog_ignore) { _, _ ->
+                    af.shizuku.manager.utils.CrashHandler.clearLastCrash(this)
+                }
+                .showHouse()
         } catch (e: Exception) {
             Timber.e(e, "showCrashReportDialog failed — clearing crash file silently")
             Sentry.captureException(e)

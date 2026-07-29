@@ -42,6 +42,7 @@ import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import rikka.shizuku.Shizuku
+import af.shizuku.manager.shiroikuma.showHouse
 
 class AppViewHolder(
     private val binding: AppListItemBinding,
@@ -169,11 +170,10 @@ class AppViewHolder(
                         // consume silently
                     }
                     enabled.size == 1 -> enabled[0].run()
-                    else ->
-                        MaterialAlertDialogBuilder(context)
-                            .setTitle(appLabel)
-                            .setItems(enabled.map { it.label }.toTypedArray()) { _, i -> enabled[i].run() }
-                            .show()
+                    else -> MaterialAlertDialogBuilder(context)
+                        .setTitle(appLabel)
+                        .setItems(enabled.map { it.label }.toTypedArray()) { _, i -> enabled[i].run() }
+                        .showHouse()
                 }
             }
         }
@@ -445,7 +445,8 @@ class AppViewHolder(
                 if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
                     adapter.notifyItemChanged(pos)
                 }
-            }.show()
+            }
+            .showHouse()
     }
 
     override fun onBind() {

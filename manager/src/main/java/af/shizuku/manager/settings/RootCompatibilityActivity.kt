@@ -44,7 +44,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
-import timber.log.Timber
+import af.shizuku.manager.database.RootSupportLevel
+import af.shizuku.manager.shiroikuma.showHouse
+
+class RootCompatibilityActivity : AppBarActivity() {
 
 class RootCompatibilityActivity : AppBarActivity() {
     companion object {
@@ -385,7 +388,8 @@ class RootCompatibilityActivity : AppBarActivity() {
                     val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     cm.setPrimaryClip(ClipData.newPlainText("SU Bridge self-test", result.report))
                     Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_self_test_copied, Toast.LENGTH_SHORT).show()
-                }.show()
+                }
+                .showHouse()
         }
     }
 
