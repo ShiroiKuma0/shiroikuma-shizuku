@@ -8,6 +8,14 @@ android {
     defaultConfig {
         versionCode = rootProject.ext.versionCode
         versionName = rootProject.ext.versionName
+
+        // The manager's applicationId, injected from the ONE place that owns it —
+        // gradle.properties APP_ID, the same property manager/build.gradle reads. rish and
+        // `sh plus` run in a fresh app_process in the calling app's UID, so they cannot ask the
+        // server which manager is installed; before this they carried a hand-written literal that
+        // every upstream rewrite of ShizukuShellLoader silently reverted to upstream's own id.
+        buildConfigField "String", "MANAGER_APPLICATION_ID",
+            "\"${providers.gradleProperty("APP_ID").get()}\""
     }
     buildTypes {
         debug {

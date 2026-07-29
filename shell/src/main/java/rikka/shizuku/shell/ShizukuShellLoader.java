@@ -29,7 +29,13 @@ public class ShizukuShellLoader {
 
     private static final Logger LOGGER = Logger.getLogger("ShizukuShellLoader");
 
-    private static final String PLUS_APPLICATION_ID = "af.shizuku.plus.api";
+    // Injected from gradle.properties APP_ID at build time, never spelled out here. This process
+    // is spawned fresh by the rish/plus scripts in the CALLING app's UID, so it cannot read the
+    // server's runtime-resolved MANAGER_APPLICATION_ID and must know its own manager's id up front.
+    // Upstream lists two literals because one server binary serves two applicationIds; this fork
+    // never builds the Drop-In flavor, so its id is fixed at build time and the probe below is only
+    // a safety net. Injection is what stops a rename or an upstream rewrite silently un-fixing it.
+    private static final String PLUS_APPLICATION_ID = BuildConfig.MANAGER_APPLICATION_ID;
     private static final String DROPIN_APPLICATION_ID = "moe.shizuku.privileged.api";
 
     private static String[] args;
