@@ -48,22 +48,34 @@ class BinderRequestReceiver : BroadcastReceiver() {
         // Ask the user for one-time consent instead of silently dropping the request, but
         // only if there's a live callback binder to reply to - otherwise there's nothing
         // to grant access to.
-        val callbackBinder = intent.getBundleExtra("data")?.getBinder("binder")
-        if (callbackBinder != null) {
-            // A manifest-registered BroadcastReceiver has no visible UI, so a direct
-            // startActivity() here is exactly the pattern Android's background-activity-start
-            // (BAL) restrictions are designed to block - on modern OEM builds (e.g. Samsung
-            // One UI) it is silently dropped, ShellConsentActivity never appears, and
-            // ShizukuShellLoader's 15s timeout fires with a misleading "may be blocked by your
-            // system / disable battery optimization" message (#377). Route through a
-            // notification instead: tapping it is a user-initiated foreground action and is
-            // exempt from BAL, so the consent dialog reliably shows up.
-            //
-            // Android 15+ (API 35) does not reliably preserve IBinder objects embedded in
-            // PendingIntent extras — the binder arrives null when the notification fires (#387).
-            // Store it in PendingConsentStore and pass only a lightweight key in the intent.
-            postConsentNotification(context, intent, callbackBinder)
+        val callbackBinder = intent.getBundleExtra("data")?.getBinder("binder") ?: return
+
+        // Fork: upstream re-asks on EVERY request, because the auth token it would otherwise
+        // remember can never exist for a shell client - so `rish -c ls` put a full-screen dialog
+        // in front of every single command. A remembered answer is the whole point of a consent
+        // prompt; without it the prompt is just a tax. Revocable from Settings → Advanced →
+        // ADB Tools, which is what makes granting it safe to offer.
+        if (ShizukuSettings.isShellConsentGranted()) {
+            ShellBinderRequestHandler.deliverBinder(context, callbackBinder)
+            return
         }
+
+        // A manifest-registered BroadcastReceiver has no visible UI, so a direct
+        // startActivity() here is exactly the pattern Android's background-activity-start
+        // (BAL) restrictions are designed to block - on modern OEM builds (e.g. Samsung
+        // One UI) it is silently dropped, ShellConsentActivity never appears, and
+        // ShizukuShellLoader's 15s timeout fires with a misleading "may be blocked by your
+        // system / disable battery optimization" message (#377). Route through a
+        // notification instead: tapping it is a user-initiated foreground action and is
+        // exempt from BAL, so the consent dialog reliably shows up.
+        //
+        // Android 15+ (API 35) does not reliably preserve IBinder objects embedded in
+        // PendingIntent extras — the binder arrives null when the notification fires (#387).
+        // Store it in PendingConsentStore and pass only a lightweight key in the intent.
+        //
+        // The two halves compose: the remembered grant above means this notification is posted
+        // once, not before every command.
+        postConsentNotification(context, intent, callbackBinder)
     }
 
     private fun postConsentNotification(context: Context, intent: Intent, callbackBinder: IBinder) {
