@@ -135,24 +135,12 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             )
                         }
                     }
-                    "dhizuku_not_owner" -> {
-                        val cmd = "adb shell dpm set-device-owner " +
-                            "${context.packageName}/.admin.DhizukuAdminReceiver"
-                        MaterialAlertDialogBuilder(context)
-                            .setTitle("Set Up Device Owner")
-                            .setMessage(
-                                "Dhizuku Mode requires this app to be the Device Owner.\n\n" +
-                                "Run this command from your PC (USB debugging must be enabled):\n\n" +
-                                cmd
-                            )
-                            .setPositiveButton("Copy Command") { _, _ ->
-                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                cm.setPrimaryClip(ClipData.newPlainText("dpm command", cmd))
-                                ShiroikumaToast.show(context, "Command copied", Toast.LENGTH_SHORT)
-                            }
-                            .setNegativeButton("Dismiss", null)
-                            .showHouse()
-                    }
+                    // The command was built with the `pkg/.Receiver` shorthand, which expands against
+                    // the applicationId — `shiroikuma.shizuku/shiroikuma.shizuku.admin.DhizukuAdminReceiver`,
+                    // a class that does not exist. The copy button handed over a command that could
+                    // only ever fail. DeviceOwnerHelper derives the component from the class instead.
+                    "dhizuku_not_owner" -> af.shizuku.manager.admin.DeviceOwnerHelper
+                        .showSetupCommandDialog(context)
                 }
             }
 
