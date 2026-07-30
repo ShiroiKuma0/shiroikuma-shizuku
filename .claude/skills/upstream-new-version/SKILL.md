@@ -1,6 +1,6 @@
 ---
 name: upstream-new-version
-description: Sync the shiroikuma-shizuku fork onto a newer upstream ShizukuPlus (thejaustin/ShizukuPlus) and rebuild. Checks upstream for new commits; ALWAYS presents a proceed-gated tabular summary of the new upstream version's features BEFORE any rebase; then fast-forwards master, rebases custom, resets BUILD_NUMBER, and builds the new +1. Use when 白い熊 runs /upstream-new-version, says a new ShizukuPlus version is out, or asks to update/sync/bump to upstream, rebase custom onto upstream, or rebase-and-rebuild the fork.
+description: Sync the shiroikuma-shizuku fork onto a newer upstream ShizukuPlus (thejaustin/ShizukuPlus) and rebuild. Checks upstream for new commits, and also reports the delta from the reference remote thedjchi/Shizuku (what ShizukuPlus has not yet absorbed from its own base); ALWAYS presents a proceed-gated tabular summary BEFORE any rebase; then fast-forwards master, rebases custom, resets BUILD_NUMBER, and builds the new +1. Use when 白い熊 runs /upstream-new-version, says a new ShizukuPlus version is out, or asks to update/sync/bump to upstream, rebase custom onto upstream, or rebase-and-rebuild the fork.
 ---
 
 # Sync shiroikuma-shizuku onto a newer upstream ShizukuPlus
@@ -20,7 +20,11 @@ our patches and is rebased onto each new upstream tip.
 | `custom` | Our patches; the working/dev branch. Default branch on GitHub. | rebased onto `master` each sync |
 
 - `origin` = `git@github.com:ShiroiKuma0/shiroikuma-shizuku.git` (ssh, **push here**).
-- `upstream` = `https://github.com/thejaustin/ShizukuPlus.git` (https, **fetch only**).
+- `upstream` = `https://github.com/thejaustin/ShizukuPlus.git` (https, **fetch only**) — the **only**
+  sync source. `master` fast-forwards from here and nowhere else.
+- `djchi` = `https://github.com/thedjchi/Shizuku.git` — upstream's *own* base, added as a
+  **reference remote only** (push URL `DISABLED`, `fetchRecurseSubmodules=no`). We read it to see
+  what ShizukuPlus has not yet absorbed. **We never merge or rebase onto it** — see Step 1b.
 - Pin `gh` with `-R ShiroiKuma0/shiroikuma-shizuku` — the `upstream` remote otherwise wins.
 - **`api/` is a git submodule** (`thejaustin/ShizukuPlus-API`). Upstream bumps its pinned commit
   from time to time; after any sync run `git submodule update --init --recursive` before building.
@@ -68,8 +72,65 @@ The new `UPSTREAM_VERSION_CODE` is `git rev-list --count upstream/master`; the n
 tag (`gh release view -R thejaustin/ShizukuPlus`), and against `baseVersionName` in upstream's
 `build.gradle` in case they bump `13.6.0` itself.
 
-If nothing is new, **stop here** — report the current version and that we are up to date. Do not ff,
-do not rebase, do not build.
+If nothing is new, do not ff, do not rebase, do not build — but **still run Step 1b** before
+reporting, so "we are up to date" covers the reference remote too.
+
+## Step 1b — check the `djchi` reference remote
+
+`thejaustin/ShizukuPlus` is itself a fork of `thedjchi/Shizuku`, and it does not always absorb
+djchi's work promptly. This step reports that gap. It **never** changes a branch.
+
+> **⛔ Never `git merge djchi/master`, never `git rebase` onto it, never add it as a `master` source.**
+> ShizukuPlus **replays** djchi's history instead of fast-forwarding from it, so the git-level merge
+> base collapses to `12fcfad3` — 2017-06-28, djchi's 28th commit. Git therefore reports well over a
+> thousand commits as "missing" when only a few dozen are, and a merge would drag in ~1300
+> duplicates, each conflicting against ShizukuPlus's rewrite of the same file. Anything taken from
+> djchi is taken as an **individual cherry-pick**, decided by 白い熊, item by item.
+
+```bash
+cd ~/git/shiroikuma-shizuku
+git fetch djchi
+. .claude/skills/upstream-new-version/djchi-base
+
+new=$(git rev-list --count "$DJCHI_REVIEWED_SHA"..djchi/master)
+echo ">>> reviewed through: $DJCHI_REVIEWED_SHA ($DJCHI_REVIEWED_DATE, $DJCHI_REVIEWED_VERSION)"
+echo ">>> djchi tip:        $(git log -1 --format='%h %ci %s' djchi/master)"
+echo ">>> NEW since review: $new commit(s)"
+[ "$new" -gt 0 ] && git log --reverse --format='%h | %ci | %s' "$DJCHI_REVIEWED_SHA"..djchi/master
+```
+
+Then, for each new commit, check whether thejaustin has **already ported it** before proposing
+anything. Subject matching alone is not sufficient — he re-homes ported code into different modules
+under new subjects (the Android 17 cluster went into `common/…/compat/`, not djchi's
+`server/…/util/`). Grep our tree for the *identifiers* the commit introduces, not its message.
+
+**Report, do not act.** Fold the result into the Step 2 gate as a short section:
+
+| Column | What goes in it |
+| --- | --- |
+| **Commit** | short SHA |
+| **What djchi changed** | plain-language, from the commit body |
+| **Already in our tree?** | absorbed by thejaustin (say where it landed) / absent / solved differently by us |
+| **Worth taking?** | Yes / No / Ask — with the reason, and the conflict surface if yes |
+
+Also re-surface the **outstanding** rows already recorded in `djchi-base` (currently the
+package-name de-hardcoding cluster) — they were reviewed and deliberately deferred, not resolved,
+and they do not expire.
+
+If 白い熊 approves a cherry-pick, mind the path map — the modules diverged unevenly:
+
+| djchi path | Our path | Pick cleanly? |
+| --- | --- | --- |
+| `server/…/rikka/shizuku/server/…` | same | yes — namespace never renamed |
+| `shell/…/rikka/shizuku/shell/…` | same | yes |
+| `manager/…/moe/shizuku/manager/…` | `manager/…/af/shizuku/manager/…` | needs `moe` → `af` remapping (ShizukuPlus renamed it in `d44de470`) |
+| `starter/…/moe/shizuku/starter/ServiceStarter.java` | `starter/…/af/shizuku/starter/ServiceStarter.kt` | **no** — rewritten Java → Kotlin; hand port only |
+
+After a cherry-pick is accepted **or** a new commit is reviewed and rejected, update
+`DJCHI_REVIEWED_SHA` in `djchi-base` to the reviewed tip and add a ledger line saying which it was.
+Never advance it past commits nobody looked at.
+
+If nothing is new here and nothing is new upstream, **stop** — report both as up to date.
 
 ## Step 2 — ⛔ proceed-gated table of what the new upstream version introduces
 
@@ -103,6 +164,11 @@ one-liners undersell (a new bridge, a new pairing flow, a new settings screen, a
 out explicitly any change to **how the privileged service is started or kept alive** (that is the
 part most likely to break on a rebase and the part 白い熊 will notice first), and end with a
 one-line takeaway.
+
+Finally append the **Step 1b `djchi` section** — the reference-remote delta plus the outstanding
+ledger rows. Keep it visibly separate from the upstream table: the upstream rows are what the
+go-ahead *applies to*, the djchi rows are a menu that only moves on an explicit per-item "take this".
+A "proceed" answers the rebase, never a cherry-pick.
 
 **Then stop and wait for the go-ahead.**
 
@@ -264,15 +330,18 @@ git push --force-with-lease origin custom     # rebased history
 
 ## One-line summary of the flow
 
-`fetch upstream` → new version? (else stop) → **tabular feature summary + WAIT for go-ahead** →
-ff `master` → rebase `custom` (reconcile per Step 4) → refresh version pins, `BUILD_NUMBER=1` →
-verify the layer → **build the new `+1` via build-apk** → 白い熊 tests → on "Push": push `master`,
-force-with-lease `custom`.
+`fetch upstream` + `fetch djchi` → new version? (else report both and stop) → **tabular feature
+summary + the djchi reference delta + WAIT for go-ahead** → ff `master` → rebase `custom` (reconcile
+per Step 4) → refresh version pins, `BUILD_NUMBER=1` → verify the layer → **build the new `+1` via
+build-apk** → 白い熊 tests → on "Push": push `master`, force-with-lease `custom`.
 
 ## Hard rules
 
 - Never `adb install` / `adb uninstall` — 白い熊 installs manually from `/sdcard/tmp/`.
 - Never commit or push unprompted; wait for **"Push"**.
+- **Never merge or rebase onto `djchi`.** It is a reference remote; `master` fast-forwards from
+  `upstream` alone. Anything from djchi arrives as a per-item cherry-pick 白い熊 approved (Step 1b).
+- Never advance `DJCHI_REVIEWED_SHA` past commits that were not actually reviewed.
 - Never rename the `af.shizuku.manager` namespace — only the installed `applicationId` differs.
 - Never rename the two wire-protocol strings (Step 4) — the service silently stops connecting.
 - Never restore upstream's Sentry DSN, or the update checker's upstream URL.
