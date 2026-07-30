@@ -1277,7 +1277,7 @@
     <string name="home_status_stop_ok">Server stopped.</string>
 
     <!-- Home card: enable automatically after reboot -->
-    <string name="boot_setup_title">Enable automatically after reboot</string>
+    <string name="boot_setup_title">Start 白い熊 雫 automatically after boot</string>
     <string name="boot_setup_description">What the service needs in order to come up by itself. It starts after your first unlock, not during boot — encrypted storage isn\'t readable before that.</string>
     <string name="boot_setup_all_done">Ready — the service starts itself after each reboot, once you unlock.</string>
 
@@ -1286,30 +1286,41 @@
     <string name="boot_setup_notifications_done">Allowed.</string>
 
     <string name="boot_setup_connect">2. Connect once via wireless debugging</string>
-    <string name="boot_setup_connect_todo">Pair and start once with this app open, so the boot service knows the port and launch mode to reconnect with.</string>
+    <string name="boot_setup_connect_todo">Pair and start once with this app open, so the boot service knows the port and launch mode to reconnect with. Either route in step 3 records it.</string>
     <string name="boot_setup_connect_done">Done — last connected on port %1$d.</string>
 
-    <string name="boot_setup_secure">3. Grant secure settings permission</string>
-    <string name="boot_setup_secure_todo">Lets the app switch wireless debugging back on for itself after a reboot. Granted here through the running service — no PC needed.</string>
-    <string name="boot_setup_secure_done">Granted.</string>
-    <string name="boot_setup_secure_blocked">Start the service first (step 2), then this can be granted from here.</string>
+    <string name="boot_setup_start">3. Start the server</string>
+    <string name="boot_setup_start_todo">Two ways in. Wireless: pair over wireless debugging (step 2) and start. Cable: plug the phone into a PC and run “adb tcpip 5555” there once — that restarts the phone\'s own adb on port 5555, so this button can start the server by itself and the cable can come straight back out.</string>
+    <string name="boot_setup_start_ready">adb is reachable on port %1$d — this starts the server from here, with no PC attached.</string>
+    <string name="boot_setup_start_done">Running.</string>
 
-    <string name="boot_setup_boot">4. Turn on Start on boot</string>
+    <string name="boot_setup_secure">4. Grant secure settings permission</string>
+    <string name="boot_setup_secure_todo">Lets the app switch wireless debugging back on for itself after a reboot. Granted here through the running service — no PC needed.</string>
+    <string name="boot_setup_secure_todo_adb">Lets the app switch wireless debugging back on for itself after a reboot. Granted here through the running service — no PC needed. adb is also reachable on port %1$d, so this still works with the server stopped.</string>
+    <string name="boot_setup_secure_done">Granted.</string>
+    <string name="boot_setup_secure_adb">The server isn\'t running, but adb is listening on port %1$d — this runs the grant over that connection, from the phone. Accept the “Allow USB debugging” prompt if it appears.</string>
+    <string name="boot_setup_secure_blocked">Start the server first (step 3), or run “adb tcpip 5555” once from a PC with the cable in — then it can be granted from here.</string>
+
+    <string name="boot_setup_boot">5. Turn on Start on boot</string>
     <string name="boot_setup_boot_todo">Records the boot start explicitly. The boot receiver is already active out of the box, so this is belt-and-braces rather than the switch that enables it.</string>
     <string name="boot_setup_boot_done">On.</string>
 
-    <string name="boot_setup_battery">5. Ignore battery optimisation</string>
+    <string name="boot_setup_battery">6. Ignore battery optimisation</string>
     <string name="boot_setup_battery_todo">The boot start is a background job; Doze will otherwise delay or kill it.</string>
     <string name="boot_setup_battery_done">Exempt.</string>
 
-    <string name="boot_setup_oem">6. Allow background launch</string>
+    <string name="boot_setup_oem">7. Allow background launch</string>
     <string name="boot_setup_oem_available">Allow 白い熊 雫 to start itself and keep running in the background, or the system kills the boot start before it gets anywhere. Opens your ROM\'s launch manager. Can\'t be read back, so this row shows no state.</string>
     <string name="boot_setup_oem_emui">Settings → Battery → App launch → 白い熊 雫: turn off “Manage automatically”, then allow Auto-launch, Secondary launch and Run in background. Otherwise the system kills the boot start before it runs.\n\nEMUI guards that screen with a system-only permission, so it can neither be opened from here nor read back — no state and no button on this device.</string>
     <string name="boot_setup_oem_manual">If your ROM has a launch manager, allow 白い熊 雫 to auto-launch and run in the background — look under Settings → Battery, or Settings → Apps. It can\'t be opened from here or read back on this device.</string>
+    <string name="boot_setup_oem_bg_allowed">Allowed — background usage is on, so nothing stops the boot start.</string>
+    <string name="boot_setup_oem_bg_blocked">Background usage is off, so the system kills the boot start before it runs. Settings → Apps → 白い熊 雫 → App battery usage → Allow background usage.</string>
 
     <string name="boot_setup_action_allow">Allow</string>
     <string name="boot_setup_action_pair">Pair</string>
+    <string name="boot_setup_action_start">Start</string>
     <string name="boot_setup_action_grant">Grant now</string>
+    <string name="boot_setup_action_grant_adb">Grant via adb</string>
     <string name="boot_setup_action_open">Open</string>
     <string name="boot_setup_action_fix">Fix</string>
     <string name="boot_setup_action_working">Working…</string>
