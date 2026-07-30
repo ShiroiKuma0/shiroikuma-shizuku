@@ -10,11 +10,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import af.shizuku.core.ui.AppActivity
 import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.authorization.AuthorizationManager
 import af.shizuku.manager.database.ActivityLogManager
 import af.shizuku.manager.databinding.ConfirmationDialogBinding
 import af.shizuku.manager.shell.PendingConsentStore
 import af.shizuku.manager.shell.ShellBinderRequestHandler
+import af.shizuku.manager.shiroikuma.ShiroikumaDialogs
 import af.shizuku.manager.utils.Logger.LOGGER
 
 // Reached only via an explicit in-process launch from BinderRequestReceiver when a
@@ -80,6 +82,10 @@ class ShellConsentActivity : AppActivity() {
         dialog.setCanceledOnTouchOutside(false)
 
         binding.button1.setOnClickListener {
+            // Remember it. A shell client can never present an auth token (IntentCrypto's key is
+            // UID-scoped to this app), so without a stored answer this dialog would appear in front
+            // of every single `rish` command. Revoke from Settings → Advanced → ADB Tools.
+            ShizukuSettings.setShellConsentGranted(true)
             // deliverBinder does synchronous binder transacts with retries - keep it off Main.
             lifecycleScope.launch {
                 val delivered = withContext(Dispatchers.IO) {
@@ -119,6 +125,12 @@ class ShellConsentActivity : AppActivity() {
 
         try {
             dialog.show()
+            // Same trap RequestPermissionActivity documents: an Activity-owned AlertDialog built
+            // with create()/show() rather than showHouse() is never seen by
+            // ShiroikumaDialogs.installGlobalStyling, so it comes up with no fill and no yellow
+            // edge — floating text over whatever is behind it. Must run after show(), because
+            // MaterialAlertDialogBuilder installs its own window background during show().
+            ShiroikumaDialogs.style(dialog)
         } catch (e: WindowManager.BadTokenException) {
             finish()
         }
