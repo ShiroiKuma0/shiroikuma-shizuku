@@ -129,6 +129,10 @@ class AutomationViewHolder(
             BottomSheetDialog(context).apply {
                 setContentView(sheetBinding.root)
                 show()
+                // Same treatment as the Plus help sheet: a sheet draws from its container view, not
+                // the dialog window, so it needs styleSheet rather than the house dialog styling —
+                // without it, black content sits on black with no edge anywhere.
+                af.shizuku.manager.shiroikuma.ShiroikumaDialogs.styleSheet(this)
             }
         }
 

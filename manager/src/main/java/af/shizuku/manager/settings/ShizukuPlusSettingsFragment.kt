@@ -533,121 +533,22 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         findPreference<Preference>("clear_device_owner")?.isVisible = active
     }
 
-    private fun showClearDeviceOwnerDialog(ctx: Context) {
-        MaterialAlertDialogBuilder(ctx)
-            .setTitle(R.string.dhizuku_clear_owner_title)
-            .setMessage(R.string.dhizuku_clear_owner_message)
-            .setPositiveButton(R.string.dhizuku_clear_owner_confirm) { _, _ ->
-                clearDeviceOwner(ctx)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .showHouse()
-    }
-
     /**
-     * Give up Device Owner — or Profile Owner, which upstream added alongside it.
-     *
-     * This is the **only** clean way out: once an app is Device Owner it cannot be uninstalled
-     * normally and `dpm remove-active-admin` refuses, so if this path fails the remaining exit is a
-     * factory reset. That makes silent or vague failure unacceptable here — upstream reported one
-     * generic toast and swallowed the exception, which left no way to tell "not device owner" from
-     * "SecurityException" from "cleared, but the flag survived".
-     *
-     * So: report the real reason, verify the clear actually took effect (the API is documented as
-     * best-effort), and make the text copyable so it can be acted on.
+     * All of this now lives in [af.shizuku.manager.admin.DeviceOwnerHelper], because the home
+     * boot-setup card needs the very same operations and the clear path is the only clean exit from
+     * Device Owner — two implementations would eventually disagree about whether they verify the
+     * result, and the one that skipped the check would be the one that lost the device.
      */
-    private fun clearDeviceOwner(ctx: Context) {
-        val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
-        if (dpm == null) {
-            showClearDeviceOwnerFailure(ctx, "DevicePolicyManager unavailable on this device.")
-            return
-        }
-        val wasDeviceOwner = dpm.isDeviceOwnerApp(ctx.packageName)
-        val wasProfileOwner = dpm.isProfileOwnerApp(ctx.packageName)
-        if (!wasDeviceOwner && !wasProfileOwner) {
-            showClearDeviceOwnerFailure(
-                ctx,
-                "This app is neither Device Owner nor Profile Owner, so there is nothing to clear.\n\n" +
-                    "Package: ${ctx.packageName}"
-            )
-            return
-        }
-        val role = if (wasDeviceOwner) "Device Owner" else "Profile Owner"
-
-        try {
-            if (wasDeviceOwner) {
-                dpm.clearDeviceOwnerApp(ctx.packageName)
-            } else {
-                dpm.clearProfileOwner(ComponentName(ctx, DhizukuAdminReceiver::class.java))
-            }
-        } catch (e: Throwable) {
-            Timber.e(e, "clearing $role failed")
-            showClearDeviceOwnerFailure(
-                ctx,
-                "${e.javaClass.simpleName}: ${e.message ?: "no message"}\n\n" +
-                    "Package: ${ctx.packageName}\n\n" +
-                    "The device is still $role. Do NOT uninstall the app in this state — " +
-                    "removing it while it holds $role leaves a factory reset as the only exit."
-            )
-            return
-        }
-
-        // Both clear calls are documented as best-effort, so confirm rather than assume.
-        if (dpm.isDeviceOwnerApp(ctx.packageName) || dpm.isProfileOwnerApp(ctx.packageName)) {
-            showClearDeviceOwnerFailure(
-                ctx,
-                "The call returned without error, but this app is still reported as $role.\n\n" +
-                    "Package: ${ctx.packageName}\n\n" +
-                    "Do NOT uninstall the app in this state."
-            )
-            return
-        }
-
-        ShiroikumaToast.show(ctx, R.string.dhizuku_clear_owner_success, Toast.LENGTH_LONG)
-        val dhizukuPref = findPreference<TwoStatePreference>(KEY_DHIZUKU_MODE)
-        if (dhizukuPref != null) {
-            ShizukuSettings.setDhizukuModeEnabled(false)
+    private fun showClearDeviceOwnerDialog(ctx: Context) {
+        af.shizuku.manager.admin.DeviceOwnerHelper.confirmAndClear(ctx) {
+            val dhizukuPref = findPreference<TwoStatePreference>(KEY_DHIZUKU_MODE) ?: return@confirmAndClear
             dhizukuPref.isChecked = false
             updateDhizukuDeviceOwnerStatus(dhizukuPref)
         }
     }
 
-    /** A dialog, not a toast: this text has to survive long enough to be read and copied. */
-    private fun showClearDeviceOwnerFailure(ctx: Context, detail: String) {
-        val body = getString(R.string.dhizuku_clear_owner_failure) + "\n\n" + detail
-        MaterialAlertDialogBuilder(ctx)
-            .setTitle(R.string.dhizuku_clear_owner_failure_title)
-            .setMessage(body)
-            .setPositiveButton(android.R.string.ok, null)
-            .setNeutralButton(R.string.dhizuku_clear_owner_copy) { _, _ ->
-                val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.setPrimaryClip(ClipData.newPlainText("device owner error", body))
-                ShiroikumaToast.show(ctx, R.string.dhizuku_setup_copied, Toast.LENGTH_SHORT)
-            }
-            .showHouse()
-            .also { af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(it) }
-    }
-
     private fun showDhizukuSetupDialog(ctx: Context) {
-        // DERIVED, never spelled out. applicationId (shiroikuma.shizuku) differs from namespace
-        // (af.shizuku.manager), so the `pkg/.Receiver` shorthand would expand against the
-        // applicationId and name a class that does not exist — dpm would fail, or worse look like
-        // it succeeded. ComponentName(context, Class) takes the package from the context and the
-        // fully-qualified name from the class itself, so this stays correct even if the receiver is
-        // renamed or moved. Getting this wrong costs a factory reset, so it must not be a literal.
-        // See CLAUDE.md, "Never assume applicationId == namespace".
-        val command = "adb shell dpm set-device-owner " +
-            ComponentName(ctx, DhizukuAdminReceiver::class.java).flattenToString()
-        MaterialAlertDialogBuilder(ctx)
-            .setTitle(R.string.dhizuku_setup_title)
-            .setMessage(getString(R.string.dhizuku_setup_message, command))
-            .setPositiveButton(R.string.dhizuku_setup_copy) { _, _ ->
-                val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.setPrimaryClip(ClipData.newPlainText("dpm command", command))
-                ShiroikumaToast.show(ctx, R.string.dhizuku_setup_copied, Toast.LENGTH_SHORT)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .showHouse()
+        af.shizuku.manager.admin.DeviceOwnerHelper.showSetupCommandDialog(ctx)
     }
 
     private fun showGeneralHelpDialog() {
