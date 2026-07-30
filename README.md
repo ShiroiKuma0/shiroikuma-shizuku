@@ -15,7 +15,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 **保存復元** export/import contract with token-gated automation, and the house look driven through
 every screen. Installs as `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2178+29`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2195+2`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -103,6 +103,21 @@ Fixed here, together, because each fix alone leaves the server broken in a diffe
 delivery is fixed too: the three `BinderContainer` classes now go out in separate calls, since
 `Bundle.getParcelable` unparcels *every* value and a client shipping only one of them could
 previously read none.
+
+---
+
+## ⌨️ `rish` asks once, not on every command
+
+Shell clients — `rish`, `adb`, Termux — can never present an encrypted auth token, because that key
+is bound by AndroidKeyStore to the manager app's own UID. Upstream's consent dialog therefore had
+nothing to remember an answer by and re-asked on **every single request**, putting a full-screen
+prompt in front of each `rish -c '…'`.
+
+Here the answer is stored. Allow once and shell clients stop asking; revoke in one tap at
+**Settings → Advanced → ADB Tools**. The prompt itself is honest about the trade — while the grant
+stands, any shell client that can reach the manager gets the binder without asking, and the
+requester genuinely cannot be identified. That exposure comes with the shell path itself; what
+changed is that you decide it once, deliberately, instead of tapping past it forever.
 
 ---
 
