@@ -10,19 +10,35 @@ upstream Shizuku+.
 
 - `origin` = `git@github.com:ShiroiKuma0/shiroikuma-shizuku.git` (ssh) — our fork.
 - `upstream` = `https://github.com/thejaustin/ShizukuPlus.git` (https, fetch only) — the **only**
-  sync source.
+  sync source. Set `fetchRecurseSubmodules=no` on it: upstream's parent repo pins `api` commits that
+  were never published to any branch or PR ref, so a recursing fetch always ends in
+  `Errors during submodule fetch: api`. We manage `api` by hand against our own fork anyway, and the
+  sync skill runs `git submodule update --init --recursive` explicitly, so nothing depends on
+  fetch-time recursion. `origin` keeps the default — our own pins are always fetchable.
 - `djchi` = `https://github.com/thedjchi/Shizuku.git` — upstream's own base, a **reference remote
   only** (push URL `DISABLED`, `fetchRecurseSubmodules=no`). Read to see what ShizukuPlus has not
   absorbed yet; **never merged or rebased onto**. ShizukuPlus *replays* djchi's history rather than
   fast-forwarding from it, so the git merge base collapses to 2017 and a merge would pull ~1300
   duplicate commits. Anything taken from djchi is a per-item cherry-pick 白い熊 approved. The
   review ledger is `.claude/skills/upstream-new-version/djchi-base`.
-- **`master`** mirrors `upstream/master` (currently the `13.6.0.r2178` line). Fast-forward only —
+- **`master`** mirrors `upstream/master` (currently the `13.6.0.r2195` line). Fast-forward only —
   no fork work ever lives here.
 - **`custom`** carries all our work, rebased onto `master` on each upstream sync. **All development
   happens on `custom`**, and it is the GitHub default branch.
-- **`api/` is a git submodule** (`thejaustin/ShizukuPlus-API`) — a fresh clone needs
-  `git submodule update --init --recursive` or Gradle fails at configuration time.
+- **`api/` is a git submodule** — `origin` is **our** fork `ShiroiKuma0/ShizukuPlus-API` on branch
+  `custom`, with `thejaustin/ShizukuPlus-API` as its own `upstream` (push URL `DISABLED`). We carry
+  fork commits there, so **an `api/` change needs two pushes** — the submodule first, then the moved
+  pointer in the parent. A fresh clone needs `git submodule update --init --recursive` or Gradle
+  fails at configuration time.
+
+**The remote tweaks above live in `.git/config`, so a fresh clone does not have them.** Re-apply:
+
+```bash
+git remote add djchi https://github.com/thedjchi/Shizuku.git
+git remote set-url --push djchi DISABLED
+git config remote.djchi.fetchRecurseSubmodules no
+git config remote.upstream.fetchRecurseSubmodules no
+```
 - **Do not rename the `af.shizuku.manager` code namespace** — only the installed `applicationId`
   differs (`shiroikuma.shizuku`). Renaming would make every rebase a mass-conflict.
 
