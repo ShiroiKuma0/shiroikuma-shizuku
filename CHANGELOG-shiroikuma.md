@@ -4,6 +4,103 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 
 Versions are `<upstream version>+<our build number>`; the `+N` resets to 1 on each upstream sync.
 
+## 13.6.0.r2195+2
+
+First build on the **13.6.0.r2195** upstream line — 17 upstream commits folded in, plus the fork
+work below. The `+N` reset to 1 as it does on every sync; `+2` is the tested build.
+
+### Shell clients are authorized once, not on every command
+
+Upstream restored binder access for `rish`, `adb` and Termux this cycle, behind a new consent
+dialog — and then asked again on **every single request**. That is not a stray bug: the answer a
+consent prompt would normally remember is an `IntentCrypto` auth token, and a shell client can never
+produce one, because that key is scoped by AndroidKeyStore to the manager app's own UID. There was
+nothing to remember it by, so `rish -c 'ls'` put a full-screen prompt in front of every command.
+
+The answer is now stored (`KEY_SHELL_CONSENT_GRANTED`). `BinderRequestReceiver` checks it before
+launching the activity and hands the binder straight over when it is set; the button reads **"Always
+allow"**, and the dialog says the choice is remembered and where to undo it.
+
+Revoke at **Settings → Advanced → ADB Tools → "Shell client authorization"**. That switch is what
+makes a standing grant reasonable to offer at all — while it is on, any shell client that can
+broadcast to the manager receives the binder unprompted, and as the dialog itself says, the
+requester cannot be identified. That exposure is inherent to the shell path; remembering the answer
+is what makes it silent, so it is revocable in one tap.
+
+### The consent dialog came up with no border, and therefore no dialog
+
+Upstream's `ShellConsentActivity` builds its dialog with `create()`/`show()` rather than the house
+`showHouse()`, so `ShiroikumaDialogs.installGlobalStyling` never saw it. In this theme that does not
+look flat — it **disappears**: black text on a black window with no fill and no yellow edge, floating
+over whatever the terminal happened to be showing.
+
+`RequestPermissionActivity` hit the identical trap earlier and carries a comment about it; the same
+fix applies here — `ShiroikumaDialogs.style()` immediately after `show()`, which must come after
+because `MaterialAlertDialogBuilder` installs its own window background during `show()`. This is the
+standing "every `surface*` container needs a visible border" rule catching an upstream import, and
+it will keep catching them.
+
+### Profile Owner support, merged rather than taken
+
+Upstream added Profile Owner alongside Device Owner in `ShizukuPlusSettingsFragment`. Our own tree
+had already lifted that whole code path out into `DeviceOwnerHelper`, because the home boot-setup
+card needs the same operations and two copies of a clear path would eventually disagree about
+whether they verify the result.
+
+Resolving only the conflicting lines would have silently dropped half of upstream's feature, so the
+Profile Owner branch was ported into the helper instead: role detection up front,
+`clearProfileOwner()` on the PO branch, and the fork's factory-reset safety layer — dialog rather
+than toast, `Throwable` rather than `Exception`, and a post-clear verification, since both clear
+calls are documented as best-effort — extended to cover both roles. The guard that used to reject
+anything that was not Device Owner had to change too, or a Profile Owner clear would have been
+refused outright while the button offering it was visible.
+
+`isDeviceOwner()` and the new `isProfileOwner()` stay separate on purpose: the boot-setup card asks
+whether the *boot survival* guarantee holds, and only Device Owner gives that.
+
+### The boot-setup card, ported onto upstream's rebuilt home adapter
+
+Upstream extracted `HomeAdapter`'s item building into `rebuildItems()` to fix the RecyclerView
+"Inconsistency detected" crash during drag-to-reorder — `notifyItemMoved()` had been called without
+the backing list ever being reordered. The fork's boot-setup card and its scoped server-status
+creator were written against the old inline structure, so both were moved into `rebuildItems()`,
+the card keeping its ordering slot directly above the wireless-adb card it exists to support.
+
+### `thedjchi/Shizuku` is now watched, never merged
+
+Upstream is itself a fork of [thedjchi/Shizuku](https://github.com/thedjchi/Shizuku), and does not
+always absorb its work promptly. That repository is now a **reference remote** — push disabled,
+submodule recursion off — and `/upstream-new-version` reports the gap on every sync.
+
+It is deliberately not a sync source. Upstream *replays* djchi's history rather than
+fast-forwarding from it, so the git-level merge base collapses to a 2017 commit and a merge would
+drag in roughly 1300 duplicate commits, each conflicting against upstream's own rewrite of the same
+file. Anything worth taking is taken as an individual cherry-pick, and the review ledger in
+`.claude/skills/upstream-new-version/djchi-base` records what has been examined, absorbed, deferred
+or rejected so no sync re-litigates it.
+
+### `api` submodule
+
+Rebased onto upstream's dead-binder cache eviction in `SystemServiceHelper.getSystemService`, which
+our two fork commits do not touch. Note that upstream's parent repository pins an api commit that
+was never published to any branch or PR ref, so the published tip is used instead — pinning the
+phantom commit would leave a fresh clone unable to configure.
+
+### From upstream (13.6.0.r2178 → 13.6.0.r2195)
+
+Seventeen commits, the substantial ones being: shell/rish binder authorization restored end to end
+(the wire format had regressed to writing an interface token where the client reads a path); Termux
+and other two-segment package ids resolving at last in `rish` and `plus`; a security pass fixing a
+confused-deputy privilege escalation in `elevateApp`, shell injection in `AICorePlusImpl` and
+`StorageProxyImpl`, and a Parcel corruption in the Shizuku-spoof binder branch; app-id normalization
+so manager authentication works in Secure Folder, Work Profiles and multi-user; a starter retry when
+the manager's provider is transiently null after an OEM kill; `pm grant` zombie/FD leaks reaped;
+intercepted `mv` no longer given cp-only flags; and Profile Owner support.
+
+**Note for `rish` users:** the two-segment package fix lives in the `rish` **script**, which sits in
+your terminal app's storage — installing the APK does not update it. Re-export `rish` *and*
+`rish_shizuku.dex` from the app's terminal screen and replace both copies.
+
 ## 13.6.0.r2178+29
 
 ### `Shizuku.newProcess()` returned null for every caller — server fix
