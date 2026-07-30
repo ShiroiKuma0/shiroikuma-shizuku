@@ -59,6 +59,13 @@
             android:defaultValue="false" />
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
+            android:key="shell_consent_granted"
+            android:title="@string/settings_shell_consent"
+            android:summary="@string/settings_shell_consent_summary"
+            android:icon="@drawable/ic_terminal_24"
+            android:defaultValue="false" />
+
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="legacy_pairing"
             android:summary="@string/settings_legacy_pairing_summary"
             android:title="@string/settings_legacy_pairing"
