@@ -742,6 +742,8 @@
     <string name="grant_dialog_button_allow_always">Allow all the time</string>
     <string name="grant_dialog_button_deny">"Deny"</string>
 
+    <string name="settings_shell_consent">Shell client authorization</string>
+    <string name="settings_shell_consent_summary">Let rish and adb take the Shizuku binder without asking each time. Turn this off to be prompted again on the next shell command.</string>
     <!-- Starter -->
     <string name="starter">Starter</string>
     <string name="starting_root_shell" translatable="false">Starting root shell…</string>
