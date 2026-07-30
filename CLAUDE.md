@@ -69,6 +69,10 @@ upstream Shizuku+.
 - **Never commit or push until 白い熊 says "Push".** Treat the working tree as scratch between
   "Push" commands; multiple uncommitted fixes can stack. "Push" = `git commit` + `git push origin
   custom` (and `master` after an upstream sync). 白い熊 tests each build on-device first.
+- **"Push" pushes *everything*** (白い熊, 2026-07-30) — including the `api/` submodule. When `api/`
+  has changes, commit and push inside it first (`git -C api push origin custom`), then commit the
+  moved submodule pointer in the parent and push that. One word, both repos: never stop after the
+  parent, never ask which repo to push, never report the submodule as needing separate approval.
 - **After every successful build, deliver the APK automatically via `/after-build`** — never ask how
   to transfer it, never pause.
 - **Commit subjects:** plain descriptive summary, no prefix.
