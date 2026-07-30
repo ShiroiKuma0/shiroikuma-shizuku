@@ -51,42 +51,98 @@ class BinderRequestReceiver : BroadcastReceiver() {
         // Ask the user for one-time consent instead of silently dropping the request, but
         // only if there's a live callback binder to reply to - otherwise there's nothing
         // to grant access to.
-        val callbackBinder = intent.getBundleExtra("data")?.getBinder("binder")
-        if (callbackBinder != null) {
-            // Fast path: if the caller is already permanently authorized, skip the consent
-            // notification and deliver directly (#398 — "Allow always" was not persisting
-            // because this check was absent; every new rish process re-prompted even though
-            // AuthorizationManager.grant() had already been stored for that UID).
-            val callingPackage = intent.getStringExtra("callingPackage")
-            if (callingPackage != null) {
-                try {
-                    val callingUid = context.packageManager.getApplicationInfo(callingPackage, 0).uid
-                    if (AuthorizationManager.granted(callingPackage, callingUid)) {
-                        val appLabel = try {
-                            val info = context.packageManager.getApplicationInfo(callingPackage, 0)
-                            context.packageManager.getApplicationLabel(info).toString()
-                        } catch (_: Exception) { callingPackage }
-                        ActivityLogManager.log(appLabel, callingPackage, "Shell: binder delivered (pre-authorized)")
-                        ShellBinderRequestHandler.deliverBinder(context, callbackBinder)
-                        return
-                    }
-                } catch (_: Exception) {
-                    // Check failed — fall through to the notification consent path below.
+        val callbackBinder = intent.getBundleExtra("data")?.getBinder("binder") ?: return
+        val callingPackage = intent.getStringExtra("callingPackage")
+
+        // Two consent gates, deliberately in this order (白い熊, 2026-08-08).
+        //
+        // First, upstream's per-package one: if this exact caller is already permanently
+        // authorized, deliver directly (#398 — "Allow always" was not persisting because this
+        // check was absent; every new rish process re-prompted even though
+        // AuthorizationManager.grant() had already been stored for that UID). It is the narrower
+        // and more informative of the two, so it answers first and names the app in the log.
+        if (callingPackage != null) {
+            try {
+                val callingUid = context.packageManager.getApplicationInfo(callingPackage, 0).uid
+                if (AuthorizationManager.granted(callingPackage, callingUid)) {
+                    ActivityLogManager.log(
+                        appLabelOf(context, callingPackage) ?: callingPackage,
+                        callingPackage,
+                        "Shell: binder delivered (pre-authorized)"
+                    )
+                    ShellBinderRequestHandler.deliverBinder(context, callbackBinder)
+                    return
                 }
+            } catch (_: Exception) {
+                // Check failed — fall through to the fork gate, then the notification path.
             }
-            // A manifest-registered BroadcastReceiver has no visible UI, so a direct
-            // startActivity() here is exactly the pattern Android's background-activity-start
-            // (BAL) restrictions are designed to block - on modern OEM builds (e.g. Samsung
-            // One UI) it is silently dropped, ShellConsentActivity never appears, and
-            // ShizukuShellLoader's 15s timeout fires with a misleading "may be blocked by your
-            // system / disable battery optimization" message (#377). Route through a
-            // notification instead: tapping it is a user-initiated foreground action and is
-            // exempt from BAL, so the consent dialog reliably shows up.
+        }
+
+        // Then the fork's global one. Upstream re-asks on every request from a caller it holds no
+        // per-package grant for, because the auth token it would otherwise remember can never
+        // exist for a shell client - so `rish -c ls` put a full-screen dialog in front of every
+        // single command, and an *unidentified* caller (no callingPackage, so the gate above can
+        // never fire for it) is still in exactly that position. A remembered answer is the whole
+        // point of a consent prompt; without it the prompt is just a tax. Revocable from
+        // Settings → Advanced → ADB Tools, which is what makes granting it safe to offer.
+        if (ShizukuSettings.isShellConsentGranted()) {
+            // The remembered answer skips ShellConsentActivity entirely, so upstream's #391
+            // pre-grant never runs for a caller that first appears AFTER the flag was set — and
+            // attachApplication() would then put the second permission dialog back in front of it,
+            // which is exactly what #391 removed. Do the same grant here, on the same terms:
+            // the UID is resolved from PackageManager, never taken from the extra.
             //
-            // Android 15+ (API 35) does not reliably preserve IBinder objects embedded in
-            // PendingIntent extras — the binder arrives null when the notification fires (#387).
-            // Store it in PendingConsentStore and pass only a lightweight key in the intent.
-            postConsentNotification(context, intent, callbackBinder)
+            // That grant is also what promotes an identified caller into the gate above, so this
+            // path answers for it once and the per-package gate answers every time after.
+            grantIdentifiedCaller(context, callingPackage)
+            ActivityLogManager.log(
+                callingPackage?.let { appLabelOf(context, it) } ?: "Shell",
+                callingPackage ?: "",
+                "Shell: binder delivered (consent remembered)"
+            )
+            ShellBinderRequestHandler.deliverBinder(context, callbackBinder)
+            return
+        }
+
+        // A manifest-registered BroadcastReceiver has no visible UI, so a direct
+        // startActivity() here is exactly the pattern Android's background-activity-start
+        // (BAL) restrictions are designed to block - on modern OEM builds (e.g. Samsung
+        // One UI) it is silently dropped, ShellConsentActivity never appears, and
+        // ShizukuShellLoader's 15s timeout fires with a misleading "may be blocked by your
+        // system / disable battery optimization" message (#377). Route through a
+        // notification instead: tapping it is a user-initiated foreground action and is
+        // exempt from BAL, so the consent dialog reliably shows up.
+        //
+        // Android 15+ (API 35) does not reliably preserve IBinder objects embedded in
+        // PendingIntent extras — the binder arrives null when the notification fires (#387).
+        // Store it in PendingConsentStore and pass only a lightweight key in the intent.
+        //
+        // All three compose: either gate above means this notification is posted once, not
+        // before every command.
+        postConsentNotification(context, intent, callbackBinder)
+    }
+
+    /** The caller's display name, or null when it cannot be resolved (unknown or uninstalled). */
+    private fun appLabelOf(context: Context, callingPackage: String): String? = try {
+        val info = context.packageManager.getApplicationInfo(callingPackage, 0)
+        context.packageManager.getApplicationLabel(info).toString()
+    } catch (_: Exception) {
+        null
+    }
+
+    /**
+     * Mirrors [af.shizuku.manager.legacy.ShellConsentActivity]'s pre-grant for the path that never
+     * reaches it. A null or unresolvable package just means an unidentified shell client, which is
+     * the case the generic consent copy already describes — deliver the binder anyway, exactly as
+     * before; only the second-dialog suppression is lost, which is where upstream was.
+     */
+    private fun grantIdentifiedCaller(context: Context, callingPackage: String?) {
+        if (callingPackage == null) return
+        try {
+            val uid = context.packageManager.getApplicationInfo(callingPackage, 0).uid
+            AuthorizationManager.grant(callingPackage, uid)
+        } catch (e: Exception) {
+            Timber.tag("BinderRequestReceiver").w(e, "Could not pre-grant %s", callingPackage)
         }
     }
 
