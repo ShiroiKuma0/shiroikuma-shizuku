@@ -104,6 +104,73 @@
 
         </com.google.android.material.chip.ChipGroup>
 
+        <!--
+          Server controls. Outlined rather than filled: every surface role in this theme is the same
+          pure black, so a filled button has no visible edge — ServerStatusViewHolder colours the
+          stroke and text from the house accent.
+        -->
+        <!--
+          Why this line exists: the server is a separate process from the app, and without saying so
+          the obvious repair — force-stop and relaunch 白い熊 雫 — looks sufficient when it does
+          nothing at all to the running server.
+        -->
+        <TextView
+            android:id="@+id/server_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?textAppearanceBodySmall"
+            android:lineSpacingExtra="1sp"
+            android:text="@string/home_status_server_info" />
+
+        <LinearLayout
+            android:id="@+id/server_controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <!-- Weighted, and allowed two lines: the label names the app, so it is long and must not
+                 be ellipsised into "Restart 白い熊…" at large font scales. -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_server_start"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:maxLines="2"
+                android:text="@string/home_status_action_start"
+                app:icon="@drawable/ic_server_start_24" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_server_stop"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:minWidth="0dp"
+                android:text="@string/home_status_action_stop"
+                android:visibility="gone"
+                app:icon="@drawable/ic_close_24"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+        <!--
+          In-flight indicator for start/stop. Its track must NOT be a surface role: every surface in
+          this theme is the same pure black, so the unfilled portion would be invisible.
+          ServerStatusViewHolder sets indicator=accent and track=minor border.
+        -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/server_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:indeterminate="true"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_sentry_offline"
             android:layout_width="wrap_content"

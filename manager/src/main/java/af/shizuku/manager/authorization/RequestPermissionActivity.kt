@@ -159,6 +159,13 @@ class RequestPermissionActivity : AppActivity() {
         dialog.setCanceledOnTouchOutside(false)
         try {
             dialog.show()
+            // This is an AlertDialog owned by an Activity, not a DialogFragment, so
+            // ShiroikumaDialogs.installGlobalStyling never sees it — and it is built with
+            // create()/show() rather than showHouse(). Without this it comes up borderless: the
+            // authorisation prompt third-party apps trigger was the one house dialog with no yellow
+            // edge. Must run after show(), since MaterialAlertDialogBuilder installs its own window
+            // background during show().
+            af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(dialog)
         } catch (e: WindowManager.BadTokenException) {
             // Activity window detached by the time the coroutine resumed
             finish()
@@ -184,6 +191,7 @@ class RequestPermissionActivity : AppActivity() {
         }
         try {
             d.show()
+            af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(d)
         } catch (e: Throwable) {
             LOGGER.w("Failed to show permission dialog (window may be detached)", e)
         }

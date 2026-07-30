@@ -146,26 +146,18 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             )
                         }
                     }
-                    "dhizuku_not_owner" -> {
-                        val cmd = "adb shell dpm set-device-owner " +
-                            "${context.packageName}/.admin.DhizukuAdminReceiver"
-                        MaterialAlertDialogBuilder(context)
-                            .setTitle(R.string.diagnostics_device_owner_setup_title)
-                            .setMessage(context.getString(R.string.diagnostics_device_owner_setup_message, cmd))
-                            .setPositiveButton(R.string.diagnostics_copy_command) { _, _ ->
-                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                cm.setPrimaryClip(ClipData.newPlainText("dpm command", cmd))
-                                ShiroikumaToast.show(context, R.string.diagnostics_command_copied, Toast.LENGTH_SHORT)
-                            }
-                            .setNegativeButton(R.string.diagnostics_dismiss, null)
-                            .showHouse()
-                    }
+                    // The command was built with the `pkg/.Receiver` shorthand, which expands against
+                    // the applicationId — `shiroikuma.shizuku/shiroikuma.shizuku.admin.DhizukuAdminReceiver`,
+                    // a class that does not exist. The copy button handed over a command that could
+                    // only ever fail. DeviceOwnerHelper derives the component from the class instead.
+                    "dhizuku_not_owner" -> af.shizuku.manager.admin.DeviceOwnerHelper
+                        .showSetupCommandDialog(context)
                     "automation_service_stopped" -> {
                         try {
                             context.startService(Intent(context, AutomationService::class.java))
                             notifyChanged()
                         } catch (e: Exception) {
-                            Toast.makeText(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT).show()
+                            ShiroikumaToast.show(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT)
                         }
                     }
                 }
