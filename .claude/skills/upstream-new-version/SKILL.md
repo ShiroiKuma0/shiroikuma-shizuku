@@ -21,7 +21,11 @@ our patches and is rebased onto each new upstream tip.
 
 - `origin` = `git@github.com:ShiroiKuma0/shiroikuma-shizuku.git` (ssh, **push here**).
 - `upstream` = `https://github.com/thejaustin/ShizukuPlus.git` (https, **fetch only**) — the **only**
-  sync source. `master` fast-forwards from here and nowhere else.
+  sync source. `master` fast-forwards from here and nowhere else. Carries
+  `fetchRecurseSubmodules=no`: upstream pins `api` commits it never published, so a recursing fetch
+  always ends in `Errors during submodule fetch: api`. Step 3 runs `git submodule update` explicitly,
+  so nothing here depends on fetch-time recursion. **If that error reappears, the config was lost**
+  (fresh clone) — re-apply it rather than treating the error as meaningful.
 - `djchi` = `https://github.com/thedjchi/Shizuku.git` — upstream's *own* base, added as a
   **reference remote only** (push URL `DISABLED`, `fetchRecurseSubmodules=no`). We read it to see
   what ShizukuPlus has not yet absorbed. **We never merge or rebase onto it** — see Step 1b.
