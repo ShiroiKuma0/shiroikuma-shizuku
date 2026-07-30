@@ -1,0 +1,65 @@
+# Reference-upstream ledger — thedjchi/Shizuku
+#
+# `djchi` is a REFERENCE remote, not a sync source. We never merge or rebase onto it.
+# See SKILL.md "Step 1b" for why, and for the cherry-pick mechanic when something is worth taking.
+#
+# Sourceable: `. .claude/skills/upstream-new-version/djchi-base`
+
+# The djchi commit this fork has REVIEWED through. Everything at or below it has been
+# examined and either absorbed (usually by thejaustin, re-homed) or deliberately skipped —
+# see the ledger below. Step 1b reports only what is NEWER than this.
+DJCHI_REVIEWED_SHA=15ade0e40042dc72f0e502d50b4cb16e3a19095e
+DJCHI_REVIEWED_DATE=2026-07-14
+DJCHI_REVIEWED_VERSION=13.7.0
+
+# The newest djchi commit whose subject appears verbatim in our master — i.e. the last point
+# thejaustin replayed djchi history wholesale. Kept for reference only; it UNDERSTATES how much
+# has actually been absorbed, because thejaustin also ports work by hand under new subjects and
+# into different modules (see the Android 17 row below).
+DJCHI_SUBJECT_SYNC_SHA=4b6727fea7e78b475406898ebaf77b5f974fca3f
+DJCHI_SUBJECT_SYNC_DATE=2026-02-14
+
+# ---------------------------------------------------------------------------------------------
+# Ledger — the 42 djchi commits between the subject sync point and the reviewed tip
+# Reviewed 2026-07-30. Re-check the "outstanding" rows on each sync; they do not expire.
+# ---------------------------------------------------------------------------------------------
+#
+# ABSORBED — do not cherry-pick, it would duplicate and conflict
+#   Android 17 support (6381ffa3, 3b173522, e468d70a, eea81ed7, + the compileSdk36 bits)
+#     thejaustin ported this by hand within 12 days, into DIFFERENT locations than djchi used:
+#       common/src/main/java/af/shizuku/common/compat/Android17Compat.java
+#       common/src/main/java/af/shizuku/common/compat/InstalledPackagesCompat.java
+#       manager/src/main/java/af/shizuku/manager/adb/LocalNetworkPermission.kt
+#     LocalNetworkPermission.kt names thedjchi in its header comment. ACCESS_LOCAL_NETWORK is in
+#     manager/src/main/AndroidManifest.xml. djchi put the compat helpers under server/…/util/.
+#
+# OUTSTANDING — reviewed, not ported, still worth considering
+#   Package-name de-hardcoding (1742c439, 5aca4d4f, 1dedec0e, c52f2353, 8a20f5c6, ebced64b, 964d40bb)
+#     djchi injects the manager package name at build time and reads it from the APK path at
+#     runtime; we still hardcode "shiroikuma.shizuku" as string literals in
+#       server/src/main/java/rikka/shizuku/server/ServerConstants.java   (MANAGER_/PLUS_APPLICATION_ID)
+#       shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java  (setPackage)
+#     Functionally correct for us today, but 964d40bb ("get manager package name from apk path
+#     instead for device compatibility") targets exactly our situation — a fork with a non-stock
+#     applicationId. Highest-value remaining item. NOTE: those literals are OUR edits, so this is a
+#     hand-merge, never a clean pick.
+#   gson -> kotlinx.serialization in :server (8610ea5e)
+#     manager/ and database/ already use kotlinx.serialization; server/build.gradle still pulls
+#     com.google.code.gson:gson. Cosmetic; only worth doing if touching that file anyway.
+#
+# REJECTED — do not port
+#   Stealth mode, ~20 commits (0ca1b038, ce0c176f, 4122655f, 39bbd822, 445b8ac8, ef1859f1,
+#   9eb1d539, 9978f262, a5e587cb, dc3b4481, e970b893, d7278e92, 6cc1bdf4, 30b33ff1, 7bc1ef00,
+#   878ea672, 117b6dad, f1ffe69a, f0b03000, 64b84c58)
+#     djchi's "stealth mode" repackages the APK via ReVanced + ARSCLib into a renamed stub app and
+#     self-updates using an EMBEDDED SIGNING KEY (878ea672). That crosses the no-phone-home rule
+#     and our own signing identity, and drags in heavy new dependencies.
+#     Unrelated to OUR "stealth mode", which only hides the launcher icon
+#     (ShizukuSettings.KEY_STEALTH_MODE, AdvancedSettingsFragment.kt). Same name, different feature.
+#   Donate button (053e1563), bug-report policy text (e1244a6e), 13.7.0 version bump (608fcf0e),
+#   maintenance-pause README (15ade0e4) — upstream-identity changes, not ours to take.
+#
+# ---------------------------------------------------------------------------------------------
+# Standing context: djchi announced a MAINTENANCE PAUSE in the README on 2026-07-14. The gap is
+# not expected to grow. If djchi stays dormant, Step 1b should report "no new commits" every sync.
+# ---------------------------------------------------------------------------------------------
