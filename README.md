@@ -15,7 +15,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 **保存復元** export/import contract with token-gated automation, and the house look driven through
 every screen. Installs as `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2178+24`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2178+29`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -121,14 +121,38 @@ feedback until the server is confirmed back up.
 
 ---
 
-## ✅ Enable automatically after reboot
+## 🔌 A third privileged shell — adb over the loopback
+
+`adb tcpip 5555` is widely misread as opening a channel *to the PC*. It does not: it restarts the
+**phone's own adbd** on a TCP port of the phone, which anything on the phone can then reach. The
+cable is needed for exactly one command — after that it comes out, and the app drives adb on itself.
+
+This fork turns that into a real privilege tier beside the Shizuku service and root. Privileged
+actions **chain** their tiers — service/root, then loopback adb, then a copy-this-command dialog as
+the last resort — so an action no longer dead-ends on a PC instruction while a working adb shell sits
+listening. Each tier is judged by re-checking the result, never by an exit code: `pm` and `dpm` both
+exit 0 without doing anything on some OEM builds.
+
+The port is found by **connecting**, not by reading `service.adb.tcp.port` — that property is labelled
+`adbd_config_prop`, so an ordinary app very likely reads nothing, and a blocked read looks exactly
+like "adb is off".
+
+---
+
+## ✅ Start 白い熊 雫 automatically after boot
 
 A live checklist above the wireless-debugging card, not a page of instructions: every row reads the
-real state and carries its own fix. Notifications, one recorded ADB connection, `WRITE_SECURE_SETTINGS`
-granted through the running server with no PC involved, start-on-boot, battery-optimisation exemption,
-and the OEM launch manager — with a button wherever the ROM permits opening it, decided by a real
-capability test rather than a brand check. It collapses to a single satisfied line once nothing is
-outstanding.
+real state and carries its own fix. Notifications, one recorded ADB connection, **starting the server**
+(by wireless debugging *or* over a cable with one `adb tcpip 5555`), `WRITE_SECURE_SETTINGS` — granted
+through the running server, or over the loopback adb connection when the server is down — start-on-boot,
+battery-optimisation exemption, and background launch. It collapses to a single satisfied line once
+nothing is outstanding.
+
+That last row knows which world it is in. On a ROM with its own autostart manager it opens that screen
+where the ROM permits — decided by a real capability test rather than a brand check — and stays honest
+about being unable to read it back. On a stock ROM, where no such screen exists, the standard
+background restriction *is* the whole story, so the row shows real state and opens the page that
+carries the toggle.
 
 Below a hairline, the same card handles **Device Owner**: granted through the running server, with the
 real `dpm` refusal surfaced rather than a generic failure, and the exit always visible — behind a
@@ -185,8 +209,8 @@ export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME=$HOME/android-s
 fork (our own commits would inflate it). The upstream numbers are pinned in `gradle.properties` and
 refreshed on each sync; `BUILD_NUMBER` is this fork's increment:
 
-- `versionName = <UPSTREAM_VERSION_NAME>+<BUILD_NUMBER>` → `13.6.0.r2178+14`
-- `versionCode = UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER` → `21780014`
+- `versionName = <UPSTREAM_VERSION_NAME>+<BUILD_NUMBER>` → `13.6.0.r2178+29`
+- `versionCode = UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER` → `21780029`
 
 Single-ABI **arm64-v8a**; upstream packages a universal APK. Release tags carry **no `v` prefix** and
 equal the fork `versionName` exactly, so the in-app update check never re-offers an installed build.
