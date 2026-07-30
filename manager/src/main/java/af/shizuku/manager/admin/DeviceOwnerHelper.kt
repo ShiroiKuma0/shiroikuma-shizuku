@@ -1,5 +1,6 @@
 package af.shizuku.manager.admin
 
+import android.app.Activity
 import android.app.admin.DevicePolicyManager
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -9,11 +10,16 @@ import android.content.DialogInterface
 import android.widget.Toast
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.adb.AdbLoopbackShell
+import af.shizuku.manager.adb.LocalNetworkPermission
 import af.shizuku.manager.shiroikuma.ShiroikumaDialogs
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.PrivilegedShell
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import rikka.core.content.asActivity
 import timber.log.Timber
 
 /**
@@ -81,15 +87,45 @@ object DeviceOwnerHelper {
     }
 
     /**
-     * Run `dpm set-device-owner` through Shizuku (shell, UID 2000) or root.
+     * Run `dpm set-device-owner` through Shizuku (shell, UID 2000), root, or the device's own adb.
      *
      * `dpm` refuses for several distinct reasons — accounts present on the device, more than one
      * user, an owner already set, or an OEM policy layer declining outright — and the only way to
      * tell them apart is the text it prints, so the outcome is returned intact for the caller to
      * display.
+     *
+     * The loopback adb tier is not a consolation prize: `adb shell dpm set-device-owner` is *the*
+     * canonical way to do this, and once `adb tcpip` has been issued from a cable the phone can run
+     * it on itself with no PC attached. Landing on the copy-this-command dialog while that shell sits
+     * listening is a dead end with the road right beside it — so the dialog is now only reached when
+     * there is genuinely no shell of any kind.
+     *
+     * Success is judged by [isDeviceOwner], never by an exit code: `dpm` can exit 0 on some OEM
+     * builds without the flag landing, and a tier that merely *ran* proves nothing.
      */
-    suspend fun makeDeviceOwner(context: Context): PrivilegedShell.Outcome =
-        PrivilegedShell.run("dpm set-device-owner ${component(context).flattenToString()}")
+    suspend fun makeDeviceOwner(context: Context): PrivilegedShell.Outcome {
+        val command = "dpm set-device-owner ${component(context).flattenToString()}"
+
+        val privileged = PrivilegedShell.run(command)
+        if (isDeviceOwner(context)) return privileged
+
+        val port = AdbLoopbackShell.detectPort(context)
+        if (port !in 1..65535) return privileged
+
+        // Best-effort, exactly as the ADB start screen does it: a loopback socket is still
+        // local-network access under Android 16+ LNP. requestPermissions is main-thread only.
+        withContext(Dispatchers.Main) {
+            context.asActivity<Activity>()?.let { LocalNetworkPermission.request(it) }
+        }
+
+        return when (val adb = AdbLoopbackShell.run(context, port, command)) {
+            is AdbLoopbackShell.Outcome.Ok -> PrivilegedShell.Outcome.Ok(adb.output)
+            is AdbLoopbackShell.Outcome.Failed ->
+                PrivilegedShell.Outcome.Failed(-1, "adb on port $port: ${adb.reason}")
+            // Nothing was attempted, so the earlier tier's reason is still the better one to show.
+            AdbLoopbackShell.Outcome.Unavailable -> privileged
+        }
+    }
 
     /**
      * The strong warning that must precede any clear, with **Cancel in the positive slot**.
