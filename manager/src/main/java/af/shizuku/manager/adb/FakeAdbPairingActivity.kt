@@ -61,5 +61,8 @@ class FakeAdbPairingActivity : Activity() {
             }
             .setCancelable(false)
             .show()
+            // Same gap as the authorisation prompt: an Activity-owned AlertDialog, so the global
+            // DialogFragment styling hook never reaches it and it would come up borderless.
+            .also { af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(it) }
     }
 }
