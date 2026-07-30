@@ -2310,21 +2310,45 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 return false;
             }
 
-            Bundle extra = new Bundle();
+            // One container per call(), not three in one Bundle.
+            //
+            // Bundle.getParcelable() unparcels EVERY value in the bundle, not only the key asked for,
+            // so a bundle carrying three different BinderContainer classes can only be read by a
+            // client that has all three on its classpath. A client shipping just one got
+            // BadParcelableException and the hand-off failed whole — observed with app.simple.inure
+            // and com.mixplorer.beta, which received no binder at all.
+            //
+            // Sent separately, a client that knows any one container is served regardless of the
+            // others. Each attempt needs its own catch: the failure arrives as a RuntimeException
+            // thrown by the client's provider and propagated back across the binder, not as a null
+            // reply, so a null check alone would let the first bad container abort the rest.
+            List<Bundle> attempts = new ArrayList<>(3);
             if (MANAGER_APPLICATION_ID.equals(packageName)) {
-                extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
+                Bundle plus = new Bundle();
+                plus.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
+                attempts.add(plus);
             }
-            extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-            extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
+            Bundle rikka = new Bundle();
+            rikka.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+            attempts.add(rikka);
+            Bundle moe = new Bundle();
+            moe.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
+            attempts.add(moe);
 
-            Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
-            if (reply != null) {
-                LOGGER.i("send binder to user app %s in user %d", packageName, userId);
-                return true;
-            } else {
-                LOGGER.e("failed to send binder to user app %s in user %d", packageName, userId);
-                return false;
+            for (Bundle extra : attempts) {
+                try {
+                    Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                    if (reply != null) {
+                        LOGGER.i("send binder to user app %s in user %d", packageName, userId);
+                        return true;
+                    }
+                } catch (Throwable tr) {
+                    // Expected when the client lacks this particular container class; try the next.
+                    LOGGER.v("container rejected by %s in user %d: %s", packageName, userId, tr.getMessage());
+                }
             }
+            LOGGER.e("failed to send binder to user app %s in user %d", packageName, userId);
+            return false;
         } catch (Throwable tr) {
             LOGGER.e(tr, "failed to send binder to user app %s in user %d", packageName, userId);
             return false;

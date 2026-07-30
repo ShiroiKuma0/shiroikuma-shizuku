@@ -159,25 +159,45 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
                         listView?.smoothScrollToPosition(position)
                         listView?.postDelayed({
                             val holder = listView?.findViewHolderForAdapterPosition(position)
-                            holder?.itemView?.let { itemView ->
-                                val defaultBg = itemView.background
-                                val tintColor = TypedValue()
-                                requireContext().theme.resolveAttribute(R.attr.colorPrimaryContainer, tintColor, true)
-                                itemView.setBackgroundColor(tintColor.data)
-                                itemView.animate()
-                                    .setDuration(ShizukuSettings.scaledAnimationDuration(1200))
-                                    .alpha(1.0f)
-                                    .withEndAction {
-                                        itemView.background = defaultBg
-                                    }
-                                    .start()
-                            }
+                            holder?.itemView?.let { flashRow(it) }
                         }, 400)
                     }
                 }
             }
             arguments?.remove("highlight_key")
         }
+    }
+
+    /**
+     * Briefly outline a row so the eye lands on it after a deep link.
+     *
+     * Upstream filled the row with `colorPrimaryContainer` and restored it after 1200 ms. In this
+     * theme that attribute is `@color/shizuku_black` — the exact black the rows already sit on — so
+     * the "highlight" was a no-op: nothing was hidden, nothing changed either. (The animation was
+     * `alpha(1.0f)` on a view already at alpha 1, i.e. a timer wearing an animator's clothes.)
+     *
+     * A yellow outline plus a faint wash is unmistakable against black and stays inside the house
+     * grammar. The accent is read from the store rather than hardcoded, so it follows the palette.
+     * The low-alpha fill is deliberate and is *not* the container-tint mistake the house rules ban:
+     * this is a transient one-row flash, not a surface that has to stay legible.
+     */
+    private fun flashRow(itemView: View) {
+        val p = af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs
+        val context = context ?: return
+        val accent = p.getInt(context, p.KEY_COLOR_ACCENT)
+        val density = context.resources.displayMetrics.density
+        val defaultBg = itemView.background
+
+        itemView.background = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            cornerRadius = p.getInt(context, p.KEY_CORNER_RADIUS) * density
+            setColor(androidx.core.graphics.ColorUtils.setAlphaComponent(accent, 0x2A))
+            setStroke((2 * density).toInt(), accent)
+        }
+        itemView.postDelayed(
+            { itemView.background = defaultBg },
+            ShizukuSettings.scaledAnimationDuration(1200)
+        )
     }
 
     override fun onDestroyView() {

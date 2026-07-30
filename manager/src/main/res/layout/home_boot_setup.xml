@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  "Enable automatically after reboot" — a live checklist, not a list of instructions: every row
+  reads real state and carries its own action. Rows are inflated into the two containers by
+  BootSetupViewHolder.
+
+  The Device Owner section is deliberately below a hairline with its own heading: it is not step 7
+  of getting Shizuku to boot, it is an adjacent and far less reversible thing.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Card.Large">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@android:id/icon"
+            style="@style/CardIcon.Droplet"
+            android:duplicateParentState="true"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_power_settings_new_24" />
+
+        <TextView
+            style="@style/CardTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/m3e_spacing_medium"
+            android:layout_weight="1"
+            android:text="@string/boot_setup_title" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@android:id/text1"
+        style="@style/CardSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/boot_setup_description" />
+
+    <LinearLayout
+        android:id="@+id/boot_rows"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <View
+        android:id="@+id/section_hairline"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <TextView
+        android:id="@+id/do_heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?textAppearanceTitleMedium"
+        android:textStyle="bold"
+        android:text="@string/boot_setup_do_heading" />
+
+    <LinearLayout
+        android:id="@+id/do_rows"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <TextView
+        android:id="@+id/do_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?textAppearanceBodySmall"
+        android:text="@string/boot_setup_do_clear_warning"
+        tools:text="⚠ Clearing this is not casually reversible." />
+
+    <LinearLayout
+        android:id="@+id/do_clear_rows"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>

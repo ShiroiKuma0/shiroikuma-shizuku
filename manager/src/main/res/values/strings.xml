@@ -1049,8 +1049,11 @@
     <string name="settings_clear_device_owner">Remove Device Owner</string>
     <string name="settings_clear_device_owner_summary">Release 白い熊 雫 from Device Owner status. Required before uninstalling or downgrading.</string>
     <string name="dhizuku_clear_owner_title">Remove Device Owner?</string>
-    <string name="dhizuku_clear_owner_message">This will remove 白い熊 雫 as Device Owner. Dhizuku Mode will be disabled and apps relying on delegated Device Owner privileges will lose access.\n\nYou can re-enable Device Owner at any time by running the ADB command shown in the setup dialog.</string>
-    <string name="dhizuku_clear_owner_confirm">Remove</string>
+    <!-- Deliberately not reassuring: getting Device Owner back is a device-wide chore that can
+         dead-end in a factory reset, so this text must not imply it is a reversible toggle. The
+         Cancel button sits in the positive slot for the same reason. -->
+    <string name="dhizuku_clear_owner_message">This removes 白い熊 雫 as Device Owner. Dhizuku Mode will be disabled and apps relying on delegated Device Owner privileges will lose access.\n\nGetting it back is not a toggle. Device Owner can only be granted on a device with <b>no accounts at all</b> — every Google account, Huawei ID and mail account has to be removed first — and some OEM builds refuse the request outright. If yours refuses, a <b>factory reset</b> is the only way back to Device Owner.\n\nThink it through before continuing.</string>
+    <string name="dhizuku_clear_owner_confirm">Clear anyway</string>
     <string name="dhizuku_clear_owner_success">Device Owner status removed. You can now uninstall or downgrade 白い熊 雫.</string>
     <string name="dhizuku_clear_owner_failure">Failed to remove Device Owner status.</string>
     <string name="dhizuku_clear_owner_failure_title">Device Owner not removed</string>
@@ -1291,4 +1294,74 @@
     <!-- Mode-contextual settings (#433) -->
     <string name="settings_mode_indicator_adb">Running in ADB mode — root-only options are hidden</string>
     <string name="settings_mode_indicator_root">Running in root mode — ADB-only options are hidden</string>
+    <!-- Home status card: server controls -->
+    <string name="home_status_action_start">Start 白い熊 雫 server</string>
+    <string name="home_status_action_restart">Restart 白い熊 雫 server</string>
+    <string name="home_status_action_stop">Stop</string>
+    <string name="home_status_server_info">This restarts the privileged <b>server</b>, not the app. They are two separate processes: the server runs as <i>shell</i> beside 白い熊 雫 and keeps running when the app is closed or force-stopped — so quitting and relaunching the app does <b>not</b> reload it. After an update the old server carries on serving the old code until it is restarted here.\n\nRestarting needs a shell. If a server is already running, its own shell is used and nothing else is needed. Otherwise the phone must be connected by cable with ADB over TCP enabled — or hitting the button will start a wireless-debugging reconnection instead.</string>
+    <string name="home_status_starting">Starting…</string>
+    <string name="home_status_restarting">Restarting…</string>
+    <string name="home_status_stopping">Stopping…</string>
+    <string name="home_status_tcp_adb_title">Enable ADB over TCP once</string>
+    <string name="home_status_tcp_adb_message">No shell is reachable: no running server will lend one, and root isn\'t available. This app can\'t talk to ADB over USB — that connection isn\'t a socket an app can use.\n\nRun this once from a PC with the cable attached:\n\n%1$s\n\nAfter that ADB listens on this device itself, and 白い熊 雫 can start and restart the server on its own — over the cable, with no Wi-Fi and no pairing. It stays that way until ADB is switched back to USB mode or the phone reboots.</string>
+    <string name="home_status_tcp_adb_use_wireless">Use wireless instead</string>
+    <string name="home_status_restart_ok">Server restarted — now running the installed build.</string>
+    <string name="home_status_restart_failed">The server did not come back. %1$s</string>
+    <string name="home_status_stop_ok">Server stopped.</string>
+
+    <!-- Home card: enable automatically after reboot -->
+    <string name="boot_setup_title">Enable automatically after reboot</string>
+    <string name="boot_setup_description">What the service needs in order to come up by itself. It starts after your first unlock, not during boot — encrypted storage isn\'t readable before that.</string>
+    <string name="boot_setup_all_done">Ready — the service starts itself after each reboot, once you unlock.</string>
+
+    <string name="boot_setup_notifications">1. Allow notifications</string>
+    <string name="boot_setup_notifications_todo">The pairing code arrives in a notification, so pairing cannot even start without this.</string>
+    <string name="boot_setup_notifications_done">Allowed.</string>
+
+    <string name="boot_setup_connect">2. Connect once via wireless debugging</string>
+    <string name="boot_setup_connect_todo">Pair and start once with this app open, so the boot service knows the port and launch mode to reconnect with.</string>
+    <string name="boot_setup_connect_done">Done — last connected on port %1$d.</string>
+
+    <string name="boot_setup_secure">3. Grant secure settings permission</string>
+    <string name="boot_setup_secure_todo">Lets the app switch wireless debugging back on for itself after a reboot. Granted here through the running service — no PC needed.</string>
+    <string name="boot_setup_secure_done">Granted.</string>
+    <string name="boot_setup_secure_blocked">Start the service first (step 2), then this can be granted from here.</string>
+
+    <string name="boot_setup_boot">4. Turn on Start on boot</string>
+    <string name="boot_setup_boot_todo">Records the boot start explicitly. The boot receiver is already active out of the box, so this is belt-and-braces rather than the switch that enables it.</string>
+    <string name="boot_setup_boot_done">On.</string>
+
+    <string name="boot_setup_battery">5. Ignore battery optimisation</string>
+    <string name="boot_setup_battery_todo">The boot start is a background job; Doze will otherwise delay or kill it.</string>
+    <string name="boot_setup_battery_done">Exempt.</string>
+
+    <string name="boot_setup_oem">6. Allow background launch</string>
+    <string name="boot_setup_oem_available">Allow 白い熊 雫 to start itself and keep running in the background, or the system kills the boot start before it gets anywhere. Opens your ROM\'s launch manager. Can\'t be read back, so this row shows no state.</string>
+    <string name="boot_setup_oem_emui">Settings → Battery → App launch → 白い熊 雫: turn off “Manage automatically”, then allow Auto-launch, Secondary launch and Run in background. Otherwise the system kills the boot start before it runs.\n\nEMUI guards that screen with a system-only permission, so it can neither be opened from here nor read back — no state and no button on this device.</string>
+    <string name="boot_setup_oem_manual">If your ROM has a launch manager, allow 白い熊 雫 to auto-launch and run in the background — look under Settings → Battery, or Settings → Apps. It can\'t be opened from here or read back on this device.</string>
+
+    <string name="boot_setup_action_allow">Allow</string>
+    <string name="boot_setup_action_pair">Pair</string>
+    <string name="boot_setup_action_grant">Grant now</string>
+    <string name="boot_setup_action_open">Open</string>
+    <string name="boot_setup_action_fix">Fix</string>
+    <string name="boot_setup_action_working">Working…</string>
+
+    <!-- Home card: Device Owner section -->
+    <string name="boot_setup_do_heading">Make app “Device Owner”</string>
+    <string name="boot_setup_do">Device Owner</string>
+    <string name="boot_setup_do_active">Active.</string>
+    <string name="boot_setup_do_todo">Not set. Grants device-policy control without adb — what Dhizuku Mode delegates to other apps.</string>
+    <string name="boot_setup_do_blocked">The system is refusing device-owner setup right now. Remove every account from the device and any extra users, then try again.</string>
+    <string name="boot_setup_do_action">Make owner</string>
+    <string name="boot_setup_do_granted">Device Owner granted.</string>
+    <string name="boot_setup_do_failed_title">Device Owner not set</string>
+    <string name="boot_setup_do_failed_message">dpm refused the request.\n\n%1$s\n\nDevice Owner needs no accounts on the device at all (every Google account, Huawei ID and mail account counts), a single user, and no owner already set. Some OEM builds decline regardless.</string>
+    <string name="boot_setup_do_unavailable">Neither the service nor root is available, so the command can\'t be run from here.</string>
+
+    <string name="boot_setup_do_clear">Remove Device Owner</string>
+    <string name="boot_setup_do_clear_available">The only clean exit — the app releases itself, with no adb and no running service needed.</string>
+    <string name="boot_setup_do_clear_na">Not Device Owner — nothing to clear.</string>
+    <string name="boot_setup_do_clear_action">Clear</string>
+    <string name="boot_setup_do_clear_warning">⚠ Think hard before clearing. Device Owner can only be granted again on a device with no accounts at all, and some OEM builds refuse outright — if that happens, a factory reset is the only way back.</string>
 </resources>
