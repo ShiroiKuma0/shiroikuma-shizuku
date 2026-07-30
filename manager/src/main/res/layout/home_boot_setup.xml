@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  "Enable automatically after reboot" — a live checklist, not a list of instructions: every row
+  "Start 白い熊 雫 automatically after boot" — a live checklist, not a list of instructions: every row
   reads real state and carries its own action. Rows are inflated into the two containers by
   BootSetupViewHolder.
 

@@ -19,13 +19,16 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.adb.AdbLoopbackShell
 import af.shizuku.manager.adb.AdbPairingService
 import af.shizuku.manager.adb.AdbPairingTutorialActivity
+import af.shizuku.manager.adb.LocalNetworkPermission
 import af.shizuku.manager.admin.DeviceOwnerHelper
 import af.shizuku.manager.databinding.HomeBootSetupBinding
 import af.shizuku.manager.databinding.HomeBootSetupRowBinding
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.settings.SettingsActivity
+import af.shizuku.manager.starter.StarterActivity
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs
 import af.shizuku.manager.utils.EnvironmentUtils
@@ -42,7 +45,7 @@ import rikka.shizuku.Shizuku
 import timber.log.Timber
 
 /**
- * "Enable automatically after reboot" — a live checklist rather than a list of instructions.
+ * "Start 白い熊 雫 automatically after boot" — a live checklist rather than a list of instructions.
  *
  * Each row reads the real state and carries its own action, so nothing has to be translated from
  * prose into taps. The reason this is worth a card at all: the boot path
@@ -98,6 +101,13 @@ class BootSetupViewHolder(
     /** Set while a privileged command is in flight, so the row can't be fired twice. */
     private var busy = false
 
+    /**
+     * The loopback port an adbd answers on, or -1 — found by connecting, not by reading
+     * `service.adb.tcp.port`, which an ordinary app is not allowed to see (AdbLoopbackShell).
+     * Cached because the probe is a socket connect and [render] runs on the main thread.
+     */
+    private var loopbackPort = -1
+
     init {
         containerBinding.root.applySpringTouch()
         containerBinding.root.setOnLongClickListener { HomeEditMode.enter(); true }
@@ -121,6 +131,18 @@ class BootSetupViewHolder(
         HomeEditMode.applyOverlay(containerBinding)
         IconStyleHelper.applyToCardIcon(binding.icon, originalIcon, "home_boot_setup")
         render()
+        probeLoopbackAdb()
+    }
+
+    /** Re-renders only when the answer changed, so it can't chase its own tail on every bind. */
+    private fun probeLoopbackAdb() {
+        scope.launch {
+            val port = AdbLoopbackShell.detectPort(context)
+            if (port != loopbackPort) {
+                loopbackPort = port
+                render()
+            }
+        }
     }
 
     // -----------------------------------------------------------------------------------------
@@ -241,30 +263,59 @@ class BootSetupViewHolder(
             action = if (connected) null else ({ startPairing() })
         )
 
-        // 3 — WRITE_SECURE_SETTINGS, which the boot worker needs to switch wireless debugging back
-        // on for itself. Granted from here through the running service; the adb command is only the
-        // fallback for when we hold no privilege at all.
+        // 3 — the server itself, and the row where the cable route is spelled out. `adb tcpip 5555`
+        // over a cable restarts the *phone's* adbd on a TCP port, so the one thing the PC is needed
+        // for is that single command; afterwards the app reaches adb over the loopback with the
+        // cable unplugged. StartWirelessAdbViewHolder.start already prefers that system property
+        // over the discovered wireless-debugging port, so one action serves both routes.
+        val running = Shizuku.pingBinder()
+        val adbPort = loopbackPort
+        val startablePort = if (adbPort > 0) adbPort else lastPort
+        steps += Step(
+            title = context.getString(R.string.boot_setup_start),
+            summary = when {
+                running -> context.getString(R.string.boot_setup_start_done)
+                startablePort in 1..65535 -> context.getString(R.string.boot_setup_start_ready, startablePort)
+                else -> context.getString(R.string.boot_setup_start_todo)
+            },
+            state = if (running) State.DONE else State.TODO,
+            actionLabel = if (running) null else context.getString(R.string.boot_setup_action_start),
+            action = if (running) null else ({ startServer() })
+        )
+
+        // 4 — WRITE_SECURE_SETTINGS, which the boot worker needs to switch wireless debugging back
+        // on for itself. Granted from here through the running service, or — when there is no
+        // service and no root but `adb tcpip` has been run — over the loopback adb connection, which
+        // is a shell in its own right. Only with neither is this genuinely blocked.
         val hasSecure = SettingsHelper.hasWriteSecureSettings(context)
         val canGrant = Shizuku.pingBinder() || EnvironmentUtils.isRooted()
+        val adbReachable = adbPort in 1..65535
+        val canGrantOverAdb = !canGrant && adbReachable
         steps += Step(
             title = context.getString(R.string.boot_setup_secure),
-            summary = context.getString(
-                when {
-                    hasSecure -> R.string.boot_setup_secure_done
-                    canGrant -> R.string.boot_setup_secure_todo
-                    else -> R.string.boot_setup_secure_blocked
-                }
-            ),
+            summary = when {
+                hasSecure -> context.getString(R.string.boot_setup_secure_done)
+                // Says so when both roads are open, because otherwise the adb fallback is invisible
+                // on exactly the devices that have it: the service wins, and nothing on the row
+                // hints that it would still work with the service stopped.
+                canGrant && adbReachable -> context.getString(R.string.boot_setup_secure_todo_adb, adbPort)
+                canGrant -> context.getString(R.string.boot_setup_secure_todo)
+                canGrantOverAdb -> context.getString(R.string.boot_setup_secure_adb, adbPort)
+                else -> context.getString(R.string.boot_setup_secure_blocked)
+            },
             state = when {
                 hasSecure -> State.DONE
-                canGrant -> State.TODO
+                canGrant || canGrantOverAdb -> State.TODO
                 else -> State.BLOCKED
             },
-            actionLabel = if (hasSecure) null else context.getString(R.string.boot_setup_action_grant),
+            actionLabel = if (hasSecure) null else context.getString(
+                if (canGrantOverAdb) R.string.boot_setup_action_grant_adb
+                else R.string.boot_setup_action_grant
+            ),
             action = if (hasSecure) null else ({ grantSecureSettings() })
         )
 
-        // 4 — the switch. See the class comment: the receiver already fires without it, so the row
+        // 5 — the switch. See the class comment: the receiver already fires without it, so the row
         // is honest about what flipping it actually buys.
         val startOnBoot = ShizukuSettings.getStartOnBoot(context)
         steps += Step(
@@ -277,7 +328,7 @@ class BootSetupViewHolder(
             action = if (startOnBoot) null else ({ openStartOnBootSetting() })
         )
 
-        // 5 — Doze. The boot start is a WorkManager job, so this is not cosmetic.
+        // 6 — Doze. The boot start is a WorkManager job, so this is not cosmetic.
         val batteryExempt = SettingsHelper.isIgnoringBatteryOptimizations(context)
         steps += Step(
             title = context.getString(R.string.boot_setup_battery),
@@ -291,25 +342,78 @@ class BootSetupViewHolder(
             })
         )
 
-        // 6 — the OEM launch manager. A button wherever the ROM actually lets us open it, and words
-        // only where it does not. Unreadable either way, so the row carries no state.
+        // 7 — background launch, which is two different worlds wearing one name.
+        //
+        // On a ROM with its own launch manager the binding setting lives in that screen, cannot be
+        // read back, and the row can only point at it — no state, by necessity.
+        //
+        // On a stock-ish ROM there is no such screen and the standard background restriction IS the
+        // whole story: it is what "Allow background usage" toggles, it is what stops a boot start,
+        // and unlike the OEM screens it can be both read (ActivityManager) and opened. Claiming
+        // otherwise there — as this row did on every non-OEM device — is just wrong.
         val oemIntent = launchableOemIntent
         val isEmui = Build.MANUFACTURER.lowercase().let { it == "huawei" || it == "honor" }
+        val bgAllowed = if (oemIntent == null && !isEmui) backgroundUsageAllowed() else null
+        val bgIntent = backgroundUsageIntent
         steps += Step(
             title = context.getString(R.string.boot_setup_oem),
             summary = context.getString(
                 when {
                     oemIntent != null -> R.string.boot_setup_oem_available
                     isEmui -> R.string.boot_setup_oem_emui
+                    bgAllowed == true -> R.string.boot_setup_oem_bg_allowed
+                    bgAllowed == false -> R.string.boot_setup_oem_bg_blocked
                     else -> R.string.boot_setup_oem_manual
                 }
             ),
-            state = State.INFO,
-            actionLabel = oemIntent?.let { context.getString(R.string.boot_setup_action_open) },
-            action = oemIntent?.let { intent -> { openOemLaunchSettings(intent) } }
+            state = when (bgAllowed) {
+                true -> State.DONE
+                false -> State.TODO
+                null -> State.INFO
+            },
+            actionLabel = when {
+                oemIntent != null -> context.getString(R.string.boot_setup_action_open)
+                bgAllowed == false && bgIntent != null -> context.getString(R.string.boot_setup_action_open)
+                else -> null
+            },
+            action = when {
+                oemIntent != null -> ({ openOemLaunchSettings(oemIntent) })
+                bgAllowed == false && bgIntent != null -> ({ openOemLaunchSettings(bgIntent) })
+                else -> null
+            }
         )
 
         return steps
+    }
+
+    /**
+     * Whether the system will let this app run in the background, or null when it cannot be read.
+     *
+     * `isBackgroundRestricted` is exactly the "Allow background usage" toggle under Settings → Apps →
+     * 白い熊 雫 → App battery usage: on means unrestricted, off means the system stops background
+     * work — including the boot start, which is a WorkManager job.
+     */
+    private fun backgroundUsageAllowed(): Boolean? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return null
+        val am = context.getSystemService(android.app.ActivityManager::class.java) ?: return null
+        return runCatching { !am.isBackgroundRestricted }.getOrNull()
+    }
+
+    /**
+     * Where to send the user for that toggle. A few ROMs expose the battery page directly; most do
+     * not (this Motorola does not — `android.settings.APP_BATTERY_SETTINGS` resolves to nothing), and
+     * there the app-details page is the right destination because "App battery usage" is one tap
+     * inside it. Note this is *not* the old "fall back to app details when the OEM screen was
+     * refused" bug: on those ROMs app details genuinely has no launch control, which is why this
+     * path is only ever taken when there is no OEM launch manager at all.
+     */
+    private val backgroundUsageIntent: Intent? by lazy {
+        listOf(
+            Intent("android.settings.APP_BATTERY_SETTINGS"),
+            Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        )
+            .map { it.setData(android.net.Uri.parse("package:${context.packageName}")) }
+            .firstOrNull { canStart(it) }
     }
 
     // -----------------------------------------------------------------------------------------
@@ -419,26 +523,83 @@ class BootSetupViewHolder(
         StartWirelessAdbViewHolder.start(context, scope)
     }
 
-    private fun grantSecureSettings() {
-        if (!Shizuku.pingBinder() && !EnvironmentUtils.isRooted()) {
-            SettingsHelper.promptWriteSecureSettings(context)
+    /**
+     * Start the server by whichever road is open. Handing the Activity in rather than the row's own
+     * context matters: the no-port fallback is a DialogFragment, and a plain cast of a themed
+     * context would come back null and make the button do nothing at all.
+     */
+    private fun startServer() {
+        // A probed port beats StartWirelessAdbViewHolder.start's own lookup, which begins with the
+        // system property this app cannot read — on the cable route that lookup finds nothing and
+        // drops to mDNS discovery, hunting for a wireless service that isn't there.
+        val port = loopbackPort
+        if (port in 1..65535) {
+            val intent = Intent(context, StarterActivity::class.java).apply {
+                putExtra(StarterActivity.EXTRA_PORT, port)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            runCatching { context.startActivity(intent) }
+                .onFailure { Timber.tag(TAG).w(it, "Failed to open the starter on port $port") }
             return
         }
+        val activity = context.asActivity<FragmentActivity>()
+        StartWirelessAdbViewHolder.start(activity ?: context, scope)
+    }
+
+    /**
+     * Grant `WRITE_SECURE_SETTINGS`, trying every shell this device can offer before giving up.
+     *
+     * The order is service/root → loopback adb → the copy-this-command dialog, and the fall-through
+     * is the whole point: an earlier tier reporting failure is not evidence the next one will fail.
+     * Treating the tiers as alternatives instead of a chain is what put the dialog on screen while a
+     * perfectly good adb shell sat listening on 5555 — the service tier failed (it was returning a
+     * null remote process, see the Service.onTransact fix) and nothing tried the next road.
+     *
+     * The permission held is the only success signal that means anything: `pm grant` can exit 0
+     * without granting, so every tier is judged by re-checking rather than by its own exit code.
+     */
+    private fun grantSecureSettings() {
+        val command = "pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS"
+        val port = loopbackPort
+
+        // A loopback socket is still local-network access under Android 16+ LNP, so ask for it in
+        // the same best-effort way the ADB start screen does. The connect retries give the user time
+        // to answer both this and adbd's own "Allow USB debugging" prompt.
+        if (port in 1..65535) {
+            context.asActivity<android.app.Activity>()?.let { LocalNetworkPermission.request(it) }
+        }
+
         busy = true
         render()
         scope.launch {
-            val outcome = PrivilegedShell.run(
-                "pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS"
-            )
+            var reason: String? = null
+
+            if (Shizuku.pingBinder() || EnvironmentUtils.isRooted()) {
+                reason = when (val outcome = PrivilegedShell.run(command)) {
+                    is PrivilegedShell.Outcome.Ok ->
+                        outcome.output.ifBlank { "the privileged shell reported success without granting it" }
+                    is PrivilegedShell.Outcome.Failed ->
+                        outcome.output.ifBlank { "pm grant exited ${outcome.exitCode}" }
+                    PrivilegedShell.Outcome.Unavailable ->
+                        "the privileged service did not run the command"
+                }
+            }
+
+            if (!SettingsHelper.hasWriteSecureSettings(context) && port in 1..65535) {
+                reason = when (val outcome = AdbLoopbackShell.run(context, port, command)) {
+                    is AdbLoopbackShell.Outcome.Ok ->
+                        outcome.output.ifBlank { "adb ran the command without granting it" }
+                    is AdbLoopbackShell.Outcome.Failed -> "adb on port $port: ${outcome.reason}"
+                    AdbLoopbackShell.Outcome.Unavailable -> "adb on port $port is no longer reachable"
+                }
+            }
+
             busy = false
-            when (outcome) {
-                is PrivilegedShell.Outcome.Ok ->
-                    if (!SettingsHelper.hasWriteSecureSettings(context)) {
-                        ShiroikumaToast.show(context, outcome.output.ifBlank { "pm reported success, but the permission is still not held." }, Toast.LENGTH_LONG)
-                    }
-                is PrivilegedShell.Outcome.Failed ->
-                    ShiroikumaToast.show(context, outcome.output.ifBlank { "pm grant exited ${outcome.exitCode}." }, Toast.LENGTH_LONG)
-                PrivilegedShell.Outcome.Unavailable -> SettingsHelper.promptWriteSecureSettings(context)
+            if (!SettingsHelper.hasWriteSecureSettings(context)) {
+                // Never silent: the tiers each swallow their own exception, so without this the
+                // failure is invisible in a release build, where Timber plants no tree.
+                if (reason != null) ShiroikumaToast.show(context, reason, Toast.LENGTH_LONG)
+                SettingsHelper.promptWriteSecureSettings(context)
             }
             render()
         }
