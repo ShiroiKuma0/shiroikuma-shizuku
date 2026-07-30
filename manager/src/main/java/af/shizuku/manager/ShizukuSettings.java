@@ -154,6 +154,11 @@ public class ShizukuSettings {
         public static final String KEY_LIVE_ACTIVITY_ENABLED = "live_activity_enabled";
         public static final String KEY_AUTO_RECONNECT_MDNS = "auto_reconnect_mdns";
         public static final String KEY_STEALTH_MODE = "stealth_mode";
+        // Standing consent for shell clients (rish / adb). Upstream's ShellConsentActivity asks on
+        // every single request, because a shell process can never produce an IntentCrypto token —
+        // that key is scoped to this app's own UID — so there is nothing to remember it by. This is
+        // the remembered answer. Revocable from Settings → Advanced → ADB Tools.
+        public static final String KEY_SHELL_CONSENT_GRANTED = "shell_consent_granted";
     }
 
     private static SharedPreferences sPreferences;
@@ -1094,6 +1099,17 @@ public class ShizukuSettings {
     public static void setStealthModeEnabled(boolean enable) {
         SharedPreferences p = getPreferences();
         if (p != null) p.edit().putBoolean(Keys.KEY_STEALTH_MODE, enable).apply();
+    }
+
+    /** Whether shell clients (rish / adb) may take the binder without asking again. */
+    public static boolean isShellConsentGranted() {
+        SharedPreferences p = getPreferences();
+        return p != null && p.getBoolean(Keys.KEY_SHELL_CONSENT_GRANTED, false);
+    }
+
+    public static void setShellConsentGranted(boolean granted) {
+        SharedPreferences p = getPreferences();
+        if (p != null) p.edit().putBoolean(Keys.KEY_SHELL_CONSENT_GRANTED, granted).apply();
     }
 
 
