@@ -149,26 +149,15 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     private final ApkPatcherImpl apkPatcher = new ApkPatcherImpl();
     private final DeviceControlPlusImpl deviceControlPlus = new DeviceControlPlusImpl();
 
-    // One-time backfill: re-grants the OS-level runtime permission for every already-authorized app.
-    // Prior to the 741df2f4 fix (2026-07-19), grantRuntimePermission silently failed because no
-    // installed package defined moe.shizuku.manager.permission.API_V23 — apps authorized before
-    // that date have a ConfigManager entry but no OS grant.
-    //
-    // This runs exactly once (gated by ShizukuConfig.permGrantMigrationDone). Re-running on every
-    // startup would silently override manual pm-revoke calls the user made outside ShizukuPlus
-    // (#568). After the first pass all pre-existing apps are backfilled; new grants are issued at
-    // connect time in attachApplication, so the migration is no longer needed.
+    // Re-grants the OS-level runtime permission for every already-authorized app on each server
+    // start. Prior to the 741df2f4 fix (2026-07-19), grantRuntimePermission silently failed because
+    // no installed package defined moe.shizuku.manager.permission.API_V23 — so apps authorized
+    // before that date have a ConfigManager entry but no OS grant. This is idempotent (re-granting
+    // an already-granted permission is a no-op), so it's safe to run unconditionally on startup.
     private void migratePermissionGrants() {
-        if (configManager.isPermGrantMigrationDone()) {
-            LOGGER.i("migratePermissionGrants: already done, skipping");
-            return;
-        }
         List<Integer> allowedUids = configManager.getAllowedUids();
-        if (allowedUids.isEmpty()) {
-            configManager.markPermGrantMigrationDone();
-            return;
-        }
-        LOGGER.i("migratePermissionGrants: backfilling %d authorized UIDs (one-time)", allowedUids.size());
+        if (allowedUids.isEmpty()) return;
+        LOGGER.i("migratePermissionGrants: checking %d authorized UIDs", allowedUids.size());
         int migrated = 0;
         for (int uid : allowedUids) {
             int userId = UserHandleCompat.getUserId(uid);
@@ -194,8 +183,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 }
             }
         }
-        LOGGER.i("migratePermissionGrants: backfilled %d permission(s)", migrated);
-        configManager.markPermGrantMigrationDone();
+        LOGGER.i("migratePermissionGrants: granted/refreshed %d permission(s)", migrated);
     }
 
     private void grantManagerEssentialPermissions() {
@@ -2768,39 +2756,45 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 return false;
             }
 
-            Bundle extra = new Bundle();
-            boolean isManager = ServerConstants.MANAGER_APPLICATION_ID.equals(packageName)
-                    || ServerConstants.DROPIN_APPLICATION_ID.equals(packageName)
-                    || ServerConstants.PLUS_APPLICATION_ID.equals(packageName)
-                    || "af.shizuku.manager".equals(packageName);
-
-            if (isManager) {
-                extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
-                extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-            }
-            // rikka key omitted for non-managers: standard third-party apps compiled against
-            // dev.rikka.shizuku:provider (Maven) have rikka.shizuku.BinderContainer ProGuard-stripped
-            // (moe.shizuku.api.BinderContainer is the only kept class). Including the rikka key
-            // triggers ClassNotFoundException / BadParcelableException inside Bundle.unparcel(), which
-            // invalidates the entire bundle — including the moe key — on Android 11 (#446, #389).
+            // One container per call(), not three in one Bundle.
             //
-            // Apps that declare moe.shizuku.manager.permission.API_V23 (original Shizuku permission,
-            // not the ShizukuPlus af.shizuku variant) were compiled against the old positional AIDL
-            // transaction codes, which are all +1 relative to ShizukuPlus's explicit codes. Wrap the
-            // service binder in a proxy that applies the -1 offset so calls land on the right methods.
-            IBinder binderForLegacy = isLegacyOriginalShizukuApp(packageName, userId)
-                    ? new LegacyShizukuBinderProxy(binder) : binder;
-            extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binderForLegacy));
-            extra.putBinder("binder", binder);
-
-            Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
-            if (reply != null) {
-                LOGGER.i("send binder to user app %s in user %d", packageName, userId);
-                return true;
-            } else {
-                LOGGER.e("failed to send binder to user app %s in user %d", packageName, userId);
-                return false;
+            // Bundle.getParcelable() unparcels EVERY value in the bundle, not only the key asked for,
+            // so a bundle carrying three different BinderContainer classes can only be read by a
+            // client that has all three on its classpath. A client shipping just one got
+            // BadParcelableException and the hand-off failed whole — observed with app.simple.inure
+            // and com.mixplorer.beta, which received no binder at all.
+            //
+            // Sent separately, a client that knows any one container is served regardless of the
+            // others. Each attempt needs its own catch: the failure arrives as a RuntimeException
+            // thrown by the client's provider and propagated back across the binder, not as a null
+            // reply, so a null check alone would let the first bad container abort the rest.
+            List<Bundle> attempts = new ArrayList<>(3);
+            if (MANAGER_APPLICATION_ID.equals(packageName)) {
+                Bundle plus = new Bundle();
+                plus.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
+                attempts.add(plus);
             }
+            Bundle rikka = new Bundle();
+            rikka.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+            attempts.add(rikka);
+            Bundle moe = new Bundle();
+            moe.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
+            attempts.add(moe);
+
+            for (Bundle extra : attempts) {
+                try {
+                    Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                    if (reply != null) {
+                        LOGGER.i("send binder to user app %s in user %d", packageName, userId);
+                        return true;
+                    }
+                } catch (Throwable tr) {
+                    // Expected when the client lacks this particular container class; try the next.
+                    LOGGER.v("container rejected by %s in user %d: %s", packageName, userId, tr.getMessage());
+                }
+            }
+            LOGGER.e("failed to send binder to user app %s in user %d", packageName, userId);
+            return false;
         } catch (Throwable tr) {
             LOGGER.e(tr, "failed to send binder to user app %s in user %d", packageName, userId);
             return false;
@@ -2812,26 +2806,6 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     LOGGER.w(tr, "removeContentProviderExternal");
                 }
             }
-        }
-    }
-
-    private static boolean isLegacyOriginalShizukuApp(String packageName, int userId) {
-        // Only apply the legacy proxy when the app declares the original Shizuku permission
-        // (moe.shizuku.manager.permission.API_V23) AND does NOT declare any ShizukuPlus
-        // permission. Apps like Installer X Revived declare the original permission for
-        // backward-compat but are compiled against ShizukuPlus explicit AIDL codes; wrapping
-        // them in the -1 offset proxy corrupts their calls (#567).
-        try {
-            PackageInfo pi = Android17Compat.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS, userId);
-            if (pi == null || pi.requestedPermissions == null) return false;
-            String[] perms = pi.requestedPermissions;
-            boolean hasOriginal = ArraysKt.contains(perms, ServerConstants.PERMISSION_ORIGINAL);
-            if (!hasOriginal) return false;
-            boolean hasPlus = ArraysKt.contains(perms, ServerConstants.PERMISSION)
-                    || ArraysKt.contains(perms, ServerConstants.PERMISSION_LEGACY);
-            return !hasPlus;
-        } catch (Throwable e) {
-            return false;
         }
     }
 

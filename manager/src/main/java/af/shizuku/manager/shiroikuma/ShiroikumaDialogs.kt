@@ -103,11 +103,95 @@ object ShiroikumaDialogs {
             listOf(
                 DialogInterfaceButton.POSITIVE, DialogInterfaceButton.NEGATIVE, DialogInterfaceButton.NEUTRAL
             ).forEach { which ->
-                d.getButton(which)?.setTextColor(accent)
+                d.getButton(which)?.let { button ->
+                    // A button marked destructive keeps its red across re-styling: style() runs again
+                    // on every DialogFragment start and resume, so colouring the button at the call
+                    // site alone would be silently reverted on the next pass.
+                    val destructive = button.getTag(DESTRUCTIVE_TAG) == true
+                    styleButton(button, if (destructive) ShiroikumaUiPrefs.RED else accent, border, radius, density)
+                }
             }
             d.findViewById<TextView>(android.R.id.message)?.setTextColor(
                 ShiroikumaUiPrefs.getInt(context, ShiroikumaUiPrefs.KEY_COLOR_TEXT)
             )
+        }
+    }
+
+    /**
+     * The house look for a **bottom sheet**, which [style] cannot give it.
+     *
+     * A sheet does not draw itself from the dialog window's background — that is just the dim scrim
+     * behind it — so the inset, rounded, bordered drawable [style] installs would either do nothing
+     * or box the sheet in at the wrong place. The surface that matters is the sheet container view
+     * itself, and it needs its own treatment: black fill, accent stroke, and **top corners only**,
+     * because a sheet is anchored flush to the bottom edge and rounding the bottom would carve a
+     * notch out of the screen edge.
+     *
+     * Call after `show()`, like [style] — the container view does not exist before then.
+     */
+    fun styleSheet(dialog: com.google.android.material.bottomsheet.BottomSheetDialog) {
+        val context = dialog.context
+        val density = context.resources.displayMetrics.density
+        val accent = ShiroikumaUiPrefs.getInt(context, ShiroikumaUiPrefs.KEY_COLOR_ACCENT)
+        val fill = ShiroikumaUiPrefs.getInt(context, ShiroikumaUiPrefs.KEY_COLOR_BACKGROUND)
+        val border = ShiroikumaUiPrefs.getInt(context, ShiroikumaUiPrefs.KEY_BORDER_WIDTH).coerceAtLeast(1)
+        val radius = ShiroikumaUiPrefs.getInt(context, ShiroikumaUiPrefs.KEY_CORNER_RADIUS) * density
+
+        // Material fills the window with an opaque surface behind the sheet; leaving it in place would
+        // show as a black band under the border.
+        dialog.window?.setBackgroundDrawable(
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        )
+
+        val sheet = dialog.findViewById<android.view.View>(
+            com.google.android.material.R.id.design_bottom_sheet
+        ) ?: return
+        sheet.background = GradientDrawable().apply {
+            setColor(fill)
+            setStroke((border * density).toInt(), accent)
+            cornerRadii = floatArrayOf(radius, radius, radius, radius, 0f, 0f, 0f, 0f)
+        }
+    }
+
+    private val DESTRUCTIVE_TAG = "shiroikuma_destructive".hashCode()
+
+    /**
+     * Mark one of a dialog's buttons as the destructive choice: red text, red border.
+     *
+     * Call after `showHouse()`. Pair it with putting the destructive action in the **negative** slot
+     * and Cancel in the positive one — Android has no OS-level default button, so position plus
+     * colour is the whole of what makes the safe option the obvious one.
+     */
+    fun markDestructive(dialog: Dialog, which: Int) {
+        val button = (dialog as? AlertDialog)?.getButton(which) ?: return
+        button.setTag(DESTRUCTIVE_TAG, true)
+        style(dialog)
+    }
+
+    /** Every dialog button gets a visible border — a bare text button on black reads as a label,
+     *  not something tappable, and in this theme there is no fill to tell them apart either. */
+    private fun styleButton(
+        button: android.widget.Button,
+        color: Int,
+        border: Int,
+        radius: Int,
+        density: Float
+    ) {
+        button.setTextColor(color)
+        button.background = GradientDrawable().apply {
+            setColor(android.graphics.Color.TRANSPARENT)
+            setStroke((border * density).toInt(), color)
+            cornerRadius = radius * density
+        }
+        val padH = (14 * density).toInt()
+        val padV = (6 * density).toInt()
+        button.setPadding(padH, padV, padH, padV)
+        button.minWidth = 0
+        // Material's button bar packs the buttons flush together; without a gap the two borders
+        // touch and read as one wide box.
+        (button.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.let { lp ->
+            lp.marginStart = (6 * density).toInt()
+            button.layoutParams = lp
         }
     }
 
