@@ -4,6 +4,96 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 
 Versions are `<upstream version>+<our build number>`; the `+N` resets to 1 on each upstream sync.
 
+## 13.6.0.r2178+29
+
+### `Shizuku.newProcess()` returned null for every caller — server fix
+
+The privileged shell the app runs its own commands through was dead, silently, on every build. Any
+feature routed through `PrivilegedShell` — **"Grant now"** for `WRITE_SECURE_SETTINGS`, **"Make
+owner"**, the in-app updater — fell through to its no-privilege fallback and offered a
+copy-this-command-on-a-PC dialog, while the server sat running perfectly beside it.
+
+The cause is a transaction-code collision in `Service.onTransact`. Binder wire codes are
+`FIRST_CALL_TRANSACTION + id`, i.e. `id + 1`, but the raw pre-v11 compatibility cases were written
+using the **ids**. Three of them landed one slot short and, because that switch runs ahead of the
+AIDL-generated stub, silently won:
+
+| Wire code | The AIDL method | What the switch answered |
+| --- | --- | --- |
+| 3 | `getVersion` | `getUid` |
+| 4 | `getUid` | `checkPermission` |
+| **8** | **`newProcess`** | **`getSELinuxContext`** |
+
+Code 8 is the expensive one. A modern client calling `newProcess` transacts 8, was handed
+`getSELinuxContext`'s **String**, and read it back as a strong binder — which yields `null`. So
+`newProcess()` returned null unconditionally and `ShizukuRemoteProcess` threw *"the privileged
+service could not start the command"*. That is the SHIZUKUPLUS-85 symptom an earlier commit turned
+into a clean exception without ever finding its cause.
+
+The collision is inherent — old wire 8 meant `getSELinuxContext`, new wire 8 means `newProcess`, and
+one code cannot serve both — so current clients win; the `api` library ships inside this app. Cases 2
+and 7 remain: no live method answers to those codes, so they are collision-free legacy support.
+
+### A third privileged shell: adb over the loopback
+
+`adb tcpip 5555` is widely misread as opening a channel *to the PC*. It does not — it restarts the
+**phone's own adbd** listening on a TCP port of the phone, which anything on the phone can then
+connect to. The cable is needed for exactly one command, after which it comes out and the app can
+drive adb on itself.
+
+The new `AdbLoopbackShell` turns that into a real privilege tier beside the Shizuku service and root,
+reusing the same `AdbClient`, key and `127.0.0.1` target the wireless-debugging start path already
+uses — only reached without pairing.
+
+It finds the port by **connecting**, not by reading `service.adb.tcp.port`. That property is labelled
+`adbd_config_prop`: `getprop` from an adb shell shows `5555` while an ordinary app very likely gets
+nothing back, and a blocked read is indistinguishable from "adb is off". A socket probe answers the
+question actually being asked — *is there an adbd we can reach* — needs no permission beyond
+`INTERNET`, and is correct whether or not the property is readable. The probe runs off the main
+thread and the card renders from a cached result.
+
+### Privileged actions now chain their tiers instead of choosing one
+
+**service/root → loopback adb → the copy-this-command dialog**, for both the secure-settings grant
+and **"Make owner"**. Treating the tiers as alternatives rather than a chain is exactly what put a
+dialog on screen while a working adb shell sat listening on port 5555.
+
+Every tier is judged by **re-checking the result** — whether the permission is held, whether the app
+is Device Owner — never by an exit code: `pm` and `dpm` both exit 0 without doing anything on some
+OEM builds, so a tier that merely *ran* proves nothing and falls through to the next.
+
+Failures now surface their reason instead of vanishing. Release builds plant no Timber tree, so a
+swallowed exception is invisible rather than merely quiet — which is why this class of bug went
+unnoticed for so long.
+
+### The boot checklist, rebuilt
+
+Now titled **"Start 白い熊 雫 automatically after boot"**, and seven steps rather than six.
+
+- **New step 3, "Start the server"**, names both roads in: pair over wireless debugging, or plug into
+  a PC and run `adb tcpip 5555` once. Its Start button uses the probed port directly, instead of the
+  lookup that begins with that unreadable system property and otherwise drops to hunting for a
+  wireless-debugging service that is not there.
+- **Step 4, secure settings**, gains a **"Grant via adb"** button. Where it previously went *blocked*
+  whenever the server was down and there was no root, it now runs the grant over the loopback
+  connection. When both roads are open the row says so, so the fallback is not invisible on the
+  devices that have it.
+- **Step 7, background launch, stops lying on stock ROMs.** It only knew about OEM autostart managers
+  (MIUI, ColorOS, EMUI…), so on a phone without one it claimed the setting could be neither opened
+  nor read — while *Settings → Apps → 白い熊 雫 → App battery usage → Allow background usage* sat
+  right there. Where there is no OEM launch manager the standard background restriction **is** the
+  whole story: `ActivityManager.isBackgroundRestricted` gives the row real state, and the app-details
+  page gives it a button. EMUI and MIUI are untouched, still pointing at the screen they cannot read.
+
+### The restart prompt was invisible
+
+The version-skew snackbar — *"白い熊 雫 was updated, but the running service is still on the old
+version"* — is filled with `colorPrimaryContainer`, and every container role in this theme is the
+same pure black as the page behind it. With nothing but that fill it had **no edge at all**: a black
+slab on a black screen, the standing "every `surface*` container must carry a visible border" trap.
+It now draws its own background with the house yellow border, using the same knobs and the same
+minimum as the house dialogs, so it can never come up borderless.
+
 ## 13.6.0.r2178+24
 
 ### Third-party clients can attach at all — server fix
