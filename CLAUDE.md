@@ -9,7 +9,14 @@ upstream Shizuku+.
 ## Branch & remote model (same as the sister forks)
 
 - `origin` = `git@github.com:ShiroiKuma0/shiroikuma-shizuku.git` (ssh) — our fork.
-- `upstream` = `https://github.com/thejaustin/ShizukuPlus.git` (https, fetch only).
+- `upstream` = `https://github.com/thejaustin/ShizukuPlus.git` (https, fetch only) — the **only**
+  sync source.
+- `djchi` = `https://github.com/thedjchi/Shizuku.git` — upstream's own base, a **reference remote
+  only** (push URL `DISABLED`, `fetchRecurseSubmodules=no`). Read to see what ShizukuPlus has not
+  absorbed yet; **never merged or rebased onto**. ShizukuPlus *replays* djchi's history rather than
+  fast-forwarding from it, so the git merge base collapses to 2017 and a merge would pull ~1300
+  duplicate commits. Anything taken from djchi is a per-item cherry-pick 白い熊 approved. The
+  review ledger is `.claude/skills/upstream-new-version/djchi-base`.
 - **`master`** mirrors `upstream/master` (currently the `13.6.0.r2178` line). Fast-forward only —
   no fork work ever lives here.
 - **`custom`** carries all our work, rebased onto `master` on each upstream sync. **All development
@@ -24,10 +31,12 @@ upstream Shizuku+.
 - **`build-apk`** — build the signed release APK via the `buildApk` Gradle task, then deliver it
   automatically via the global `/after-build` skill (adb push to `/sdcard/tmp/` if the phone is
   reachable, else scp to skhw) — **no transfer prompt**, never pause to ask how to transfer.
-- **`upstream-new-version`** — check upstream for new commits; **⛔ before any rebase, present a
-  proceed-gated descriptive table of the new upstream version's features and wait for 白い熊's
-  explicit go-ahead**; then fast-forward `master`, rebase `custom`, refresh the version pins, reset
-  `BUILD_NUMBER`, build the new `+1`.
+- **`upstream-new-version`** — check upstream for new commits, **and** report the `djchi`
+  reference-remote delta (what ShizukuPlus has not yet absorbed from its own base, plus the standing
+  outstanding items in `djchi-base`); **⛔ before any rebase, present a proceed-gated descriptive
+  table of the new upstream version's features and wait for 白い熊's explicit go-ahead**; then
+  fast-forward `master`, rebase `custom`, refresh the version pins, reset `BUILD_NUMBER`, build the
+  new `+1`. A "proceed" authorizes the rebase only — djchi cherry-picks are approved item by item.
 - **`publish-version`** — publish the latest tested APK as a GitHub release: tag `<version>` (no `v`
   prefix), attach the APK, refresh README + `CHANGELOG-shiroikuma.md`, keep the default branch on
   `custom`. Pin `gh` with `-R ShiroiKuma0/shiroikuma-shizuku` (the `upstream` remote otherwise wins).
