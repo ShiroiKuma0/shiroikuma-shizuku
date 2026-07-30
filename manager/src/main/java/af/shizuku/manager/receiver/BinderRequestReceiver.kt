@@ -35,18 +35,28 @@ class BinderRequestReceiver : BroadcastReceiver() {
         // Ask the user for one-time consent instead of silently dropping the request, but
         // only if there's a live callback binder to reply to - otherwise there's nothing
         // to grant access to.
-        if (intent.getBundleExtra("data")?.getBinder("binder") != null) {
-            context.startActivity(
-                Intent(context, ShellConsentActivity::class.java).apply {
-                    // putExtras() only copies the extras Bundle, not the action string -
-                    // ShellBinderRequestHandler.handleRequest gates on intent.action matching
-                    // REQUEST_BINDER, so it must be carried over explicitly or the forwarded
-                    // request silently fails that check.
-                    action = intent.action
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                    putExtras(intent)
-                }
-            )
+        if (intent.getBundleExtra("data")?.getBinder("binder") == null) return
+
+        // Fork: upstream re-asks on EVERY request, because the auth token it would otherwise
+        // remember can never exist for a shell client - so `rish -c ls` put a full-screen dialog
+        // in front of every single command. A remembered answer is the whole point of a consent
+        // prompt; without it the prompt is just a tax. Revocable from Settings → Advanced →
+        // ADB Tools, which is what makes granting it safe to offer.
+        if (ShizukuSettings.isShellConsentGranted()) {
+            ShellBinderRequestHandler.handleRequest(context, intent, false)
+            return
         }
+
+        context.startActivity(
+            Intent(context, ShellConsentActivity::class.java).apply {
+                // putExtras() only copies the extras Bundle, not the action string -
+                // ShellBinderRequestHandler.handleRequest gates on intent.action matching
+                // REQUEST_BINDER, so it must be carried over explicitly or the forwarded
+                // request silently fails that check.
+                action = intent.action
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                putExtras(intent)
+            }
+        )
     }
 }
