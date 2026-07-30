@@ -74,11 +74,36 @@ class SettingsActivity : AppActivity(), PreferenceFragmentCompat.OnPreferenceSta
                                     .commit()
                                 currentTitle = "白い熊 雫 UI"
                             }
+                            // Fork: a deep link straight to one row, flashed on arrival — the home
+                            // boot-setup card points at "Start on boot" this way. Same mechanism the
+                            // search results use; the root goes underneath first so Back lands on
+                            // Settings, and the fragment sets its own title in onResume.
+                            intent?.getStringExtra(EXTRA_OPEN_FRAGMENT)?.let { fragmentClass ->
+                                openFragment(fragmentClass, intent?.getStringExtra(EXTRA_HIGHLIGHT_KEY))
+                            }
                         }
                     }
                 )
             }
         }
+    }
+
+    /** Pushes a settings sub-page, optionally asking it to scroll to and flash one row. */
+    private fun openFragment(fragmentClass: String, highlightKey: String?) {
+        val fragment = runCatching {
+            supportFragmentManager.fragmentFactory.instantiate(classLoader, fragmentClass)
+        }.getOrElse {
+            timber.log.Timber.w(it, "Unknown settings fragment: $fragmentClass")
+            return
+        }
+        if (highlightKey != null) {
+            fragment.arguments = Bundle().apply { putString("highlight_key", highlightKey) }
+        }
+        supportFragmentManager.beginTransaction()
+            .setReorderingAllowed(true)
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun navigateToSetting(item: SettingsSearchEngine.SettingItem) {
@@ -121,5 +146,19 @@ class SettingsActivity : AppActivity(), PreferenceFragmentCompat.OnPreferenceSta
             return true
         }
         return super.onSupportNavigateUp()
+    }
+
+    companion object {
+        /** Fully-qualified name of a settings fragment to push on top of the settings root. */
+        const val EXTRA_OPEN_FRAGMENT = "af.shizuku.manager.extra.OPEN_FRAGMENT"
+
+        /** Preference key to scroll to and flash once the fragment is up. */
+        const val EXTRA_HIGHLIGHT_KEY = "af.shizuku.manager.extra.HIGHLIGHT_KEY"
+
+        /** "Startup & Behavior", with one row flashed — used by the home boot-setup card. */
+        fun behaviorSettingsIntent(context: android.content.Context, highlightKey: String) =
+            android.content.Intent(context, SettingsActivity::class.java)
+                .putExtra(EXTRA_OPEN_FRAGMENT, BehaviorSettingsFragment::class.java.name)
+                .putExtra(EXTRA_HIGHLIGHT_KEY, highlightKey)
     }
 }
