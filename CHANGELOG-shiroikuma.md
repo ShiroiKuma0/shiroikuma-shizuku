@@ -4,6 +4,105 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 
 Versions are `<upstream version>+<our build number>`; the `+N` resets to 1 on each upstream sync.
 
+## 13.6.0.r2178+24
+
+### Third-party clients can attach at all — server fix
+
+Every client built against the modern Shizuku API (`api` 12.2+) failed to attach to this server, and
+therefore could never be asked for permission or bind a user service. Nothing in a client app could
+work around it. Three compounding defects, fixed together because each alone leaves the server broken
+a different way:
+
+- `Service.onTransact` read the interface token by reflecting for `Parcel.readInterfaceToken()`, which
+  does not exist, and returned `""` on failure — so both descriptor comparisons were false and the
+  entire interception block, **including both `attachApplication` entry points**, was skipped for every
+  caller that ever connected. Replaced with `enforceInterface`, which is public SDK and both validates
+  the token and leaves the read cursor where the raw cases expect it.
+- With the token read working, every transaction the switch did not handle fell through to
+  `RishService.onTransact` and the AIDL stub with the cursor past the token — both read it themselves,
+  giving `SecurityException: Binder invocation to an incorrect interface`. The cursor is now rewound
+  before either fall-through.
+- `BINDER_DESCRIPTOR` is the same literal as the legacy descriptor, so the legacy/new split could never
+  take its second branch — the only place code 17 (v13 attach) was handled. Both attach codes are now
+  intercepted unconditionally. Raw 17 collided with `shouldShowRequestPermissionRationale`, declared id
+  16 (AIDL wire codes are `FIRST_CALL_TRANSACTION + id`, and that is 1), so an attach was dispatched to
+  a method that calls `requireClient` and throws *"Not an attached client"*. That method moves to
+  declared id 122; ids 13 and 16 must never be used again, and the `.aidl` says so.
+
+Also: **one `BinderContainer` per `call()`**. Three different container classes shared one Bundle, and
+`Bundle.getParcelable` unparcels every value rather than just the key asked for — so a client shipping
+only one of them could read none, and received no binder at all. Each attempt is now sent separately
+with its own error handling, because the failure arrives as a `BadParcelableException` thrown back
+across the binder rather than as a null reply.
+
+`ClientManager`'s logger reported as `UserServiceRecord`, filing every `requireClient` refusal under
+another class's name.
+
+### Server controls on the status card
+
+- **Start / Stop**, with the first button reading **Restart 白い熊 雫 server** while one is running.
+- Restart is **one action, not stop-then-start**: without root the only shell available is the one the
+  running server lends the app, so stopping first destroys the privilege needed to start again. The
+  starter is executed through the live server, which it then displaces.
+- The outcome is decided by waiting for the binder, **not** by the shell's exit code — displacing the
+  old server also kills the process carrying the command, so a successful restart often reports failure.
+- When no shell is reachable it tries **local TCP ADB** (`127.0.0.1`) before offering wireless pairing.
+  That path works over a plain cable with no Wi-Fi and no pairing; if ADB is not in TCP mode the app
+  says so and offers the one-time command, since an app cannot speak to ADB over USB at all.
+- Immediate, persistent feedback: labels change and a progress bar appears on the tap itself rather
+  than waiting for a throttled list rebind, the in-flight state is process-global so a rebind restores
+  it instead of re-enabling the buttons mid-operation, and it is cleared in a `finally`.
+- An info line explains that this restarts the **server** and not the app, and that force-stopping and
+  relaunching the app does not touch it.
+
+### "Enable automatically after reboot" home card
+
+A live checklist above the wireless-debugging card — each row reads real state and carries its own
+action, placed there by an order migration so it lands above that card on existing installs too.
+
+- Notifications (a hard gate: the pairing screen does not even start its service without them).
+- One recorded ADB connection — the boot path does nothing unless the launch mode was recorded, which
+  only happens when the app *sees* the service running.
+- `WRITE_SECURE_SETTINGS` granted **through the running server**, no PC needed; the copyable adb
+  command remains as the fallback.
+- Start-on-boot, deep-linked to the real switch and flashed on arrival. The row is honest that the boot
+  receiver is already enabled in the manifest, so the switch is not the gate it appears to be.
+- Battery-optimisation exemption.
+- OEM launch manager, with an **Open** button wherever the ROM permits it — decided by a capability
+  test (resolves, exported, and any guarding permission held), not a brand check. On EMUI, where the
+  screen is guarded by a `signature|privileged` permission that no app can hold and that Shizuku's
+  shell is refused as well, it names the exact path instead of offering a button that cannot work.
+
+Below a hairline, a **Device Owner** section: granted via `dpm` through the running server with the
+real refusal text surfaced, and the removal path always visible — behind a warning that re-granting
+requires a device with no accounts at all and can dead-end in a factory reset, with Cancel in the
+positive slot and "Clear anyway" in red.
+
+### Fixes
+
+- The Device Owner command in the diagnostics panel used the `pkg/.Receiver` shorthand, which expands
+  against the **applicationId** and named a class that does not exist — a copy button for a command
+  that could only fail. Now derived from the class.
+- The settings deep-link "flash" filled the row with `colorPrimaryContainer`, which in this theme is
+  the same pure black the rows sit on — a no-op dressed as a highlight. It now outlines in the accent.
+- New home cards were appended to the saved card order, so they landed at the bottom on existing
+  installs regardless of where they belong. Missing ids are now inserted at their proper position.
+- The authorisation prompt shown when a third-party app asks for access had **no border** — it is an
+  Activity-owned `AlertDialog`, which the `DialogFragment` styling hook never sees. Same for the
+  fake-ADB pairing prompt.
+- Both bottom sheets came up borderless; a sheet draws from its container view rather than the dialog
+  window, so it needs its own treatment (black fill, accent stroke, top corners only). The Plus help
+  sheet's inner card had `strokeWidth = 0` over a `surfaceVariant` fill — genuinely invisible here, now
+  minor-tier bordered.
+- Dialog buttons now carry visible borders, with a red destructive variant.
+- The Device Owner clear/setup logic moved into a shared helper so the settings screen and the home
+  card cannot drift apart on the one path whose failure costs a factory reset.
+
+### Packaging
+
+The `api` submodule now points at **`ShiroiKuma0/ShizukuPlus-API`** (branch `custom`) instead of
+upstream's read-only repo, so server-side fixes living there are committable and survive a clone.
+
 ## 13.6.0.r2178+14 — first release
 
 The first published build of the fork, from `thejaustin/ShizukuPlus` at `13.6.0.r2178`. Everything

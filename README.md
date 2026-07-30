@@ -15,7 +15,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 **保存復元** export/import contract with token-gated automation, and the house look driven through
 every screen. Installs as `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2178+14`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2178+24`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -84,6 +84,56 @@ is wired through all three layers at once. Changes apply immediately, without re
 - **Automation** is token-gated with the master switch **off by default**: `EXPORT_STATE`,
   `LIST_CATEGORIES` and `CANCEL_EXPORT` on one receiver, with progress reported as **real counts**
   rather than a percentage. The token file is deliberately excluded from the export.
+
+---
+
+## 🔌 Third-party apps can actually attach
+
+Upstream's server could not attach any client built against the modern Shizuku API — every one of
+them, not just an unlucky few. Three defects compounded: the interface token was read by reflection
+for a method that does not exist, so the whole interception block was skipped for every caller; the
+read cursor was never rewound before falling through, which turns ordinary calls into
+`Binder invocation to an incorrect interface` the moment the first defect is fixed; and the raw
+transaction code a client attaches with collided with an AIDL method whose declared id lands on the
+same wire code, so an attach was answered by a method that throws *"Not an attached client"* at the
+very client trying to become one. No app could work around it — the collision was on the server's
+side of the wire.
+
+Fixed here, together, because each fix alone leaves the server broken in a different way. Binder
+delivery is fixed too: the three `BinderContainer` classes now go out in separate calls, since
+`Bundle.getParcelable` unparcels *every* value and a client shipping only one of them could
+previously read none.
+
+---
+
+## 🔁 Start, stop and restart the server from the app
+
+The privileged server is a separate process that outlives the app, so force-stopping and relaunching
+白い熊 雫 does nothing to it — after an update the *old* server keeps serving the old code. The status
+card now carries **Start / Stop**, with the first reading **Restart 白い熊 雫 server** while one is
+running, and an info line that explains exactly that distinction.
+
+Restart is deliberately one action rather than stop-then-start: without root the only shell available
+is the one the running server lends the app, so stopping first would destroy the privilege needed to
+start again. When no shell exists it tries local TCP ADB — which works over a plain cable with no
+Wi-Fi and no pairing — before offering the wireless route. Every press gives immediate, persistent
+feedback until the server is confirmed back up.
+
+---
+
+## ✅ Enable automatically after reboot
+
+A live checklist above the wireless-debugging card, not a page of instructions: every row reads the
+real state and carries its own fix. Notifications, one recorded ADB connection, `WRITE_SECURE_SETTINGS`
+granted through the running server with no PC involved, start-on-boot, battery-optimisation exemption,
+and the OEM launch manager — with a button wherever the ROM permits opening it, decided by a real
+capability test rather than a brand check. It collapses to a single satisfied line once nothing is
+outstanding.
+
+Below a hairline, the same card handles **Device Owner**: granted through the running server, with the
+real `dpm` refusal surfaced rather than a generic failure, and the exit always visible — behind a
+warning that says plainly that re-granting needs a device with no accounts at all and can dead-end in
+a factory reset.
 
 ---
 
