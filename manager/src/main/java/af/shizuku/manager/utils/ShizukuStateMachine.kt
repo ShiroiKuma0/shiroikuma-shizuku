@@ -3,9 +3,11 @@ package af.shizuku.manager.utils
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.SystemClock
 import android.provider.Settings
 import timber.log.Timber
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -30,8 +32,6 @@ object ShizukuStateMachine {
     // exists to handle.
     private var state = AtomicReference<State>(loadPersistedSettledState())
     private val listeners = CopyOnWriteArrayList<(State) -> Unit>()
-    private val startingTimestamp = java.util.concurrent.atomic.AtomicLong(0L)
-    private const val STARTING_TIMEOUT_MS = 90_000L
 
     private fun loadPersistedSettledState(): State = try {
         when (ShizukuSettings.getLastSettledState()) {
@@ -42,6 +42,25 @@ object ShizukuStateMachine {
     } catch (e: Exception) {
         State.STOPPED
     }
+
+    /**
+     * `elapsedRealtime` at which the current transient state (STARTING/STOPPING) was entered, or 0.
+     *
+     * [update] is a passive observer — it must not clobber a start that is genuinely in flight, so
+     * it preserves those two states. Preserving them *unconditionally* is what let a failed start
+     * latch permanently: the home card renders STARTING as "Starting…" with the start button
+     * disabled, so a start that died left the only control that could retry it switched off for the
+     * rest of the process's life. Failure paths call [settle] and resolve at once; this deadline is
+     * only the backstop for the ones that die without getting that far.
+     *
+     * Refreshed on transition only, never on a repeated `set` of the same state — `waitForBinder`
+     * polls [update] every 250 ms, and refreshing there would push the deadline out forever.
+     */
+    private val transientSince = AtomicLong(0L)
+
+    /** Generous: a wireless-adb start retries with backoff and then waits 20s for the binder. */
+    private const val STARTING_TIMEOUT_MS = 90_000L
+    private const val STOPPING_TIMEOUT_MS = 20_000L
 
     init {
         Shizuku.addBinderReceivedListenerSticky(
@@ -73,6 +92,12 @@ object ShizukuStateMachine {
         val oldState = state.getAndUpdate { current -> transform(current).also { computed = it } }
         val newState = computed!!
         if(oldState != newState) {
+            // Only on a real transition — see [transientSince].
+            transientSince.set(
+                if (newState == State.STARTING || newState == State.STOPPING)
+                    SystemClock.elapsedRealtime() else 0L
+            )
+
             listeners.forEach { it(newState) }
             Timber.tag("ShizukuStateMachine").d(newState.toString())
 
@@ -81,7 +106,6 @@ object ShizukuStateMachine {
             // so this captures every fresh start centrally and lets isServerVersionSkewed() later
             // detect a running server left behind by a pre-update build.
             if (newState == State.STARTING) {
-                startingTimestamp.set(System.currentTimeMillis())
                 try {
                     ShizukuSettings.setServerStartedBuild(BuildConfig.VERSION_CODE)
                 } catch (e: Exception) {
@@ -146,7 +170,26 @@ object ShizukuStateMachine {
         }
     }
 
-    fun update(): State {
+    /**
+     * Re-detect the server, preserving a transition that is still plausibly in flight.
+     *
+     * This is the *passive* refresh — the one to call from a resume, a poll or a widget rebuild,
+     * where reporting STOPPED mid-start would flicker the UI. To decide the outcome of a start or
+     * stop you just performed, call [settle] instead: this one deliberately answers STARTING while
+     * a start is running, so using it to recover from a failure does nothing at all.
+     */
+    fun update(): State = evaluate(keepTransient = true)
+
+    /**
+     * Resolve a transition now — RUNNING if the binder answers, STOPPED if it does not — whatever
+     * STARTING or STOPPING claims.
+     *
+     * Every path that has just found out a start or stop is over calls this, so the in-flight look
+     * ends the moment the attempt does rather than at [transientSince]'s deadline.
+     */
+    fun settle(): State = evaluate(keepTransient = false)
+
+    private fun evaluate(keepTransient: Boolean): State {
         val span = Sentry.getSpan()?.startChild("ipc.shizuku", "pingBinder")
         val isAlive = try {
             Shizuku.pingBinder()
@@ -159,13 +202,8 @@ object ShizukuStateMachine {
         val currentState = get()
         val state = when {
             isAlive -> State.RUNNING
-            currentState == State.STARTING -> {
-                // Break out of STARTING after 90 s so a failed start (server process died,
-                // ADB connection refused, etc.) never leaves the UI permanently locked.
-                val elapsed = System.currentTimeMillis() - startingTimestamp.get()
-                if (elapsed > STARTING_TIMEOUT_MS) State.STOPPED else State.STARTING
-            }
-            currentState == State.STOPPING -> State.STOPPING
+            keepTransient && currentState == State.STARTING && isTransientFresh() -> State.STARTING
+            keepTransient && currentState == State.STOPPING && isTransientFresh() -> State.STOPPING
             currentState == State.CRASHED -> State.CRASHED
             // Was RUNNING (or, thanks to loadPersistedSettledState(), a freshly cold-started
             // process that persisted RUNNING before it died) and the binder isn't answering: that's
@@ -178,6 +216,15 @@ object ShizukuStateMachine {
         }
         set(state)
         return state
+    }
+
+    /** Whether the in-flight state has been held short enough to still be believable. */
+    private fun isTransientFresh(): Boolean {
+        val since = transientSince.get()
+        if (since == 0L) return false
+        val timeout =
+            if (get() == State.STOPPING) STOPPING_TIMEOUT_MS else STARTING_TIMEOUT_MS
+        return SystemClock.elapsedRealtime() - since < timeout
     }
 
     fun isRunning(): Boolean {
