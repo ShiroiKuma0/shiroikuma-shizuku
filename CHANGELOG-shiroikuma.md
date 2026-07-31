@@ -4,6 +4,75 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 
 Versions are `<upstream version>+<our build number>`; the `+N` resets to 1 on each upstream sync.
 
+## 13.6.0.r2195+5
+
+Three fixes, each found by using the app after a reboot on the Mate XT.
+
+### A failed start left "Starting…" on screen forever
+
+`ShizukuStateMachine.update()` treated `STARTING` and `STOPPING` as absorbing states — once entered,
+nothing could leave them except the binder actually arriving. Every failure path calls `update()` to
+recover, so every failure path was a no-op.
+
+What that looked like: after a reboot, the home card's **Start server** found no server and no adb
+TCP port, set `STARTING`, called `update()` to undo it, and showed the dialog asking for
+`adb tcpip 5555`. Running the command worked — but the card was now latched, reading "Starting…"
+with its progress bar running and its start button **disabled**, which is precisely the button the
+dialog tells you to come back and press. Nothing cleared it for the life of the process; even
+`ShizukuReceiverStarter` had already hand-rolled a `set(STOPPED)`-then-`update()` workaround for the
+same trap.
+
+The two meanings are now separate. `update()` stays the passive refresh — it still preserves a
+transition, but only while a fresh `transientSince` stamp says one is plausibly in flight (90s for a
+start, 20s for a stop). The stamp is written on transition only, never on a repeated `set` of the
+same state, because `Starter.waitForBinder` polls `update()` every 250 ms and would otherwise push
+the deadline out forever. The new `settle()` answers definitively: `RUNNING` if the binder responds,
+`STOPPED` if it does not, whatever the transition claims.
+
+Nine call sites that had just learned an attempt was over now call `settle()`. The quick-settings
+tile distinguishes the cases properly: a successful root shell keeps `STARTING`, because the binder
+lands a moment later, while a failed one settles at once.
+
+### The swipe-gesture hint was unreadable, and only offered once
+
+The card on the app-management page removed itself after four seconds while telling you "Tap
+anywhere to dismiss" — wrong twice over, since only the card itself was tappable and it left on its
+own regardless. It is shown once per install, so being unreadable meant the gestures were never
+explained at all.
+
+It now waits for an **OK** button, and records acknowledgement when that button is tapped rather than
+the moment it is scheduled — a card you never answered comes back instead of being silently spent.
+That is a new preference key on purpose, so installs that burned the old one on a card they never got
+to read are owed one more showing.
+
+The card was also carrying `strokeWidth="0dp"` over a `?colorSurfaceContainerHigh` fill, which in
+this theme is the same pure black as the page: the standing invisible-container trap. It now takes a
+`?attr/colorOutline` baseline stroke plus `ShiroikumaViewTheme` for the live house border, accent
+button and typeface, and is `clickable` so taps no longer fall through to the list beneath it.
+
+### The fork inherited stock Shizuku's authorizations
+
+Upstream names the privileged server's grant table `shizuku.json` and keeps it in
+`/data/user_de/0/com.android.shell/` — a directory no Shizuku build owns. So every Shizuku on the
+device shares one table, it outlives uninstalling the app that wrote it, and whichever server starts
+next silently adopts the previous one's decisions.
+
+That is not theoretical. Cleanly uninstalling stock Shizuku and installing this fork came up with
+fourteen entries already present — a dozen third-party apps displayed as authorized here that had
+never been authorized here, inherited verbatim from a manager that was no longer installed.
+
+The file is now namespaced to `shiroikuma-shizuku.json`. Our table starts empty, so grants are made
+deliberately rather than inherited, and any stock leftover is ignored — not read, not migrated, not
+deleted. **Existing installs therefore start with nothing authorized**, which is the point; each app
+asks again on next use.
+
+The *directory* does not move, and is right as it stands: the server runs as uid 2000 whenever it was
+started over adb, so it cannot use the manager's own data dir (0700, owned by the manager's uid), and
+it must load the table at startup whether or not the manager is running. `com.android.shell`'s DE
+storage is the shell user's own — `drwx------ shell shell` — and DE storage is readable before first
+unlock, which a boot-time start depends on. Both facts are now recorded at the call site so the next
+reader does not "fix" it.
+
 ## 13.6.0.r2195+2
 
 First build on the **13.6.0.r2195** upstream line — 17 upstream commits folded in, plus the fork
