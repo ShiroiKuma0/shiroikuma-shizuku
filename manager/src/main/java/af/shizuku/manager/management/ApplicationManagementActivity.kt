@@ -409,16 +409,28 @@ open class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callb
 
     // ----- First-run swipe hint -----
 
+    /**
+     * The card is shown until it is *acknowledged*, not until it has been shown.
+     *
+     * The old flag was written the moment the card was scheduled, so the one appearance every
+     * install ever gets was spent whether or not it was read — and paired with the 4s self-dismiss
+     * it usually was not. It is a new key on purpose: installs that burned `swipe_hint_shown` on a
+     * card they never got to read are owed one more showing.
+     */
     private fun maybeShowSwipeHint() {
         val prefs = getSharedPreferences("app_management_prefs", Context.MODE_PRIVATE)
-        if (prefs.getBoolean("swipe_hint_shown", false)) return
-        prefs.edit().putBoolean("swipe_hint_shown", true).apply()
+        if (prefs.getBoolean("swipe_hint_acknowledged", false)) return
         recyclerView.postDelayed({ if (!isFinishing) showSwipeHint() }, 500)
     }
 
     private fun showSwipeHint() {
         val hintBinding = SwipeHintOverlayBinding.inflate(layoutInflater, rootView as ViewGroup, false)
         val hint = hintBinding.root
+        // The card's fill is a surface role, which in this theme is the same black as the page — so
+        // it needs the house border or it is not merely flat but invisible. The layout carries a
+        // static outline baseline; this applies the live colour/width/radius the UI page sets.
+        // tintBackground = false: the root here IS the card, and painting it would defeat the fill.
+        af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.applyToTree(hint, tintBackground = false)
         (rootView as ViewGroup).addView(hint)
 
         hint.doOnLayout { v ->
@@ -473,8 +485,16 @@ open class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callb
                 .start()
         }
 
-        hint.setOnClickListener { dismiss() }
-        hint.postDelayed(dismiss, 4000)
+        // Dismissed only by its own OK button. It used to remove itself after 4s while claiming
+        // "tap anywhere to dismiss" — neither of which was true for long enough to be useful: the
+        // card is shown once ever, so being unreadable meant the gestures were never explained.
+        // Tapping OK is also what marks it acknowledged, so a card the user never answered — the
+        // activity finished, the process died — comes back rather than being silently spent.
+        hintBinding.hintButtonOk.setOnClickListener {
+            getSharedPreferences("app_management_prefs", Context.MODE_PRIVATE)
+                .edit().putBoolean("swipe_hint_acknowledged", true).apply()
+            dismiss()
+        }
     }
 
     private fun dpToPx(dp: Float) = dp * resources.displayMetrics.density
