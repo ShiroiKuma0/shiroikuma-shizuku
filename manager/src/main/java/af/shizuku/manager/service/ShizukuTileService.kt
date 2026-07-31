@@ -79,8 +79,13 @@ class ShizukuTileService : TileService() {
                     ShizukuStateMachine.set(ShizukuStateMachine.State.STARTING)
                     updateTile()
                     com.topjohnwu.superuser.Shell.cmd(af.shizuku.manager.starter.Starter.internalCommand)
-                        .submit {
-                            ShizukuStateMachine.update()
+                        .submit { result ->
+                            // A successful starter only means the command ran; the binder lands a
+                            // moment later, so keep STARTING and let the sticky binder listener
+                            // promote it. A failed one has no binder coming — settle it now instead
+                            // of leaving the tile stuck mid-transition.
+                            if (result.isSuccess) ShizukuStateMachine.update()
+                            else ShizukuStateMachine.settle()
                             updateTile()
                         }
                 } else {
