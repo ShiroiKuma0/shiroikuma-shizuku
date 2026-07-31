@@ -352,7 +352,11 @@ class ServerStatusViewHolder(
                 }
 
                 if (localPort <= 0) {
-                    af.shizuku.manager.utils.ShizukuStateMachine.update()
+                    // Dead end, and the STARTING set above has to be undone explicitly: update()
+                    // keeps a transient state, so it would leave this card reading "Starting…" with
+                    // its own start button disabled — and the dialog we are about to show asks the
+                    // user to go run `adb tcpip 5555` and come back to press exactly that button.
+                    af.shizuku.manager.utils.ShizukuStateMachine.settle()
                     showEnableTcpAdbDialog(context)
                     return@launch
                 }
@@ -361,7 +365,7 @@ class ServerStatusViewHolder(
                     af.shizuku.manager.adb.AdbStarter.startAdb(context, localPort)
                 }
                 runCatching { af.shizuku.manager.starter.Starter.waitForBinder() }
-                if (af.shizuku.manager.utils.ShizukuStateMachine.update() ==
+                if (af.shizuku.manager.utils.ShizukuStateMachine.settle() ==
                     af.shizuku.manager.utils.ShizukuStateMachine.State.RUNNING
                 ) {
                     af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
@@ -377,7 +381,7 @@ class ServerStatusViewHolder(
             }
 
             runCatching { af.shizuku.manager.starter.Starter.waitForBinder() }
-            val nowRunning = af.shizuku.manager.utils.ShizukuStateMachine.update() ==
+            val nowRunning = af.shizuku.manager.utils.ShizukuStateMachine.settle() ==
                 af.shizuku.manager.utils.ShizukuStateMachine.State.RUNNING
 
             if (nowRunning) {
@@ -438,7 +442,7 @@ class ServerStatusViewHolder(
             try {
                 // exit() is System.exit(0) on the far side; the binder death takes a moment to land.
                 kotlinx.coroutines.delay(600)
-                if (af.shizuku.manager.utils.ShizukuStateMachine.update() !=
+                if (af.shizuku.manager.utils.ShizukuStateMachine.settle() !=
                     af.shizuku.manager.utils.ShizukuStateMachine.State.RUNNING
                 ) {
                     af.shizuku.manager.shiroikuma.ShiroikumaToast.show(

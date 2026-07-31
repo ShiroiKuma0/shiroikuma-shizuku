@@ -160,7 +160,8 @@ object AdbStarter {
                 Sentry.captureException(it)
             }
             if (EnvironmentUtils.getAdbTcpPort() > 0) {
-                ShizukuStateMachine.update()
+                // The stop failed, so STOPPING is over — resolve it rather than leaving it standing.
+                ShizukuStateMachine.settle()
                 withContext(Dispatchers.Main) {
                     val errorMsg = when (it) {
                         is AdbKeyException -> context.getString(R.string.adb_error_key_store)

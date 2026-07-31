@@ -167,10 +167,9 @@ object ShizukuReceiverStarter {
     }
 
     /** Clears a stuck STARTING state after a failed start attempt, then re-detects: if a previous
-     *  server instance is actually still alive, update() flips the state back to RUNNING. */
+     *  server instance is actually still alive, settle() flips the state back to RUNNING. */
     private fun recoverFromFailedStart() {
-        ShizukuStateMachine.set(ShizukuStateMachine.State.STOPPED)
-        ShizukuStateMachine.update()
+        ShizukuStateMachine.settle()
     }
 
     private fun showPermissionErrorNotification(context: Context) {
