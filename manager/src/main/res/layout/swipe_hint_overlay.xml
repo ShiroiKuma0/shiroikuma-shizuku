@@ -6,9 +6,12 @@
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:layout_margin="16dp"
+    android:clickable="true"
+    android:focusable="true"
     app:cardBackgroundColor="?colorSurfaceContainerHigh"
     app:shapeAppearanceOverlay="?attr/shapeAppearanceCornerExtraLarge"
-    app:strokeWidth="0dp"
+    app:strokeColor="?attr/colorOutline"
+    app:strokeWidth="2dp"
     app:cardElevation="0dp">
 
     <LinearLayout
@@ -82,13 +85,15 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
+        <!-- The card used to carry a "Tap anywhere to dismiss" line and remove itself after 4s,
+             which meant it was gone before it could be read. It now waits for this button. -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/hint_button_ok"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/swipe_hint_dismiss"
-            android:textAppearance="?textAppearanceLabelSmall"
-            android:textColor="?colorOnSurfaceVariant"
-            android:gravity="end" />
+            android:layout_gravity="end"
+            android:text="@string/ok" />
 
     </LinearLayout>
 
