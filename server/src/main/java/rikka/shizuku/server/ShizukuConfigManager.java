@@ -46,8 +46,35 @@ public class ShizukuConfigManager extends ConfigManager {
     private static final File FILE = getConfigFile();
     private static final AtomicFile ATOMIC_FILE = new AtomicFile(FILE);
 
+    /**
+     * The permission table's file name, namespaced to this fork.
+     *
+     * <p>Upstream calls it {@code shizuku.json}, which puts every Shizuku build's grant table at one
+     * path in a directory none of them owns. Two consequences, both real rather than theoretical:
+     * the table outlives uninstalling the app that wrote it, and whichever server starts next
+     * silently adopts the previous one's decisions. Cleanly uninstalling stock Shizuku and
+     * installing this fork came up with a dozen third-party apps already "authorized" that had
+     * never been authorized here — inherited verbatim, and shown as granted by the manager.
+     *
+     * <p>Namespacing the name gives this fork its own table. It starts empty, so authorizations are
+     * granted deliberately rather than inherited, and any stock leftover is simply ignored (the old
+     * file is not read, migrated or deleted — it just sits there inert).
+     */
+    private static final String CONFIG_NAME = "shiroikuma-shizuku.json";
+
+    /**
+     * The <em>directory</em> is not ours to change, and is correct as it stands.
+     *
+     * <p>The server runs as uid 2000 (shell) whenever it was started over adb, so it cannot use the
+     * manager's own data dir — that is 0700 owned by the manager's uid — and it has to load this
+     * table at startup regardless of whether the manager app is running at all. {@code
+     * com.android.shell}'s DE storage is the shell user's own (drwx------ shell shell, so the
+     * file's own mode is moot), and DE storage is readable before first unlock, which a boot-time
+     * start depends on. {@code /data/local/tmp} is the fallback for the case where that directory
+     * is not writable.
+     */
     private static File getConfigFile() {
-        File shellFile = new File("/data/user_de/0/com.android.shell/shizuku.json");
+        File shellFile = new File("/data/user_de/0/com.android.shell/" + CONFIG_NAME);
         if (shellFile.exists()) {
             return shellFile;
         }
@@ -57,7 +84,7 @@ public class ShizukuConfigManager extends ConfigManager {
                 return shellFile;
             }
         } catch (Throwable ignored) {}
-        return new File("/data/local/tmp/shizuku.json");
+        return new File("/data/local/tmp/" + CONFIG_NAME);
     }
 
     public static ShizukuConfig load() {
