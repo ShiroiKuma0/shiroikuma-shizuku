@@ -186,7 +186,10 @@ class AdbStartWorker(context: Context, params: WorkerParameters) : CoroutineWork
                 }
             }
 
-            if (ShizukuStateMachine.update() == ShizukuStateMachine.State.RUNNING) {
+            // settle(), not update(): this attempt threw, so if no binder answers the state is
+            // STOPPED — and between WorkManager retries the UI should say so rather than claim a
+            // start is still running.
+            if (ShizukuStateMachine.settle() == ShizukuStateMachine.State.RUNNING) {
                 return Result.success()
             } else {
                 // Show a more informative message when mDNS discovery timed out so users
