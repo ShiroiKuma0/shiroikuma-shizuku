@@ -269,13 +269,10 @@ class AdbStartWorker(
                 }
             }
 
-            // Reset STARTING → STOPPED so update() can re-detect the real state.
-            // Without this, update() perpetually preserves STARTING (binder never
-            // arrived) and every subsequent button click shows "already starting".
-            if (ShizukuStateMachine.get() == ShizukuStateMachine.State.STARTING) {
-                ShizukuStateMachine.set(ShizukuStateMachine.State.STOPPED)
-            }
-            if (ShizukuStateMachine.update() == ShizukuStateMachine.State.RUNNING) {
+            // settle(), not update(): this attempt threw, so if no binder answers the state is
+            // STOPPED — and between WorkManager retries the UI should say so rather than claim a
+            // start is still running.
+            if (ShizukuStateMachine.settle() == ShizukuStateMachine.State.RUNNING) {
                 return Result.success()
             } else {
                 // After repeated mDNS timeouts, suggest TCP Mode — the device may be

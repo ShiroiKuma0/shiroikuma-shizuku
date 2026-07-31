@@ -147,6 +147,11 @@ class ViewModel(
             ShizukuStateMachine.update()
             log(error = throwable)
         }
+        // The start is over and it failed — settle, not update: update() preserves STARTING, which
+        // would leave the home card's start button disabled behind this screen's error dialog.
+        ShizukuStateMachine.settle()
+        log(error = throwable)
+    }
 
     private var started = false
     private var lastRoot = false
