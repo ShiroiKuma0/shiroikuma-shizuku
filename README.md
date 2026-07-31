@@ -15,7 +15,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 **保存復元** export/import contract with token-gated automation, and the house look driven through
 every screen. Installs as `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2195+2`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2195+5`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
