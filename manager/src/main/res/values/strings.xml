@@ -337,7 +337,6 @@
     <string name="swipe_hint_title">Swipe gestures</string>
     <string name="swipe_hint_right">Swipe right for quick action</string>
     <string name="swipe_hint_left">Swipe left for quick action</string>
-    <string name="swipe_hint_dismiss">Tap anywhere to dismiss</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
