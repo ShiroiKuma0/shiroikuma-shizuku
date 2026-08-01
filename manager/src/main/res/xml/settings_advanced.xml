@@ -49,7 +49,7 @@
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_adb_tools"
         android:title="ADB Tools"
-        android:defaultValue="false">
+        android:defaultValue="true">
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="stealth_mode"
@@ -82,7 +82,7 @@
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_help"
         android:title="Help &amp; Recovery"
-        android:defaultValue="false">
+        android:defaultValue="true">
 
         <Preference
             android:key="help"
