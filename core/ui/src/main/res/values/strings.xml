@@ -61,7 +61,7 @@
     <string name="home_status_service_version_update"><![CDATA[Version %2$s, %1$s<br>Start again to update to version %3$s]]></string>
     <!-- Home - Adb -->
     <string name="home_adb_title"><![CDATA[Start by connecting to a computer]]></string>
-    <string name="home_adb_description"><![CDATA[For devices without root, you need to use adb to start Shizuku (requires computer connection). This process needs to be repeated every time the device is restarted. Please <b><a href=\"%1$s\">read the help</a></b>.]]></string>
+    <string name="home_adb_description"><![CDATA[For devices without root, you need to use adb to start 白い熊 雫 (requires computer connection). This process needs to be repeated every time the device is restarted. Please <b><a href=\"%1$s\">read the help</a></b>.]]></string>
     <string name="home_adb_button_view_help">Read help</string>
     <string name="home_adb_button_view_command">View command</string>
     <string name="home_adb_dialog_view_command_message"><![CDATA[<font face="monospace">%1$s</font><br><br>* There are some other considerations, please confirm that you have read the help first.]]></string>
@@ -69,12 +69,12 @@
     <string name="home_adb_dialog_view_command_button_send">Send</string>
     <!-- Home - Wireless Adb -->
     <string name="home_wireless_adb_title"><![CDATA[Start via Wireless debugging]]></string>
-    <string name="home_wireless_adb_description"><![CDATA[On Android 11 or above, you can enable Wireless debugging and start Shizuku directly from your device, without connecting to a computer.<p>Please view the step-by-step guide first.]]></string>
+    <string name="home_wireless_adb_description"><![CDATA[On Android 11 or above, you can enable Wireless debugging and start 白い熊 雫 directly from your device, without connecting to a computer.<p>Please view the step-by-step guide first.]]></string>
     <string name="home_wireless_adb_description_pre_11"><![CDATA[Before Android 11, connecting to a computer is required to enable Wireless debugging.]]></string>
     <string name="home_wireless_adb_view_guide_button">Step-by-step guide</string>
     <!-- Adb -->
     <string name="dialog_adb_discovery">Searching for wireless debugging service</string>
-    <string name="dialog_adb_discovery_message">Please enable \"Wireless debugging\" in \"Developer options\". \"Wireless debugging\" is automatically disabled when network changes.\n\nNote, do not disable \"Developer options\" or \"USB debugging\", or Shizuku will be stopped.</string>
+    <string name="dialog_adb_discovery_message">Please enable \"Wireless debugging\" in \"Developer options\". \"Wireless debugging\" is automatically disabled when network changes.\n\nNote, do not disable \"Developer options\" or \"USB debugging\", or 白い熊 雫 will be stopped.</string>
     <string name="dialog_adb_discovery_message_toggle_wireless_debugging">Please try to disable and enable \"Wireless debugging\" if it keeps searching.</string>
     <string name="dialog_adb_port">Port</string>
     <string name="dialog_adb_invalid_port">Port is an integer ranging from 1 to 65535.</string>
@@ -83,11 +83,11 @@
     <string name="dialog_adb_pairing_discovery">Searching for pairing service</string>
     <string name="dialog_adb_pairing_paring_code">Pairing code</string>
     <string name="paring_code_is_wrong">Pairing code is wrong.</string>
-    <string name="cannot_connect_port">Can\'t connect to wireless debugging service.\n\nPlease ensure that Shizuku is whitelisted in all firewall, ad-block, VPN, or similar apps that can restrict network access.</string>
+    <string name="cannot_connect_port">Can\'t connect to wireless debugging service.\n\nPlease ensure that 白い熊 雫 is whitelisted in all firewall, ad-block, VPN, or similar apps that can restrict network access.</string>
     <string name="dialog_wireless_adb_not_enabled">Wireless debugging is not enabled.\nNote, before Android 11, to enable wireless debugging, computer connection is a must.</string>
     <string name="dialog_usb_debugging_not_enabled">USB debugging is not enabled.\nPlease enable it in \"Developer Options\".</string>
     <string name="dialog_adb_pairing_message">Please start pairing by performing the following steps:\n- Navigate to \"Developer Options\"\n- Enable \"USB debugging\" and \"Wireless debugging\"\n- Tap the left side of \"Wireless debugging\"\n- Tap \"Pair device with pairing code\"\n- Input the pairing code in the notification</string>
-    <string name="dialog_adb_pairing_accessibility_permission">On Android 14, installing/updating Shizuku with the Package Installer revokes the %1$s permission, which is required to enable the accessibility service for pairing.\n\nTo grant it, run the following ADB command:\n\n%2$s\n\nAfter running the command, you may continue with the pairing process.\n\nNote: you can bypass this by installing/updating Shizuku with ADB.</string>
+    <string name="dialog_adb_pairing_accessibility_permission">On Android 14, installing/updating 白い熊 雫 with the Package Installer revokes the %1$s permission, which is required to enable the accessibility service for pairing.\n\nTo grant it, run the following ADB command:\n\n%2$s\n\nAfter running the command, you may continue with the pairing process.\n\nNote: you can bypass this by installing/updating 白い熊 雫 with ADB.</string>
     <!-- Service Doctor -->
     <string name="doctor_check_samsung_autoblocker">Samsung Auto Blocker</string>
     <string name="doctor_check_samsung_battery_protection">Samsung Battery Protection</string>
@@ -98,11 +98,11 @@
     <string name="doctor_status_detected">Detected</string>
     <string name="doctor_status_review">Review required</string>
     <string name="doctor_tip_samsung_autoblocker"><b>Samsung Auto Blocker</b>: Ensure it is turned <b>OFF</b> or that \'Maximum Restrictions\' is disabled. It silently blocks ADB commands on One UI 7/8+.</string>
-    <string name="doctor_tip_oneui_connectivity"><b>One UI 7/8 Connectivity</b>: If Wireless Pairing fails, try using <b>Split Screen mode</b> with Shizuku and Developer Options open simultaneously.</string>
+    <string name="doctor_tip_oneui_connectivity"><b>One UI 7/8 Connectivity</b>: If Wireless Pairing fails, try using <b>Split Screen mode</b> with 白い熊 雫 and Developer Options open simultaneously.</string>
     <string name="doctor_tip_s22_ultra"><b>S22 Ultra Tip</b>: For consistent ADB, dial `*#0808#` and select `MTP + ADB` if you encounter connection drops.</string>
-    <string name="doctor_tip_secure_folder"><b>Secure Folder Detected</b>: Shizuku works best in the Main User (Owner). Running inside Secure Folder or a Work Profile may require starting the server from the Main User first.</string>
-    <string name="doctor_tip_phantom_process"><b>Phantom Process Killer</b>: Android 12-15+ may kill Shizuku if too many commands are run. The \'Fix\' button attempts to disable this limit.</string>
-    <string name="doctor_tip_samsung_optimization"><b>Samsung Auto-Optimization</b>: Disable \'Auto Restart\' in Device Care to prevent Shizuku from being killed at night.</string>
+    <string name="doctor_tip_secure_folder"><b>Secure Folder Detected</b>: 白い熊 雫 works best in the Main User (Owner). Running inside Secure Folder or a Work Profile may require starting the server from the Main User first.</string>
+    <string name="doctor_tip_phantom_process"><b>Phantom Process Killer</b>: Android 12-15+ may kill 白い熊 雫 if too many commands are run. The \'Fix\' button attempts to disable this limit.</string>
+    <string name="doctor_tip_samsung_optimization"><b>Samsung Auto-Optimization</b>: Disable \'Auto Restart\' in Device Care to prevent 白い熊 雫 from being killed at night.</string>
     <string name="doctor_tip_samsung_sleeping"><b>Samsung Sleeping Apps</b>: Ensure 白い熊 雫 is added to the <b>\'Never sleeping apps\'</b> list in *Device Care > Battery > Background usage limits* to prevent background service termination.</string>
     <string name="doctor_tip_s22_ultra_exynos"><b>S22 Ultra (Exynos)</b>: If service response is sluggish, try disabling <b>\'RAM Plus\'</b> in Device Care > Memory.</string>
     <string name="doctor_tip_s22_ultra_snapdragon"><b>S22 Ultra (Snapdragon)</b>: Ensure \'Enhanced Processing\' is enabled in Quick Settings for maximum command throughput.</string>
@@ -123,8 +123,8 @@
     <string name="adb_pairing_status_failed">Pairing failed.</string>
     <!-- App Management -->
     <string name="app_management_badge_format">&lt;b&gt;&lt;font color=\"%1$s\"&gt;[%2$s]&lt;/font&gt;&lt;/b&gt; %3$s</string>
-    <string name="dialog_adb_pairing_accessibility_enable">Please enable the accessibility service to start the pairing process. This allows Shizuku to detect the pairing code.\n\nThe accessibility service will be turned off when the code is found or after 1 minute to save energy.</string>
-    <string name="dialog_adb_pairing_accessibility_navigate">Please start pairing by performing the following steps:\n- Navigate to \"Developer Options\"\n- Enable \"USB debugging\" and \"Wireless debugging\"\n- Tap the left side of \"Wireless debugging\"\n- Tap \"Pair device with pairing code.\" Shizuku will automatically detect the pairing code.</string>
+    <string name="dialog_adb_pairing_accessibility_enable">Please enable the accessibility service to start the pairing process. This allows 白い熊 雫 to detect the pairing code.\n\nThe accessibility service will be turned off when the code is found or after 1 minute to save energy.</string>
+    <string name="dialog_adb_pairing_accessibility_navigate">Please start pairing by performing the following steps:\n- Navigate to \"Developer Options\"\n- Enable \"USB debugging\" and \"Wireless debugging\"\n- Tap the left side of \"Wireless debugging\"\n- Tap \"Pair device with pairing code.\" 白い熊 雫 will automatically detect the pairing code.</string>
     <string name="adb_pairing_requires_multi_window">Please enter split-screen (multi-window) mode first.</string>
     <string name="adb_pairing_requires_multi_window_reason">The system requires the pairing dialog to always be visible. Using split-screen mode is the only way to let this app and the system dialog be visible at the same time.</string>
     <string name="adb_error_key_store">Unable to generate key for wireless debugging.\nThis may be because the KeyStore mechanism of this device is broken.</string>
@@ -134,19 +134,19 @@
     <string name="enable">Enable</string>
     <string name="development_settings">Developer options</string>
     <string name="notification_settings">Notification options</string>
-    <string name="adb_pairing_tutorial_title">Pair Shizuku with your device</string>
-    <string name="adb_pairing_tutorial_content_notification">A notification from Shizuku will help you complete the pairing.</string>
+    <string name="adb_pairing_tutorial_title">Pair 白い熊 雫 with your device</string>
+    <string name="adb_pairing_tutorial_content_notification">A notification from 白い熊 雫 will help you complete the pairing.</string>
     <string name="adb_pairing_tutorial_content_steps">Navigate to \"Developer Options\", then enable \"USB debugging\" and \"Wireless debugging\".</string>
     <string name="adb_pairing_tutorial_content_enter_pairing_code">Tap the left side of \"Wireless debugging\", then tap \"Pair device with pairing code.\" Enter the code in the notification to complete pairing.</string>
-    <string name="adb_pairing_tutorial_content_notification_blocked">The pairing process needs you to interact with a notification from Shizuku. Please allow Shizuku to post notifications.</string>
+    <string name="adb_pairing_tutorial_content_notification_blocked">The pairing process needs you to interact with a notification from 白い熊 雫. Please allow 白い熊 雫 to post notifications.</string>
     <string name="adb_pairing_tutorial_content_miui">MIUI users may need to switch notification style to \"Android\" from \"Notification\" - \"Notification shade\" in system settings.</string>
     <string name="adb_pairing_tutorial_content_miui_2">Otherwise, you may not able to enter the pairing code from the notification.</string>
-    <string name="adb_pairing_tutorial_content_finish">Go back to Shizuku and start Shizuku.</string>
-    <string name="adb_pairing_tutorial_content_network">Shizuku needs to access the local network. It is controlled by the network permission.</string>
-    <string name="adb_pairing_tutorial_content_network_limation_not_foreground">Some systems (such as MIUI) disallow apps to access the network when they are not visible, even if the app uses a foreground service. Please disable battery optimization features for Shizuku on such systems.</string>
+    <string name="adb_pairing_tutorial_content_finish">Go back to 白い熊 雫 and start the service.</string>
+    <string name="adb_pairing_tutorial_content_network">白い熊 雫 needs to access the local network. It is controlled by the network permission.</string>
+    <string name="adb_pairing_tutorial_content_network_limation_not_foreground">Some systems (such as MIUI) disallow apps to access the network when they are not visible, even if the app uses a foreground service. Please disable battery optimization features for 白い熊 雫 on such systems.</string>
     <!-- Home - Root -->
     <string name="home_root_title"><![CDATA[Start (for rooted devices)]]></string>
-    <string name="home_root_description"><![CDATA[If you are using Magisk, you can try %1$s. For root users, it will eventually replace Shizuku. Note, existing applications need to change a little to use %2$s.]]></string>
+    <string name="home_root_description"><![CDATA[If you are using Magisk, you can try %1$s. For root users, it will eventually replace 白い熊 雫. Note, existing applications need to change a little to use %2$s.]]></string>
     <string name="home_root_button_start">Start</string>
     <string name="home_root_button_restart">Restart</string>
     <!-- Home - Application management -->
@@ -156,10 +156,10 @@
         <item quantity="other"><![CDATA[Authorized %d applications]]></item>
     </plurals>
     <string name="home_app_management_view_authorized_apps"><![CDATA[Tap to manage authorized apps]]></string>
-    <string name="home_app_management_empty">Apps that have requested or declared the Shizuku permission will show here.</string>
+    <string name="home_app_management_empty">Apps that have requested or declared the 白い熊 雫 permission will show here.</string>
     <!-- Home - Automation -->
-    <string name="home_automation_title">Control Shizuku with automation apps</string>
-    <string name="home_automation_description">Apps like Tasker and MacroDroid can send intents to start/stop Shizuku automatically.</string>
+    <string name="home_automation_title">Control 白い熊 雫 with automation apps</string>
+    <string name="home_automation_description">Apps like Tasker and MacroDroid can send intents to start/stop 白い熊 雫 automatically.</string>
     <string name="home_automation_description_device_restriction">To use the start intent on your device, you first need to enable ADB over TCP by running %1$s from a PC.</string>
     <string name="home_automation_button_view_intents">View intents</string>
     <string name="home_automation_bottom_sheet_intents">Intents</string>
@@ -171,10 +171,10 @@
     <string name="home_automation_regenerate_token_message">You will need to reconfigure your intents with the new token.</string>
     <!-- Home - Learn more -->
     <string name="home_learn_more_title">Developer guide</string>
-    <string name="home_learn_more_description">Learn how to develop with Shizuku</string>
+    <string name="home_learn_more_description">Learn how to develop with 白い熊 雫</string>
     <!-- Home - Adb permissions limited -->
     <string name="home_adb_is_limited_title">You need to take an extra step</string>
-    <string name="home_adb_is_limited_description">Your device manufacturer has restricted adb permissions and apps using Shizuku will not work properly.\n\nUsually, this limitation can be lifted by adjusting some options in \"Developer options\". Please read the help for details on how to do this.\n\nYou may need to restart Shizuku for the operation to take effect.</string>
+    <string name="home_adb_is_limited_description">Your device manufacturer has restricted adb permissions and apps using 白い熊 雫 will not work properly.\n\nUsually, this limitation can be lifted by adjusting some options in \"Developer options\". Please read the help for details on how to do this.\n\nYou may need to restart 白い熊 雫 for the operation to take effect.</string>
     <!-- Application management - context menu -->
     <string name="app_management_context_open_app">Open app</string>
     <string name="app_management_context_app_info">App info</string>
@@ -203,10 +203,10 @@
     <!-- Application management -->
     <string name="app_management_dialog_adb_is_limited_title">The permission of adb is limited</string>
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[It\'s highly possible that your device manufacturer limits the permission of adb.<p>There may be a solution for your system in <b><a href=\"%1$s\">this document</a></b>.]]></string>
-    <string name="app_management_item_summary_requires_root">* requires Shizuku runs with root</string>
-    <string name="app_management_item_summary_partial_root">⚠ Partially supported — some functions still need Shizuku with root</string>
+    <string name="app_management_item_summary_requires_root">* requires 白い熊 雫 runs with root</string>
+    <string name="app_management_item_summary_partial_root">⚠ Partially supported — some functions still need 白い熊 雫 with root</string>
     <string name="app_management_item_summary_requires_plus">* requires 白い熊 雫 Enhanced API</string>
-    <string name="app_management_item_summary_shizuku_aware">Shizuku-aware: Supports Shizuku natively</string>
+    <string name="app_management_item_summary_shizuku_aware">白い熊 雫-aware: Supports 白い熊 雫 natively</string>
     <string name="app_management_item_context">About this app: %s</string>
     <string name="app_management_enhancements">Enhancements</string>
     <string name="app_management_enhancements_desc">Enable Plus features for this app to improve performance and compatibility.</string>
@@ -218,10 +218,10 @@
     <string name="app_management_bulk_hide">Hide selected</string>
     <string name="app_management_bulk_select_all">Select all</string>
     <!-- Terminal -->
-    <string name="home_terminal_title">Use Shizuku in terminal apps</string>
-    <string name="home_terminal_description">Run shell commands in terminal apps through Shizuku</string>
+    <string name="home_terminal_title">Use 白い熊 雫 in terminal apps</string>
+    <string name="home_terminal_description">Run shell commands in terminal apps through 白い熊 雫</string>
     <string name="terminal_tutorial_miui">Users have reported that MIUI breaks the Storage Access Framework, which is used by the export function.</string>
-    <string name="terminal_tutorial_miui_2">If you are using MIUI, you may have to extract the file from the assets folder in Shizuku\'s APK.</string>
+    <string name="terminal_tutorial_miui_2">If you are using MIUI, you may have to extract the file from the assets folder in 白い熊 雫\'s APK.</string>
     <string name="terminal_tutorial_1">Export the files to a new folder.</string>
     <string name="terminal_tutorial_1_description">Two files will be exported: %1$s and %2$s. If the files already exist in the selected folder, they will be deleted.</string>
     <string name="terminal_export_files">Export files</string>
@@ -242,11 +242,11 @@
     <string name="settings_lp_category_summary">Choose which actions appear when you long-press an app in the management list. If only one is enabled it triggers directly — no menu shown.</string>
     <string name="settings_lp_open_app">Open app</string>
     <string name="settings_lp_app_info">App info</string>
-    <string name="settings_lp_toggle_permission">Toggle Shizuku permission</string>
+    <string name="settings_lp_toggle_permission">Toggle 白い熊 雫 permission</string>
     <string name="settings_lp_hide_from_list">Hide from list</string>
     <!-- Onboarding -->
     <string name="onboarding_welcome_title">Welcome to 白い熊 雫</string>
-    <string name="onboarding_welcome_desc">An enhanced Shizuku with powerful app management features. Swipe gestures, quick actions, and customizable experiences — all in one place.</string>
+    <string name="onboarding_welcome_desc">An enhanced privileged-API manager with powerful app management features. Swipe gestures, quick actions, and customizable experiences — all in one place.</string>
     <string name="onboarding_swipe_title">Default Gestures</string>
     <string name="onboarding_swipe_desc">By default, in the app management list, swipe right to open an app or swipe left to view its system settings page.</string>
     <string name="onboarding_gestures_title">Custom Gestures</string>
@@ -256,12 +256,12 @@
     <string name="onboarding_next">Next</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_get_started">Get Started</string>
-    <string name="onboarding_setup_title">Start Shizuku</string>
-    <string name="onboarding_setup_desc">Choose how to start Shizuku on this device. You can also do this later from the main screen.</string>
-    <string name="onboarding_setup_running">Shizuku is running</string>
+    <string name="onboarding_setup_title">Start 白い熊 雫</string>
+    <string name="onboarding_setup_desc">Choose how to start 白い熊 雫 on this device. You can also do this later from the main screen.</string>
+    <string name="onboarding_setup_running">白い熊 雫 is running</string>
     <string name="onboarding_setup_later">I\'ll do this later</string>
     <string name="onboarding_setup_wadb_desc">Android 11+, no computer needed. Uses wireless debugging.</string>
-    <string name="onboarding_setup_root_desc">Your device is rooted. Start Shizuku with root access.</string>
+    <string name="onboarding_setup_root_desc">Your device is rooted. Start 白い熊 雫 with root access.</string>
     <string name="onboarding_setup_adb_desc">Any device. Run one ADB command from a computer to get started.</string>
     <!-- Swipe hint overlay -->
     <string name="swipe_hint_title">Swipe gestures</string>
@@ -276,19 +276,19 @@
     <string name="settings_start_on_boot_bug">Due to a bug in Android 11-12, wireless debugging does not remember any authorized networks.\n\nYou will need to re-authorize the network on each reboot by tapping \"Allow\" when the authorization dialog pops up.</string>
     <string name="settings_use_system_color">Use system theme color</string>
     <string name="settings_watchdog">Watchdog</string>
-    <string name="settings_watchdog_summary">Automatically restart Shizuku if it crashes</string>
+    <string name="settings_watchdog_summary">Automatically restart 白い熊 雫 if it crashes</string>
     <string name="settings_tcp_mode">TCP mode</string>
-    <string name="settings_tcp_mode_summary">"Allows Shizuku to restart without Wi-Fi. (Shizuku must have started once since reboot)"</string>
+    <string name="settings_tcp_mode_summary">"Allows 白い熊 雫 to restart without Wi-Fi. (白い熊 雫 must have started once since reboot)"</string>
     <string name="settings_tcp_mode_dialog_close_port">"The TCP port will be closed immediately. You will need Wi-Fi to turn on TCP mode again. Continue?"</string>
     <string name="settings_tcp_mode_closing_port">Closing TCP port...</string>
     <string name="settings_restart_dialog_title">Restart Required</string>
-    <string name="settings_restart_dialog_message">Shizuku needs to restart in order to apply this setting.</string>
-    <string name="settings_restart_dialog_message_wifi_required"><![CDATA[<br><br><b>Wi-Fi is required. Shizuku will continue running and wait for a Wi-Fi connection before restarting in the background.</b>]]></string>
+    <string name="settings_restart_dialog_message">白い熊 雫 needs to restart in order to apply this setting.</string>
+    <string name="settings_restart_dialog_message_wifi_required"><![CDATA[<br><br><b>Wi-Fi is required. 白い熊 雫 will continue running and wait for a Wi-Fi connection before restarting in the background.</b>]]></string>
     <string name="settings_tcp_port">TCP port</string>
     <string name="settings_tcp_port_default">Default (5555)</string>
     <string name="settings_tcp_port_hint">Leave blank to use default (5555)</string>
     <string name="settings_auto_disable_usb_debugging">Auto-disable USB debugging</string>
-    <string name="settings_auto_disable_usb_debugging_summary">Disable USB debugging when stopping Shizuku</string>
+    <string name="settings_auto_disable_usb_debugging_summary">Disable USB debugging when stopping 白い熊 雫</string>
     <string name="settings_language">Language</string>
     <string name="settings_translation_contributors">Translation contributors</string>
     <string name="settings_translation">Participate in translation</string>
@@ -307,7 +307,7 @@
     <string name="settings_activity_log_empty">No activity recorded yet.</string>
     <string name="settings_activity_log_clear">Clear logs</string>
     <string name="settings_enable_activity_log">Enable activity log</string>
-    <string name="settings_enable_activity_log_summary">Record and display Shizuku API calls and events on the home screen.</string>
+    <string name="settings_enable_activity_log_summary">Record and display 白い熊 雫 API calls and events on the home screen.</string>
     <string name="settings_show_activity_log_home">Show Activity Log</string>
     <string name="settings_home_visibility">Home screen visibility</string>
     <string name="settings_update_app_database">Update app database</string>
@@ -361,13 +361,13 @@
     <string name="help_general_plus_summary">白い熊 雫 extends the core Shizuku framework with powerful system-level bridges. These features allow third-party automation tools like MacroDroid and Tasker, as well as theming engines like Hex Installer, to perform privileged actions natively and securely. Each feature is designed to bridge the gap between root-only capabilities and the standard Android API, ensuring high performance and deep system integration for your favorite power-user apps.</string>
     <!-- Detailed Help Strings -->
     <string name="help_dhizuku_title">About Dhizuku Mode</string>
-    <string name="help_dhizuku_detail">Dhizuku allows Shizuku to share its Device Owner (DevicePolicyManager) privileges with third-party apps. This is essential for apps like Dhizuku Manager or certain kiosk-mode tools that need to manage system policies without being the sole Device Owner themselves.</string>
+    <string name="help_dhizuku_detail">Dhizuku allows 白い熊 雫 to share its Device Owner (DevicePolicyManager) privileges with third-party apps. This is essential for apps like Dhizuku Manager or certain kiosk-mode tools that need to manage system policies without being the sole Device Owner themselves.</string>
     <string name="help_shell_interceptor_title">About Shell Accelerator</string>
-    <string name="help_shell_interceptor_detail">The Shell Accelerator intercepts standard shell commands (am, pm, settings) and translates them directly into Shizuku server API calls. This avoids the high overhead of spawning a new /system/bin/sh process for every command, making automation in MacroDroid or Tasker significantly faster and more battery-efficient.</string>
+    <string name="help_shell_interceptor_detail">The Shell Accelerator intercepts standard shell commands (am, pm, settings) and translates them directly into 白い熊 雫 server API calls. This avoids the high overhead of spawning a new /system/bin/sh process for every command, making automation in MacroDroid or Tasker significantly faster and more battery-efficient.</string>
     <string name="help_avf_manager_title">About AVF Manager</string>
     <string name="help_avf_manager_detail">Android Virtualization Framework (AVF) Manager allows you to run isolated Linux or Microdroid virtual machines. On supported hardware (Snapdragon 8 Gen 1+, Tensor G2+), this enables hardware-accelerated virtualization with VirtIO-GPU support for running desktop Linux environments or isolated secure tasks.</string>
     <string name="help_storage_proxy_title">About Storage Bridge</string>
-    <string name="help_storage_proxy_detail">The Storage Bridge provides authenticated, high-speed access to restricted filesystem paths like /data/data/ (app data) and /data/app/ (APK files). This allows backup tools like Neo Backup to function without full root access, while maintaining security through Shizuku\'s permission model.</string>
+    <string name="help_storage_proxy_detail">The Storage Bridge provides authenticated, high-speed access to restricted filesystem paths like /data/data/ (app data) and /data/app/ (APK files). This allows backup tools like Neo Backup to function without full root access, while maintaining security through 白い熊 雫\'s permission model.</string>
     <string name="help_continuity_bridge_title">About Multi-Device Continuity</string>
     <string name="help_continuity_bridge_detail">Continuity Bridge allows 白い熊 雫 devices on the same network to hand off tasks and synchronize clipboard/app state. This utilizes the Android 17 Handoff APIs (backported where possible) to allow seamless transitions of automation tasks between your phone and tablet.</string>
     <string name="help_ai_core_plus_title">About Intelligence Bridge</string>
@@ -400,7 +400,7 @@
     <string name="help_root_magisk_title">About Magisk Mocking</string>
     <string name="help_root_magisk_detail">Many apps check for root by looking for Magisk-specific properties or the /sbin/.magisk folder. This module simulates these elements, allowing you to use root-only features in apps that refuse to start without detecting a Magisk environment.</string>
     <string name="help_root_auto_grant_title">About Auto-Approval</string>
-    <string name="help_root_auto_grant_detail">Legacy root apps often try to grant themselves permissions via shell. This bridge listens for these \'pm grant\' calls and uses Shizuku\'s elevated privileges to approve them instantly, avoiding manual permission management.</string>
+    <string name="help_root_auto_grant_detail">Legacy root apps often try to grant themselves permissions via shell. This bridge listens for these \'pm grant\' calls and uses 白い熊 雫\'s elevated privileges to approve them instantly, avoiding manual permission management.</string>
     <string name="help_root_file_interceptor_title">About File Interceptor</string>
     <string name="help_root_file_interceptor_detail">When apps copy files to /data/data using a standard shell, they often lose ownership and SELinux contexts. This module automatically adds flags like --preserve=all to maintain file integrity and prevent app crashes.</string>
     <string name="help_root_busybox_title">About BusyBox Simulation</string>
@@ -410,7 +410,7 @@
     <string name="settings_vector">Vector Acceleration</string>
     <string name="settings_vector_summary">Enable hardware-accelerated vector rendering for improved graphics performance</string>
     <string name="settings_experimental_root">Root Compatibility</string>
-    <string name="settings_experimental_root_summary">Enable compatibility layer for root-based operations via Shizuku</string>
+    <string name="settings_experimental_root_summary">Enable compatibility layer for root-based operations via 白い熊 雫</string>
     <string name="settings_spoof_device">Spoof Device Identity</string>
     <string name="settings_spoof_device_summary">Report a different device model to apps for compatibility or testing purposes</string>
     <string name="settings_avf_manager_experimental">Virtual Machine Manager (AVF) (Experimental)</string>
@@ -429,17 +429,17 @@
     <string name="settings_adb_proxy">Local ADB Proxy Server</string>
     <string name="settings_adb_proxy_summary">Emulate an ADB server on port 15555 to support apps requiring Wireless ADB without keeping the system feature active.</string>
     <string name="settings_on_device_adb_tcp">On-device ADB over TCP</string>
-    <string name="settings_on_device_adb_tcp_summary">Enable ADB TCP mode (port 5555) directly on the device. Requires Shizuku with root. Useful for ADB tools without WiFi.</string>
+    <string name="settings_on_device_adb_tcp_summary">Enable ADB TCP mode (port 5555) directly on the device. Requires 白い熊 雫 with root. Useful for ADB tools without WiFi.</string>
     <string name="settings_force_start_wadb">Bypass Wi-Fi check for WADB</string>
-    <string name="settings_force_start_wadb_summary">Attempt to start Shizuku via ADB TCP even if Wi-Fi is disconnected. Useful for local loopback or mobile data ADB.</string>
+    <string name="settings_force_start_wadb_summary">Attempt to start 白い熊 雫 via ADB TCP even if Wi-Fi is disconnected. Useful for local loopback or mobile data ADB.</string>
     <string name="settings_fake_su">SU Bridge (su wrapper)</string>
-    <string name="settings_fake_su_summary">Provide a Shizuku-backed \'su\' binary for legacy root apps that support custom paths.</string>
+    <string name="settings_fake_su_summary">Provide a 白い熊 雫-backed \'su\' binary for legacy root apps that support custom paths.</string>
     <string name="settings_root_integration_hub">Root Integration Hub</string>
     <string name="settings_root_integration_hub_summary">Configure and manage root apps to work with 白い熊 雫 privileges.</string>
     <string name="settings_root_compatibility_hub">Root Compatibility Hub</string>
     <string name="settings_root_compatibility_hub_summary">Configure and manage root apps to work with 白い熊 雫 privileges.</string>
     <string name="su_bridge_title">SU Bridge</string>
-    <string name="su_bridge_description">Provide root access to apps that don\'t support Shizuku by creating a custom \'su\' binary.</string>
+    <string name="su_bridge_description">Provide root access to apps that don\'t support 白い熊 雫 by creating a custom \'su\' binary.</string>
     <string name="su_bridge_suggested_apps">Suggested Apps</string>
     <string name="su_bridge_suggested_apps_desc">These apps support custom SU paths. Point them to your exported \'su\' script.</string>
     <string name="su_bridge_active_sessions">Active Sessions</string>
@@ -455,13 +455,13 @@
     <string name="su_bridge_magic_setup_all_summary">白い熊 雫 configured %d apps for you!</string>
     <string name="su_bridge_magic_setup_all_no_apps">No supported root apps found for automation.</string>
     <string name="su_bridge_copy_open">Copy path &amp; open</string>
-    <string name="su_bridge_no_export">No SU path set. Export Shizuku files first from the Home screen.</string>
-    <string name="root_hub_shizuku_aware_note">The SU Bridge provides root-like access to non-rooted devices. However, "Magic Setup" (automatic configuration) requires Shizuku in Root mode to modify other apps. In ADB mode, use "Copy path" and configure your apps manually.</string>
-    <string name="su_bridge_magic_setup_root_required">Magic Setup requires Shizuku in Root mode.</string>
+    <string name="su_bridge_no_export">No SU path set. Export 白い熊 雫 files first from the Home screen.</string>
+    <string name="root_hub_shizuku_aware_note">The SU Bridge provides root-like access to non-rooted devices. However, "Magic Setup" (automatic configuration) requires 白い熊 雫 in Root mode to modify other apps. In ADB mode, use "Copy path" and configure your apps manually.</string>
+    <string name="su_bridge_magic_setup_root_required">Magic Setup requires 白い熊 雫 in Root mode.</string>
     <string name="su_bridge_no_custom_path_support">This app has no custom path setting. Requires real root.</string>
     <string name="su_bridge_manual_setup_required">Manual setup required in ADB mode</string>
     <string name="su_bridge_how_to_use">How to use:</string>
-    <string name="su_bridge_step_1">1. Export Shizuku files from the Home screen.</string>
+    <string name="su_bridge_step_1">1. Export 白い熊 雫 files from the Home screen.</string>
     <string name="su_bridge_step_2">2. In your root app, look for "SU Path" or "Binary Path" in its settings.</string>
     <string name="su_bridge_step_3">3. Change it to the path of the exported \'su\' file.</string>
     <string name="su_bridge_step_4">4. For apps without a custom path setting, enable "SU Bridge" in 白い熊 雫 settings. This automatically redirects many legacy su calls.</string>
@@ -514,14 +514,14 @@
     <string name="bug_report_dialog_button_email">Email</string>
     <!-- Service Doctor -->
     <string name="home_service_doctor_title">Service Doctor</string>
-    <string name="home_service_doctor_summary">Having trouble starting Shizuku? Tap to run a diagnostic check.</string>
+    <string name="home_service_doctor_summary">Having trouble starting 白い熊 雫? Tap to run a diagnostic check.</string>
     <string name="doctor_dialog_title">System Diagnostics</string>
     <string name="doctor_check_battery">Battery optimization: %1$s</string>
     <string name="doctor_check_adb">Wireless debugging: %1$s</string>
     <string name="doctor_check_root">Root access: %1$s</string>
     <string name="doctor_check_secure_settings">Secure Settings: %1$s</string>
     <string name="doctor_check_permission">ADB permission: %1$s</string>
-    <string name="doctor_check_server">Shizuku server: %1$s</string>
+    <string name="doctor_check_server">白い熊 雫 server: %1$s</string>
     <string name="doctor_check_background">Background limits: %1$s</string>
     <string name="doctor_status_ok">OK</string>
     <string name="doctor_status_running">Running</string>
@@ -536,7 +536,7 @@
     <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus: Disable "Permission Monitoring" in Developer Options to prevent background service kills.</string>
     <string name="doctor_tip_tcl_background">TCL: Ensure 白い熊 雫 is added to "Auto-start" and "High background power consumption" allowlists in Settings.</string>
     <string name="doctor_tip_battery">Disable battery optimization for 白い熊 雫 to prevent it from being killed in the background.</string>
-    <string name="doctor_tip_adb">Wireless debugging must be active for Shizuku to start in non-root mode after a reboot.</string>
+    <string name="doctor_tip_adb">Wireless debugging must be active for 白い熊 雫 to start in non-root mode after a reboot.</string>
     <string name="doctor_button_fix">Fix</string>
     <!-- Snackbar -->
     <string name="snackbar_invalid_port">Port must be between 1 and 65535</string>
@@ -545,9 +545,9 @@
     <string name="snackbar_action_fix">Fix</string>
     <!-- Toast -->
     <string name="toast_no_email_app">No email app found</string>
-    <string name="toast_shizuku_already_starting">Shizuku is already starting in the background</string>
+    <string name="toast_shizuku_already_starting">白い熊 雫 is already starting in the background</string>
     <string name="toast_accessibility_tv_only">This automation is for TV or Samsung One UI devices with TLS support.</string>
-    <string name="toast_pairing_timeout">Shizuku pairing service timed out</string>
+    <string name="toast_pairing_timeout">白い熊 雫 pairing service timed out</string>
     <string name="toast_adb_ssl_error">Wireless ADB handshake failed (SSL protocol error). Please use \'Reset ADB Keys\' in Developer Options and try again.</string>
     <string name="adb_error_ssl_title">Connection Error</string>
     <string name="adb_error_ssl_message">Wireless ADB handshake failed (SSL protocol error). This typically happens when ADB keys are corrupted. Would you like to reset them in Developer Options?</string>
@@ -566,12 +566,12 @@
     <!-- Start/Stop -->
      <string name="start">Start</string>
      <string name="stop">Stop</string>
-    <string name="action_stop">Stop Shizuku</string>
-    <string name="dialog_stop_message">Shizuku service will be stopped.</string>
+    <string name="action_stop">Stop 白い熊 雫</string>
+    <string name="dialog_stop_message">白い熊 雫 service will be stopped.</string>
     <!-- Notification -->
     <string name="notification_channel_service_status">Service start status</string>
-    <string name="notification_service_starting">Shizuku service is starting…</string>
-    <string name="notification_service_start_failed">Start Shizuku service failed.</string>
+    <string name="notification_service_starting">白い熊 雫 service is starting…</string>
+    <string name="notification_service_start_failed">Start 白い熊 雫 service failed.</string>
     <string name="notification_service_start_no_root">Failed to request root permission.</string>
     <string name="notification_working">Working…</string>
     <string name="notification_channel_adb_pairing">Wireless debugging pairing</string>
@@ -581,7 +581,7 @@
     <string name="notification_adb_pairing_stop_searching">Stop searching</string>
     <string name="notification_adb_pairing_working_title">Pairing in progress</string>
     <string name="notification_adb_pairing_succeed_title">Pairing successful</string>
-    <string name="notification_adb_pairing_succeed_text">You can start Shizuku service now.</string>
+    <string name="notification_adb_pairing_succeed_text">You can start 白い熊 雫 service now.</string>
     <string name="notification_adb_pairing_failed_title">Pairing failed</string>
     <string name="notification_adb_pairing_retry">Retry</string>
     <string name="notification_auth_missing_title">Auth token required</string>
@@ -589,10 +589,10 @@
     <string name="notification_auth_invalid_title">Invalid auth token</string>
     <string name="notification_auth_invalid_message">Make sure the token in your intent matches the one shown under “View intents” in the app.</string>
     <!-- Permission related, appears in system permission UI -->
-    <string name="permission_group_label" translatable="false">Shizuku</string>
+    <string name="permission_group_label" translatable="false">白い熊 雫</string>
     <string name="permission_group_description" translatable="false">@string/permission_label</string>
-    <string name="permission_label">access Shizuku</string>
-    <string name="permission_description">Allow the app to use Shizuku.</string>
+    <string name="permission_label">access 白い熊 雫</string>
+    <string name="permission_description">Allow the app to use 白い熊 雫.</string>
     <string name="permission_warning_template"><![CDATA[Allow <b>%1$s</b> to %2$s?]]></string>
     <string name="grant_dialog_button_allow_always">Allow all the time</string>
     <string name="grant_dialog_button_deny">"Deny"</string>
@@ -607,18 +607,18 @@
     <string name="adb_error_timeout">Service did not start in time. Please ensure Wireless Debugging is enabled and try again.</string>
     <string name="adb_error_generic">An unexpected error occurred. Please try again.</string>
     <!-- WADB Starter -->
-    <string name="wadb_notification_title">Starting Shizuku…</string>
+    <string name="wadb_notification_title">Starting 白い熊 雫…</string>
     <string name="wadb_notification_wifi_required">Awaiting Wi-Fi connection before proceeding</string>
     <string name="wadb_notification_retry">Waiting to retry</string>
     <string name="wadb_error_title">Error while starting on boot</string>
     <string name="wadb_error_notify_dev">Tap to notify the developer.</string>
     <string name="wadb_permission_error_notification_title">Permission Error</string>
-    <string name="wadb_permission_error_notification_content">Shizuku needs WRITE_SECURE_SETTINGS to start on boot. Tap to learn how to grant it.</string>
+    <string name="wadb_permission_error_notification_content">白い熊 雫 needs WRITE_SECURE_SETTINGS to start on boot. Tap to learn how to grant it.</string>
     <string name="wadb_notification_channel">ADB auto-start service</string>
     <!-- Watchdog -->
     <string name="watchdog_running">Watchdog is running</string>
     <string name="watchdog_turn_off">Turn Off</string>
-    <string name="watchdog_shizuku_crashed_title">Shizuku crashed recently</string>
+    <string name="watchdog_shizuku_crashed_title">白い熊 雫 crashed recently</string>
     <string name="watchdog_shizuku_crashed_text">Watchdog restarted the service. Tap to learn about potential fixes to prevent future crashes.</string>
     <string name="watchdog_shizuku_crashed_action_turn_off_alerts">Turn Off Alerts</string>
     <!-- Misc -->
@@ -626,11 +626,11 @@
     <string name="toast_copied_to_clipboard">Copied to clipboard</string>
     <string name="accessibility_service_description">Provides pairing support for devices (e.g., TVs and Samsung One UI phones) where notifications or split screen cannot be used easily.\n\nEnables 白い熊 雫 to extract the pairing code from the wireless debugging pairing screen. It will disable itself once the pairing code is found.</string>
     <!-- Messages for legacy -->
-    <string name="dialog_legacy_not_support_title">%1$s does not support modern Shizuku</string>
-    <string name="dialog_legacy_not_support_message"><![CDATA[Legacy Shizuku has been deprecated since March 2019. Also, legacy Shizuku does not work on newer Android systems.<p>Please ask the developer of <b>%1$s</b> to update.]]></string>
-    <string name="dialog_requesting_legacy_title">%1$s is requesting legacy Shizuku</string>
-    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b> has modern Shizuku support, but it\'s requesting legacy Shizuku. This could because Shizuku is not running, please check in Shizuku app.<p>Legacy Shizuku has been deprecated since March 2019.]]></string>
-    <string name="dialog_requesting_legacy_button_open_shizuku">Open Shizuku</string>
+    <string name="dialog_legacy_not_support_title">%1$s does not support modern 白い熊 雫</string>
+    <string name="dialog_legacy_not_support_message"><![CDATA[The legacy 白い熊 雫 API has been deprecated since March 2019, and it does not work on newer Android systems.<p>Please ask the developer of <b>%1$s</b> to update.]]></string>
+    <string name="dialog_requesting_legacy_title">%1$s is requesting legacy 白い熊 雫</string>
+    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b> has modern 白い熊 雫 support, but it\'s requesting the legacy API. This could be because 白い熊 雫 is not running — please check in the 白い熊 雫 app.<p>The legacy API has been deprecated since March 2019.]]></string>
+    <string name="dialog_requesting_legacy_button_open_shizuku">Open 白い熊 雫</string>
     <string name="wadb_notification_attempt_now">Attempt now</string>
     <string name="settings_category_general">General</string>
     <string name="settings_category_dark_mode">Dark Mode</string>
@@ -687,8 +687,8 @@
     <string name="accessibility_button_activity_log">Activity log button</string>
     <string name="accessibility_swipe_right">Swipe right for quick action</string>
     <string name="accessibility_swipe_left">Swipe left for quick action</string>
-    <string name="accessibility_action_grant_permission">Grant Shizuku permission</string>
-    <string name="accessibility_action_revoke_permission">Revoke Shizuku permission</string>
+    <string name="accessibility_action_grant_permission">Grant 白い熊 雫 permission</string>
+    <string name="accessibility_action_revoke_permission">Revoke 白い熊 雫 permission</string>
     <string name="accessibility_action_open_app">Open application</string>
     <string name="accessibility_action_app_info">Open app info settings</string>
     <string name="accessibility_action_hide_app">Hide from list</string>
@@ -705,14 +705,14 @@
     <string name="empty_state_title_no_results">No results found</string>
     <string name="empty_state_description_no_results">No apps match your current filter or search criteria.</string>
     <string name="empty_state_title_no_apps">No apps yet</string>
-    <string name="empty_state_description_no_apps">Apps that have requested or declared the Shizuku permission will show here.</string>
+    <string name="empty_state_description_no_apps">Apps that have requested or declared the 白い熊 雫 permission will show here.</string>
     <string name="empty_state_title_no_home_cards">All cards hidden</string>
     <string name="empty_state_description_no_home_cards">You\'ve hidden all home screen cards. Go to Settings to restore them.</string>
     <string name="empty_state_action_restore_home_cards">Restore cards</string>
     <string name="empty_state_title_no_plus_features">All features disabled</string>
     <string name="empty_state_description_no_plus_features">You\'ve disabled all 白い熊 雫 features. Enable features to see them here.</string>
     <string name="empty_state_title_activity_log_empty">No activity recorded</string>
-    <string name="empty_state_description_activity_log_empty">Shizuku API calls and events will appear here when activity logging is enabled.</string>
+    <string name="empty_state_description_activity_log_empty">白い熊 雫 API calls and events will appear here when activity logging is enabled.</string>
     <string name="empty_state_title_hidden_apps">No hidden apps</string>
     <string name="empty_state_description_hidden_apps">Apps you hide from the management list will appear here.</string>
     <!-- Update Settings -->
@@ -796,7 +796,7 @@
     <string name="settings_import_success">Settings imported — restart the app to apply all changes</string>
     <string name="settings_import_failed">Import failed: invalid or incompatible file</string>
     <string name="adb_native_unavailable">ADB pairing is not available on this device</string>
-    <string name="shizuku_not_available">Shizuku service is not available</string>
+    <string name="shizuku_not_available">白い熊 雫 service is not available</string>
     <string name="su_bridge_magic_setup_success_global_setting">Magic Setup completed! System global setting configured.</string>
     <string name="changelog_title">What\'s New</string>
     <string name="changelog_close">Close</string>
@@ -808,7 +808,7 @@
     <string name="action_open_github">GitHub</string>
     <!-- Service Doctor auto-fix -->
     <string name="service_doctor_fix_phantom_attempted">Phantom process limit disabled. Restart the service if needed.</string>
-    <string name="service_doctor_fix_requires_service">Shizuku must be running to apply this fix automatically.</string>
+    <string name="service_doctor_fix_requires_service">白い熊 雫 must be running to apply this fix automatically.</string>
     <string name="service_doctor_fix_failed">Auto-fix failed: %1$s</string>
     <!-- ADB Pairing -->
     <string name="adb_foreground_op_denied">Unable to start foreground service — START_FOREGROUND permission is denied. Please check your device\'s app permissions.</string>
@@ -818,7 +818,7 @@
     <string name="accessibility_service_monitoring">Accessibility service active: monitoring for pairing code…</string>
     <!-- Dhizuku Device Owner Setup -->
     <string name="dhizuku_setup_title">Set Up Device Owner</string>
-    <string name="dhizuku_setup_message">Dhizuku Mode requires 白い熊 雫 to be set as Device Owner. Run this command once via ADB while USB debugging is enabled:\n\n%1$s\n\nAfter running the command, restart Shizuku.</string>
+    <string name="dhizuku_setup_message">Dhizuku Mode requires 白い熊 雫 to be set as Device Owner. Run this command once via ADB while USB debugging is enabled:\n\n%1$s\n\nAfter running the command, restart 白い熊 雫.</string>
     <string name="dhizuku_setup_copy">Copy Command</string>
     <string name="dhizuku_setup_copied">Command copied to clipboard</string>
     <string name="dhizuku_status_active">Device Owner: Active</string>
@@ -866,7 +866,7 @@
     <string name="root_hub_magic_setup_success">Magic Setup complete! 白い熊 雫 configured %s for you.</string>
     <string name="root_hub_magic_setup_fail">Magic Setup failed. Please try copying the path manually.</string>
     <string name="root_hub_path_copied">SU path copied to clipboard</string>
-    <string name="root_hub_no_export">SU path not set. Please export the Shizuku files from the home screen first.</string>
+    <string name="root_hub_no_export">SU path not set. Please export the 白い熊 雫 files from the home screen first.</string>
     <string name="root_hub_device_identity_title">Device Identity</string>
     <string name="root_hub_device_identity_none">None (show real device)</string>
     <string name="root_hub_device_identity_real">Real: %s</string>
@@ -878,7 +878,7 @@
     <string name="home_automation_dialog_label_target">Target</string>
     <!-- Misc -->
     <string name="action_start">Start</string>
-    <string name="settings_tcp_learn_more">Learn more about using automation tools to control Shizuku</string>
+    <string name="settings_tcp_learn_more">Learn more about using automation tools to control 白い熊 雫</string>
     <string name="settings_help">Help</string>
     <string name="settings_diagnostics_category">Diagnostics</string>
     <string name="settings_adb_category">ADB Management</string>

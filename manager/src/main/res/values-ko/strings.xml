@@ -8,7 +8,7 @@
     <string name="home_status_service_version_update"><![CDATA[%1$s, 버전 %2$s<br>다시 시작하여 버전 %3$s로 업데이트]]></string>
     <!-- Home - Adb -->
     <string name="home_adb_title"><![CDATA[컴퓨터에 연결하여 시작]]></string>
-    <string name="home_adb_description"><![CDATA[루링 없이 Shizuku를 시작하기 위해 adb가 필요합니다. (컴퓨터 연결 필수) 이 작업은 다시 시작 시 마다 필요로 합니다. 자세한 정보는 <b><a href="%1$s">도움말</a></b>을 확인하세요.]]></string>
+    <string name="home_adb_description"><![CDATA[루링 없이 白い熊 雫를 시작하기 위해 adb가 필요합니다. (컴퓨터 연결 필수) 이 작업은 다시 시작 시 마다 필요로 합니다. 자세한 정보는 <b><a href="%1$s">도움말</a></b>을 확인하세요.]]></string>
     <string name="home_adb_button_view_help">도움말 읽기</string>
     <string name="home_adb_button_view_command">명령어 보기</string>
     <string name="home_adb_dialog_view_command_message"><![CDATA[<font face=monospace>%1$s</font><br><br>* 몇 가지 다른 참고 사항이 있으므로, 도움말을 먼저 확인하세요.]]></string>
@@ -16,7 +16,7 @@
     <string name="home_adb_dialog_view_command_button_send">보내기</string>
     <!-- Home - Wireless Adb -->
     <string name="home_wireless_adb_title"><![CDATA[무선 디버깅으로 시작]]></string>
-    <string name="home_wireless_adb_description"><![CDATA[Android 11 또는 그 이상 버전에서는 컴퓨터에 연결하지 않아도 무선 디버깅을 활성화하하여 기기에서 직접 Shizuku를 시작할 수 있습니다.<p>단계별 가이드를 먼저 확인하세요.]]></string>
+    <string name="home_wireless_adb_description"><![CDATA[Android 11 또는 그 이상 버전에서는 컴퓨터에 연결하지 않아도 무선 디버깅을 활성화하하여 기기에서 직접 白い熊 雫를 시작할 수 있습니다.<p>단계별 가이드를 먼저 확인하세요.]]></string>
     <string name="home_wireless_adb_description_pre_11"><![CDATA[Android 11 이전에서는 무선 디버깅을 활성화하기 위해 컴퓨터에 연결해야 합니다.]]></string>
     <string name="home_wireless_adb_view_guide_button">단계별 가이드</string>
     <!-- Adb -->
@@ -24,7 +24,7 @@
     <string name="dialog_adb_discovery_message">\"개발자 옵션\"에서 \"무선 디버깅\"을 사용으로 설정하세요. \"무선 디버깅\"은
         네트워크가 변경될 때 자동으로 사용 안 함으로 변경됩니다.
         \n
-        \n\"개발자 옵션\"이나 \"USB 디버깅\"을 사용 안 함으로 하면 Shizuku가 중지됩니다.</string>
+        \n\"개발자 옵션\"이나 \"USB 디버깅\"을 사용 안 함으로 하면 白い熊 雫가 중지됩니다.</string>
     <string name="dialog_adb_discovery_message_toggle_wireless_debugging">\"무선 디버깅\"이 검색중으로 유지된다면
         비활성화했다가 다시 활성화해 보세요.</string>
     <string name="dialog_adb_port">포트 번호</string>
@@ -34,7 +34,7 @@
     <string name="dialog_adb_pairing_discovery">페어링 서비스 검색 중</string>
     <string name="dialog_adb_pairing_paring_code">페어링 코드</string>
     <string name="paring_code_is_wrong">페어링 코드가 올바르지 않습니다.</string>
-    <string name="cannot_connect_port">무선 디버깅 서비스에 연결할 수 없습니다.\n\nShizuku가 모든 방화벽, 광고 차단, VPN 또는
+    <string name="cannot_connect_port">무선 디버깅 서비스에 연결할 수 없습니다.\n\n白い熊 雫가 모든 방화벽, 광고 차단, VPN 또는
         네트워크 접근 제한 관련 앱에서 화이트리스트에 등록되어 있는지 꼭 확인해 주세요.</string>
     <string name="dialog_wireless_adb_not_enabled">무선 디버깅을 사용하고 있지 않습니다.
         \n안드로이드 11 이전은 무선 디버깅을 사용하기 위해서 컴퓨터 연결을 필수로 해야 합니다.</string>
@@ -43,14 +43,14 @@
         \"USB 디버깅\" 및 \"무선 디버깅\"을 활성화합니다.\n- \"무선 디버깅\"의 왼쪽을 탭합니다.\n- \"페어링 코드로 장치 페어링\"을 탭합니다.\n-
         알림에 페어링 코드를 입력합니다.</string>
     <string name="dialog_adb_pairing_accessibility_permission">Android 14에서 패키지 설치 관리자를 사용하여
-        Shizuku를 설치/업데이트하면 페어링을 위한 접근성 서비스를 활성화하는 데 필요한 ^1 권한이 취소됩니다.\n\n이 권한을 부여하려면 다음 ADB 명령을
-        실행하세요.\n\n^2\n\n명령을 실행한 후 페어링 프로세스를 계속 진행할 수 있습니다.\n\n참고: ADB를 사용하여 Shizuku를 설치/업데이트하면 이 문제를
+        白い熊 雫를 설치/업데이트하면 페어링을 위한 접근성 서비스를 활성화하는 데 필요한 ^1 권한이 취소됩니다.\n\n이 권한을 부여하려면 다음 ADB 명령을
+        실행하세요.\n\n^2\n\n명령을 실행한 후 페어링 프로세스를 계속 진행할 수 있습니다.\n\n참고: ADB를 사용하여 白い熊 雫를 설치/업데이트하면 이 문제를
         해결할 수 있습니다.</string>
     <string name="dialog_adb_pairing_accessibility_enable">페어링 과정을 시작하려면 접근성 서비스를 활성화하세요. 이렇게 하면
-        Shizuku가 페어링 코드를 감지할 수 있습니다.\n\n코드를 찾거나 1분 후에 에너지 절약을 위해 접근성 서비스가 꺼집니다.</string>
+        白い熊 雫가 페어링 코드를 감지할 수 있습니다.\n\n코드를 찾거나 1분 후에 에너지 절약을 위해 접근성 서비스가 꺼집니다.</string>
     <string name="dialog_adb_pairing_accessibility_navigate">다음 단계를 수행하여 페어링을 시작하세요.\n- \"개발자 옵션\"으로
         이동합니다.\n- \"USB 디버깅\" 및 \"무선 디버깅\"을 활성화합니다.\n- \"무선 디버깅\"의 왼쪽을 탭합니다.\n- \"페어링 코드로 기기 페어링\"을
-        탭합니다. Shizuku가 자동으로 페어링 코드를 감지합니다.</string>
+        탭합니다. 白い熊 雫가 자동으로 페어링 코드를 감지합니다.</string>
     <string name="adb_pairing_requires_multi_window">먼저 화면 분할 (멀티 윈도우) 모드로 진입하세요.</string>
     <string name="adb_pairing_requires_multi_window_reason">이 시스템은 페어링 대화 대화가 항상 보이도록 요구합니다. 분할 화면
         모드를 사용하는 것만이 이 앱과 시스템 대화 대화를 동시에 볼 수 있는 방법입니다.</string>
@@ -62,14 +62,14 @@
     <string name="enable">할 수 있게 하다</string>
     <string name="development_settings">개발자 옵션</string>
     <string name="notification_settings">알림 옵션</string>
-    <string name="adb_pairing_tutorial_title">기기와 Shizuku 페어링</string>
-    <string name="adb_pairing_tutorial_content_notification">Shizuku의 알림이 페어링을 완료하는 데 도움이 될 수도 있습니다.</string>
+    <string name="adb_pairing_tutorial_title">기기와 白い熊 雫 페어링</string>
+    <string name="adb_pairing_tutorial_content_notification">白い熊 雫의 알림이 페어링을 완료하는 데 도움이 될 수도 있습니다.</string>
     <string name="adb_pairing_tutorial_content_steps">\"개발자 옵션\"으로 이동한 다음 \"USB 디버깅\"과 \"무선 디버깅\"을
         활성화합니다.</string>
     <string name="adb_pairing_tutorial_content_enter_pairing_code">\"무선 디버깅\"의 왼쪽을 탭한 다음 \"페어링 코드로
         기기 페어링\"을 탭합니다. 알림에 있는 코드를 입력하여 페어링을 완료합니다.</string>
-    <string name="adb_pairing_tutorial_content_notification_blocked">페어링 프로세스에서는 Shizuku의 알림과 상호
-        작용해야 합니다. Shizuku가 알림을 게시하도록 허용하십시오.</string>
+    <string name="adb_pairing_tutorial_content_notification_blocked">페어링 프로세스에서는 白い熊 雫의 알림과 상호
+        작용해야 합니다. 白い熊 雫가 알림을 게시하도록 허용하십시오.</string>
     <string name="adb_pairing_tutorial_content_miui">MIUI 사용자는 시스템 설정의 \"알림\" - \"알림 창\"에서 알림 스타일을
         \"Android\"로 전환해야 합니다.</string>
     <string name="adb_pairing_tutorial_content_miui_2">그렇지 않으면 알림에서 페어링 코드를 입력하지 못할 수도 있습니다.</string>
@@ -79,7 +79,7 @@
         포그라운드 서비스를 사용하더라도 보이지 않으면 네트워크에 접속하지 못하게 합니다. 해당 시스템에서는 시즈쿠의 배터리 최적화 기능을 비활성화해 주세요.</string>
     <!-- Home - Root -->
     <string name="home_root_title"><![CDATA[시작 (루팅된 기기용)]]></string>
-    <string name="home_root_description"><![CDATA[Magisk를 사용 중이라면 %1$s를 사용해 보세요. 루트 사용자의 경우, 이 명령은 Shizuku를 대체하게 됩니다. 참고: %2$s를 사용하려면 기존 애플리케이션을 약간 변경해야 합니다.]]></string>
+    <string name="home_root_description"><![CDATA[Magisk를 사용 중이라면 %1$s를 사용해 보세요. 루트 사용자의 경우, 이 명령은 白い熊 雫를 대체하게 됩니다. 참고: %2$s를 사용하려면 기존 애플리케이션을 약간 변경해야 합니다.]]></string>
     <string name="home_root_button_start">시작</string>
     <string name="home_root_button_restart">재시작</string>
     <!-- Home - Application management -->
@@ -88,10 +88,10 @@
         <item quantity="other"><![CDATA[%d개 앱 인증됨]]></item>
     </plurals>
     <string name="home_app_management_view_authorized_apps"><![CDATA[탭하여 인증된 앱 관리]]></string>
-    <string name="home_app_management_empty">Shizuku 권한을 요청하거나 선언한 앱이 여기에 표시됩니다.</string>
+    <string name="home_app_management_empty">白い熊 雫 권한을 요청하거나 선언한 앱이 여기에 표시됩니다.</string>
     <!-- Home - Automation -->
-    <string name="home_automation_title">자동화 앱으로 Shizuku 제어</string>
-    <string name="home_automation_description">Tasker 및 MacroDroid와 같은 앱은 Shizuku를 자동으로 시작/중지하는 인텐트를
+    <string name="home_automation_title">자동화 앱으로 白い熊 雫 제어</string>
+    <string name="home_automation_description">Tasker 및 MacroDroid와 같은 앱은 白い熊 雫를 자동으로 시작/중지하는 인텐트를
         보낼 수 있습니다.</string>
     <string name="home_automation_button_view_intents">의도 보기</string>
     <string name="home_automation_dialog_label_action">행동</string>
@@ -100,26 +100,26 @@
     <string name="home_automation_dialog_label_target">목표</string>
     <!-- Home - Learn more -->
     <string name="home_learn_more_title">개발자 가이드</string>
-    <string name="home_learn_more_description">Shizuku로 개발하는 방법 알아보기</string>
+    <string name="home_learn_more_description">白い熊 雫로 개발하는 방법 알아보기</string>
     <!-- Home - Adb permissions limited -->
     <string name="home_adb_is_limited_title">추가 단계를 진행해야 합니다</string>
-    <string name="home_adb_is_limited_description">디바이스 제조업체에서 ADB 권한을 제한하여 Shizuku를 사용하는 앱이 제대로
+    <string name="home_adb_is_limited_description">디바이스 제조업체에서 ADB 권한을 제한하여 白い熊 雫를 사용하는 앱이 제대로
         작동하지 않습니다.
         \n
         \n일반적으로 \'개발자 옵션\'에서 일부 옵션을 조정하여 이 제한을 해제할 수 있습니다. 자세한 방법은 도움말을 참조하세요.
         \n
-        \n작업을 적용하려면 Shizuku를 다시 시작해야 할 수도 있습니다.</string>
+        \n작업을 적용하려면 白い熊 雫를 다시 시작해야 할 수도 있습니다.</string>
     <!-- Application management -->
     <string name="app_management_dialog_adb_is_limited_title">ADB의 권한이 제한됨</string>
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[기기 제조사에서 ADB의 권한을 제한하고 있을 가능성이 높습니다.<p><b><a href="%1$s">이 문서</a></b>에 시스템에 대한 해결 방안이 있을 수 있습니다.]]></string>
-    <string name="app_management_item_summary_requires_root">* 루트 권한으로 실행된 Shizuku 필요</string>
+    <string name="app_management_item_summary_requires_root">* 루트 권한으로 실행된 白い熊 雫 필요</string>
     <string name="app_management_toggle_all">모두 전환</string>
     <!-- Terminal -->
-    <string name="home_terminal_title">터미널에서 Shizuku 사용</string>
-    <string name="home_terminal_description">Shizuku를 통해 터미널 앱에서 셸 명령 실행</string>
+    <string name="home_terminal_title">터미널에서 白い熊 雫 사용</string>
+    <string name="home_terminal_description">白い熊 雫를 통해 터미널 앱에서 셸 명령 실행</string>
     <string name="terminal_tutorial_miui">사용자들은 MIUI가 내보내기 기능에서 사용되는 Storage Access Framework를
         손상시킨다고 보고했습니다.</string>
-    <string name="terminal_tutorial_miui_2">MIUI를 사용하는 경우 Shizuku APK의 assets 폴더에서 파일을 추출해야 할 수도
+    <string name="terminal_tutorial_miui_2">MIUI를 사용하는 경우 白い熊 雫 APK의 assets 폴더에서 파일을 추출해야 할 수도
         있습니다.</string>
     <string name="terminal_tutorial_1">파일을 새 폴더로 내보냅니다.</string>
     <string name="terminal_tutorial_1_description">%1$s 및 %2$s두 개의 파일이 내보내집니다. 선택한 폴더에 해당 파일이 이미 있는
@@ -140,9 +140,9 @@
         못합니다.\n\n재부팅할 때마다 인증 대화상자가 뜰 때 \"허용\" 버튼을 눌러 네트워크를 재승인해야 합니다.</string>
     <string name="settings_use_system_color">시스템 테마 색상 사용</string>
     <string name="settings_watchdog">지키는 개</string>
-    <string name="settings_watchdog_summary">Shizuku가 충돌하면 자동으로 다시 시작합니다.</string>
+    <string name="settings_watchdog_summary">白い熊 雫가 충돌하면 자동으로 다시 시작합니다.</string>
     <string name="settings_tcp_mode">TCP 모드</string>
-    <string name="settings_tcp_mode_summary">"Shizuku가 Wi-Fi 없이 재시작할 수 있도록 합니다. (Shizuku는 재부팅 후 한 번
+    <string name="settings_tcp_mode_summary">"白い熊 雫가 Wi-Fi 없이 재시작할 수 있도록 합니다. (白い熊 雫는 재부팅 후 한 번
         시작되어야 합니다.)"</string>
     <string name="settings_tcp_mode_dialog_close_port">"TCP 포트가 즉시 닫힙니다. TCP 모드를 다시 켜려면 Wi-Fi에 연결해야
         합니다. 계속하시겠습니까?"</string>
@@ -153,7 +153,7 @@
     <string name="settings_tcp_port">TCP 포트</string>
     <string name="settings_tcp_port_default">기본값(5555)</string>
     <string name="settings_tcp_port_hint">기본값(5555)을 사용하려면 비워두세요.</string>
-    <string name="settings_tcp_learn_more">자동화 앱을 사용하여 Shizuku를 제어하는 방법에 대해 자세히 알아보세요.</string>
+    <string name="settings_tcp_learn_more">자동화 앱을 사용하여 白い熊 雫를 제어하는 방법에 대해 자세히 알아보세요.</string>
     <string name="settings_language">언어</string>
     <string name="settings_translation_contributors">번역 기여자</string>
     <string name="settings_translation">번역 참여</string>
@@ -199,12 +199,12 @@
     <!-- Start -->
     <string name="action_start">시즈쿠 시작</string>
     <!-- Stop -->
-    <string name="action_stop">Shizuku 중지</string>
-    <string name="dialog_stop_message">Shizuku 서비스가 중지됩니다.</string>
+    <string name="action_stop">白い熊 雫 중지</string>
+    <string name="dialog_stop_message">白い熊 雫 서비스가 중지됩니다.</string>
     <!-- Notification -->
     <string name="notification_channel_service_status">서비스 시작 상태</string>
-    <string name="notification_service_starting">Shizuku 서비스가 시작 중입니다…</string>
-    <string name="notification_service_start_failed">Shizuku 서비스를 시작할 수 없습니다.</string>
+    <string name="notification_service_starting">白い熊 雫 서비스가 시작 중입니다…</string>
+    <string name="notification_service_start_failed">白い熊 雫 서비스를 시작할 수 없습니다.</string>
     <string name="notification_service_start_no_root">루트 권한을 요청하지 못했습니다.</string>
     <string name="notification_working">진행 중…</string>
     <string name="notification_channel_adb_pairing">무선 디버깅 페어링</string>
@@ -214,12 +214,12 @@
     <string name="notification_adb_pairing_stop_searching">검색 중지</string>
     <string name="notification_adb_pairing_working_title">페어링 진행 중</string>
     <string name="notification_adb_pairing_succeed_title">페어링 성공</string>
-    <string name="notification_adb_pairing_succeed_text">지금 Shizuku 서비스를 시작할 수 있습니다.</string>
+    <string name="notification_adb_pairing_succeed_text">지금 白い熊 雫 서비스를 시작할 수 있습니다.</string>
     <string name="notification_adb_pairing_failed_title">페어링 실패</string>
     <string name="notification_adb_pairing_retry">재시도</string>
     <!-- Permission related, appears in system permission UI -->
-    <string name="permission_label">Shizuku에 접근</string>
-    <string name="permission_description">앱이 Shizuku를 사용하도록 허용합니다.</string>
+    <string name="permission_label">白い熊 雫에 접근</string>
+    <string name="permission_description">앱이 白い熊 雫를 사용하도록 허용합니다.</string>
     <string name="permission_warning_template"><![CDATA[<b>%1$s</b>을(를) %2$s에 허용하시겠습니까\?]]></string>
     <string name="grant_dialog_button_allow_always">항상 허용</string>
     <string name="grant_dialog_button_deny">"거부"</string>
@@ -233,7 +233,7 @@
     <string name="wadb_error_title">부팅 시 시작 중 오류 발생</string>
     <string name="wadb_error_notify_dev">개발자에게 알리려면 탭하세요.</string>
     <string name="wadb_permission_error_notification_title">권한 오류</string>
-    <string name="wadb_permission_error_notification_content">Shizuku를 부팅 시 시작하려면
+    <string name="wadb_permission_error_notification_content">白い熊 雫를 부팅 시 시작하려면
         WRITE_SECURE_SETTINGS 권한이 필요합니다. 탭하여 권한을 부여하는 방법을 알아보세요.</string>
     <string name="wadb_notification_channel">ADB 자동 시작 서비스</string>
     <!-- Watchdog -->
@@ -247,13 +247,13 @@
     <string name="dialog_cannot_open_browser_title">브라우저를 실행할 수 없음</string>
     <string name="toast_copied_to_clipboard">클립보드에 복사됨</string>
     <string name="accessibility_service_description">알림이나 분할 화면을 사용할 수 없는 기기(예: Android 14 이상을 실행하는
-        TV)에 대한 페어링 지원을 제공합니다.\n\nShizuku가 무선 디버깅 페어링 화면에서 페어링 코드를 추출할 수 있도록 합니다. 페어링 코드를 찾으면
-        Shizuku가 자동으로 비활성화됩니다.</string>
+        TV)에 대한 페어링 지원을 제공합니다.\n\n白い熊 雫가 무선 디버깅 페어링 화면에서 페어링 코드를 추출할 수 있도록 합니다. 페어링 코드를 찾으면
+        白い熊 雫가 자동으로 비활성화됩니다.</string>
     <!-- Messages for legacy -->
-    <string name="dialog_legacy_not_support_title">%1$s는 최신 Shizuku를 지원하지 않음</string>
-    <string name="dialog_legacy_not_support_message"><![CDATA[구형 Shizuku는 2019년 3월에 지원이 중단되었습니다. 또한, 구형 Shizuku는 새로운 안드로이드 시스템에서 동작하지 않습니다.<p><b>%1$s</b> 개발자에게 업데이트를 문의하세요.]]></string>
-    <string name="dialog_requesting_legacy_title">%1$s가 구형 Shizuku를 요청하고 있음</string>
-    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b>가 최신 Shizuku를 지원하지만, 구형 Shizuku를 요청하고 있습니다. Shizuku가 실행 중이지 않아서 발생할 수 있으니 Shizuku 앱에서 확인하세요.<p>구형 Shizuku는 2019년 3월 부터 지원이 중단되었습니다.]]></string>
-    <string name="dialog_requesting_legacy_button_open_shizuku">Shizuku 열기</string>
+    <string name="dialog_legacy_not_support_title">%1$s는 최신 白い熊 雫를 지원하지 않음</string>
+    <string name="dialog_legacy_not_support_message"><![CDATA[구형 白い熊 雫는 2019년 3월에 지원이 중단되었습니다. 또한, 구형 白い熊 雫는 새로운 안드로이드 시스템에서 동작하지 않습니다.<p><b>%1$s</b> 개발자에게 업데이트를 문의하세요.]]></string>
+    <string name="dialog_requesting_legacy_title">%1$s가 구형 白い熊 雫를 요청하고 있음</string>
+    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b>가 최신 白い熊 雫를 지원하지만, 구형 白い熊 雫를 요청하고 있습니다. 白い熊 雫가 실행 중이지 않아서 발생할 수 있으니 白い熊 雫 앱에서 확인하세요.<p>구형 白い熊 雫는 2019년 3월 부터 지원이 중단되었습니다.]]></string>
+    <string name="dialog_requesting_legacy_button_open_shizuku">白い熊 雫 열기</string>
     <string name="wadb_notification_attempt_now">지금 시도하세요</string>
 </resources>

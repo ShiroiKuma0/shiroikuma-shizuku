@@ -8,7 +8,7 @@
     <string name="home_status_service_version_update"><![CDATA[バージョン %2$s, %1$s<br>バージョン %3$s にアップデートするには、再度起動してください]]></string>
     <!-- Home - Adb -->
     <string name="home_adb_title"><![CDATA[コンピュータに接続して開始する]]></string>
-    <string name="home_adb_description"><![CDATA[root権限を持たないデバイスの場合、adbを使ってShizukuを起動する必要があります（コンピュータへの接続が必要）。この作業は、端末を再起動するたびに繰り返す必要があります。<b><a href="%1$s">詳しくはヘルプをお読みください</a></b>。]]></string>
+    <string name="home_adb_description"><![CDATA[root権限を持たないデバイスの場合、adbを使って白い熊 雫を起動する必要があります（コンピュータへの接続が必要）。この作業は、端末を再起動するたびに繰り返す必要があります。<b><a href="%1$s">詳しくはヘルプをお読みください</a></b>。]]></string>
     <string name="home_adb_button_view_help">ヘルプ</string>
     <string name="home_adb_button_view_command">コマンドを表示する</string>
     <string name="home_adb_dialog_view_command_message"><![CDATA[<font face=monospace>%1$s</font><br><br>* 他にもいくつか注意点がありますので、まずはヘルプを読んで確認してください。]]></string>
@@ -16,14 +16,14 @@
     <string name="home_adb_dialog_view_command_button_send">送信</string>
     <!-- Home - Wireless Adb -->
     <string name="home_wireless_adb_title"><![CDATA[ワイヤレスデバッグで開始]]></string>
-    <string name="home_wireless_adb_description"><![CDATA[Android 11以上ではワイヤレスデバッグを有効にして、コンピュータに接続することなくデバイスから直接Shizukuを起動できます。<p>詳しくはガイドをご覧ください。]]></string>
+    <string name="home_wireless_adb_description"><![CDATA[Android 11以上ではワイヤレスデバッグを有効にして、コンピュータに接続することなくデバイスから直接白い熊 雫を起動できます。<p>詳しくはガイドをご覧ください。]]></string>
     <string name="home_wireless_adb_description_pre_11"><![CDATA[Android 11以前では、ワイヤレスデバッグを有効にするためにパソコンとの接続が必要です。]]></string>
     <string name="home_wireless_adb_view_guide_button">ガイド</string>
     <!-- Adb -->
     <string name="dialog_adb_discovery">ワイヤレスデバッグサービスの検索</string>
     <string name="dialog_adb_discovery_message">「開発者向けオプション」で「ワイヤレスデバッグ」を有効にしてください。ネットワークが変更されると、「ワイヤレスデバッグ」は自動的に無効になります。
         \n
-        \n注意:「開発者向けオプション」や「USBデバッグ」を無効にしないでください。無効にすると、Shizukuが停止してしまいます。</string>
+        \n注意:「開発者向けオプション」や「USBデバッグ」を無効にしないでください。無効にすると、白い熊 雫が停止してしまいます。</string>
     <string name="dialog_adb_discovery_message_toggle_wireless_debugging">
         検索され続ける場合は、「ワイヤレスデバッグ」の無効化と有効化をしてみてください。</string>
     <string name="dialog_adb_port">ポート</string>
@@ -34,7 +34,7 @@
     <string name="dialog_adb_pairing_paring_code">ペアリングコード</string>
     <string name="paring_code_is_wrong">ペアリングコードが間違っています。</string>
     <string name="cannot_connect_port">
-        ワイヤレスデバッグサービスに接続できません。\n\nShizukuがすべてのファイアウォール、広告ブロック、VPNなどネットワークアクセスを制限できるアプリでホワイトリストに登録されていることを必ず確認してください。</string>
+        ワイヤレスデバッグサービスに接続できません。\n\n白い熊 雫がすべてのファイアウォール、広告ブロック、VPNなどネットワークアクセスを制限できるアプリでホワイトリストに登録されていることを必ず確認してください。</string>
     <string name="dialog_wireless_adb_not_enabled">ワイヤレスデバッグが有効になっていません。
         \nなお、Android 11以前のバージョンでは、ワイヤレスデバッグを有効化するためには、コンピューターの接続が必要です。</string>
     <string name="dialog_usb_debugging_not_enabled">USBデバッグが有効になっていません。\n「開発者向けオプション」で有効にしてください。</string>
@@ -42,14 +42,14 @@
         「USBデバッグ」と「ワイヤレスデバッグ」を有効にします。\n- 「ワイヤレスデバッグ」の左側をタップします。\n- 「ペアリングコードでデバイスをペアリング」をタップします。\n-
         通知にペアリングコードを入力します。</string>
     <string name="dialog_adb_pairing_accessibility_permission">Android 14 では、パッケージ インストーラーを使用して
-        Shizuku をインストール/更新すると、ペアリング用のアクセシビリティ サービスを有効にするために必要な ^1 権限が取り消されます。\n\nこれを許可するには、次の ADB
-        コマンドを実行します。\n\n^2\n\nコマンドを実行したら、ペアリング プロセスを続行できます。\n\n注: ADB を使用して Shizuku
+        白い熊 雫 をインストール/更新すると、ペアリング用のアクセシビリティ サービスを有効にするために必要な ^1 権限が取り消されます。\n\nこれを許可するには、次の ADB
+        コマンドを実行します。\n\n^2\n\nコマンドを実行したら、ペアリング プロセスを続行できます。\n\n注: ADB を使用して 白い熊 雫
         をインストール/更新すると、これを回避できます。</string>
-    <string name="dialog_adb_pairing_accessibility_enable">ペアリングプロセスを開始するには、アクセシビリティサービスを有効にしてください。これにより、Shizuku
+    <string name="dialog_adb_pairing_accessibility_enable">ペアリングプロセスを開始するには、アクセシビリティサービスを有効にしてください。これにより、白い熊 雫
         はペアリングコードを検出できます。\n\nコードが見つかった場合、または1分後に節電のためアクセシビリティサービスはオフになります。</string>
     <string name="dialog_adb_pairing_accessibility_navigate">以下の手順に従ってペアリングを開始してください。\n-
         「開発者向けオプション」に移動します。\n- 「USBデバッグ」と「ワイヤレスデバッグ」を有効にします。\n- 「ワイヤレスデバッグ」の左側をタップします。\n-
-        「ペアリングコードでデバイスをペアリング」をタップします。Shizukuはペアリングコードを自動的に検出します。</string>
+        「ペアリングコードでデバイスをペアリング」をタップします。白い熊 雫はペアリングコードを自動的に検出します。</string>
     <string name="adb_pairing_requires_multi_window">最初に分割画面（マルチウィンドウ）モードに入ってください。</string>
     <string name="adb_pairing_requires_multi_window_reason">
         このシステムはペアリングダイアログが常に見えることを求めています。分割画面モードを使うことが、このアプリとシステムのダイアログを同時に表示する唯一の方法です。</string>
@@ -60,14 +60,14 @@
     <string name="enable">有効にする</string>
     <string name="development_settings">開発者向けオプション</string>
     <string name="notification_settings">通知オプション</string>
-    <string name="adb_pairing_tutorial_title">お使いのデバイスとShizukuをペアリングする</string>
-    <string name="adb_pairing_tutorial_content_notification">Shizukuからの通知でペアリングが完了します。</string>
+    <string name="adb_pairing_tutorial_title">お使いのデバイスと白い熊 雫をペアリングする</string>
+    <string name="adb_pairing_tutorial_content_notification">白い熊 雫からの通知でペアリングが完了します。</string>
     <string name="adb_pairing_tutorial_content_steps">「開発者向けオプション」に移動し、「USB デバッグ」と「ワイヤレス
         デバッグ」を有効にします。</string>
     <string name="adb_pairing_tutorial_content_enter_pairing_code">
         「ワイヤレスデバッグ」の左側をタップし、「ペアリングコードでデバイスをペアリング」をタップします。通知に記載されているコードを入力してペアリングを完了します。</string>
     <string name="adb_pairing_tutorial_content_notification_blocked">
-        ペアリング手順はShizukuからの通知を操作する必要があります。Shizukuからの通知を許可してください。</string>
+        ペアリング手順は白い熊 雫からの通知を操作する必要があります。白い熊 雫からの通知を許可してください。</string>
     <string name="adb_pairing_tutorial_content_miui">
         MIUIユーザーはシステムの設定から「通知」→「通知のシェード」から通知スタイルを「Android」に変更する必要がある場合があります。</string>
     <string name="adb_pairing_tutorial_content_miui_2">そうでなければ、通知からペアリングコードを入力できない可能性があります。</string>
@@ -78,7 +78,7 @@
         一部のシステム(MIUIなど)は、アプリがフォアグラウンドサービスを使っていても、見えないアプリがネットワークにアクセスすることを許可しません。そのようなシステムでは、しずくのバッテリー最適化機能を無効にしてください。</string>
     <!-- Home - Root -->
     <string name="home_root_title"><![CDATA[開始(Root化された端末の場合のみ)]]></string>
-    <string name="home_root_description"><![CDATA[Magiskをお使いの場合は、 %1$sをお試しください。rootユーザーの場合、最終的にはShizukuに取って代わる予定です。ただし、既存のアプリケーションで %2$sを使用するには、少し変更が必要です。]]></string>
+    <string name="home_root_description"><![CDATA[Magiskをお使いの場合は、 %1$sをお試しください。rootユーザーの場合、最終的には白い熊 雫に取って代わる予定です。ただし、既存のアプリケーションで %2$sを使用するには、少し変更が必要です。]]></string>
     <string name="home_root_button_start">開始</string>
     <string name="home_root_button_restart">再起動</string>
     <!-- Home - Application management -->
@@ -87,10 +87,10 @@
         <item quantity="other"><![CDATA[承認された %d 個のアプリケーション]]></item>
     </plurals>
     <string name="home_app_management_view_authorized_apps"><![CDATA[タップで許可されたアプリを管理]]></string>
-    <string name="home_app_management_empty">Shizuku の権限を要求または宣言したアプリがここに表示されます。</string>
+    <string name="home_app_management_empty">白い熊 雫 の権限を要求または宣言したアプリがここに表示されます。</string>
     <!-- Home - Automation -->
-    <string name="home_automation_title">自動化アプリでShizukuを制御する</string>
-    <string name="home_automation_description">Tasker や MacroDroid などのアプリは、Shizuku
+    <string name="home_automation_title">自動化アプリで白い熊 雫を制御する</string>
+    <string name="home_automation_description">Tasker や MacroDroid などのアプリは、白い熊 雫
         を自動的に起動/停止するインテントを送信できます。</string>
     <string name="home_automation_button_view_intents">インテントを表示</string>
     <string name="home_automation_dialog_label_action">アクション</string>
@@ -99,26 +99,26 @@
     <string name="home_automation_dialog_label_target">ターゲット</string>
     <!-- Home - Learn more -->
     <string name="home_learn_more_title">開発者ガイド</string>
-    <string name="home_learn_more_description">Shizukuを使った開発方法、Shizukuを使ったアプリの入手方法について学ぶことができます</string>
+    <string name="home_learn_more_description">白い熊 雫を使った開発方法、白い熊 雫を使ったアプリの入手方法について学ぶことができます</string>
     <!-- Home - Adb permissions limited -->
     <string name="home_adb_is_limited_title">もう一段階行う必要がある</string>
-    <string name="home_adb_is_limited_description">お使いの端末製造元は adb 権限を制限しており､ Shizuku
+    <string name="home_adb_is_limited_description">お使いの端末製造元は adb 権限を制限しており､ 白い熊 雫
         を使用するアプリは正しく動作しません。
         \n
         \n通常､ この制限は「開発者向けオプション」のいくつかの項目を調整することで解除できます。これを行う方法の詳細については､ ヘルプをお読みください。
         \n
-        \n操作を有効にするために､ Shizukuを再起動する必要がある場合があります。</string>
+        \n操作を有効にするために､ 白い熊 雫を再起動する必要がある場合があります。</string>
     <!-- Application management -->
     <string name="app_management_dialog_adb_is_limited_title">adbの権限が制限されています</string>
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[端末の製造元がadbの権限を制限している可能性が高いです。<p> <b><a href="%1$s">このドキュメント</a></b>の中に、あなたのシステムに合った解決策があるかもしれません。]]></string>
-    <string name="app_management_item_summary_requires_root">* root権限でShizukuを実行する必要があります</string>
+    <string name="app_management_item_summary_requires_root">* root権限で白い熊 雫を実行する必要があります</string>
     <string name="app_management_toggle_all">すべて切り替え</string>
     <!-- Terminal -->
-    <string name="home_terminal_title">ターミナルアプリで「Shizuku」を利用する</string>
-    <string name="home_terminal_description">Shizuku を介してターミナルアプリでシェルコマンドを実行する</string>
+    <string name="home_terminal_title">ターミナルアプリで「白い熊 雫」を利用する</string>
+    <string name="home_terminal_description">白い熊 雫 を介してターミナルアプリでシェルコマンドを実行する</string>
     <string name="terminal_tutorial_miui">ユーザーからは、MIUI がエクスポート機能で使用されるストレージ アクセス
         フレームワークを壊すという報告があります。</string>
-    <string name="terminal_tutorial_miui_2">MIUI を使用している場合は、Shizuku の APK のアセット
+    <string name="terminal_tutorial_miui_2">MIUI を使用している場合は、白い熊 雫 の APK のアセット
         フォルダーからファイルを抽出する必要がある場合があります。</string>
     <string name="terminal_tutorial_1">ファイルを新しいフォルダにエクスポートします。</string>
     <string name="terminal_tutorial_1_description">2つのファイルがエクスポートされます: %1$s と
@@ -140,10 +140,10 @@
         11-12のバグにより、無線デバッグは認可されたネットワークを記憶しません。\n\n再開のたびに、認証ダイアログが表示されたら「許可」をタップしてネットワークを再認証する必要があります。</string>
     <string name="settings_use_system_color">ダイナミック カラー</string>
     <string name="settings_watchdog">ウォッチドッグ</string>
-    <string name="settings_watchdog_summary">Shizukuがクラッシュした場合に自動的に再起動する</string>
+    <string name="settings_watchdog_summary">白い熊 雫がクラッシュした場合に自動的に再起動する</string>
     <string name="settings_tcp_mode">TCPモード</string>
     <string name="settings_tcp_mode_summary">
-        "Wi-FiなしでShizukuを再起動できるようにします。（再起動後、Shizukuが一度起動している必要があります）"</string>
+        "Wi-Fiなしで白い熊 雫を再起動できるようにします。（再起動後、白い熊 雫が一度起動している必要があります）"</string>
     <string name="settings_tcp_mode_dialog_close_port">
         "TCPポートは直ちに閉じられます。TCPモードを再度オンにするにはWi-Fiが必要です。続行しますか？"</string>
     <string name="settings_tcp_mode_closing_port">TCP ポートを閉じています...</string>
@@ -153,7 +153,7 @@
     <string name="settings_tcp_port">TCPポート</string>
     <string name="settings_tcp_port_default">デフォルト(5555)</string>
     <string name="settings_tcp_port_hint">デフォルト（5555）を使用するには空白のままにしてください</string>
-    <string name="settings_tcp_learn_more">自動化アプリを使用してShizukuを制御する方法について詳しくは、こちらをご覧ください。</string>
+    <string name="settings_tcp_learn_more">自動化アプリを使用して白い熊 雫を制御する方法について詳しくは、こちらをご覧ください。</string>
     <string name="settings_language">言語</string>
     <string name="settings_translation_contributors">翻訳協力者</string>
     <string name="settings_translation">翻訳作業に参加</string>
@@ -200,12 +200,12 @@
     <!-- Start -->
     <string name="action_start">しずくスタート</string>
     <!-- Stop -->
-    <string name="action_stop">Shizukuを停止する</string>
-    <string name="dialog_stop_message">Shizukuのサービスを停止します。</string>
+    <string name="action_stop">白い熊 雫を停止する</string>
+    <string name="dialog_stop_message">白い熊 雫のサービスを停止します。</string>
     <!-- Notification -->
     <string name="notification_channel_service_status">サービス開始状況</string>
-    <string name="notification_service_starting">Shizukuを開始しています…</string>
-    <string name="notification_service_start_failed">Shizukuを開始することができませんでした。</string>
+    <string name="notification_service_starting">白い熊 雫を開始しています…</string>
+    <string name="notification_service_start_failed">白い熊 雫を開始することができませんでした。</string>
     <string name="notification_service_start_no_root">root権限の要求に失敗しました。</string>
     <string name="notification_working">実行中…</string>
     <string name="notification_channel_adb_pairing">ワイヤレスデバックペアリング</string>
@@ -215,12 +215,12 @@
     <string name="notification_adb_pairing_stop_searching">探すことを停止させます</string>
     <string name="notification_adb_pairing_working_title">ペアリング中</string>
     <string name="notification_adb_pairing_succeed_title">ペアリングしました</string>
-    <string name="notification_adb_pairing_succeed_text">Shizukuサービスをスタートさせられます。</string>
+    <string name="notification_adb_pairing_succeed_text">白い熊 雫サービスをスタートさせられます。</string>
     <string name="notification_adb_pairing_failed_title">ペアリングに失敗しました</string>
     <string name="notification_adb_pairing_retry">再試行</string>
     <!-- Permission related, appears in system permission UI -->
-    <string name="permission_label">Shizukuにアクセスする</string>
-    <string name="permission_description">アプリでShizukuの使用を許可します。</string>
+    <string name="permission_label">白い熊 雫にアクセスする</string>
+    <string name="permission_description">アプリで白い熊 雫の使用を許可します。</string>
     <string name="permission_warning_template"><![CDATA[<b>%1$s</b> に「%2$s」を許可しますか？]]></string>
     <string name="grant_dialog_button_allow_always">常に許可</string>
     <string name="grant_dialog_button_deny">"許可しない"</string>
@@ -235,7 +235,7 @@
     <string name="wadb_error_notify_dev">タップして開発者に通知します。</string>
     <string name="wadb_permission_error_notification_title">権限エラー</string>
     <string name="wadb_permission_error_notification_content">
-        Shizukuを起動するにはWRITE_SECURE_SETTINGSが必要です。タップして許可方法をご確認ください。</string>
+        白い熊 雫を起動するにはWRITE_SECURE_SETTINGSが必要です。タップして許可方法をご確認ください。</string>
     <string name="wadb_notification_channel">ADB自動起動サービス</string>
     <!-- Watchdog -->
     <string name="watchdog_running">ウォッチドッグが稼働中</string>
@@ -249,12 +249,12 @@
     <string name="toast_copied_to_clipboard">クリップボードにコピーされました</string>
     <string name="accessibility_service_description">
         通知や分割画面が使用できないデバイス（例：Android
-        14以降を搭載したテレビ）のペアリングサポートを提供します。\n\nShizukuがワイヤレスデバッグペアリング画面からペアリングコードを抽出できるようにします。ペアリングコードが見つかると、Shizukuは自動的に無効になります。</string>
+        14以降を搭載したテレビ）のペアリングサポートを提供します。\n\n白い熊 雫がワイヤレスデバッグペアリング画面からペアリングコードを抽出できるようにします。ペアリングコードが見つかると、白い熊 雫は自動的に無効になります。</string>
     <!-- Messages for legacy -->
-    <string name="dialog_legacy_not_support_title">%1$s は最新の Shizuku をサポートしていません</string>
-    <string name="dialog_legacy_not_support_message"><![CDATA[古いバージョンのShizukuは2019年3月より非推奨となりました。また、古いバージョンのShizukuは新しいAndroidシステムでは動作しません。<p><b>%1$s</b>の開発者にアップデートを依頼してください。]]></string>
-    <string name="dialog_requesting_legacy_title">%1$s は古いバージョンのShizukuを要求しています</string>
-    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b>は最新のShizukuをサポートしていますが、古いバージョンのShizukuを要求しています。これは、Shizukuが実行されていない可能性があります。Shizukuアプリで確認してください。<p>古いバージョンのShizukuは2019年3月から非推奨となっています。]]></string>
-    <string name="dialog_requesting_legacy_button_open_shizuku">Shizukuを開く</string>
+    <string name="dialog_legacy_not_support_title">%1$s は最新の 白い熊 雫 をサポートしていません</string>
+    <string name="dialog_legacy_not_support_message"><![CDATA[古いバージョンの白い熊 雫は2019年3月より非推奨となりました。また、古いバージョンの白い熊 雫は新しいAndroidシステムでは動作しません。<p><b>%1$s</b>の開発者にアップデートを依頼してください。]]></string>
+    <string name="dialog_requesting_legacy_title">%1$s は古いバージョンの白い熊 雫を要求しています</string>
+    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b>は最新の白い熊 雫をサポートしていますが、古いバージョンの白い熊 雫を要求しています。これは、白い熊 雫が実行されていない可能性があります。白い熊 雫アプリで確認してください。<p>古いバージョンの白い熊 雫は2019年3月から非推奨となっています。]]></string>
+    <string name="dialog_requesting_legacy_button_open_shizuku">白い熊 雫を開く</string>
     <string name="wadb_notification_attempt_now">今すぐ試す</string>
 </resources>
