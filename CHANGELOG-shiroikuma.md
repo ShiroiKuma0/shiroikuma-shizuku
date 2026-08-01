@@ -5,6 +5,60 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2201.2026-08-01.g14550b5e+004
+
+Rebased onto upstream `13.6.0.r2201`. Upstream's six commits are one investigation: **`rish` and
+`sh plus` were broken end to end** — a hardcoded package id in the starter, another in the shell
+loader, R8 stripping `PlusShell` for want of a `-keep` rule, and a consent dialog that Android's
+background-activity-start rules silently dropped so the failure read as a timeout. All four are in.
+
+### The manager package id comes from one place now
+
+Two of upstream's fixes rewrote exactly the files where this fork hand-wrote `shiroikuma.shizuku`,
+which is the treadmill the djchi ledger's "package-name de-hardcoding" row has been describing for
+months. It is settled: `gradle.properties → APP_ID` is injected as a `buildConfigField` into
+`:shell` and `:starter`, alongside the `:manager` `applicationId` that already read it.
+
+Upstream's `resolveManagerPackageName()` probe is kept whole; only its first entry changed, from a
+literal to `BuildConfig.MANAGER_APPLICATION_ID`. Upstream needs two literals because one server
+binary serves two applicationIds — this fork never builds the Drop-In flavor, so its id is fixed at
+build time and the probe is only a safety net. The starter took upstream's side outright: it now
+receives the server's already-resolved id as a `--manager=` argument, which is better than any
+literal because the value comes from the one process that actually knows.
+
+djchi's alternative — deriving the id from the APK path — was examined and **not** taken. The
+`rish`/`plus` scripts set `CLASSPATH` to `rish_shizuku.dex`, not the manager APK, so that derivation
+can only ever work in the server process, which already self-corrects.
+
+### The stale-server prompt was a snackbar, and its tracking had a hole
+
+After an app update the privileged server is a *separate* process still running the old code, and it
+keeps serving it until restarted — silently breaking apps that connect through it. The prompt for
+that was a snackbar: bottom of the screen, reads as transient, and `SnackbarHelper` keeps a single
+global slot that any later snackbar takes over without a trace. It is now a house dialog, with
+**Restart server** in the emphasis slot and **Later** quiet.
+
+It drives the status card's own restart routine through a small hook rather than a second copy. That
+matters: without root the only shell this app can reach is the one the *running server* lends it, so
+a restart is deliberately **not** stop-then-start. The old snackbar's action was
+`set(STOPPING)` — precisely stop-then-start, which on a non-root device could leave wireless
+debugging as the only way back.
+
+Two supporting changes. "We cannot prove the server is current" no longer counts as fine: an
+unverified server prompts, tracked by its own key rather than `LAST_SEEN_VERSION`, which
+`ShizukuApplication` advances on every update long before the home screen runs. And the status card
+carries a persistent red line for as long as the condition holds, so dismissing the dialog does not
+make the problem invisible.
+
+**The tracking itself was recording intent, not outcome.** The build id was written the moment the
+state became `STARTING` — before anyone knew whether the start worked. A restart that *failed* while
+an older server was still alive settled straight back to RUNNING, and that stale server was then
+stamped with the current build: the skew masked permanently, in exactly the case the prompt exists
+for. Recording now happens in one place, the sticky binder-received callback, gated on a start of
+ours being in flight. A new binder arriving is a new server attaching; a failed restart produces no
+new binder at all. A missed recording leaves the value unknown, which prompts — an unnecessary
+prompt costs a tap, a missed one costs silent breakage.
+
 ## 13.6.0.r2195.2026-07-30.gac2ae085+011
 
 ### The app calls itself 白い熊 雫 everywhere
