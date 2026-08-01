@@ -156,7 +156,7 @@
             android:key="category_dhizuku_admin"
             android:title="@string/settings_plus_category_device_owner_tools"
             android:dependency="dhizuku_mode"
-            android:defaultValue="false">
+            android:defaultValue="true">
 
             <af.shizuku.manager.settings.GrayableIconSwitchPreference
                 android:key="dhizuku_disable_screencap"
@@ -187,7 +187,7 @@
         <af.shizuku.manager.settings.CollapsiblePreferenceCategory
             android:key="category_device_policy_powers"
             android:title="Device policy powers"
-            android:defaultValue="false">
+            android:defaultValue="true">
 
             <Preference
                 android:key="policy_status"
@@ -195,13 +195,6 @@
                 android:title="Device Owner required"
                 android:icon="@drawable/ic_admin_panel_settings_24"
                 android:selectable="false" />
-
-            <Preference
-                android:key="policy_authorize_app"
-                android:order="100"
-                android:title="Authorize another app…"
-                android:summary="Hand device-policy powers to a package by name"
-                android:icon="@drawable/ic_science_24" />
 
             <Preference
                 android:key="policy_accessibility"
