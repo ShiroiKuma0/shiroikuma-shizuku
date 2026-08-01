@@ -15,6 +15,7 @@ import androidx.preference.SwitchPreferenceCompat
 import af.shizuku.manager.admin.DeviceOwnerHelper
 import af.shizuku.manager.policy.AccessibilityBlocklist
 import af.shizuku.manager.policy.DevicePolicyApi
+import af.shizuku.manager.policy.DevicePolicyGrantUi
 import af.shizuku.manager.policy.PolicyAllowlist
 import af.shizuku.manager.shiroikuma.ShiroikumaDialogs
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
@@ -47,7 +48,6 @@ object DevicePolicyPowersSection {
 
     private const val KEY_CATEGORY = "category_device_policy_powers"
     private const val KEY_STATUS = "policy_status"
-    private const val KEY_AUTHORIZE = "policy_authorize_app"
     private const val KEY_ACCESSIBILITY = "policy_accessibility"
     private const val KEY_RESTRICTIONS = "policy_user_restriction"
     private const val KEY_VPN = "policy_always_on_vpn"
@@ -60,9 +60,6 @@ object DevicePolicyPowersSection {
     fun attach(fragment: PreferenceFragmentCompat) {
         val ctx = fragment.context ?: return
 
-        fragment.findPreference<Preference>(KEY_AUTHORIZE)?.setOnPreferenceClickListener {
-            showAuthorizePicker(fragment); true
-        }
         fragment.findPreference<Preference>(KEY_ACCESSIBILITY)?.setOnPreferenceClickListener {
             confirmThenAccessibility(fragment); true
         }
@@ -73,7 +70,10 @@ object DevicePolicyPowersSection {
             confirmThenVpn(fragment); true
         }
         fragment.findPreference<Preference>(KEY_CLEAR)?.setOnPreferenceClickListener {
-            confirmClearAll(fragment, null); true
+            DevicePolicyGrantUi.confirmClearLocks(
+                ctx, null, fragment.lifecycleScope
+            ) { refresh(fragment) }
+            true
         }
         fragment.findPreference<SwitchPreferenceCompat>(KEY_CAMERA)
             ?.setOnPreferenceChangeListener { pref, newValue ->
@@ -117,7 +117,7 @@ object DevicePolicyPowersSection {
 
         // A row that cannot work is disabled rather than hidden: hiding it would make the section
         // look complete while quietly doing nothing.
-        for (key in listOf(KEY_AUTHORIZE, KEY_ACCESSIBILITY, KEY_RESTRICTIONS, KEY_VPN, KEY_CAMERA, KEY_CLEAR)) {
+        for (key in listOf(KEY_ACCESSIBILITY, KEY_RESTRICTIONS, KEY_VPN, KEY_CAMERA, KEY_CLEAR)) {
             fragment.findPreference<Preference>(key)?.isEnabled = isOwner
         }
 
@@ -186,7 +186,12 @@ object DevicePolicyPowersSection {
                 isEnabled = isOwner
                 title = label(ctx, pkg)
                 summary = appRowSummary(ctx, pkg)
-                setOnPreferenceClickListener { showAppSheet(fragment, pkg); true }
+                setOnPreferenceClickListener {
+                    DevicePolicyGrantUi.showAppSheet(
+                        ctx, pkg, fragment.lifecycleScope
+                    ) { refresh(fragment) }
+                    true
+                }
             }
             category.addPreference(row)
         }
@@ -201,126 +206,6 @@ object DevicePolicyPowersSection {
             "$pkg — authorized for the policy API; the platform reports no delegated scopes"
         } else {
             "$pkg — ${scopes.size} delegated scope(s) + the policy API"
-        }
-    }
-
-    /**
-     * The per-app sheet: one switch that moves both halves, and a read-back of what the platform
-     * actually reports rather than what we asked for.
-     *
-     * Granting sits in the **negative** slot painted red, and Cancel in the positive one — the same
-     * asymmetry `DeviceOwnerHelper.confirmAndClear` uses, for the same reason: this hands another
-     * process the ability to fix permissions and suspend apps in ways the user cannot undo from
-     * Settings.
-     */
-    private fun showAppSheet(fragment: PreferenceFragmentCompat, pkg: String) {
-        val ctx = fragment.context ?: return
-        val authorized = PolicyAllowlist.allows(pkg)
-        val scopes = DeviceOwnerHelper.delegatedScopes(ctx, pkg)
-        val name = label(ctx, pkg)
-
-        if (!authorized) {
-            val body = buildString {
-                append("Allow device-policy powers for $name ($pkg)?\n\n")
-                append("This lets $name lock permissions so apps cannot restore them themselves, ")
-                append("suspend apps outright, and block their uninstallation — and it lets it ask ")
-                append("白い熊 雫 to block accessibility services, set device-wide restrictions, ")
-                append("pin an always-on VPN and disable the camera.\n\n")
-                append("⛔ None of it can be undone from Settings, by the affected app, or with adb. ")
-                append("Only 白い熊 雫 or $name can release what they set — use ")
-                append("“Clear all device-policy locks” below if you get stuck.\n\n")
-                append("The delegated half keeps working with 白い熊 雫 stopped, because the system ")
-                append("stores it. Turning this off later stops future calls but does not release ")
-                append("locks already in place.")
-            }
-            val dialog = MaterialAlertDialogBuilder(ctx)
-                .setTitle(danger("Allow device-policy powers"))
-                .setMessage(body)
-                .setPositiveButton(android.R.string.cancel, null)
-                .setNegativeButton("Allow") { _, _ -> grant(fragment, pkg) }
-                .showHouse()
-            ShiroikumaDialogs.markDestructive(dialog, DialogInterface.BUTTON_NEGATIVE)
-            return
-        }
-
-        val body = buildString {
-            append("$name ($pkg) holds device-policy powers.\n\n")
-            append("Delegated scopes, as the platform reports them:\n")
-            if (scopes.isEmpty()) {
-                append("  (none — the platform dropped or never stored them)\n")
-            } else {
-                scopes.forEach { append("  • $it\n") }
-            }
-            append("\nPolicy API: authorized (content://${ctx.packageName}.policy)\n\n")
-            append("Revoking stops future calls. It does NOT release permissions already fixed, ")
-            append("apps already suspended, or uninstall blocks already set — those were stored ")
-            append("under 白い熊 雫's admin and stay until they are cleared.")
-        }
-        val dialog = MaterialAlertDialogBuilder(ctx)
-            .setTitle(name)
-            .setMessage(body)
-            .setPositiveButton("Close", null)
-            .setNegativeButton("Revoke") { _, _ -> revoke(fragment, pkg) }
-            .showHouse()
-        ShiroikumaDialogs.markDestructive(dialog, DialogInterface.BUTTON_NEGATIVE)
-    }
-
-    private fun grant(fragment: PreferenceFragmentCompat, pkg: String) {
-        val ctx = fragment.context ?: return
-        PolicyAllowlist.add(pkg)
-        val delegated = DeviceOwnerHelper.delegate(ctx, pkg)
-        refresh(fragment)
-        if (delegated) {
-            ShiroikumaToast.show(ctx, "$pkg authorized", Toast.LENGTH_SHORT)
-        } else {
-            // The policy API half still works — say so, rather than reporting a flat failure.
-            ShiroikumaDialogs.ok(
-                ctx,
-                "Delegation refused",
-                "The policy API is authorized for $pkg, but the platform did not store the " +
-                    "delegated scopes — it reports none back.\n\n" +
-                    "$pkg will still be able to ask 白い熊 雫 to act on its behalf, but its own " +
-                    "process cannot fix permissions or suspend apps directly. This usually means " +
-                    "the package is not installed yet; authorize it again once it is."
-            )
-        }
-    }
-
-    private fun revoke(fragment: PreferenceFragmentCompat, pkg: String) {
-        val ctx = fragment.context ?: return
-        PolicyAllowlist.remove(pkg)
-        DeviceOwnerHelper.undelegate(ctx, pkg)
-        refresh(fragment)
-        // Offered in the same breath, per the hand-off: otherwise the locks it already set become
-        // invisible — no UI anywhere lists them once the app that set them has no powers.
-        MaterialAlertDialogBuilder(ctx)
-            .setTitle("Revoked")
-            .setMessage(
-                "$pkg can no longer set device policy.\n\n" +
-                    "Anything it already locked is still locked. Clear those now?"
-            )
-            .setPositiveButton("Leave them") { _, _ -> }
-            .setNegativeButton("Clear locks for $pkg") { _, _ -> confirmClearAll(fragment, pkg) }
-            .showHouse()
-    }
-
-    private fun showAuthorizePicker(fragment: PreferenceFragmentCompat) {
-        val ctx = fragment.context ?: return
-        fragment.lifecycleScope.launch {
-            val apps = withContext(Dispatchers.IO) {
-                runCatching { AppPickerPreference.getApps(ctx) }.getOrDefault(emptyList())
-            }
-            if (apps.isEmpty()) {
-                ShiroikumaToast.show(ctx, "Could not list installed apps", Toast.LENGTH_SHORT)
-                return@launch
-            }
-            val sorted = apps.sortedBy { it.label.toString().lowercase() }
-            val labels = sorted.map { "${it.label}\n${it.packageName}" }.toTypedArray()
-            MaterialAlertDialogBuilder(ctx)
-                .setTitle("Authorize another app")
-                .setItems(labels) { _, which -> showAppSheet(fragment, sorted[which].packageName) }
-                .setNegativeButton(android.R.string.cancel, null)
-                .showHouse()
         }
     }
 
@@ -506,49 +391,6 @@ object DevicePolicyPowersSection {
     // -----------------------------------------------------------------------------------------
     // The escape hatch
     // -----------------------------------------------------------------------------------------
-
-    private fun confirmClearAll(fragment: PreferenceFragmentCompat, pkg: String?) {
-        val ctx = fragment.context ?: return
-        val scope = pkg ?: "every installed app"
-        val body = buildString {
-            append("Release every device-policy lock on $scope.\n\n")
-            append("This clears permissions fixed by policy, suspended apps, hidden apps and ")
-            append("uninstall blocks — including ones a delegate set, because they were stored ")
-            append("under 白い熊 雫's admin.\n\n")
-            if (pkg == null) {
-                append("It also clears the device-wide items: every user restriction this app set, ")
-                append("the always-on VPN, and the camera block.\n\n")
-            }
-            append("Nothing here can strand the device — this action only releases. It can take a ")
-            append("while: it checks every permission of every package.")
-        }
-        MaterialAlertDialogBuilder(ctx)
-            .setTitle("Clear all device-policy locks")
-            .setMessage(body)
-            .setPositiveButton(android.R.string.cancel, null)
-            .setNegativeButton("Clear") { _, _ -> runClearAll(fragment, pkg) }
-            .showHouse()
-    }
-
-    private fun runClearAll(fragment: PreferenceFragmentCompat, pkg: String?) {
-        val ctx = fragment.context ?: return
-        ShiroikumaToast.show(ctx, "Clearing locks…", Toast.LENGTH_SHORT)
-        fragment.lifecycleScope.launch {
-            val steps = withContext(Dispatchers.IO) { DevicePolicyApi.clearAllLocks(ctx, pkg) }
-            refresh(fragment)
-            // A silent "done" would be the worst possible lie here: this is what someone runs when
-            // they are already stuck, so every step reports for itself.
-            val body = steps.joinToString("\n") { step ->
-                "${if (step.ok) "✓" else "✗"} ${step.name}" +
-                    (step.detail?.let { " — $it" } ?: "")
-            }
-            ShiroikumaDialogs.ok(
-                ctx,
-                if (steps.all { it.ok }) "Locks cleared" else "Cleared with failures",
-                body
-            )
-        }
-    }
 
     // -----------------------------------------------------------------------------------------
     // House helpers
