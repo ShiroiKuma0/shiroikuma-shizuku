@@ -27,8 +27,10 @@ class CollapsiblePreferenceCategory @JvmOverloads constructor(
     init {
         layoutResource = R.layout.collapsible_preference_category_card
 
+        // Unfolded unless a screen says otherwise: 白い熊 wants every group in Settings and its
+        // sub-pages open by default, so a category that names no defaultValue starts expanded too.
         val a = context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.defaultValue, R.attr.collapsible))
-        defaultExpanded = a.getBoolean(0, false)
+        defaultExpanded = a.getBoolean(0, true)
         collapsible = a.getBoolean(1, true)
         a.recycle()
 
@@ -53,14 +55,14 @@ class CollapsiblePreferenceCategory @JvmOverloads constructor(
         }
 
         // Sync arrow to current state without animation on first bind
-        arrow?.rotation = if (expanded) 180f else 0f
+        arrow?.rotation = rotationFor(expanded)
 
         holder.itemView.setOnClickListener {
             expanded = !expanded
             if (shouldPersist()) persistBoolean(expanded)
             // Animate arrow with M3E spring-style motion
             arrow?.animate()
-                ?.rotation(if (expanded) 180f else 0f)
+                ?.rotation(rotationFor(expanded))
                 ?.setDuration(af.shizuku.manager.ShizukuSettings.scaledAnimationDuration(300))
                 ?.setInterpolator(android.view.animation.OvershootInterpolator(0.8f))
                 ?.start()
@@ -73,6 +75,18 @@ class CollapsiblePreferenceCategory @JvmOverloads constructor(
             onExpansionChanged?.invoke(expanded)
         }
     }
+
+    /**
+     * The disclosure indicator: **right when folded, down when unfolded** — the platform's own tree
+     * convention, and the one 白い熊 asked for.
+     *
+     * The drawable (`ic_outline_expand_more_24`) points down at 0°, so unfolded needs no rotation
+     * and folded turns it a quarter-turn anticlockwise. It used to be 0° folded / 180° unfolded,
+     * i.e. down when folded and up when unfolded — ambiguous in both states, because a down chevron
+     * reads as "this is open" just as easily as "tap to open", and up/down differ only by which end
+     * is wider.
+     */
+    private fun rotationFor(expanded: Boolean): Float = if (expanded) 0f else -90f
 
     fun isExpanded() = expanded
 
