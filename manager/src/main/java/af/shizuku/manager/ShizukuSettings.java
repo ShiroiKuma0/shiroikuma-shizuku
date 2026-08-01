@@ -103,6 +103,14 @@ public class ShizukuSettings {
         public static final String KEY_ROOT_IPTABLES_MOCKING_ENABLED = "root_iptables_mocking_enabled";
         public static final String KEY_EXPORT_DIR_URI = "export_dir_uri";
 
+        // Device-policy powers handed to sister apps (白い熊 fork addition).
+        // A *separate* consent from Shizuku access: KEY_POLICY_ALLOWED_PACKAGES gates the policy
+        // ContentProvider, and the accessibility state is stored as a BLOCKlist because the
+        // platform API is an allowlist whose null default means "everything permitted" — see
+        // af.shizuku.manager.policy.AccessibilityBlocklist.
+        public static final String KEY_POLICY_ALLOWED_PACKAGES = "policy_allowed_packages";
+        public static final String KEY_POLICY_ACCESSIBILITY_BLOCKLIST = "policy_accessibility_blocklist";
+
         // Long-press action toggles (Shizuku+ additions)
         public static final String KEY_SAMSUNG_SYSTEM_UID_ESCALATION_ENABLED = "samsung_system_uid_escalation_enabled";
         public static final String KEY_SOFTWARE_KEYSTORE_FALLBACK_ENABLED = "software_keystore_fallback_enabled";

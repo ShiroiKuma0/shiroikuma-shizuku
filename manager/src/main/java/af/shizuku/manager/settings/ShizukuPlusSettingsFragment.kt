@@ -51,6 +51,14 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
 
     override fun getTitle(): CharSequence? = "Feature Hub"
 
+    override fun onResume() {
+        super.onResume()
+        // Device Owner can be granted from outside this screen (the boot-setup card, or `dpm` over
+        // adb), and the delegated scopes are read back from the platform rather than remembered —
+        // so the section is rebuilt on every return rather than only when it is first created.
+        if (isAdded) DevicePolicyPowersSection.refresh(this)
+    }
+
     // e.message is often null for keystore/cipher exceptions (#315's "Backup failed: null"), and
     // KeyPermanentlyInvalidatedException needs a message explaining it's unrecoverable rather
     // than a raw exception string (#332) - encryption self-heals from this in CryptoUtils, but
@@ -68,7 +76,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         // catches that — surface it as a clear cause instead of "AEADBadTagException" (#370).
         is AEADBadTagException ->
             "$prefix: this backup could not be decrypted. It was most likely created by a different " +
-                "installation of Shizuku+ — backups are encrypted per-install and can't be restored " +
+                "installation of 白い熊 雫 — backups are encrypted per-install and can't be restored " +
                 "after reinstalling or clearing the app's data."
         else -> "$prefix: ${e.message ?: e.javaClass.simpleName}"
     }
@@ -232,6 +240,10 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             true
         }
 
+        // Device policy powers — the delegation hand-off, in its own file so a rebase touches this
+        // one line rather than four hundred lines of fork code.
+        DevicePolicyPowersSection.attach(this)
+
         // Device Owner Tools - Screen Capture Lockdown
         findPreference<TwoStatePreference>("dhizuku_disable_screencap")?.setOnPreferenceChangeListener { _, newValue ->
             val enabled = newValue as? Boolean ?: false
@@ -338,8 +350,8 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 )) { _, which ->
                     try {
                         when (which) {
-                            0 -> createBackupLauncher.launch("ShizukuPlus_Settings_$dateStr.json")
-                            1 -> createPlainBackupLauncher.launch("ShizukuPlus_Settings_plain_$dateStr.json")
+                            0 -> createBackupLauncher.launch("shiroikuma-shizuku_settings_$dateStr.json")
+                            1 -> createPlainBackupLauncher.launch("shiroikuma-shizuku_settings_plain_$dateStr.json")
                         }
                     } catch (e: android.content.ActivityNotFoundException) {
                         ShiroikumaToast.show(requireContext(), R.string.backup_no_file_manager_save, Toast.LENGTH_LONG)

@@ -177,6 +177,64 @@
 
         </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
+        <!-- Everything from the Device Owner delegation hand-off lives here: the per-app grant that
+             covers BOTH halves (delegated scopes + the policy API allowlist), the powers that
+             cannot be delegated at all, and the escape hatch. Rows are filled in and enabled by
+             DevicePolicyPowersSection; per-app rows are added dynamically at order 10+. -->
+        <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+            android:key="category_device_policy_powers"
+            android:title="Device policy powers"
+            android:defaultValue="false">
+
+            <Preference
+                android:key="policy_status"
+                android:order="1"
+                android:title="Device Owner required"
+                android:icon="@drawable/ic_admin_panel_settings_24"
+                android:selectable="false" />
+
+            <Preference
+                android:key="policy_authorize_app"
+                android:order="100"
+                android:title="Authorize another app…"
+                android:summary="Hand device-policy powers to a package by name"
+                android:icon="@drawable/ic_science_24" />
+
+            <Preference
+                android:key="policy_accessibility"
+                android:order="200"
+                android:title="Accessibility blocks"
+                android:icon="@drawable/ic_visibility_off_24" />
+
+            <Preference
+                android:key="policy_user_restriction"
+                android:order="210"
+                android:title="User restrictions"
+                android:icon="@drawable/ic_shield_24" />
+
+            <Preference
+                android:key="policy_always_on_vpn"
+                android:order="220"
+                android:title="Always-on VPN"
+                android:icon="@drawable/ic_shield_24" />
+
+            <SwitchPreferenceCompat
+                android:key="policy_camera_disabled"
+                android:order="230"
+                android:title="Disable the camera"
+                android:summary="Device-wide, not per-app. Instantly reversible from this switch."
+                android:icon="@drawable/ic_visibility_off_24"
+                android:defaultValue="false" />
+
+            <Preference
+                android:key="policy_clear_all_locks"
+                android:order="300"
+                android:title="Clear all device-policy locks"
+                android:summary="The way back. Releases every lock this app or its delegates set."
+                android:icon="@drawable/ic_delete_24" />
+
+        </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+
         <af.shizuku.manager.settings.PlusFeaturePreference
             android:key="shadow_binder_enabled"
             android:title="@string/settings_shadow_binder"
