@@ -170,6 +170,10 @@ public class ShizukuSettings {
         public static final String KEY_LAST_SEEN_CHANGELOG_VERSION = "last_seen_changelog_version";
         public static final String KEY_SERVER_STARTED_BUILD = "server_started_build";
         public static final String KEY_LAST_SETTLED_STATE = "last_settled_shizuku_state";
+        // The app build whose skew prompt has already been answered. Its own key rather than
+        // KEY_LAST_SEEN_VERSION, which ShizukuApplication.onCreate advances on every update long
+        // before the home screen runs — reusing it would mean the prompt could never fire.
+        public static final String KEY_SKEW_PROMPTED_VERSION = "skew_prompted_version";
 
         // Companion Mode (Shizuku+ additions)
         public static final String KEY_COMPANION_MODE = "companion_mode";
@@ -232,6 +236,15 @@ public class ShizukuSettings {
 
     public static void setLastSettledState(String stateName) {
         getPreferences().edit().putString(Keys.KEY_LAST_SETTLED_STATE, stateName).apply();
+    }
+
+    /** The app build whose "restart the server" prompt has been answered, so it asks once per update. */
+    public static int getSkewPromptedVersion() {
+        return getPreferences().getInt(Keys.KEY_SKEW_PROMPTED_VERSION, 0);
+    }
+
+    public static void setSkewPromptedVersion(int versionCode) {
+        getPreferences().edit().putInt(Keys.KEY_SKEW_PROMPTED_VERSION, versionCode).apply();
     }
 
     public static boolean isSentryLimitReached() {
