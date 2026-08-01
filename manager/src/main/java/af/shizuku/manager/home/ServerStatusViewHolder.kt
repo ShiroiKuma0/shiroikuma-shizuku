@@ -172,6 +172,7 @@ class ServerStatusViewHolder(
         // Same colour as the summary: the card's background is state-tinted, so a theme-attr colour
         // set in XML would drift against it.
         binding.serverInfo.setTextColor(textColor)
+        bindStaleWarning(context)
         logChip.setTextColor(textColor)
         diagnosticsChip.setTextColor(textColor)
 
@@ -224,6 +225,29 @@ class ServerStatusViewHolder(
      * running, and its version skew silently breaks clients. It is also the case that dictates the
      * design — see [startOrRestart] for why this cannot be stop-then-start.
      */
+    /**
+     * The persistent half of the stale-server warning.
+     *
+     * The dialog asks once per update and can be dismissed; this line stays for as long as the
+     * condition holds, so a "Later" does not make the problem invisible. Red and
+     * [ShiroikumaViewTheme.markSkipped] for the same reason as every other warning in this app —
+     * the generic View applier recolours every TextView it walks, and a warning in the ordinary
+     * text colour has stopped being one.
+     */
+    private fun bindStaleWarning(context: android.content.Context) {
+        val view = binding.serverStale
+        val skewed = af.shizuku.manager.utils.ShizukuStateMachine.isServerVersionSkewed()
+        val unverified = af.shizuku.manager.utils.ShizukuStateMachine.isServerVersionUnverified()
+        if (!skewed && !unverified) {
+            view.visibility = View.GONE
+            return
+        }
+        view.visibility = View.VISIBLE
+        view.setText(if (skewed) R.string.home_status_server_stale else R.string.home_status_server_unverified)
+        view.setTextColor(af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs.RED)
+        af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.markSkipped(view)
+    }
+
     private fun bindServerControls(
         context: android.content.Context,
         running: Boolean,
@@ -251,6 +275,10 @@ class ServerStatusViewHolder(
         stopButton.visibility = if (running) View.VISIBLE else View.GONE
 
         startButton.setOnClickListener { if (inFlightLabel == null) startOrRestart(context) }
+
+        // Publish the ONE restart implementation so the version-skew dialog can drive it instead of
+        // carrying a second copy of a routine whose ordering, if got wrong, strands the phone.
+        ServerRestartRequest.request = { if (inFlightLabel == null) startOrRestart(context) }
         stopButton.setOnClickListener { if (inFlightLabel == null) stopServer(context) }
 
         // Re-applied on every bind so a list rebuild mid-operation restores the in-flight look rather
