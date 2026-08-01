@@ -114,6 +114,20 @@
           the obvious repair — force-stop and relaunch 白い熊 雫 — looks sufficient when it does
           nothing at all to the running server.
         -->
+        <!-- The persistent stale-server warning. Coloured in code (RED) like every other warning
+             here, because the generic View applier would otherwise flatten it to body text. Shown
+             for as long as the condition holds, so dismissing the dialog does not hide the fact. -->
+        <TextView
+            android:id="@+id/server_stale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?textAppearanceBodySmall"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="⚠ The running server is from an older build. Restart it." />
+
         <TextView
             android:id="@+id/server_info"
             android:layout_width="match_parent"
