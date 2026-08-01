@@ -42,9 +42,9 @@ class ShizukuTileService : TileService() {
             else -> Tile.STATE_INACTIVE
         }
         tile.label = when {
-            isRunning -> "Shizuku: Active"
+            isRunning -> "白い熊 雫: Active"
             isStarting -> "Starting..."
-            else -> "Shizuku: Off"
+            else -> "白い熊 雫: Off"
         }
         tile.subtitle = when {
             isRunning -> "Running"
@@ -96,7 +96,7 @@ class ShizukuTileService : TileService() {
                 }
             }
         } catch (e: Exception) {
-            ShiroikumaToast.show(this, "Failed to update Shizuku state: ${e.localizedMessage}", Toast.LENGTH_SHORT)
+            ShiroikumaToast.show(this, "Failed to update 白い熊 雫 state: ${e.localizedMessage}", Toast.LENGTH_SHORT)
         }
     }
 }
