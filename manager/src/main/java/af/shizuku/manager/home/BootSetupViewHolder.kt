@@ -27,6 +27,8 @@ import af.shizuku.manager.admin.DeviceOwnerHelper
 import af.shizuku.manager.databinding.HomeBootSetupBinding
 import af.shizuku.manager.databinding.HomeBootSetupRowBinding
 import af.shizuku.manager.databinding.HomeItemContainerBinding
+import af.shizuku.manager.policy.DevicePolicyGrantUi
+import af.shizuku.manager.policy.PolicyAllowlist
 import af.shizuku.manager.settings.SettingsActivity
 import af.shizuku.manager.starter.StarterActivity
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
@@ -93,7 +95,9 @@ class BootSetupViewHolder(
         val summary: CharSequence,
         val state: State,
         val actionLabel: CharSequence? = null,
-        val action: (() -> Unit)? = null
+        val action: (() -> Unit)? = null,
+        /** Red, inside this row's own box — see [bindRow]. */
+        val warning: CharSequence? = null
     )
 
     private val originalIcon = binding.icon.drawable
@@ -116,7 +120,6 @@ class BootSetupViewHolder(
         // recolours every TextView it walks, and a red warning rendered in the ordinary text colour
         // stops being a warning. Skipping costs them the imported typeface, which is the cheaper loss.
         af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.markSkipped(binding.doHeading)
-        af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.markSkipped(binding.doWarning)
 
         containerBinding.dragHandle.apply {
             setOnTouchListener { _, event ->
@@ -164,13 +167,9 @@ class BootSetupViewHolder(
 
         binding.sectionHairline.setBackgroundColor(p.getInt(context, p.KEY_COLOR_BORDER))
         binding.doHeading.setTextColor(p.getInt(context, p.KEY_COLOR_HEADING))
-        binding.doWarning.setTextColor(ShiroikumaUiPrefs.RED)
 
-        fill(binding.doRows, listOf(deviceOwnerStep()))
+        fill(binding.doRows, listOf(deviceOwnerStep()) + devicePolicyPowerSteps())
         fill(binding.doClearRows, listOf(clearDeviceOwnerStep()))
-        // Always shown, including before Device Owner is ever granted: the cost of undoing it is
-        // exactly what should inform the decision to do it, so hiding the warning until it applies
-        // would withhold it at the only moment it could change anything.
     }
 
     private fun fill(container: ViewGroup, steps: List<Step>) {
@@ -213,6 +212,18 @@ class BootSetupViewHolder(
             cornerRadius = dp(p.getInt(context, p.KEY_CARD_RADIUS)).toFloat()
             setColor(Color.TRANSPARENT)
             if (borderWidth > 0) setStroke(dp(borderWidth), minor)
+        }
+
+        if (step.warning.isNullOrBlank()) {
+            row.rowWarning.isVisible = false
+        } else {
+            row.rowWarning.isVisible = true
+            row.rowWarning.text = step.warning
+            row.rowWarning.setTextColor(ShiroikumaUiPrefs.RED)
+            // The generic View applier recolours every TextView it walks, and a red warning
+            // rendered in the ordinary text colour stops being a warning. Rows are inflated fresh
+            // on each render, so this has to be re-marked here rather than once in init.
+            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.markSkipped(row.rowWarning)
         }
 
         val action = step.action
@@ -444,6 +455,86 @@ class BootSetupViewHolder(
         )
     }
 
+    /**
+     * Authorizing a sister app, and the way into the full set of powers.
+     *
+     * These live here rather than only in Settings because granting is a Device-Owner decision, and
+     * this card is where Device Owner is granted and cleared — handing the powers on belongs beside
+     * the thing that makes them possible, not three screens away in a feature list.
+     *
+     * Nothing is shown before Device Owner exists: neither row can do anything without it, and an
+     * offer that only fails is worse than no offer.
+     */
+    private fun devicePolicyPowerSteps(): List<Step> {
+        if (!DeviceOwnerHelper.isDeviceOwner(context)) return emptyList()
+
+        val authorized = PolicyAllowlist.packages()
+        return listOf(
+            Step(
+                title = context.getString(R.string.policy_authorize_title),
+                summary = if (authorized.isEmpty()) {
+                    context.getString(R.string.policy_authorize_summary_none)
+                } else {
+                    context.getString(
+                        R.string.policy_authorize_summary_some,
+                        authorized.joinToString { DevicePolicyGrantUi.label(context, it) }
+                    )
+                },
+                state = if (authorized.isEmpty()) State.TODO else State.DONE,
+                actionLabel = context.getString(R.string.policy_authorize_action),
+                action = {
+                    DevicePolicyGrantUi.authorizeAnotherApp(context, scope) { render() }
+                }
+            ),
+        ) + authorizedAppsStep(authorized) + listOf(
+            Step(
+                title = context.getString(R.string.policy_powers_link_title),
+                summary = context.getString(R.string.policy_powers_link_summary),
+                state = State.INFO,
+                actionLabel = context.getString(R.string.policy_powers_link_action),
+                action = {
+                    context.startActivity(
+                        Intent(context, SettingsActivity::class.java)
+                            .putExtra(
+                                SettingsActivity.EXTRA_OPEN_FRAGMENT,
+                                af.shizuku.manager.settings.ShizukuPlusSettingsFragment::class.java.name
+                            )
+                            .putExtra(
+                                SettingsActivity.EXTRA_HIGHLIGHT_KEY,
+                                "category_device_policy_powers"
+                            )
+                    )
+                }
+            )
+        )
+    }
+
+    /**
+     * The apps that hold powers right now, and the way to take them back.
+     *
+     * Un-authorizing was otherwise only reachable by tapping "Authorize an app" and picking one
+     * that is already authorized — which works, but nobody would look for a revoke behind a button
+     * labelled "authorize". Shown only when something is authorized: an empty row would be noise on
+     * the card that is already the longest one here.
+     */
+    private fun authorizedAppsStep(authorized: Set<String>): List<Step> {
+        if (authorized.isEmpty()) return emptyList()
+        return listOf(
+            Step(
+                title = context.getString(R.string.policy_authorized_title),
+                summary = context.getString(
+                    R.string.policy_authorized_summary,
+                    authorized.joinToString { "${DevicePolicyGrantUi.label(context, it)} ($it)" }
+                ),
+                state = State.INFO,
+                actionLabel = context.getString(R.string.policy_authorized_action),
+                action = {
+                    DevicePolicyGrantUi.showAuthorizedApps(context, scope) { render() }
+                }
+            )
+        )
+    }
+
     private fun clearDeviceOwnerStep(): Step {
         val isOwner = DeviceOwnerHelper.isDeviceOwner(context)
         return Step(
@@ -452,6 +543,10 @@ class BootSetupViewHolder(
                 if (isOwner) R.string.boot_setup_do_clear_available else R.string.boot_setup_do_clear_na
             ),
             state = if (isOwner) State.INFO else State.TODO,
+            // Carried even before Device Owner is ever granted: the cost of undoing it is exactly
+            // what should inform the decision to do it, so withholding it until it applies would
+            // hide it at the only moment it could change anything.
+            warning = context.getString(R.string.boot_setup_do_clear_warning),
             actionLabel = if (isOwner) context.getString(R.string.boot_setup_do_clear_action) else null,
             action = if (isOwner) ({
                 DeviceOwnerHelper.confirmAndClear(context) { render() }
