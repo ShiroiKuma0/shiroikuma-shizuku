@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One app in the picker grid: icon, label, and the package id underneath — the id is shown
+     because it is what the policy allowlist and the delegation actually key on, and two apps can
+     carry the same label. The tile background is a GradientDrawable built in code (minor border
+     tier), since a fill alone would be invisible against this theme's black. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_margin="4dp"
+    android:padding="10dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:contentDescription="@null"
+        tools:src="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textSize="12sp"
+        tools:text="白い熊 応用管理" />
+
+    <TextView
+        android:id="@+id/package_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="middle"
+        android:textSize="10sp"
+        tools:text="shiroikuma.oyokanri" />
+
+</LinearLayout>
