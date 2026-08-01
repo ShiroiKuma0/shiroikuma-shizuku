@@ -365,6 +365,122 @@ Binder, never the ordered-broadcast result (EMUI severs both). Progress carries 
 a percentage**, with `item` naming the category id being written so the caller highlights the right
 row. The token prefs file is deliberately absent from the export ZIP.
 
+## Device policy powers (`policy/`) — lending Device Owner to a sister app
+
+白い熊 made this app **Device Owner**. Sister apps — **白い熊 応用管理**
+(`shiroikuma.oyokanri`) first — can then make decisions the user cannot undo from Settings, which is
+the whole point: an app-op or a permission that app revokes is otherwise reversible by Settings, by
+another tool, and sometimes by the target app itself.
+
+**Two channels, and the split is deliberate. Do not collapse it.**
+
+| | **Delegated scopes** | **The policy API (`policy/`)** |
+| --- | --- | --- |
+| Covers | `setPermissionGrantState`, `setPackagesSuspended`, `setApplicationHidden`, `setUninstallBlocked` | accessibility blocking, user restrictions, always-on VPN, camera, user-control |
+| Why | in the platform's fixed `DELEGATION_*` list | **Device-Owner-only** — no scope can carry them |
+| Runs in | the *sister app's* own process, `admin = null` | **this** process, on its behalf |
+| Survives this app being stopped | **yes** — `system_server` persists it | no |
+| Needs Shizuku running | **no** (see the gate note below) | **no** |
+
+**Prefer delegation wherever it reaches.** A delegated call needs no IPC and no running 雫; the
+policy API exists only for what delegation provably cannot carry. Routing a delegatable operation
+through the provider trades a persistent grant for a live dependency.
+
+- **`DeviceOwnerHelper.delegate` / `undelegate` / `delegatedScopes`.** `SNOOPING_SCOPES` is the only
+  set we ever hand out — `DELEGATION_PERMISSION_GRANT`, `DELEGATION_PACKAGE_ACCESS`,
+  `DELEGATION_BLOCK_UNINSTALL`. Every other `DELEGATION_*` constant is privilege given away
+  permanently for no reason we have. **`setDelegatedScopes` is `void`**, so `delegate` verifies by
+  reading the scopes back; a silently-dropped scope would otherwise look like success.
+  **`setDelegatedScopes` can only be called by the owner app** — there is no `dpm` shell command for
+  it (checked against `dpm help` on Android 13 and 15), which is the entire reason this lives here
+  rather than in the sister app.
+- **Revoking a delegation does not undo what the delegate did.** `undelegate` stops future calls
+  only; permissions already policy-fixed and packages already suspended stay that way. Offer
+  `clearAllLocks` alongside any revoke, or the locks become invisible.
+
+### The wire contract
+
+`PolicyContract.kt` holds every method name, extra and error string **in one place** so the provider,
+the UI and the sister app cannot drift apart. Those strings are shared across two repos — **never
+rename one.** `PolicyProvider` is exported with **no `android:permission`** (the caller cannot hold
+one we define), authority `${applicationId}.policy` → `shiroikuma.shizuku.policy`.
+
+- **A `ContentProvider.call`, not a broadcast.** It is **synchronous** and answers with a `Bundle`,
+  which is what a switch the user just tapped needs; and `Binder.getCallingUid()` cannot be spoofed,
+  so `PolicyAllowlist` is a real gate and **no shared token is needed** — unlike the 保存復元
+  contract, whose token exists precisely because a broadcast has no trustworthy sender. Read the
+  calling uid **before** any `clearCallingIdentity()`.
+- **Do not extend `DhizukuProvider`.** That authority is the public Dhizuku one that third-party
+  Dhizuku clients bind; this private contract does not belong in it.
+- `status` answers **even an unauthorized caller** (`ok=false`, `error=not-authorized`, plus
+  `is_device_owner`, `api_level`, `delegated_scopes`, `refused_restrictions`), so the sister app can
+  say *why* it has no powers rather than merely that it has none.
+- Errors carry the **real reason**; the sister app never records a decision a write did not achieve
+  and needs something to show.
+
+### Where 白い熊 authorizes a caller — `PolicyAllowlist`
+
+A **separate, explicit, persisted allowlist** (`ShizukuSettings.Keys.KEY_POLICY_ALLOWED_PACKAGES`),
+**not** `AuthorizationManager`. Two reasons, both load-bearing: `AuthorizationManager.granted()`
+opens with `if (!Shizuku.pingBinder()) return false`, which would drag the policy API into needing a
+running Shizuku service — and it does not need one, since DPM runs in this app's own process as the
+owner. And device-policy powers are a *different* consent from shell access, worth granting per app
+deliberately rather than inheriting.
+
+UI: the **Device policy powers** category on the 白い熊 雫 UI page (Feature Hub), beneath the Device
+Owner controls. `DevicePolicyGrantUi` owns the grant/revoke flow so it belongs to no single screen.
+The master switch does **both halves** — the allowlist *and* `setDelegatedScopes` — so the two can
+never be out of step. Note the category is **collapsed by default**, like every category on that
+page: `CollapsiblePreferenceCategory` reads `android:defaultValue` as *defaultExpanded*, and all of
+them are declared `false`. A row that cannot work is **disabled, never hidden** — hiding it would
+make the section look complete while doing nothing.
+
+### ⛔ Accessibility is stored as a BLOCKLIST; the platform list is derived
+
+`setPermittedAccessibilityServices` is an **allowlist** whose default (`null`) means *everything is
+permitted*, and it takes **package names**, not `ComponentName`s. There is no "block one" form. Used
+naively it has two failure modes, and the second survives being correct: a wrong enumeration bars
+every service on the device, and once a non-`null` list exists **any accessibility service installed
+later is off it and silently barred**, with nothing in any UI explaining why it will not stay enabled.
+
+So `AccessibilityBlocklist` inverts it. The durable state is the **blocklist**; the platform list is
+derived as `(every installed service package) − blocklist` and recomputed whenever either side can
+have changed — a blocklist edit, or a package add/remove/replace via `PolicyPackageChangeReceiver`,
+plus `recomputeIfStale` when the section is opened, since the broadcast is best-effort. **When the
+blocklist empties the platform list goes back to `null`**, not to a hand-built "everything" — that
+would be one install away from wrong. The blocklist is persisted **only after the platform accepted
+the new list**, and a failed enumeration changes nothing.
+
+### ⛔ Five user restrictions are refused in code
+
+`DevicePolicyApi.REFUSED_RESTRICTIONS` — `DISALLOW_DEBUGGING_FEATURES`, `DISALLOW_SAFE_BOOT`,
+`DISALLOW_FACTORY_RESET`, `DISALLOW_INSTALL_UNKNOWN_SOURCES` and its `_GLOBALLY` twin. Each removes a
+route needed to fix a mistake: ADB is both how 応用管理 gets its privileges and how you would recover;
+safe boot is the offline route; factory reset is the last resort named at the top of this file; and
+sideloading is how a fixed build of either app gets installed. **They are refused, not warned about**
+— `set_user_restriction` returns an error rather than applying them. The reasoning lives beside the
+constant; read it before removing any.
+
+### The way back must always exist
+
+`clearAllLocks(context, pkg)` releases everything for one package, or for every installed package
+when `pkg` is null: permission grant states not at `PERMISSION_GRANT_STATE_DEFAULT`, suspension,
+uninstall block, user-control, and the accessibility blocklist. It needs **no ledger on either side**
+— the Device Owner can walk a package's permissions and read the grant state back, so it can undo
+what its *delegate* did even after that delegate is uninstalled. It returns a per-step result
+(`steps` / `steps_failed`); a silent "done" would be worst precisely here, because this is what
+someone runs when they are already stuck.
+
+### Everything here is hard to undo — say so in the UI
+
+Every power above is designed so the user cannot reverse it from Settings; that is what makes a lock
+a lock, and what makes a mistake expensive. A lock **outlives the app that set it** — uninstalling
+応用管理 releases nothing, since the policy is stored under *this* app's admin. Dangerous rows carry a
+red 危険 tag on the row itself (not only in the dialog), and the confirmation follows
+`DeviceOwnerHelper.confirmAndClear`'s shape: **Cancel in the positive slot**, the destructive choice
+red in the quiet negative slot via `ShiroikumaDialogs.markDestructive`, and a message that says *what
+it does, what it breaks, and how to undo it*, in that order.
+
 ## Repo layout (upstream ShizukuPlus)
 
 - `manager/` — the app: home, authorization UI, settings, logs, widgets, the Plus bridges.
@@ -384,3 +500,10 @@ row. The token prefs file is deliberately absent from the export ZIP.
 **Fork bootstrapped** (2026-07-29): forked from `thejaustin/ShizukuPlus` at `13.6.0.r2178`,
 `master`/`custom` branch model, own keystore, fork versioning + signing, single-ABI arm64-v8a,
 `buildApk` task, the black-yellow traced icon, de-branding, and the three repo skills.
+
+**Device policy powers** (2026-08-01, `13.6.0.r2195…+008`): this app holds Device Owner on the
+Motorola razr 40 ultra and lends it to sister apps — delegated scopes plus the `policy/` provider.
+Verified end to end from the 応用管理 side: `dumpsys device_policy` shows
+`mDelegationMap → shiroikuma.oyokanri[size=3]`, and a permission locked from that app reads back
+`granted=false, flags=[…POLICY_FIXED…]`. See the section above. The Mate XT has **no** Device Owner
+(its only device admin is `shiroikuma.jiyusagyoban`), so this is testable on the razr only.
