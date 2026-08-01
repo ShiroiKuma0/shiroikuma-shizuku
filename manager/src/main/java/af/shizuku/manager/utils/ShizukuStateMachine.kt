@@ -68,7 +68,16 @@ object ShizukuStateMachine {
                 Sentry.addBreadcrumb(Breadcrumb("Binder received - service is now RUNNING").apply {
                     category = "shizuku.service"
                 })
+                // Read BEFORE the transition: this is the one place that can tell "our start
+                // produced a server" from "a server was already there". A NEW binder arriving while
+                // a start of ours is in flight is that proof — a restart that failed over a live
+                // older server produces no new binder at all, it just settles back onto the
+                // survivor, which is precisely how the old intent-based recording stamped a stale
+                // server as current. The sticky replay on app start is excluded by the same gate:
+                // there the previous state is STOPPED, not STARTING.
+                val ourStart = get() == State.STARTING
                 set(State.RUNNING)
+                if (ourStart) recordServerStarted()
             }
         )
         Shizuku.addBinderDeadListener(
@@ -101,17 +110,6 @@ object ShizukuStateMachine {
             listeners.forEach { it(newState) }
             Timber.tag("ShizukuStateMachine").d(newState.toString())
 
-            // Record which app build is starting this server instance. All deliberate start paths
-            // (AdbStarter, ShizukuReceiverStarter, tile, StarterActivity) funnel through STARTING,
-            // so this captures every fresh start centrally and lets isServerVersionSkewed() later
-            // detect a running server left behind by a pre-update build.
-            if (newState == State.STARTING) {
-                try {
-                    ShizukuSettings.setServerStartedBuild(BuildConfig.VERSION_CODE)
-                } catch (e: Exception) {
-                    Timber.tag("ShizukuStateMachine").w(e, "Failed to record server start build")
-                }
-            }
 
             if (newState == State.RUNNING || newState == State.STOPPED || newState == State.CRASHED) {
                 try {
@@ -243,6 +241,51 @@ object ShizukuStateMachine {
         val startedBuild = ShizukuSettings.getServerStartedBuild()
         return startedBuild in 1 until BuildConfig.VERSION_CODE
     }
+
+    /**
+     * Record that **this** app build produced the server that is now running.
+     *
+     * Called from the places that have *confirmed* a start, never from the `STARTING` transition.
+     * Recording on intent was actively harmful: a restart that failed while an older server was
+     * still alive settled straight back to RUNNING, and the stale server was then stamped with the
+     * current build — masking exactly the skew this tracking exists to surface, permanently, for
+     * that build.
+     *
+     * A missed call site degrades to 0, which reads as "unverified" and *prompts*. That is the
+     * right way round: an unnecessary prompt costs a tap, a missed one costs silent breakage in
+     * every app that connects through the server.
+     */
+    fun recordServerStarted() {
+        try {
+            ShizukuSettings.setServerStartedBuild(BuildConfig.VERSION_CODE)
+        } catch (e: Exception) {
+            Timber.tag("ShizukuStateMachine").w(e, "Failed to record server start build")
+        }
+    }
+
+    /**
+     * True when a server is running but we cannot prove which build started it.
+     *
+     * The build id is recorded only on a `STARTING` transition, so it reads 0 for a server that was
+     * already running before this tracking existed, was started by a path that bypassed the state
+     * machine, or outlived a clear-app-data. [isServerVersionSkewed] deliberately answers "not
+     * skewed" for that case — but "we cannot prove it is current" is the wrong thing to call fine
+     * when the failure it hides is silent: a stale server keeps serving old binder code and breaks
+     * third-party clients with no symptom in this app at all.
+     */
+    fun isServerVersionUnverified(): Boolean =
+        isRunning() && ShizukuSettings.getServerStartedBuild() == 0
+
+    /** Either kind of doubt — known-stale, or unprovable. What the UI actually acts on. */
+    fun needsServerRestart(): Boolean = isServerVersionSkewed() || isServerVersionUnverified()
+
+    /**
+     * Whether to *interrupt* for it. The condition itself stays visible on the status card for as
+     * long as it holds; this only governs the dialog, so "Later" means later and not never — the
+     * next app update asks again, because that is when it matters again.
+     */
+    fun shouldPromptServerRestart(): Boolean =
+        needsServerRestart() && ShizukuSettings.getSkewPromptedVersion() != BuildConfig.VERSION_CODE
 
     fun isDead(): Boolean {
         return (get() == State.STOPPED || get() == State.CRASHED)
