@@ -52,6 +52,19 @@
             android:textColor="?colorOnSurfaceVariant"
             tools:text="Required — the pairing code arrives in a notification" />
 
+        <!-- The row's own red warning, coloured in code like the status dot and for the same
+             reason. Inside the row rather than floating above the section: a warning that sits
+             outside the box it is about reads as being about the whole section. -->
+        <TextView
+            android:id="@+id/row_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?textAppearanceBodySmall"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="⚠ Clearing this is not casually reversible." />
+
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton

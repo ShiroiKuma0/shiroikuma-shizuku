@@ -1343,4 +1343,17 @@
     <string name="boot_setup_do_clear_na">Not Device Owner — nothing to clear.</string>
     <string name="boot_setup_do_clear_action">Clear</string>
     <string name="boot_setup_do_clear_warning">⚠ Think hard before clearing. Device Owner can only be granted again on a device with no accounts at all, and some OEM builds refuse outright — if that happens, a factory reset is the only way back.</string>
+    <!-- Device policy powers (白い熊 fork) -->
+    <string name="policy_authorize_title">Authorize an app</string>
+    <string name="policy_authorize_action">Choose app</string>
+    <string name="policy_authorize_summary_none">No app holds device-policy powers. Granting them lets an app lock permissions and suspend apps in ways you cannot undo from Settings.</string>
+    <string name="policy_authorize_summary_some">Authorized: %1$s</string>
+    <string name="policy_powers_link_title">Device policy powers</string>
+    <string name="policy_powers_link_summary">Accessibility blocks, user restrictions, always-on VPN, camera — and the way back out of all of them.</string>
+    <string name="policy_powers_link_action">Open</string>
+    <string name="app_picker_search_hint">Search by name or package id</string>
+    <string name="app_picker_no_match">No app matches that.</string>
+    <string name="policy_authorized_title">Authorized apps</string>
+    <string name="policy_authorized_action">Manage</string>
+    <string name="policy_authorized_summary">%1$s — tap Manage to see the scopes the platform reports, or to revoke.</string>
 </resources>
