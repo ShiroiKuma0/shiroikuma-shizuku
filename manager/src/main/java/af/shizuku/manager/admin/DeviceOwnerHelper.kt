@@ -7,6 +7,7 @@ import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Build
 import android.widget.Toast
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
@@ -50,7 +51,8 @@ object DeviceOwnerHelper {
     fun setupCommand(context: Context): String =
         "adb shell dpm set-device-owner ${component(context).flattenToString()}"
 
-    private fun dpm(context: Context): DevicePolicyManager? =
+    /** Internal, not private: [af.shizuku.manager.policy.DevicePolicyApi] runs on the same admin. */
+    internal fun dpm(context: Context): DevicePolicyManager? =
         context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
 
     fun isDeviceOwner(context: Context): Boolean = try {
@@ -125,6 +127,78 @@ object DeviceOwnerHelper {
             // Nothing was attempted, so the earlier tier's reason is still the better one to show.
             AdbLoopbackShell.Outcome.Unavailable -> privileged
         }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Delegation — handing a slice of Device Owner to a sister app
+    // ---------------------------------------------------------------------------------------
+
+    /**
+     * The scopes 白い熊 応用管理 needs for its Snooping page. Order is irrelevant; the platform
+     * stores a set.
+     *
+     * These three are the *only* ones we ever hand out. Every other `DELEGATION_*` constant
+     * (cert install, network logging, security logging, …) is privilege given to another process
+     * permanently for no benefit here — see the hand-off's "do not delegate anything else".
+     */
+    val SNOOPING_SCOPES: List<String> = listOf(
+        DevicePolicyManager.DELEGATION_PERMISSION_GRANT,  // setPermissionGrantState -> POLICY_FIXED
+        DevicePolicyManager.DELEGATION_PACKAGE_ACCESS,    // setPackagesSuspended, setApplicationHidden
+        DevicePolicyManager.DELEGATION_BLOCK_UNINSTALL,   // setUninstallBlocked
+    )
+
+    /** `setDelegatedScopes` and friends arrived in Oreo; below that there is nothing to delegate. */
+    private fun canDelegate(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+
+    /**
+     * Hand [scopes] to [pkg]. Device Owner only — there is **no shell command** for this
+     * (`dpm help` lists the owner/admin and logging commands and nothing about delegation), which
+     * is the entire reason the sister app cannot do it itself.
+     *
+     * Verified by reading the scopes back rather than by the call returning: `setDelegatedScopes`
+     * is `void`, so a scope the platform silently dropped would otherwise look like success.
+     *
+     * Once granted, the delegation lives in `system_server` and keeps working with this app
+     * stopped and the 白い熊 雫 service down — that persistence is the whole point of preferring
+     * it over the policy API in [af.shizuku.manager.policy.DevicePolicyApi].
+     */
+    fun delegate(context: Context, pkg: String, scopes: List<String> = SNOOPING_SCOPES): Boolean {
+        val dpm = dpm(context) ?: return false
+        if (!canDelegate() || !isDeviceOwner(context)) return false
+        return try {
+            dpm.setDelegatedScopes(component(context), pkg, scopes)
+            dpm.getDelegatedScopes(component(context), pkg).containsAll(scopes)
+        } catch (e: Throwable) {
+            Timber.e(e, "delegating %s to %s failed", scopes, pkg)
+            false
+        }
+    }
+
+    /**
+     * Take everything back. An empty list is the documented way to revoke.
+     *
+     * **This does not undo what the delegate already did.** Every permission it policy-fixed and
+     * every package it suspended stays that way, stored under *our* admin — so a revoke should be
+     * offered together with [DevicePolicyApi]'s `clear_all_locks`, or the locks become invisible.
+     */
+    fun undelegate(context: Context, pkg: String): Boolean {
+        val dpm = dpm(context) ?: return false
+        if (!canDelegate()) return false
+        return try {
+            dpm.setDelegatedScopes(component(context), pkg, emptyList())
+            dpm.getDelegatedScopes(component(context), pkg).isEmpty()
+        } catch (e: Throwable) {
+            Timber.e(e, "revoking delegation from %s failed", pkg)
+            false
+        }
+    }
+
+    /** What the platform actually reports for [pkg] — never what we asked for. */
+    fun delegatedScopes(context: Context, pkg: String): List<String> = try {
+        if (canDelegate()) dpm(context)?.getDelegatedScopes(component(context), pkg).orEmpty()
+        else emptyList()
+    } catch (e: Throwable) {
+        emptyList()
     }
 
     /**
