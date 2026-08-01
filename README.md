@@ -12,10 +12,11 @@ A fork of [ShizukuPlus](https://github.com/thejaustin/ShizukuPlus), itself a for
 
 This fork is **de-branded, black-yellow, and silent** — every telemetry and call-home path upstream
 shipped has been removed — with **major additions**: a full **白い熊 雫 UI** theming page, a
-**保存復元** export/import contract with token-gated automation, and the house look driven through
-every screen. Installs as `shiroikuma.shizuku`.
+**保存復元** export/import contract with token-gated automation, **device-policy powers** handed to
+authorized sister apps, and the house look driven through every screen. Installs as
+`shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2195+5`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2201.2026-08-01.g14550b5e+004`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -84,6 +85,56 @@ is wired through all three layers at once. Changes apply immediately, without re
 - **Automation** is token-gated with the master switch **off by default**: `EXPORT_STATE`,
   `LIST_CATEGORIES` and `CANCEL_EXPORT` on one receiver, with progress reported as **real counts**
   rather than a percentage. The token file is deliberately excluded from the export.
+
+---
+
+## 🛡️ Device policy powers, handed to a sister app
+
+白い熊 雫 can be Device Owner, and Device Owner is what makes a decision **hard** — an app-op or a
+permission an ordinary tool revokes can be put back by Settings, by another tool, and sometimes by
+the app itself. This fork can pass a slice of that power to an authorized sister app, and there are
+exactly two ways to do it because neither covers the other's half.
+
+**Delegated scopes** (`delegation-permission-grant`, `delegation-package-access`,
+`delegation-block-uninstall`) let the other app's own process fix permissions, suspend apps and block
+uninstalls — with no IPC, and with 白い熊 雫 stopped, because `system_server` stores the grant.
+There is no `dpm` command for `setDelegatedScopes`, which is the entire reason this had to live in
+the owner app. The grant is verified by reading the scopes **back**: the call returns `void`, so a
+scope the platform silently dropped would otherwise look like success.
+
+The rest cannot be delegated at all, so those run here on the other app's behalf over a private
+`ContentProvider.call()` at `shiroikuma.shizuku.policy` — a provider call rather than a broadcast,
+because it answers synchronously and `Binder.getCallingUid()` cannot be spoofed, so the allowlist is
+a real gate and no shared secret is needed.
+
+Accessibility blocking is stored **inverted**: the platform API is an allowlist whose `null` default
+means "everything permitted", with no block-one form, and once a non-`null` list exists any service
+installed *later* is barred silently. So the durable state is a blocklist and the platform list is
+derived from it and recomputed on every package event. Five user restrictions are **refused in
+code** — the ones that would remove ADB, safe boot, factory reset or sideloading, i.e. every route
+you would use to undo a mistake. Every dangerous row carries a red 危険 tag before any dialog opens,
+and **Clear all device-policy locks** works even if the app that set them is gone.
+
+---
+
+## 🗂️ Everything folds, and you can see what's folded
+
+Settings groups had a chevron pointing **down when folded** and up when unfolded — ambiguous both
+ways. It is now right when folded, down when unfolded, and the home cards fold the same way. Group
+boxes were already being drawn, filled with a surface role that is the same pure black as the page,
+so they were invisible; every group now carries a rounded **yellow** border that shrinks to the
+title row when folded. Fold state persists across relaunches, and everything starts unfolded.
+
+---
+
+## 🔖 The version says which upstream commit the build is on
+
+`custom` is rebased onto upstream's branch tip, so the fork's base is an arbitrary upstream commit —
+and the upstream version pinned in `gradle.properties` is maintained by hand, so it can go stale
+without anyone noticing. The version now appends the base commit's **date and sha**, read from
+`git merge-base HEAD master`, so `13.6.0.r2201.2026-08-01.g14550b5e+004` says exactly which upstream
+code is inside. It moves only on a sync; the date is there so builds sort chronologically, since a
+bare sha orders them at random.
 
 ---
 
