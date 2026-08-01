@@ -206,7 +206,7 @@ class ServiceDoctorActivity : AppBarActivity() {
             if (oneUi >= 6) {
                 tips.add("• " + getString(R.string.doctor_tip_samsung_autoblocker))
                 if (oneUi >= 8) {
-                    tips.add("• One UI 8: 'Maximum Restrictions' in Auto Blocker disables ADB. Turn it off to use Shizuku.")
+                    tips.add("• One UI 8: 'Maximum Restrictions' in Auto Blocker disables ADB. Turn it off to use 白い熊 雫.")
                 }
                 tips.add("• " + getString(R.string.doctor_tip_oneui_connectivity))
                 tips.add("• " + getString(R.string.doctor_tip_s22_ultra))

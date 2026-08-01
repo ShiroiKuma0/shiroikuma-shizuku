@@ -22,7 +22,7 @@ object LiveActivityNotificationManager {
                 "白い熊 雫 Live Status",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Shows live Shizuku activity"
+                description = "Shows live 白い熊 雫 activity"
                 setShowBadge(false)
             }
             manager.createNotificationChannel(channel)

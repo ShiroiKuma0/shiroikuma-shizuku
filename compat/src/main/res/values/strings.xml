@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Shizuku (Compat Hub)</string>
-    <string name="permission_group_label">Shizuku (Compat)</string>
-    <string name="permission_group_description">Shizuku compat permissions</string>
-    <string name="permission_label">Allow app to access Shizuku</string>
+    <string name="app_name">白い熊 雫 (Compat Hub)</string>
+    <string name="permission_group_label">白い熊 雫 (Compat)</string>
+    <string name="permission_group_description">白い熊 雫 compat permissions</string>
+    <string name="permission_label">Allow app to access 白い熊 雫</string>
     <string name="permission_description">Required for apps that strictly verify the original Shizuku package name.</string>
 </resources>

@@ -190,7 +190,7 @@
         <af.shizuku.manager.settings.PlusFeaturePreference
             android:key="bootloader_fastbootd_reboot_enabled"
             android:title="FastbootD Transition"
-            android:summary="Restart directly into fastbootd user space from Shizuku shell"
+            android:summary="Restart directly into fastbootd user space from the 白い熊 雫 shell"
             android:icon="@drawable/ic_server_restart"
             android:defaultValue="false" />
 
