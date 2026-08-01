@@ -108,7 +108,7 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                         .setTitle("Enable Stealth Mode?")
                         .setMessage(
                             "The app icon will be removed from your launcher.\n\n" +
-                            "You can still open the app from the Shizuku notification. " +
+                            "You can still open the app from the 白い熊 雫 notification. " +
                             "Disable stealth mode via ADB to restore the icon:\n\n" +
                             "adb shell pm enable ${context.packageName}/af.shizuku.manager.LauncherAlias"
                         )
