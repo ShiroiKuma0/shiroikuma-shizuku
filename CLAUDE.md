@@ -72,8 +72,23 @@ git config remote.upstream.fetchRecurseSubmodules no
   the count includes our own commits. So `gradle.properties` **pins** upstream's numbers:
   `UPSTREAM_VERSION_CODE` (2178) and `UPSTREAM_VERSION_NAME` (`13.6.0.r2178`), refreshed by
   `upstream-new-version` on each sync. `BUILD_NUMBER` is our increment — bumped every build, reset
-  to 1 on each new upstream version. Fork `versionName = "<UPSTREAM_VERSION_NAME>+<BUILD_NUMBER>"`
-  (`13.6.0.r2178+1`), `versionCode = UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER` (`21780001`).
+  to 1 on each new upstream version, and **zero-padded to three digits in the name** (`+008`, never
+  `+8`) so a shared `~/tmp` sorts in build order; `versionCode` keeps the plain integer.
+- **Upstream tracking: `git`** — `custom` is rebased onto every upstream commit, not onto release
+  tags, so the fork `versionName` pins the upstream base:
+  `<UPSTREAM_VERSION_NAME>.<base commit date>.g<8-char merge-base sha>+<BUILD_NUMBER, 3 digits>`
+  → `13.6.0.r2195.2026-07-30.gac2ae085+008`. See the global **`git-versioning`** skill. The sha is
+  `git merge-base HEAD master` — the upstream commit our patches sit on, not our own HEAD and not
+  master's tip — and the date is that commit's own committer date, so the pin moves *only* on a
+  sync. Upstream's `rNNNN` already counts upstream commits, but it is pinned **by hand** in
+  `gradle.properties`; the merge-base is read from git and cannot go stale. No git, or no local
+  `master`, degrades to `<UPSTREAM_VERSION_NAME>+<NNN>` — the build never fails over a missing pin.
+  `versionCode = UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER` (`21950008`) is untouched by any of
+  this: the sha carries no ordering.
+- **`UpdateChecker.parseVersionCode` reads `rNNNN * 1000 + N`**, not `rNNNN` alone. The date and
+  sha are ignored on purpose — they say *which* upstream code is in the build, not whether it is
+  newer. Before this, every build on one upstream base compared equal, so a newer fork release of
+  the same upstream version could never be offered.
 - **APK filename:** `shiroikuma-shizuku_<versionName>_arm64-v8a.apk`, single-ABI arm64-v8a
   (upstream packages a universal APK with all four ABIs).
 - **Signing:** release signed from the **gitignored** `signing.properties`
