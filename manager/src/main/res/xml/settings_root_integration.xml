@@ -116,7 +116,7 @@
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_ghost_bridge"
         android:title="Mocking &amp; Simulation"
-        android:defaultValue="false">
+        android:defaultValue="true">
 
         <af.shizuku.manager.settings.PlusFeaturePreference
             android:key="root_iptables_mocking_enabled"
@@ -178,7 +178,7 @@
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_unlocked_bootloader"
         android:title="Bootloader Integration"
-        android:defaultValue="false">
+        android:defaultValue="true">
 
         <af.shizuku.manager.settings.PlusFeaturePreference
             android:key="bootloader_flash_ota_enabled"
