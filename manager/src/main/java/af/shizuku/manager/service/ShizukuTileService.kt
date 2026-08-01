@@ -42,9 +42,9 @@ class ShizukuTileService : TileService() {
             else -> Tile.STATE_INACTIVE
         }
         tile.label = when {
-            isRunning -> "Shizuku: Active"
+            isRunning -> "白い熊 雫: Active"
             isStarting -> "Starting..."
-            else -> "Shizuku: Off"
+            else -> "白い熊 雫: Off"
         }
         tile.subtitle = when {
             isRunning -> "Running"
