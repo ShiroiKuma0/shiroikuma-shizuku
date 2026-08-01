@@ -8,7 +8,7 @@
     <string name="home_status_service_version_update"><![CDATA[Versi %2$s, %1$s<br>Mula semula untuk mengemas kini kepada versi %3$s]]></string>
     <!-- Home - Adb -->
     <string name="home_adb_title"><![CDATA[Mulakan dengan menyambung ke komputer]]></string>
-    <string name="home_adb_description"><![CDATA[Untuk peranti tanpa akar, anda perlu menggunakan adb untuk memulakan Shizuku (memerlukan sambungan komputer). Proses ini perlu diulang setiap kali peranti dimulakan semula. Silakan <b><a href=\"%1$s\">baca bantuan</a></b>.]]></string>
+    <string name="home_adb_description"><![CDATA[Untuk peranti tanpa akar, anda perlu menggunakan adb untuk memulakan 白い熊 雫 (memerlukan sambungan komputer). Proses ini perlu diulang setiap kali peranti dimulakan semula. Silakan <b><a href=\"%1$s\">baca bantuan</a></b>.]]></string>
     <string name="home_adb_button_view_help">Baca bantuan</string>
     <string name="home_adb_button_view_command">Lihat arahan</string>
     <string name="home_adb_dialog_view_command_message"><![CDATA[<font face="monospace">%1$s</font><br><br>* Terdapat beberapa pertimbangan lain, sila sahkan bahawa anda telah membaca bantuan terlebih dahulu.]]></string>
@@ -16,7 +16,7 @@
     <string name="home_adb_dialog_view_command_button_send">Hantar</string>
     <!-- Home - Wireless Adb -->
     <string name="home_wireless_adb_title"><![CDATA[Mulakan melalui penyahpepijatan wayarles]]></string>
-    <string name="home_wireless_adb_description"><![CDATA[Pada Android 11 ke atas, anda boleh mendayakan Penyahpepijatan Wayarles dan memulakan Shizuku terus daripada peranti anda, tanpa menyambung ke komputer.<p>Sila lihat panduan langkah demi langkah dahulu.]]></string>
+    <string name="home_wireless_adb_description"><![CDATA[Pada Android 11 ke atas, anda boleh mendayakan Penyahpepijatan Wayarles dan memulakan 白い熊 雫 terus daripada peranti anda, tanpa menyambung ke komputer.<p>Sila lihat panduan langkah demi langkah dahulu.]]></string>
     <string name="home_wireless_adb_description_pre_11"><![CDATA[Sebelum Android 11, sambungan ke komputer diperlukan untuk mendayakan Penyahpepijatan Wayarles.]]></string>
     <string name="home_wireless_adb_view_guide_button">Panduan langkah demi langkah</string>
     <!-- Adb -->
@@ -24,7 +24,7 @@
     <string name="dialog_adb_discovery_message">Sila dayakan \"Penyahpepijatan wayarles\" dalam
         \"Pilihan pembangun\". \"Penyahpepijatan wayarles\" dilumpuhkan secara automatik apabila
         rangkaian berubah.\n\nAmbil perhatian, jangan lumpuhkan \"Pilihan pembangun\" atau
-        \"penyahpepijat USB\", atau Shizuku akan dihentikan.</string>
+        \"penyahpepijat USB\", atau 白い熊 雫 akan dihentikan.</string>
     <string name="dialog_adb_discovery_message_toggle_wireless_debugging">Sila cuba lumpuhkan dan
         dayakan \"Penyahpepijatan wayarles\" jika ia terus mencari.</string>
     <string name="dialog_adb_port">Pelabuhan</string>
@@ -35,7 +35,7 @@
     <string name="dialog_adb_pairing_paring_code">Kod berpasangan</string>
     <string name="paring_code_is_wrong">Memadankan kod adalah salah.</string>
     <string name="cannot_connect_port">Tidak boleh menyambung ke perkhidmatan penyahpepijatan
-        wayarles.\n\nSila pastikan Shizuku disenaraikan putih dalam semua firewall, blok iklan, VPN
+        wayarles.\n\nSila pastikan 白い熊 雫 disenaraikan putih dalam semua firewall, blok iklan, VPN
         atau apl serupa yang boleh menyekat akses rangkaian.</string>
     <string name="dialog_wireless_adb_not_enabled">Penyahpepijatan wayarles tidak didayakan.\nAmbil
         perhatian, sebelum Android 11, untuk mendayakan penyahpepijatan wayarles, sambungan komputer
@@ -48,19 +48,19 @@
         wayar\"\n- Ketik \"Pasangkan peranti dengan kod berpasangan\"\n- Masukkan kod gandingan
         dalam pemberitahuan</string>
     <string name="dialog_adb_pairing_accessibility_permission">Pada Android 14, memasang/mengemas
-        kini Shizuku dengan Package Installer akan membatalkan kebenaran ^1, yang diperlukan untuk
+        kini 白い熊 雫 dengan Package Installer akan membatalkan kebenaran ^1, yang diperlukan untuk
         mendayakan perkhidmatan kebolehcapaian bagi pemasangan.\n\nUntuk memberikannya, jalankan
         arahan ADB berikut:\n\n^2\n\nSelepas menjalankan arahan, anda boleh meneruskan proses
-        pemasangan.\n\nNota: anda boleh memintas ini dengan memasang/mengemas kini Shizuku dengan
+        pemasangan.\n\nNota: anda boleh memintas ini dengan memasang/mengemas kini 白い熊 雫 dengan
         ADB.</string>
     <string name="dialog_adb_pairing_accessibility_enable">Sila dayakan perkhidmatan kebolehaksesan
-        untuk memulakan proses berpasangan. Ini membolehkan Shizuku mengesan kod
+        untuk memulakan proses berpasangan. Ini membolehkan 白い熊 雫 mengesan kod
         berpasangan.\n\nPerkhidmatan kebolehaksesan akan dimatikan apabila kod ditemui atau selepas
         1 minit untuk menjimatkan tenaga.</string>
     <string name="dialog_adb_pairing_accessibility_navigate">Sila mulakan berpasangan dengan
         melakukan langkah berikut:\n- Navigasi ke \"Pilihan Pembangun\"\n- Dayakan \"penyahpepijatan
         USB\" dan \"Penyahpepijatan wayarles\"\n- Ketik sebelah kiri \"Penyahpepijatan wayarles\"\n-
-        Ketik \"Gandingkan peranti dengan peranti.\" Shizuku akan mengesan kod pasangan secara
+        Ketik \"Gandingkan peranti dengan peranti.\" 白い熊 雫 akan mengesan kod pasangan secara
         automatik.</string>
     <string name="adb_pairing_requires_multi_window">Sila masukkan mod skrin belah (berbilang
         tetingkap) dahulu.</string>
@@ -75,8 +75,8 @@
     <string name="enable">Dayakan</string>
     <string name="development_settings">Pilihan pemaju</string>
     <string name="notification_settings">Pilihan pemberitahuan</string>
-    <string name="adb_pairing_tutorial_title">Gandingkan Shizuku dengan peranti anda</string>
-    <string name="adb_pairing_tutorial_content_notification">Pemberitahuan daripada Shizuku akan
+    <string name="adb_pairing_tutorial_title">Gandingkan 白い熊 雫 dengan peranti anda</string>
+    <string name="adb_pairing_tutorial_content_notification">Pemberitahuan daripada 白い熊 雫 akan
         membantu anda melengkapkan gandingan.</string>
     <string name="adb_pairing_tutorial_content_steps">Navigasi ke \"Pilihan Pembangun\", kemudian
         dayakan \"penyahpepijatan USB\" dan \"Penyahpepijatan wayarles\".</string>
@@ -84,23 +84,23 @@
         \"Penyahpepijatan wayarles\", kemudian ketik \"Gandingkan peranti dengan kod berpasangan.\"
         Masukkan kod dalam pemberitahuan untuk melengkapkan gandingan.</string>
     <string name="adb_pairing_tutorial_content_notification_blocked">Proses berpasangan memerlukan
-        anda berinteraksi dengan pemberitahuan daripada Shizuku. Sila benarkan Shizuku menyiarkan
+        anda berinteraksi dengan pemberitahuan daripada 白い熊 雫. Sila benarkan 白い熊 雫 menyiarkan
         pemberitahuan.</string>
     <string name="adb_pairing_tutorial_content_miui">Pengguna MIUI mungkin perlu menukar gaya
         pemberitahuan kepada \"Android\" daripada \"Pemberitahuan\" - \"Teduhan pemberitahuan\"
         dalam tetapan sistem.</string>
     <string name="adb_pairing_tutorial_content_miui_2">Jika tidak, anda mungkin tidak dapat
         memasukkan kod berpasangan daripada pemberitahuan.</string>
-    <string name="adb_pairing_tutorial_content_finish">Kembali ke Shizuku dan mulakan Shizuku.</string>
-    <string name="adb_pairing_tutorial_content_network">Shizuku perlu mengakses rangkaian tempatan.
+    <string name="adb_pairing_tutorial_content_finish">Kembali ke 白い熊 雫 dan mulakan 白い熊 雫.</string>
+    <string name="adb_pairing_tutorial_content_network">白い熊 雫 perlu mengakses rangkaian tempatan.
         Ia dikawal oleh kebenaran rangkaian.</string>
     <string name="adb_pairing_tutorial_content_network_limation_not_foreground">Sesetengah sistem
         (seperti MIUI) tidak membenarkan apl mengakses rangkaian apabila ia tidak kelihatan,
         walaupun apl menggunakan perkhidmatan latar depan. Sila lumpuhkan ciri pengoptimuman bateri
-        untuk Shizuku pada sistem sedemikian.</string>
+        untuk 白い熊 雫 pada sistem sedemikian.</string>
     <!-- Home - Root -->
     <string name="home_root_title"><![CDATA[Mula (untuk peranti berakar)]]></string>
-    <string name="home_root_description"><![CDATA[Jika anda menggunakan Magisk, anda boleh mencuba %1$s. Bagi pengguna root, ia akhirnya akan menggantikan Shizuku. Perhatikan, aplikasi sedia ada perlu berubah sedikit untuk menggunakan %2$s.]]></string>
+    <string name="home_root_description"><![CDATA[Jika anda menggunakan Magisk, anda boleh mencuba %1$s. Bagi pengguna root, ia akhirnya akan menggantikan 白い熊 雫. Perhatikan, aplikasi sedia ada perlu berubah sedikit untuk menggunakan %2$s.]]></string>
     <string name="home_root_button_start">Mulakan</string>
     <string name="home_root_button_restart">Mulakan semula</string>
     <!-- Home - Application management -->
@@ -110,11 +110,11 @@
     </plurals>
     <string name="home_app_management_view_authorized_apps"><![CDATA[Ketik untuk mengurus apl yang dibenarkan]]></string>
     <string name="home_app_management_empty">Apl yang telah meminta atau mengisytiharkan kebenaran
-        Shizuku akan dipaparkan di sini.</string>
+        白い熊 雫 akan dipaparkan di sini.</string>
     <!-- Home - Automation -->
-    <string name="home_automation_title">Kawal Shizuku dengan apl automasi</string>
+    <string name="home_automation_title">Kawal 白い熊 雫 dengan apl automasi</string>
     <string name="home_automation_description">Apl seperti Tasker dan MacroDroid boleh menghantar
-        niat untuk memulakan/menghentikan Shizuku secara automatik.</string>
+        niat untuk memulakan/menghentikan 白い熊 雫 secara automatik.</string>
     <string name="home_automation_button_view_intents">Lihat niat</string>
     <string name="home_automation_dialog_label_action">Tindakan</string>
     <string name="home_automation_dialog_label_package">Pakej</string>
@@ -122,28 +122,28 @@
     <string name="home_automation_dialog_label_target">Sasaran</string>
     <!-- Home - Learn more -->
     <string name="home_learn_more_title">Panduan pembangun</string>
-    <string name="home_learn_more_description">Ketahui cara membangun dengan Shizuku</string>
+    <string name="home_learn_more_description">Ketahui cara membangun dengan 白い熊 雫</string>
     <!-- Home - Adb permissions limited -->
     <string name="home_adb_is_limited_title">Anda perlu mengambil langkah tambahan</string>
     <string name="home_adb_is_limited_description">Pengilang peranti anda telah mengehadkan
-        kebenaran adb dan apl yang menggunakan Shizuku tidak akan berfungsi dengan
+        kebenaran adb dan apl yang menggunakan 白い熊 雫 tidak akan berfungsi dengan
         betul.\n\nBiasanya, had ini boleh ditarik balik dengan melaraskan beberapa pilihan dalam
         \"Pilihan pembangun\". Sila baca bantuan untuk mendapatkan butiran tentang cara melakukan
-        ini.\n\nAnda mungkin perlu memulakan semula Shizuku untuk operasi berkuat kuasa.</string>
+        ini.\n\nAnda mungkin perlu memulakan semula 白い熊 雫 untuk operasi berkuat kuasa.</string>
     <!-- Application management -->
     <string name="app_management_dialog_adb_is_limited_title">Kebenaran adb adalah terhad</string>
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[Kemungkinan besar pengeluar peranti anda mengehadkan kebenaran adb.<p>Mungkin terdapat penyelesaian untuk sistem anda dalam <b><a href=\"%1$s\">dokumen ini</a></b>.]]></string>
-    <string name="app_management_item_summary_requires_root">* memerlukan Shizuku berjalan dengan
+    <string name="app_management_item_summary_requires_root">* memerlukan 白い熊 雫 berjalan dengan
         akar</string>
     <string name="app_management_toggle_all">Togol semua</string>
     <!-- Terminal -->
-    <string name="home_terminal_title">Gunakan Shizuku dalam apl terminal</string>
+    <string name="home_terminal_title">Gunakan 白い熊 雫 dalam apl terminal</string>
     <string name="home_terminal_description">Jalankan arahan shell dalam apl terminal melalui
-        Shizuku</string>
+        白い熊 雫</string>
     <string name="terminal_tutorial_miui">Pengguna telah melaporkan bahawa MIUI memecahkan Rangka
         Kerja Akses Storan, yang digunakan oleh fungsi eksport.</string>
     <string name="terminal_tutorial_miui_2">Jika anda menggunakan MIUI, anda mungkin perlu
-        mengekstrak fail daripada folder aset dalam APK Shizuku.</string>
+        mengekstrak fail daripada folder aset dalam APK 白い熊 雫.</string>
     <string name="terminal_tutorial_1">Eksport fail ke folder baharu.</string>
     <string name="terminal_tutorial_1_description">Dua fail akan dieksport: %1$s dan %2$s. Jika fail
         sudah wujud dalam folder yang dipilih, ia akan dipadamkan.</string>
@@ -167,22 +167,22 @@
         dialog kebenaran muncul.</string>
     <string name="settings_use_system_color">Gunakan warna tema sistem</string>
     <string name="settings_watchdog">Pengawas</string>
-    <string name="settings_watchdog_summary">Mulakan semula Shizuku secara automatik jika ia ranap</string>
+    <string name="settings_watchdog_summary">Mulakan semula 白い熊 雫 secara automatik jika ia ranap</string>
     <string name="settings_tcp_mode">mod TCP</string>
-    <string name="settings_tcp_mode_summary">"Membenarkan Shizuku memulakan semula tanpa Wi-Fi.
-        (Shizuku mesti bermula sekali sejak but semula)"</string>
+    <string name="settings_tcp_mode_summary">"Membenarkan 白い熊 雫 memulakan semula tanpa Wi-Fi.
+        (白い熊 雫 mesti bermula sekali sejak but semula)"</string>
     <string name="settings_tcp_mode_dialog_close_port">"Port TCP akan ditutup serta-merta. Anda
         memerlukan Wi-Fi untuk menghidupkan mod TCP sekali lagi. Teruskan?"</string>
     <string name="settings_tcp_mode_closing_port">Menutup port TCP...</string>
     <string name="settings_restart_dialog_title">Mulakan semula Diperlukan</string>
-    <string name="settings_restart_dialog_message">Shizuku perlu memulakan semula untuk menggunakan
+    <string name="settings_restart_dialog_message">白い熊 雫 perlu memulakan semula untuk menggunakan
         tetapan ini.</string>
-    <string name="settings_restart_dialog_message_wifi_required"><![CDATA[<br><br><b>Wi-Fi diperlukan. Shizuku akan terus berjalan dan menunggu sambungan Wi-Fi sebelum dimulakan semula di latar belakang.</b>]]></string>
+    <string name="settings_restart_dialog_message_wifi_required"><![CDATA[<br><br><b>Wi-Fi diperlukan. 白い熊 雫 akan terus berjalan dan menunggu sambungan Wi-Fi sebelum dimulakan semula di latar belakang.</b>]]></string>
     <string name="settings_tcp_port">port TCP</string>
     <string name="settings_tcp_port_default">Lalai (5555)</string>
     <string name="settings_tcp_port_hint">Biarkan kosong untuk menggunakan lalai (5555)</string>
     <string name="settings_tcp_learn_more">Ketahui lebih lanjut tentang menggunakan apl automasi
-        untuk mengawal Shizuku</string>
+        untuk mengawal 白い熊 雫</string>
     <string name="settings_language">Bahasa</string>
     <string name="settings_translation_contributors">Penyumbang terjemahan</string>
     <string name="settings_translation">Mengambil bahagian dalam terjemahan</string>
@@ -220,9 +220,9 @@
     <string name="snackbar_action_fix">Betulkan</string>
     <!-- Toast -->
     <string name="toast_no_email_app">Tiada apl e-mel ditemui</string>
-    <string name="toast_shizuku_already_starting">Shizuku sudah bermula di latar belakang</string>
+    <string name="toast_shizuku_already_starting">白い熊 雫 sudah bermula di latar belakang</string>
     <string name="toast_accessibility_tv_only">Perkhidmatan ini hanya disokong pada peranti TV.</string>
-    <string name="toast_pairing_timeout">Perkhidmatan gandingan Shizuku tamat masa.</string>
+    <string name="toast_pairing_timeout">Perkhidmatan gandingan 白い熊 雫 tamat masa.</string>
     <!-- Dark Mode Setting Override -->
     <string name="dark_theme">Tema</string>
     <string name="dark_theme_off">Sentiasa ringan</string>
@@ -232,14 +232,14 @@
     <string name="about_dialog_button_close">tutup</string>
     <string name="about_view_source_code"><![CDATA[Lihat kod sumber di %s]]></string>
     <!-- Start -->
-    <string name="action_start">Mulakan Shizuku</string>
+    <string name="action_start">Mulakan 白い熊 雫</string>
     <!-- Stop -->
-    <string name="action_stop">Hentikan Shizuku</string>
-    <string name="dialog_stop_message">Perkhidmatan Shizuku akan dihentikan.</string>
+    <string name="action_stop">Hentikan 白い熊 雫</string>
+    <string name="dialog_stop_message">Perkhidmatan 白い熊 雫 akan dihentikan.</string>
     <!-- Notification -->
     <string name="notification_channel_service_status">Status permulaan perkhidmatan</string>
-    <string name="notification_service_starting">Perkhidmatan Shizuku bermula…</string>
-    <string name="notification_service_start_failed">Mulakan perkhidmatan Shizuku gagal.</string>
+    <string name="notification_service_starting">Perkhidmatan 白い熊 雫 bermula…</string>
+    <string name="notification_service_start_failed">Mulakan perkhidmatan 白い熊 雫 gagal.</string>
     <string name="notification_service_start_no_root">Gagal meminta kebenaran root.</string>
     <string name="notification_working">Bekerja…</string>
     <string name="notification_channel_adb_pairing">Penyahpepijatan berpasangan tanpa wayar</string>
@@ -250,13 +250,13 @@
     <string name="notification_adb_pairing_stop_searching">Berhenti mencari</string>
     <string name="notification_adb_pairing_working_title">Berpasangan sedang berjalan</string>
     <string name="notification_adb_pairing_succeed_title">Berganding berjaya</string>
-    <string name="notification_adb_pairing_succeed_text">Anda boleh memulakan perkhidmatan Shizuku
+    <string name="notification_adb_pairing_succeed_text">Anda boleh memulakan perkhidmatan 白い熊 雫
         sekarang.</string>
     <string name="notification_adb_pairing_failed_title">Gagal bergandingan</string>
     <string name="notification_adb_pairing_retry">Cuba semula</string>
     <!-- Permission related, appears in system permission UI -->
-    <string name="permission_label">akses Shizuku</string>
-    <string name="permission_description">Benarkan apl menggunakan Shizuku.</string>
+    <string name="permission_label">akses 白い熊 雫</string>
+    <string name="permission_description">Benarkan apl menggunakan 白い熊 雫.</string>
     <string name="permission_warning_template"><![CDATA[Benarkan <b>%1$s</b> ke %2$s?]]></string>
     <string name="grant_dialog_button_allow_always">Benarkan sepanjang masa</string>
     <string name="grant_dialog_button_deny">"Nafikan"</string>
@@ -265,19 +265,19 @@
     <string name="start_with_root_failed">Tidak dapat memulakan perkhidmatan kerana kebenaran root
         tidak diberikan atau peranti ini tidak berakar.</string>
     <!-- WADB Starter -->
-    <string name="wadb_notification_title">Memulakan Shizuku…</string>
+    <string name="wadb_notification_title">Memulakan 白い熊 雫…</string>
     <string name="wadb_notification_wifi_required">Menunggu sambungan Wi-Fi sebelum meneruskan</string>
     <string name="wadb_notification_retry">Menunggu untuk mencuba semula</string>
     <string name="wadb_error_title">Ralat semasa memulakan but</string>
     <string name="wadb_error_notify_dev">Ketik untuk memberitahu pembangun.</string>
     <string name="wadb_permission_error_notification_title">Ralat Kebenaran</string>
-    <string name="wadb_permission_error_notification_content">Shizuku memerlukan
+    <string name="wadb_permission_error_notification_content">白い熊 雫 memerlukan
         WRITE_SECURE_SETTINGS untuk bermula semasa but. Ketik untuk mengetahui cara memberikannya.</string>
     <string name="wadb_notification_channel">Perkhidmatan automula ADB</string>
     <!-- Watchdog -->
     <string name="watchdog_running">Anjing pengawas sedang berjalan</string>
     <string name="watchdog_turn_off">Mati</string>
-    <string name="watchdog_shizuku_crashed_title">Shizuku terhempas baru-baru ini</string>
+    <string name="watchdog_shizuku_crashed_title">白い熊 雫 terhempas baru-baru ini</string>
     <string name="watchdog_shizuku_crashed_text">Pengawas memulakan semula perkhidmatan. Ketik untuk
         mengetahui tentang kemungkinan pembetulan untuk mengelakkan ranap masa hadapan.</string>
     <string name="watchdog_shizuku_crashed_action_turn_off_alerts">Matikan Makluman</string>
@@ -286,13 +286,13 @@
     <string name="toast_copied_to_clipboard">Disalin ke papan keratan</string>
     <string name="accessibility_service_description">Menyediakan sokongan berpasangan untuk peranti
         (cth, TV yang menjalankan Android 14+) yang pemberitahuan atau skrin pisah tidak boleh
-        digunakan.\n\nMendayakan Shizuku untuk mengekstrak kod gandingan daripada skrin pasangan
+        digunakan.\n\nMendayakan 白い熊 雫 untuk mengekstrak kod gandingan daripada skrin pasangan
         nyahpepijat wayarles. Ia akan melumpuhkan dirinya apabila kod berpasangan ditemui.</string>
     <!-- Messages for legacy -->
-    <string name="dialog_legacy_not_support_title">%1$s tidak menyokong Shizuku moden</string>
-    <string name="dialog_legacy_not_support_message"><![CDATA[Shizuku warisan telah ditamatkan sejak Mac 2019. Selain itu, Shizuku warisan tidak berfungsi pada sistem Android yang lebih baharu.<p>Sila minta pembangun <b>%1$s</b> untuk mengemas kini.]]></string>
-    <string name="dialog_requesting_legacy_title">%1$s sedang meminta Shizuku warisan</string>
-    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b> mempunyai sokongan Shizuku moden, tetapi ia meminta Shizuku warisan. Ini mungkin kerana Shizuku tidak berjalan, sila semak dalam aplikasi Shizuku.<p>Legasi Shizuku telah ditamatkan sejak Mac 2019.]]></string>
-    <string name="dialog_requesting_legacy_button_open_shizuku">Buka Shizuku</string>
+    <string name="dialog_legacy_not_support_title">%1$s tidak menyokong 白い熊 雫 moden</string>
+    <string name="dialog_legacy_not_support_message"><![CDATA[白い熊 雫 warisan telah ditamatkan sejak Mac 2019. Selain itu, 白い熊 雫 warisan tidak berfungsi pada sistem Android yang lebih baharu.<p>Sila minta pembangun <b>%1$s</b> untuk mengemas kini.]]></string>
+    <string name="dialog_requesting_legacy_title">%1$s sedang meminta 白い熊 雫 warisan</string>
+    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b> mempunyai sokongan 白い熊 雫 moden, tetapi ia meminta 白い熊 雫 warisan. Ini mungkin kerana 白い熊 雫 tidak berjalan, sila semak dalam aplikasi 白い熊 雫.<p>Legasi 白い熊 雫 telah ditamatkan sejak Mac 2019.]]></string>
+    <string name="dialog_requesting_legacy_button_open_shizuku">Buka 白い熊 雫</string>
     <string name="wadb_notification_attempt_now">Cuba sekarang</string>
 </resources>
