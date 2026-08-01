@@ -36,12 +36,12 @@ class CollapsiblePreferenceCategory
             collapsible = a.getBoolean(1, true)
             a.recycle()
 
-            // A non-collapsible category (e.g. a top-level nav menu) still needs the M3E card-grouping
-            // treatment from isHeader()/tag, but must never hide its own entries - there'd be no other
-            // way back to them.
-            expanded = if (collapsible) defaultExpanded else true
-            isSelectable = collapsible
-        }
+        // Unfolded unless a screen says otherwise: 白い熊 wants every group in Settings and its
+        // sub-pages open by default, so a category that names no defaultValue starts expanded too.
+        val a = context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.defaultValue, R.attr.collapsible))
+        defaultExpanded = a.getBoolean(0, true)
+        collapsible = a.getBoolean(1, true)
+        a.recycle()
 
         override fun onBindViewHolder(holder: PreferenceViewHolder) {
             super.onBindViewHolder(holder)
@@ -100,54 +100,57 @@ class CollapsiblePreferenceCategory
                 arrowContainer?.visibility = android.view.View.VISIBLE
             }
 
-            // Cancel any in-flight animator before snapping to current state on rebind —
-            // otherwise a running ViewPropertyAnimator takes priority over the direct rotation setter
-            // and can leave the arrow pointing the wrong way for the actual expanded state.
-            // ViewPropertyAnimator.cancel() does NOT fire withEndAction, so we must reset isAnimating
-            // manually here — otherwise a mid-animation rebind leaves it stuck at true forever.
-            arrow?.animate()?.cancel()
-            isAnimating = false
-            arrow?.rotation = if (expanded) 180f else 0f
+        // Cancel any in-flight animator before snapping to current state on rebind — otherwise a
+        // running ViewPropertyAnimator overrides the direct rotation setter and can leave the arrow
+        // pointing the wrong way. cancel() does NOT fire withEndAction, so reset isAnimating here too,
+        // or a mid-animation rebind leaves it stuck at true forever.
+        arrow?.animate()?.cancel()
+        isAnimating = false
+        arrow?.rotation = rotationFor(expanded)
+        updateExpandedStateDescription(holder.itemView)
+
+        holder.itemView.setOnClickListener {
+            // Guard against fast double-taps: a second tap before the arrow finishes rotating
+            // would flip `expanded` twice and leave the arrow snapped to the wrong angle.
+            if (isAnimating) return@setOnClickListener
+            af.shizuku.manager.utils.HapticUtils.tap(holder.itemView)
+            expanded = !expanded
+            if (shouldPersist()) persistBoolean(expanded)
+            // Animate arrow with M3E spring-style motion
+            arrow?.animate()
+                ?.rotation(rotationFor(expanded))
+                ?.setDuration(af.shizuku.manager.ShizukuSettings.scaledAnimationDuration(260))
+                ?.setInterpolator(android.view.animation.OvershootInterpolator(1.1f))
+                ?.withStartAction { isAnimating = true }
+                ?.withEndAction { isAnimating = false }
+                ?.start()
+            // updateChildren() already notifies the adapter per child via Preference.setVisible();
+            // an additional notifyChanged() here used to schedule a rebind of this same header
+            // ViewHolder mid-animation, which snapped the arrow's rotation back and forth against
+            // the running ViewPropertyAnimator and could leave the RecyclerView's sync pass
+            // needing a second click to fully settle on the expanded child list.
+            updateChildren()
             updateExpandedStateDescription(holder.itemView)
 
-            holder.itemView.setOnClickListener {
-                // Guard against fast double-taps: a second tap before the arrow finishes rotating
-                // would flip `expanded` twice and leave the arrow snapped to the wrong angle.
-                if (isAnimating) return@setOnClickListener
-                af.shizuku.manager.utils.HapticUtils
-                    .tap(holder.itemView)
-                expanded = !expanded
-                if (shouldPersist()) persistBoolean(expanded)
-                // Animate arrow with M3E spring-style motion
-                arrow
-                    ?.animate()
-                    ?.rotation(if (expanded) 180f else 0f)
-                    ?.setDuration(
-                        af.shizuku.manager.ShizukuSettings
-                            .scaledAnimationDuration(260),
-                    )?.setInterpolator(android.view.animation.OvershootInterpolator(1.1f))
-                    ?.withStartAction { isAnimating = true }
-                    ?.withEndAction { isAnimating = false }
-                    ?.start()
-                // updateChildren() already notifies the adapter per child via Preference.setVisible();
-                // an additional notifyChanged() here used to schedule a rebind of this same header
-                // ViewHolder mid-animation, which snapped the arrow's rotation back and forth against
-                // the running ViewPropertyAnimator and could leave the RecyclerView's sync pass
-                // needing a second click to fully settle on the expanded child list.
-                updateChildren()
-                updateExpandedStateDescription(holder.itemView)
-                onExpansionChanged?.invoke(expanded)
-            }
-        }
+    /**
+     * The disclosure indicator: **right when folded, down when unfolded** — the platform's own tree
+     * convention, and the one 白い熊 asked for.
+     *
+     * The drawable (`ic_outline_expand_more_24`) points down at 0°, so unfolded needs no rotation
+     * and folded turns it a quarter-turn anticlockwise. It used to be 0° folded / 180° unfolded,
+     * i.e. down when folded and up when unfolded — ambiguous in both states, because a down chevron
+     * reads as "this is open" just as easily as "tap to open", and up/down differ only by which end
+     * is wider.
+     */
+    private fun rotationFor(expanded: Boolean): Float = if (expanded) 0f else -90f
 
-        /** The rotating arrow is the only visual cue this header is an expand/collapse toggle -
-         *  TalkBack users get neither that affordance nor a state change announcement without this. */
-        private fun updateExpandedStateDescription(itemView: android.view.View) {
-            ViewCompat.setStateDescription(
-                itemView,
-                itemView.context.getString(
-                    if (expanded) R.string.accessibility_state_expanded else R.string.accessibility_state_collapsed,
-                ),
+    /** The rotating arrow is the only visual cue this header is an expand/collapse toggle -
+     *  TalkBack users get neither that affordance nor a state change announcement without this. */
+    private fun updateExpandedStateDescription(itemView: android.view.View) {
+        ViewCompat.setStateDescription(
+            itemView,
+            itemView.context.getString(
+                if (expanded) R.string.accessibility_state_expanded else R.string.accessibility_state_collapsed
             )
         }
 
