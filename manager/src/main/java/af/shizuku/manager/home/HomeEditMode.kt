@@ -120,12 +120,13 @@ object HomeEditMode {
         // drag_handle and remove_btn now sit side-by-side in a single top-end row (48dp each +
         // 4dp gap + 12dp end margin) instead of stacked/overlapping on the same corner; reserve
         // clearance for the whole row so content never sits under either control.
-        val overlayClearance =
-            if (isActive) {
-                (112 * res.displayMetrics.density).toInt()
-            } else {
-                0
-            }
-        binding.cardContent.updatePaddingRelative(end = base + overlayClearance)
+        val overlayClearance = if (isActive)
+            (112 * res.displayMetrics.density).toInt() else 0
+        // The fold chevron sits in the same top-end row and is visible in BOTH modes, so its
+        // clearance is unconditional. HomeCardFold applies the identical base + chevron figure on
+        // cards whose holder never calls this, which is why the two can never disagree.
+        val chevronClearance = HomeCardFold.chevronClearancePx(binding.cardContent)
+        binding.cardContent.updatePaddingRelative(end = base + chevronClearance + overlayClearance)
+        binding.foldTitle.updatePaddingRelative(end = base + chevronClearance + overlayClearance)
     }
 }

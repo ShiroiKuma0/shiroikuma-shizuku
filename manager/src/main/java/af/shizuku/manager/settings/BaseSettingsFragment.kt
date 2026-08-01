@@ -54,11 +54,14 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         preferenceManager.sharedPreferencesName = ShizukuSettings.NAME
         preferenceManager.sharedPreferencesMode = android.content.Context.MODE_PRIVATE
 
-        batteryOptimizationListener =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                val accepted = SettingsHelper.isIgnoringBatteryOptimizations(requireContext())
-                batteryOptimizationContinuation?.resume(accepted)
-            }
+        // Must run before the tree is inflated: a category reads its persisted state the moment it
+        // attaches, and a stored value beats the new default.
+        ShizukuSettings.resetCategoryExpansionOnce()
+
+        batteryOptimizationListener = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val accepted = SettingsHelper.isIgnoringBatteryOptimizations(requireContext())
+            batteryOptimizationContinuation?.resume(accepted)
+        }
 
         onCreateSettingsPreferences(savedInstanceState, rootKey)
 
@@ -483,15 +486,13 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         onResult(false)
     }
 
-    protected class SettingsItemDecoration(
-        context: Context,
-    ) : af.shizuku.manager.widget.M3ECardItemDecoration(context) {
-        override fun getItemOffsets(
-            outRect: android.graphics.Rect,
-            view: View,
-            parent: RecyclerView,
-            state: RecyclerView.State,
-        ) {
+    protected class SettingsItemDecoration(context: Context) : af.shizuku.manager.widget.M3ECardItemDecoration(context) {
+        // Every settings group gets the rounded yellow box. This decoration groups by header, so
+        // each box spans exactly one category — and a folded one shrinks to its own title row,
+        // which is what makes the folded state obvious.
+        override val drawsBorder: Boolean get() = true
+
+        override fun getItemOffsets(outRect: android.graphics.Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
             val pos = parent.getChildAdapterPosition(view)
             if (pos == RecyclerView.NO_POSITION) return
 
