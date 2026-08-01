@@ -5,7 +5,7 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
-## 13.6.0.r2195.2026-07-30.gac2ae085+008
+## 13.6.0.r2195.2026-07-30.gac2ae085+011
 
 ### The app calls itself 白い熊 雫 everywhere
 
@@ -77,6 +77,68 @@ live would leave them with nothing to see or clear them. So the escape hatch wor
 installed, needs no ledger (every lock is discoverable from the platform), and reports a result per
 step — a silent "done" would be the worst possible lie in the one action someone runs when they are
 already stuck.
+
+### Folding you can read, in Settings and on the home screen
+
+The settings groups had a disclosure chevron that pointed **down when folded** and **up when
+unfolded** — ambiguous in both states, since a down chevron reads equally as "this is open" and
+"tap to open", and up and down differ only by which end is wider. It is now **right when folded,
+down when unfolded**, the platform's own tree convention.
+
+The group boxes were already being drawn — `M3ECardItemDecoration` painted a rounded card per
+category, filled with `colorSurfaceContainerHigh`. In this theme that role is the same pure black as
+the page, so the box was invisible: exactly the trap the standing rule in `CLAUDE.md` names, where a
+container told apart only by tonal lift stops existing rather than merely looking flat. Every group
+now carries a rounded **yellow** border reading the house knobs (`KEY_COLOR_BORDER`,
+`KEY_CARD_BORDER`, `KEY_CARD_RADIUS`), so it moves with the same sliders as the home cards. Folded,
+the box shrinks to the title row, which is what makes the folded state readable at a glance.
+
+The border is opt-in per decoration rather than always-on: a decoration with no headers draws **one**
+card spanning the visible children, so the app list would have got a box around the scrolling
+viewport instead of around anything real. And a group cut off by the top or bottom of the screen has
+that edge pushed off-screen, so scrolling a long group does not paint a false line across it.
+
+**Every group now starts unfolded**, including any that names no default. Because a category
+persists its state the moment it is tapped and a stored value beats a default, there is also a
+one-time clear of remembered fold states — without it, groups already collapsed would have stayed
+collapsed and the change would have looked like it had not worked.
+
+**The home cards fold too.** Each gets a chevron in its top-right corner; folded, the body goes and
+one title line stays. It is wired from a single place — `HomeAdapter.onBindViewHolder`, the only code
+that knows both the card view and its stable id — so a card added later is foldable for free. The
+folded label is read out of the card's own view tree (its first non-blank `TextView`, which in every
+one of these layouts is the heading) rather than from a hand-kept id → string map that would go stale
+the first time someone adds a card; and it is recomputed on every bind, because holders recycle and a
+title kept from the previous card would be a plausible-looking lie. Fold state persists per card id.
+
+### Device policy powers: granting and un-granting from the same place
+
+Authorizing a sister app moved out of Settings and onto the **home card's Device Owner section**,
+where Device Owner is granted and cleared — handing the powers on belongs beside the thing that makes
+them possible, not three screens away in a feature list. Neither row appears before this app actually
+is Device Owner: an offer that can only fail is worse than no offer. A second row opens the full
+Device policy powers page directly.
+
+The app picker is a **searchable tile grid** — icon, label and package id per tile, filtering live on
+either. The id is shown because it is what the allowlist and the delegation key on: labels collide,
+labels get localised, and "which `shiroikuma.*` is this" is the question actually being answered.
+
+**Un-authorizing now has a front door.** An *Authorized apps* row lists what holds powers and opens
+the per-app sheet, where Revoke lives. Previously revoke was reachable only by tapping "Authorize an
+app" and picking one that was already authorized — which worked, but nobody would look for a revoke
+behind a button labelled authorize.
+
+Revoking again offers to clear that package's locks in the same breath. Revoking only stops *future*
+calls: every permission the app already policy-fixed and every package it suspended stays exactly as
+it was, stored under 白い熊 雫's admin. Sending 白い熊 to find the recovery action later leaves the
+locks live in the gap, with the app that set them no longer able to explain or release them. The
+Settings *Clear all device-policy locks* row now drives the same shared code, so the two screens
+cannot drift into describing one operation in two ways.
+
+The red "not casually reversible" warning moved **inside** the Remove Device Owner box. Floating
+above the section, it read as a warning about the whole Device Owner block rather than about that one
+action. It still shows before Device Owner is ever granted — the cost of undoing it is exactly what
+should inform the decision to do it.
 
 ### The version says which upstream commit the build sits on
 
