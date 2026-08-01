@@ -67,14 +67,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" />
 
-    <TextView
-        android:id="@+id/do_warning"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?textAppearanceBodySmall"
-        android:text="@string/boot_setup_do_clear_warning"
-        tools:text="⚠ Clearing this is not casually reversible." />
-
     <LinearLayout
         android:id="@+id/do_clear_rows"
         android:layout_width="match_parent"
