@@ -2,6 +2,7 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:checkable="true"
@@ -13,12 +14,32 @@
     app:strokeWidth="0dp"
     app:shapeAppearanceOverlay="?attr/shapeAppearanceCornerExtraLarge">
 
-    <!-- Content frame: inner ViewHolder layouts inflate here -->
-    <FrameLayout
-        android:id="@+id/card_content"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/card_content_padding" />
+        android:orientation="vertical">
+
+        <!-- Shown INSTEAD of card_content when the card is folded. The text is taken from the
+             card's own first title at fold time (see HomeCardFold), so this stays correct for a
+             card added later without anyone remembering to register a label for it. -->
+        <TextView
+            android:id="@+id/fold_title"
+            style="@style/CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/card_content_padding"
+            android:visibility="gone"
+            tools:text="Card title"
+            tools:visibility="visible" />
+
+        <!-- Content frame: inner ViewHolder layouts inflate here -->
+        <FrameLayout
+            android:id="@+id/card_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/card_content_padding" />
+
+    </LinearLayout>
 
     <!-- Edit-mode controls: a single top-end row so the drag handle and remove button
          never stack/overlap each other regardless of card height (a full-height drag
@@ -32,6 +53,24 @@
         android:layout_margin="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
+
+        <!-- Always visible, unlike the two edit-mode controls beside it: folding is a normal
+             gesture, not an editing one. Right when folded, down when unfolded — the same
+             convention as the settings categories. -->
+        <ImageView
+            android:id="@+id/fold_chevron"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_edit_control_background"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_outline_expand_more_24"
+            app:tint="?colorPrimary"
+            android:contentDescription="@null" />
+
+        <Space
+            android:layout_width="4dp"
+            android:layout_height="1dp" />
 
         <ImageView
             android:id="@+id/drag_handle"
