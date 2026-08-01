@@ -109,6 +109,11 @@ object HomeEditMode {
         // clearance for the whole row so content never sits under either control.
         val overlayClearance = if (isActive)
             (92 * res.displayMetrics.density).toInt() else 0
-        binding.cardContent.updatePaddingRelative(end = base + overlayClearance)
+        // The fold chevron sits in the same top-end row and is visible in BOTH modes, so its
+        // clearance is unconditional. HomeCardFold applies the identical base + chevron figure on
+        // cards whose holder never calls this, which is why the two can never disagree.
+        val chevronClearance = HomeCardFold.chevronClearancePx(binding.cardContent)
+        binding.cardContent.updatePaddingRelative(end = base + chevronClearance + overlayClearance)
+        binding.foldTitle.updatePaddingRelative(end = base + chevronClearance + overlayClearance)
     }
 }
