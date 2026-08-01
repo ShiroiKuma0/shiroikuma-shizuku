@@ -2,7 +2,103 @@
 
 Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fold fork notes into it.
 
-Versions are `<upstream version>+<our build number>`; the `+N` resets to 1 on each upstream sync.
+Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
+1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
+
+## 13.6.0.r2195.2026-07-30.gac2ae085+008
+
+### The app calls itself 白い熊 雫 everywhere
+
+The fork was renamed in its label, its icon and its package, but not in its own prose: the home
+screen still read "Control Shizuku with automation apps", the quick-settings tile said
+"Shizuku: Active", and the same name ran through the setup guides, the doctor tips, the watchdog,
+the permission dialogs and the notification channels. 1 785 lines across 40 files now say
+**白い熊 雫** — the English strings, all 36 translations, the Compat Hub's own label, the preference
+XML, and the literals compiled into the tile, the dialogs and the crash report.
+
+Twenty-one mentions are deliberately still "Shizuku". Every one of them names the *other* app —
+"stock Shizuku", "OG Shizuku", "the original Shizuku package name" — or is machine-readable text
+(`af.shizuku.plus.*`, `moe.shizuku.privileged.api`, class names, log tags), where a rename would
+break the wire protocol rather than the branding.
+
+Two upstream defects were fixed in strings that were being edited anyway: an em dash that had been
+mangled into the literal text `2014`, and "Go back to Shizuku and start Shizuku."
+
+### Device policy powers, handed to a sister app
+
+白い熊 雫 is Device Owner on the razr. 白い熊 応用管理's Snooping page switches off an app's
+privacy-invasive capabilities, but everything it could do was **soft** — an app-op or a permission
+it revoked could be put back by Settings, by another tool, and sometimes by the app itself. Device
+Owner is what makes those decisions hard, and 応用管理 cannot grant itself any of it.
+
+There are exactly two ways to pass the power across, and neither covers the other's half, so both
+are here. **Delegated scopes** (`delegation-permission-grant`, `delegation-package-access`,
+`delegation-block-uninstall`) let 応用管理's own process fix permissions, suspend apps and block
+uninstalls — with no IPC, and with 白い熊 雫 stopped, because `system_server` stores the grant.
+`setDelegatedScopes` has no `dpm` command, which is the entire reason this had to be built here.
+The grant is verified by **reading the scopes back**: the call returns `void`, so a scope the
+platform silently dropped would otherwise look like success.
+
+The rest cannot be delegated at all — no scope carries `setUserControlDisabledPackages`,
+`setPermittedAccessibilityServices`, `addUserRestriction`, `setAlwaysOnVpnPackage` or
+`setCameraDisabled` — so those run in this app's process on 応用管理's behalf, over a new
+`ContentProvider.call()` at authority `shiroikuma.shizuku.policy`. A provider call rather than a
+broadcast, because it answers synchronously (every operation is "do X, did it work?" behind a switch
+the user just tapped) and because `Binder.getCallingUid()` cannot be spoofed — so the allowlist is a
+real gate and no shared secret is needed. It is a **new** authority, not an extension of
+`DhizukuProvider`: that one is the public Dhizuku authority third-party clients bind.
+
+Accessibility blocking is stored **inverted**. `setPermittedAccessibilityServices` is an allowlist
+whose `null` default means "everything is permitted", with no "block one" form, and used naively it
+has a failure mode that survives being correct on the day it is set: once a non-`null` list exists,
+any accessibility service installed *later* is off the list and is barred silently, with nothing
+explaining why it will not stay enabled. So the durable state is a blocklist, the platform list is
+derived as `(every installed service) − blocklist`, and it is recomputed on package events, on the
+`status` call and when the section is opened. An empty blocklist restores `null` rather than a
+hand-built "everything", and the enumeration refuses to run while the user is locked — a short list
+is exactly what would bar every service on the device.
+
+Five user restrictions are **refused in code** rather than warned about, because each removes the
+route you would use to fix a mistake: `DISALLOW_DEBUGGING_FEATURES` kills the ADB that 応用管理
+needs and that you would recover with, `DISALLOW_SAFE_BOOT` and `DISALLOW_FACTORY_RESET` remove the
+offline and last-resort routes, and the unknown-sources pair blocks sideloading a fixed build.
+
+Everything is reachable from **Settings → Feature Hub → Security & Access → Device policy powers**:
+a Device Owner header, a row per authorized app whose single switch moves *both* halves at once (so
+they can never drift apart), the device-wide controls, and — visually separated at the bottom —
+**Clear all device-policy locks**. Every dangerous row carries a red 危険 tag on the row itself,
+not three taps away, and every confirmation puts Cancel in the positive slot with the destructive
+choice quiet and red.
+
+That last action is the point of the whole design. None of these locks can be undone from Settings,
+by the affected app, or with `adb`; `dpm` has no command for them either; and a lock **outlives the
+app that set it**, because it was stored under 白い熊 雫's admin. Uninstalling 応用管理 with locks
+live would leave them with nothing to see or clear them. So the escape hatch works without 応用管理
+installed, needs no ledger (every lock is discoverable from the platform), and reports a result per
+step — a silent "done" would be the worst possible lie in the one action someone runs when they are
+already stuck.
+
+### The version says which upstream commit the build sits on
+
+`custom` is rebased onto upstream's branch tip, so the fork's base is an arbitrary upstream commit.
+`UPSTREAM_VERSION_NAME` does carry upstream's own commit count, but it is pinned **by hand** in
+`gradle.properties` — if a sync ever forgot to refresh it, the version would quietly lie about which
+upstream code is in the build. The version now appends `.<base commit date>.g<8-char sha>`, read
+from `git merge-base HEAD master`: not our own HEAD (which `+N` already covers) and not master's tip
+(which overstates the base whenever master is fast-forwarded before `custom` is rebased). It moves
+only on a sync, so two builds sharing a pin are built on the same upstream code. The date is there
+to sort — a bare sha orders builds at random. No git, or no local `master`, degrades to the old form
+rather than failing the build.
+
+The build counter is now zero-padded to three digits (`+008`, never `+8`), the standing family
+convention: `~/tmp` is shared by every sister app's builds, and unpadded, `+10` sorts before `+2`.
+`versionCode` is untouched by both changes — it stays `UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER`
+and orders on its own.
+
+`UpdateChecker.parseVersionCode` read only upstream's `rNNNN`, so every build on one upstream base
+compared **equal** and a newer fork release of the same upstream version could never be offered. It
+now reads `rNNNN * 1000 + N`. The date and sha are ignored on purpose: they say *which* upstream code
+is in a build, not whether it is newer.
 
 ## 13.6.0.r2195+5
 
