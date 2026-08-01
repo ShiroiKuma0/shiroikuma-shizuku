@@ -274,6 +274,9 @@ class HomeAdapter(
 
         super.onBindViewHolder(holder, position)
 
+        // After the holder has bound its content, so the folded label can be read out of it.
+        HomeCardFold.apply(holder.itemView, id)
+
         // M3E entrance animation — only on first appearance per card id, not every recycle.
         if (!animatedIds.add(id)) {
             holder.itemView.alpha = 1f

@@ -65,7 +65,7 @@
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_verified_install"
         android:title="Verified Installation"
-        android:defaultValue="false">
+        android:defaultValue="true">
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="verify_apk_local"

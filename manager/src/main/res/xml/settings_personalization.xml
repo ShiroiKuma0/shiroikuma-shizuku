@@ -195,7 +195,7 @@
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_language"
         android:title="Language"
-        android:defaultValue="false">
+        android:defaultValue="true">
 
         <rikka.preference.SimpleMenuPreference
             android:defaultValue="SYSTEM"

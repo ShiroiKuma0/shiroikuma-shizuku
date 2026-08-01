@@ -85,6 +85,7 @@ public class ShizukuSettings {
         public static final String KEY_SHOW_START_ADB_HOME = "show_start_adb_home";
         public static final String KEY_CARD_ORDER = "home_card_order";
         public static final String KEY_HIDDEN_HOME_CARDS = "hidden_home_cards";
+        public static final String KEY_FOLDED_HOME_CARDS = "folded_home_cards";
 
         // Legacy Compatibility (Shizuku+ additions)
         public static final String KEY_ADB_PROXY_ENABLED = "adb_proxy_enabled";
@@ -110,6 +111,10 @@ public class ShizukuSettings {
         // af.shizuku.manager.policy.AccessibilityBlocklist.
         public static final String KEY_POLICY_ALLOWED_PACKAGES = "policy_allowed_packages";
         public static final String KEY_POLICY_ACCESSIBILITY_BLOCKLIST = "policy_accessibility_blocklist";
+
+        // One-shot flag for resetCategoryExpansionOnce(). Deliberately NOT named category_*: that
+        // method clears every key with that prefix, and the flag must survive its own sweep.
+        public static final String KEY_CATEGORY_EXPANSION_RESET = "expansion_defaults_reset_v1";
 
         // Long-press action toggles (Shizuku+ additions)
         public static final String KEY_SAMSUNG_SYSTEM_UID_ESCALATION_ENABLED = "samsung_system_uid_escalation_enabled";
@@ -320,6 +325,28 @@ public class ShizukuSettings {
 
     public static SharedPreferences getPreferences() {
         return sPreferences;
+    }
+
+    /**
+     * Drop every remembered fold/unfold state once, so the new "unfolded by default" actually shows.
+     *
+     * CollapsiblePreferenceCategory persists its state under its own key the moment it is tapped,
+     * and a stored value beats the default — so on an existing install the groups already collapsed
+     * would have stayed collapsed and the change would have looked like it had not worked. This
+     * clears the slate exactly once; every choice made after it persists normally.
+     *
+     * Category keys are `category_*` by convention, which the ComponentNameContract-style rule in
+     * the settings XML keeps true. Anything else in the file is untouched.
+     */
+    public static void resetCategoryExpansionOnce() {
+        SharedPreferences prefs = getPreferences();
+        if (prefs == null || prefs.getBoolean(Keys.KEY_CATEGORY_EXPANSION_RESET, false)) return;
+
+        SharedPreferences.Editor editor = prefs.edit();
+        for (String key : prefs.getAll().keySet()) {
+            if (key != null && key.startsWith("category_")) editor.remove(key);
+        }
+        editor.putBoolean(Keys.KEY_CATEGORY_EXPANSION_RESET, true).apply();
     }
 
     @NonNull
@@ -1049,6 +1076,22 @@ public class ShizukuSettings {
     public static void setCardOrder(@Nullable String order) {
         SharedPreferences p = getPreferences();
         if (p != null) p.edit().putString(Keys.KEY_CARD_ORDER, order).apply();
+    }
+
+    /**
+     * Which home cards are folded, by card id. Persisted so a folded card stays folded across
+     * relaunches — otherwise folding is only a way to lose a card until the next cold start.
+     * A copy is returned: the Set from SharedPreferences must never be mutated in place.
+     */
+    public static java.util.Set<String> getFoldedHomeCards() {
+        SharedPreferences p = getPreferences();
+        if (p == null) return new java.util.HashSet<>();
+        return new java.util.HashSet<>(p.getStringSet(Keys.KEY_FOLDED_HOME_CARDS, new java.util.HashSet<>()));
+    }
+
+    public static void setFoldedHomeCards(java.util.Set<String> folded) {
+        SharedPreferences p = getPreferences();
+        if (p != null) p.edit().putStringSet(Keys.KEY_FOLDED_HOME_CARDS, new java.util.HashSet<>(folded)).apply();
     }
 
     public static java.util.Set<String> getHiddenHomeCards() {
