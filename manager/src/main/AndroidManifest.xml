@@ -471,6 +471,19 @@
             android:exported="true"
             android:multiprocess="false" />
 
+        <!-- The private device-policy contract for authorized sister apps (白い熊 応用管理).
+             A NEW authority on purpose: com.rosan.dhizuku above is the public Dhizuku one that
+             third-party Dhizuku clients bind, and this contract does not belong in it.
+             No android:permission — the caller cannot hold one we define, so PolicyAllowlist is the
+             gate, and Binder.getCallingUid() makes that gate real. -->
+        <provider
+            android:name=".policy.PolicyProvider"
+            android:authorities="${applicationId}.policy"
+            android:directBootAware="true"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -491,6 +504,22 @@
                 android:resource="@xml/device_admin" />
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- The permitted-accessibility list is DERIVED from the blocklist, so it goes stale when
+             a service is installed or removed. Best-effort: recomputeIfStale also runs from the
+             policy `status` call and from the Settings section, so a broadcast the platform
+             declines to deliver costs freshness, never correctness. -->
+        <receiver
+            android:name=".policy.PolicyPackageChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 
