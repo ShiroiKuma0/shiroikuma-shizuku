@@ -33,22 +33,71 @@ def getGitCommitCount() {
 //   UPSTREAM_VERSION_NAME  — upstream's version without the brand prefix, e.g. 13.6.0.r2178
 //   BUILD_NUMBER           — OUR increment, bumped by every buildApk, reset to 1 on each sync
 //
-// Fork versionName = "<UPSTREAM_VERSION_NAME>+<BUILD_NUMBER>"    e.g. 13.6.0.r2178+1
-// Fork versionCode = UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER    e.g. 21780001
+// Fork versionName = "<UPSTREAM_VERSION_NAME><upstream pin>+<BUILD_NUMBER, 3 digits>"
+//                                                     e.g. 13.6.0.r2195.2026-07-30.gac2ae085+008
+// Fork versionCode = UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER    e.g. 21950008
 //
 // Ceiling check: versionCode must stay under Android's hard limit of 2100000000, so
-// UPSTREAM_VERSION_CODE must stay under 210000. It is ~2178 (one per upstream commit), so there is
+// UPSTREAM_VERSION_CODE must stay under 210000. It is ~2195 (one per upstream commit), so there is
 // room for roughly a century of upstream development.
 // ---------------------------------------------------------------------------------------------
 def upstreamVersionCode = Integer.parseInt(project.property("UPSTREAM_VERSION_CODE").toString())
 def upstreamVersionName = project.property("UPSTREAM_VERSION_NAME").toString()
 def shiroikumaBuild = Integer.parseInt(project.property("BUILD_NUMBER").toString())
 
+// Pass null (not []) so the subprocess inherits PATH — same reason as getGitCommitCount above.
+def gitOutput = { String... command ->
+    try {
+        return command.toList().execute((List) null, project.rootDir).text.trim()
+    } catch (Exception e) {
+        logger.warn("git command ${command.join(' ')} failed: ${e}")
+        return ""
+    }
+}
+
+// ---- Upstream-base pin (the global `git-versioning` skill) ----------------------------------
+// `custom` is rebased onto upstream's branch TIP, not onto a release tag, so the fork's base is an
+// arbitrary upstream commit. UPSTREAM_VERSION_NAME does carry upstream's own commit count, but it
+// is a value PINNED BY HAND in gradle.properties — if a sync ever forgets to refresh it, the
+// version silently lies about which upstream code is in the build. The merge-base is read from git
+// and cannot.
+//
+// merge-base, not HEAD (that identifies OUR commit, which +N already covers) and not master's tip
+// (which overstates the base whenever master is fast-forwarded before custom is rebased). It
+// therefore moves only on an upstream sync — two builds sharing a pin are built on the same
+// upstream code, which is the whole signal.
+def upstreamBaseSha = gitOutput("git", "merge-base", "HEAD", "master").take(8)
+
+// The base commit's own committer date, never build time: a bare sha is random text, so it orders
+// builds arbitrarily, and build time would differ between two builds on one base and destroy the
+// "the pin moves only on a sync" property.
+def upstreamBaseDate = upstreamBaseSha.length() == 8
+    ? gitOutput("git", "show", "-s", "--format=%cd", "--date=format:%Y-%m-%d", upstreamBaseSha)
+    : ""
+
+// Degrades rather than fails: no git / no local master -> no pin at all; git but no date -> sha
+// only. A shallow clone or a source tarball must still build.
+def upstreamPin
+if (upstreamBaseSha.length() != 8) {
+    upstreamPin = ""
+} else if (upstreamBaseDate.length() == 10) {
+    upstreamPin = ".${upstreamBaseDate}.g${upstreamBaseSha}"
+} else {
+    upstreamPin = ".g${upstreamBaseSha}"
+}
+
+// The build counter is zero-padded to three digits in the version name — the standing family
+// convention, already carried by the sister apps (shiroikuma-oyokanri 4.1.0+057,
+// shiroikuma-rindenwa …+002). Unpadded, `~/tmp` sorts +10 before +2 and a directory shared by
+// every sister app's builds stops reading in build order. The padding is cosmetic to versionCode,
+// which stays UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER and keeps ordering on its own.
 ext {
     versionCode = upstreamVersionCode * 10000 + shiroikumaBuild
-    versionName = "${upstreamVersionName}+${shiroikumaBuild}"
+    versionName = "${upstreamVersionName}${upstreamPin}+${String.format('%03d', shiroikumaBuild)}"
     forkUpstreamVersionCode = upstreamVersionCode
     forkUpstreamVersionName = upstreamVersionName
+    forkUpstreamBaseSha = upstreamBaseSha
+    forkUpstreamBaseDate = upstreamBaseDate
     forkBuildNumber = shiroikumaBuild
 }
 
