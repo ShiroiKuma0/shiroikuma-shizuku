@@ -71,7 +71,7 @@ object CrashReporter {
         }
 
         // 5. Shizuku State
-        sb.append("### Shizuku State\n")
+        sb.append("### 白い熊 雫 State\n")
         sb.append("- **State:** ${ShizukuStateMachine.get()}\n")
         sb.append("- **Watchdog Enabled:** ${ShizukuSettings.getWatchdog()}\n\n")
 
