@@ -36,6 +36,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import af.shizuku.manager.R
+import af.shizuku.manager.BuildConfig
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.adb.AdbPairingService
 import af.shizuku.manager.worker.AdbStartWorker
@@ -72,6 +73,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.platform.LocalContext
 import af.shizuku.core.ui.AppActivity
 import af.shizuku.manager.home.compose.HomeScreen
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.shiroikuma.showHouse
 
 open class HomeActivity : AppActivity(), MavericksView {
@@ -93,7 +95,7 @@ open class HomeActivity : AppActivity(), MavericksView {
 
     // Show the "restart after update" prompt at most once per Activity instance so it doesn't
     // reappear on every state refresh while the user hasn't restarted yet.
-    private var versionSkewSnackbarShown = false
+    private var versionSkewPromptShown = false
     // Same once-per-session guard for the Samsung Auto Blocker hint snackbar.
     private var autoBlockerSnackbarShown = false
 
@@ -138,7 +140,7 @@ open class HomeActivity : AppActivity(), MavericksView {
                 checkServerStatus()
                 appsModel.load()
                 ShizukuSettings.syncAllPlusFeaturesToServer()
-                maybeShowVersionSkewSnackbar()
+                maybeShowVersionSkewDialog()
             }
             ShizukuStateMachine.State.STOPPED,
             ShizukuStateMachine.State.CRASHED -> {
@@ -153,26 +155,55 @@ open class HomeActivity : AppActivity(), MavericksView {
     }
 
     /**
-     * When the running privileged server predates the currently-installed app build (the app was
-     * updated but the separate server process still runs old code), surface a prompt to restart the
-     * service — stale servers can silently break connections for third-party apps until restarted.
+     * When the running privileged server predates the currently-installed app build — or cannot be
+     * proved not to — interrupt with a dialog rather than a snackbar.
+     *
+     * This was a snackbar, and a snackbar was the wrong weight for it: bottom of the screen, reads
+     * as transient, and `SnackbarHelper` keeps a single global slot that any later snackbar
+     * silently takes over. A stale server keeps serving old binder code and breaks third-party
+     * clients with no symptom in this app, so the prompt has to be one you cannot walk past.
      */
-    private fun maybeShowVersionSkewSnackbar() {
-        if (versionSkewSnackbarShown) return
-        if (!ShizukuStateMachine.isServerVersionSkewed()) return
-        versionSkewSnackbarShown = true
-        SnackbarHelper.show(
-            this,
-            findViewById(android.R.id.content) ?: window.decorView,
-            msg = getString(R.string.snackbar_server_version_skew),
-            duration = Snackbar.LENGTH_INDEFINITE,
-            actionText = getString(R.string.snackbar_action_restart),
-            action = {
-                // Stop the stale server; the home UI then shows the normal Start flow, which
-                // launches a fresh server on the current build. Mirrors the existing Stop action.
-                ShizukuStateMachine.set(ShizukuStateMachine.State.STOPPING)
-            }
-        )
+    private fun maybeShowVersionSkewDialog() {
+        if (versionSkewPromptShown) return
+        if (!ShizukuStateMachine.shouldPromptServerRestart()) return
+        versionSkewPromptShown = true
+
+        // The state machine notifies from whichever thread made the transition — a binder thread on
+        // the attach path — and a dialog is main-thread only. The snackbar this replaced had the
+        // same requirement and no guard.
+        runOnUiThread {
+            if (isFinishing || isDestroyed) return@runOnUiThread
+
+            val skewed = ShizukuStateMachine.isServerVersionSkewed()
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_server_skew_title)
+                .setMessage(
+                    if (skewed) R.string.dialog_server_skew_message
+                    else R.string.dialog_server_skew_unverified_message
+                )
+                .setPositiveButton(R.string.dialog_server_skew_restart) { _, _ ->
+                    // Drives the status card's own routine. A restart here is deliberately NOT
+                    // stop-then-start — without root the only shell available is the one the running
+                    // server lends us — so this must never grow a second implementation.
+                    if (!ServerRestartRequest.invokeOrNull()) {
+                        ShiroikumaToast.show(
+                            this,
+                            getString(R.string.dialog_server_skew_use_card),
+                            android.widget.Toast.LENGTH_LONG
+                        )
+                    }
+                }
+                .setNegativeButton(R.string.dialog_server_skew_later, null)
+                // Recorded on DISMISS, never before show(): marking it asked up front means any
+                // reason the dialog fails to appear silences it permanently for that build, with
+                // nothing to show for it. Dismissal covers every exit — either button, back, or a
+                // tap outside — so it is answered once per app build and no more. "Later" therefore
+                // means later: the next update asks again, because that is when it matters again.
+                .setOnDismissListener {
+                    ShizukuSettings.setSkewPromptedVersion(BuildConfig.VERSION_CODE)
+                }
+                .showHouse()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -643,6 +674,10 @@ open class HomeActivity : AppActivity(), MavericksView {
         adapter.notifyDataSetChanged()
         checkServerStatus()
         appsModel.load()
+        // Belt and braces: the state listener only reaches this on a transition into RUNNING or at
+        // its own registration, and a prompt that depends on one lifecycle ordering is a prompt
+        // that will eventually not fire. maybeShowVersionSkewDialog() is idempotent per Activity.
+        maybeShowVersionSkewDialog()
     }
 
     /**
@@ -706,6 +741,8 @@ open class HomeActivity : AppActivity(), MavericksView {
         HomeEditMode.removeCardCallback = null
         ShizukuStateMachine.removeListener(stateListener)
         ShizukuSettings.getPreferences()?.unregisterOnSharedPreferenceChangeListener(appearanceChangeListener)
+        // The hook closes over the status card's context; leaving it set would outlive this Activity.
+        ServerRestartRequest.request = null
         super.onDestroy()
     }
 

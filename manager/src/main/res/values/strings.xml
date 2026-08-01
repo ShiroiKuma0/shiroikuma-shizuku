@@ -1389,4 +1389,13 @@
     <string name="policy_authorized_title">Authorized apps</string>
     <string name="policy_authorized_action">Manage</string>
     <string name="policy_authorized_summary">%1$s — tap Manage to see the scopes the platform reports, or to revoke.</string>
+    <!-- Stale privileged server after an app update -->
+    <string name="dialog_server_skew_title">Restart the server</string>
+    <string name="dialog_server_skew_message">白い熊 雫 was updated, but the privileged server is a separate process and is still running the old build. It keeps serving the old code until it is restarted, which can silently break apps that connect through it.\n\nRestart it now?</string>
+    <string name="dialog_server_skew_unverified_message">白い熊 雫 was updated. A privileged server is running, but 白い熊 雫 cannot tell which build started it — so it may still be serving the old code, which can silently break apps that connect through it.\n\nRestart it to be sure?</string>
+    <string name="dialog_server_skew_restart">Restart server</string>
+    <string name="dialog_server_skew_later">Later</string>
+    <string name="dialog_server_skew_use_card">Use “Restart 白い熊 雫 server” on the status card.</string>
+    <string name="home_status_server_stale">⚠ The running server is from an older build. Restart it so connected apps keep working.</string>
+    <string name="home_status_server_unverified">⚠ A server is running, but which build started it is unknown. Restart it to be sure it matches this app.</string>
 </resources>
