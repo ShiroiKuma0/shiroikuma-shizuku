@@ -67,7 +67,7 @@ public class ShizukuShellLoader {
     // calling app's own UID - it has no way to see the server's runtime-resolved
     // ServerConstants.MANAGER_APPLICATION_ID, so it must independently work out which flavor is
     // actually installed. Same class of bug as #371's ServiceStarter.kt fix: a hardcoded
-    // "af.shizuku.plus.api" here means REQUEST_BINDER never reaches anyone on a Drop-In-only
+    // upstream's own manager id here means REQUEST_BINDER never reaches anyone on a Drop-In-only
     // install, since Intent.setPackage() silently drops the broadcast when that package isn't
     // present (rish then just times out after 15s with a misleading "connection may be blocked"
     // message).
