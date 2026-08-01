@@ -272,9 +272,25 @@ object UpdateChecker {
         }
     }
 
-    /** Extracts the build number from "13.6.0.r1488-shizukuplus" → 1488 */
+    /**
+     * Orders two fork versions: upstream's own commit count, then **our** build counter.
+     *
+     * `13.6.0.r2195.2026-07-30.gac2ae085+008` → `2195 * 1000 + 8` = `2195008`.
+     *
+     * Both halves are needed. Upstream's `rNNNN` alone made every build on one upstream base
+     * compare equal, so a newer fork release of the same upstream version could never be offered.
+     * The `+N` alone would go backwards on an upstream sync, which resets it to 1. Reading them
+     * together is also what keeps the installed build from being re-offered to itself — the release
+     * tag equals the versionName, so the two sides parse to the same number.
+     *
+     * The upstream-base date and `.g<sha>` deliberately do not participate: they identify *which*
+     * upstream code is in the build, not whether it is newer, and the counter already answers that.
+     * Tolerates the older unpadded `+5` form, which still appears in published tags.
+     */
     fun parseVersionCode(versionName: String): Int = try {
-        """\.\br(\d+)\b""".toRegex().find(versionName)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val upstream = """\.\br(\d+)\b""".toRegex().find(versionName)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val build = """\+(\d+)""".toRegex().find(versionName)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        upstream * 1000 + build.coerceIn(0, 999)
     } catch (e: Exception) {
         0
     }
