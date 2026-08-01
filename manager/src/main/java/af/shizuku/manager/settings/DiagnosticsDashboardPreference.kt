@@ -78,7 +78,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
             activeWarnings.add(
                 WarningItem(
                     id = "battery_optimization",
-                    message = "Battery optimization is active. Shizuku may be killed in the background. Tap to exempt."
+                    message = "Battery optimization is active. 白い熊 雫 may be killed in the background. Tap to exempt."
                 )
             )
         }
