@@ -16,7 +16,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 authorized sister apps, and the house look driven through every screen. Installs as
 `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2201.2026-08-01.g14550b5e+004`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2201.2026-08-01.g14550b5e+006`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -208,11 +208,18 @@ like "adb is off".
 ## ✅ Start 白い熊 雫 automatically after boot
 
 A live checklist above the wireless-debugging card, not a page of instructions: every row reads the
-real state and carries its own fix. Notifications, one recorded ADB connection, **starting the server**
-(by wireless debugging *or* over a cable with one `adb tcpip 5555`), `WRITE_SECURE_SETTINGS` — granted
-through the running server, or over the loopback adb connection when the server is down — start-on-boot,
-battery-optimisation exemption, and background launch. It collapses to a single satisfied line once
-nothing is outstanding.
+real state and carries its own fix. Notifications, **pairing** over wireless debugging, **starting the
+server**, `WRITE_SECURE_SETTINGS` — granted through the running server, or over the loopback adb
+connection when the server is down — battery-optimisation exemption, start-on-boot, and background
+launch. It collapses to a single satisfied line once nothing is outstanding.
+
+Pairing and starting are kept apart, because they are different things and only the first is what
+"paired" in Android's own screen means. Nothing on the device tells an app whether it is paired, so
+the app remembers its own handshake — and, since that memory can only go stale in one direction,
+that row keeps a **Pair again** button rather than pretending to be live state. The start row then
+names the road this device actually has: paired means tapping Start is the whole of it, and the port
+is discovered for you; unpaired means one cabled `adb tcpip 5555`, after which the cable comes
+straight back out.
 
 That last row knows which world it is in. On a ROM with its own autostart manager it opens that screen
 where the ROM permits — decided by a real capability test rather than a brand check — and stays honest
