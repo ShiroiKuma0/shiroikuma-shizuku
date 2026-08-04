@@ -43,6 +43,7 @@ public class ShizukuSettings {
         public static final String KEY_HELP = "help";
         public static final String KEY_REPORT_BUG = "report_bug";
         public static final String KEY_LEGACY_PAIRING = "legacy_pairing";
+        public static final String KEY_ADB_PAIRED_AT = "adb_paired_at";
 
         // Home screen visibility (Shizuku+ additions)
         public static final String KEY_SHOW_TERMINAL_HOME = "show_terminal_home";
@@ -566,6 +567,27 @@ public class ShizukuSettings {
 
     public static void setLastPort(int port) {
         getPreferences().edit().putInt(Keys.KEY_LAST_PORT, port).apply();
+    }
+
+    /**
+     * When wireless-debugging pairing last succeeded, or 0.
+     *
+     * There is no API for "is this app paired" — the system's paired-device list is not readable by
+     * an ordinary app, and the pairing itself leaves nothing behind that we can see. The one moment
+     * the answer is known for certain is the instant our own pairing handshake completes, so that is
+     * where it is written ({@link af.shizuku.manager.adb.AdbPairingClient#start}).
+     *
+     * Consequences, both deliberate: a pairing made by some other means is invisible to us, and a
+     * pairing revoked afterwards (Developer options → Revoke USB debugging authorisations, or
+     * Developer options switched off) leaves this reading paired. The boot checklist says so on the
+     * row and keeps the Pair button available rather than pretending this is live state.
+     */
+    public static long getAdbPairedAt() {
+        return getPreferences().getLong(Keys.KEY_ADB_PAIRED_AT, 0L);
+    }
+
+    public static void setAdbPairedNow() {
+        getPreferences().edit().putLong(Keys.KEY_ADB_PAIRED_AT, System.currentTimeMillis()).apply();
     }
 
     public static boolean getLegacyPairing() {
