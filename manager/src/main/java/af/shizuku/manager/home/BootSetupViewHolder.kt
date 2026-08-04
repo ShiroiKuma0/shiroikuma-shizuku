@@ -56,9 +56,10 @@ import timber.log.Timber
  * outside — nothing happens after a reboot.
  *
  * Two of them are worth spelling out because they surprise people:
- *  - `ShizukuReceiverStarter.start` returns silently unless the recorded launch mode is ADB, and
- *    that is only written by [HomeActivity] when it *sees* the service running. So "start it once
- *    with the app open" is a real requirement, not a suggestion.
+ *  - Pairing and connecting are different things, and only the first is what step 2 asks for. A
+ *    device listed as paired under Wireless debugging has trusted this app's adb key and nothing
+ *    more; the port and launch mode the boot job reconnects with are recorded by the *start* in
+ *    step 3. Reading the two as one step is what made a successful pairing look like a failure.
  *  - The "Start on boot" switch is not the gate it appears to be. `BootCompleteReceiver` is
  *    `android:enabled="true"` in the manifest while `ShizukuSettings.getStartOnBoot` tests for
  *    `COMPONENT_ENABLED_STATE_ENABLED`, which a fresh install never reports — so the receiver
@@ -261,32 +262,45 @@ class BootSetupViewHolder(
             action = if (notificationsOn) null else ({ requestNotifications() })
         )
 
-        // 2 — one successful connect, which is what records both the port and the launch mode.
-        val lastPort = ShizukuSettings.getLastPort()
-        val modeIsAdb = ShizukuSettings.getLastLaunchMode() == ShizukuSettings.LaunchMethod.ADB
-        val connected = lastPort in 1..65535 && modeIsAdb
+        // 2 — pairing, which is what makes adbd trust this app's key. Read from our own record
+        // rather than from the system: see ShizukuSettings.getAdbPairedAt for why there is nothing
+        // else to read. That record can only go stale in one direction — it says paired when the
+        // authorisation has since been revoked — so unlike every other satisfied row this one keeps
+        // its button, relabelled, because re-pairing is exactly the fix for the stale case.
+        val paired = ShizukuSettings.getAdbPairedAt() > 0L
         steps += Step(
-            title = context.getString(R.string.boot_setup_connect),
-            summary = if (connected) context.getString(R.string.boot_setup_connect_done, lastPort)
-            else context.getString(R.string.boot_setup_connect_todo),
-            state = if (connected) State.DONE else State.TODO,
-            actionLabel = if (connected) null else context.getString(R.string.boot_setup_action_pair),
-            action = if (connected) null else ({ startPairing() })
+            title = context.getString(R.string.boot_setup_pair),
+            summary = context.getString(
+                if (paired) R.string.boot_setup_pair_done else R.string.boot_setup_pair_todo
+            ),
+            state = if (paired) State.DONE else State.TODO,
+            actionLabel = context.getString(
+                if (paired) R.string.boot_setup_action_pair_again else R.string.boot_setup_action_pair
+            ),
+            action = { startPairing() }
         )
 
-        // 3 — the server itself, and the row where the cable route is spelled out. `adb tcpip 5555`
-        // over a cable restarts the *phone's* adbd on a TCP port, so the one thing the PC is needed
-        // for is that single command; afterwards the app reaches adb over the loopback with the
-        // cable unplugged. StartWirelessAdbViewHolder.start already prefers that system property
-        // over the discovered wireless-debugging port, so one action serves both routes.
+        // 3 — the server itself, and the row that names the road this device actually has.
+        //
+        // Paired is the ordinary case and needs no PC at all: tapping Start discovers the
+        // wireless-debugging port over mDNS and connects with the key pairing trusted.
+        //
+        // Unpaired, the way in is one cabled command. `adb tcpip 5555` does not open a channel *to*
+        // the PC — it restarts the *phone's* adbd on a TCP port, which this app then reaches over
+        // the loopback with the cable back out. So the PC is needed for that single command and
+        // nothing else, and [loopbackPort] finding an answer is what proves it took.
         val running = Shizuku.pingBinder()
         val adbPort = loopbackPort
-        val startablePort = if (adbPort > 0) adbPort else lastPort
+        val lastPort = ShizukuSettings.getLastPort()
         steps += Step(
             title = context.getString(R.string.boot_setup_start),
             summary = when {
                 running -> context.getString(R.string.boot_setup_start_done)
-                startablePort in 1..65535 -> context.getString(R.string.boot_setup_start_ready, startablePort)
+                // Only claimed for a port that answered a probe just now — lastPort alone is a
+                // memory, and `adb tcpip` does not survive a reboot.
+                adbPort in 1..65535 -> context.getString(R.string.boot_setup_start_ready, adbPort)
+                paired -> context.getString(R.string.boot_setup_start_paired)
+                lastPort in 1..65535 -> context.getString(R.string.boot_setup_start_again, lastPort)
                 else -> context.getString(R.string.boot_setup_start_todo)
             },
             state = if (running) State.DONE else State.TODO,
@@ -326,20 +340,9 @@ class BootSetupViewHolder(
             action = if (hasSecure) null else ({ grantSecureSettings() })
         )
 
-        // 5 — the switch. See the class comment: the receiver already fires without it, so the row
-        // is honest about what flipping it actually buys.
-        val startOnBoot = ShizukuSettings.getStartOnBoot(context)
-        steps += Step(
-            title = context.getString(R.string.boot_setup_boot),
-            summary = context.getString(
-                if (startOnBoot) R.string.boot_setup_boot_done else R.string.boot_setup_boot_todo
-            ),
-            state = if (startOnBoot) State.DONE else State.TODO,
-            actionLabel = if (startOnBoot) null else context.getString(R.string.boot_setup_action_open),
-            action = if (startOnBoot) null else ({ openStartOnBootSetting() })
-        )
-
-        // 6 — Doze. The boot start is a WorkManager job, so this is not cosmetic.
+        // 5 — Doze. The boot start is a WorkManager job, so this is not cosmetic. Ahead of the
+        // switch below because it is the one that decides whether the start happens at all, while
+        // the switch only records an intent the receiver already acts on.
         val batteryExempt = SettingsHelper.isIgnoringBatteryOptimizations(context)
         steps += Step(
             title = context.getString(R.string.boot_setup_battery),
@@ -351,6 +354,19 @@ class BootSetupViewHolder(
             action = if (batteryExempt) null else ({
                 SettingsHelper.requestIgnoreBatteryOptimizations(context)
             })
+        )
+
+        // 6 — the switch. See the class comment: the receiver already fires without it, so the row
+        // is honest about what flipping it actually buys.
+        val startOnBoot = ShizukuSettings.getStartOnBoot(context)
+        steps += Step(
+            title = context.getString(R.string.boot_setup_boot),
+            summary = context.getString(
+                if (startOnBoot) R.string.boot_setup_boot_done else R.string.boot_setup_boot_todo
+            ),
+            state = if (startOnBoot) State.DONE else State.TODO,
+            actionLabel = if (startOnBoot) null else context.getString(R.string.boot_setup_action_open),
+            action = if (startOnBoot) null else ({ openStartOnBootSetting() })
         )
 
         // 7 — background launch, which is two different worlds wearing one name.
