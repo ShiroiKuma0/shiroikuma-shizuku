@@ -83,8 +83,16 @@ import rikka.shizuku.server.ClientRecord;
 public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuClientManager, ShizukuConfigManager> {
 
     public static void main(String[] args) {
-        DdmHandleAppName.setAppName("shizuku_plus_server", 0);
+        DdmHandleAppName.setAppName(ServerConstants.SERVER_NAME, 0);
         RishConfig.setLibraryPath(System.getProperty("shizuku.library.path"));
+
+        // Before anything else, and specifically before the constructor below can publish a binder
+        // to any client: two servers hand out divergent grant tables and make authorisation a coin
+        // toss for every app. The loser of the race stands down; see SingleInstanceLock for why the
+        // starter's kill-then-fork sweep cannot close this by itself.
+        if (!SingleInstanceLock.acquire()) {
+            System.exit(ServerConstants.ALREADY_RUNNING);
+        }
 
         Looper.prepareMainLooper();
         new ShizukuService();
@@ -2298,9 +2306,9 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             // and com.mixplorer.beta, which received no binder at all.
             //
             // Sent separately, a client that knows any one container is served regardless of the
-            // others. Each attempt needs its own catch: the failure arrives as a RuntimeException
-            // thrown by the client's provider and propagated back across the binder, not as a null
-            // reply, so a null check alone would let the first bad container abort the rest.
+            // others. Each attempt needs its own catch: on Android 12 and below the failure arrives
+            // as a RuntimeException thrown by the client's provider and propagated back across the
+            // binder, so a null check alone would let the first bad container abort the rest.
             List<Bundle> attempts = new ArrayList<>(3);
             if (MANAGER_APPLICATION_ID.equals(packageName)) {
                 Bundle plus = new Bundle();
@@ -2314,17 +2322,44 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             moe.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
             attempts.add(moe);
 
+            // A non-null reply is NOT proof of delivery, so every container is attempted.
+            //
+            // rikka's ShizukuProvider.call() runs handleSendBinder() — which is void — and then
+            // returns a freshly allocated empty Bundle unconditionally. And since Android 13 a
+            // Bundle received over binder is defusable and unparcelled lazily per key, so a
+            // container class the client does not have is logged and swallowed, yielding null
+            // rather than throwing. A non-null reply therefore means only "the provider did not
+            // throw".
+            //
+            // Early-returning on the first one stopped after a container the client had ignored,
+            // and the one it could actually read was never sent. That locked out every app built
+            // against the published dev.rikka.shizuku artifacts: rikka.shizuku.BinderContainer
+            // exists only in our vendored api/provider, no released AAR has it, and it is attempted
+            // before the moe container that every client does have. Measured 2026-08-04 with
+            // shiroikuma.mise as the canary — the server logged a successful send while the client
+            // held no binder at all.
+            //
+            // Attempting the rest costs nothing: a client that already took one bails at
+            // handleSendBinder's "already a living binder" guard.
+            boolean delivered = false;
             for (Bundle extra : attempts) {
                 try {
                     Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
                     if (reply != null) {
-                        LOGGER.i("send binder to user app %s in user %d", packageName, userId);
-                        return true;
+                        delivered = true;
                     }
                 } catch (Throwable tr) {
                     // Expected when the client lacks this particular container class; try the next.
                     LOGGER.v("container rejected by %s in user %d: %s", packageName, userId, tr.getMessage());
                 }
+            }
+            if (delivered) {
+                // Deliberately ONE line per push, whatever the container count: the count of these
+                // lines per client launch is how a duplicate server is diagnosed (two servers push
+                // to every client, so two lines means two servers). Moving this inside the loop
+                // would make that check silently meaningless.
+                LOGGER.i("send binder to user app %s in user %d", packageName, userId);
+                return true;
             }
             LOGGER.e("failed to send binder to user app %s in user %d", packageName, userId);
             return false;

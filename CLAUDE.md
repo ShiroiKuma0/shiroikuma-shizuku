@@ -205,6 +205,51 @@ The **`dropin` flavor** (applicationId `moe.shizuku.privileged.api`) is upstream
 *replacement*. We never build it — it is incompatible with our own app id by definition. `buildApk`
 targets **`shizukuplus`** only.
 
+### ⛔ Exactly one `shizuku_plus_server` may exist
+
+Each server loads the grant table **once** at startup and never re-reads it, every server pushes its
+binder to every client at every launch, and a client keeps the **first** binder that arrives and
+drops the rest (`ShizukuProvider.handleSendBinder`'s "already a living binder" guard). So a second
+server makes authorization a **coin toss per cold start** — the manager truthfully reports "1 app
+authorised" while the client truthfully reports being refused, because they are talking to different
+servers. Both also flush the same file through their own `AtomicFile` from their own in-memory copy,
+so the loser's flush can **silently erase the grant table**.
+
+`starter.cpp` kills any existing server and *then* forks, with nothing atomic in between, and it has
+**seven** invocation sites — two starters racing each sweep, each find nothing to kill, and each
+forks one (measured 2026-08-04: two servers 44 ms apart). Reordering cannot fix that.
+
+- **`SingleInstanceLock`** (server side) is the actual fix: an exclusive `FileLock` on
+  `shiroikuma-shizuku.lock`, taken in `main()` **before** the constructor can publish any binder.
+  The loser exits with `ServerConstants.ALREADY_RUNNING`. Keep all three static references — a
+  `FileLock` dies with its channel, so dropping them hands the lock back at the next GC.
+- **Failure is open**: if the lock cannot be taken *at all* the server starts anyway. A device where
+  the lock is unavailable must still get a working Shizuku.
+- **Never "the new server kills the old one"** — the old one may hold live user-service bindings for
+  apps that are working fine.
+- `starter.cpp` also re-checks for a survivor immediately before forking. That only narrows the
+  window; it skips pids it just SIGKILLed, because a killed process lingers as a zombie and would
+  otherwise read as a live conflict.
+
+### ⛔ A non-null reply from `sendBinder` is NOT proof of delivery
+
+`ShizukuProvider.call()` runs `handleSendBinder()` — **void** — and then returns a freshly allocated
+empty `Bundle` unconditionally. Since Android 13 a Bundle received over binder is **defusable** and
+unparcelled lazily per key, so a container class the client does not have is swallowed and yields
+`null` instead of throwing. A non-null reply therefore means only *"the provider did not throw"*.
+
+`sendBinderToUserApp` must attempt **every** container and never early-return on the first non-null
+reply. It did, and that locked out every app built against the published `dev.rikka.shizuku`
+artifacts: **`rikka.shizuku.BinderContainer` is ours alone** — it exists only in the vendored
+`api/provider`, no released AAR has it — yet it is tried before the `moe` container that every
+client does have. The server logged a successful send while the client held no binder at all
+(measured 2026-08-04, canary `shiroikuma.mise`).
+
+The redundant calls are free: a client that already took a container bails at the "already a living
+binder" guard. **Keep `LOGGER.i("send binder to user app …")` as a single line after the loop** —
+the count of those lines per client launch is how a duplicate server is diagnosed, and moving it
+inside the loop makes that check silently meaningless.
+
 ## ⛔ Never assume `applicationId` == `namespace`
 
 `applicationId` is **`shiroikuma.shizuku`**; the code `namespace` is **`af.shizuku.manager`**. They
