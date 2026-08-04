@@ -5,6 +5,75 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2201.2026-08-01.g14550b5e+006
+
+Three bugs, all found by using the app rather than by reading it, and all of the same shape: the
+code was reporting success for something it had not actually established.
+
+### Only one privileged server may exist — now enforced by the server itself
+
+Two `shizuku_plus_server` processes could coexist. Measured on the SM-F971B: both parented to init,
+started **44 ms apart**. The consequences compose badly. A server loads the grant table **once** at
+startup and never re-reads it; every server pushes its binder to every client at every launch; and a
+client keeps the **first** binder that arrives and drops the rest. So which server a client ends up
+bound to is a **coin toss per cold start**, and a grant made after both started lives in exactly one
+of them — which is how 雫's own UI could truthfully list an app as authorized while that app was
+truthfully told it was not. Both servers also flush the same file through their own `AtomicFile`
+from their own in-memory copy, so the loser's flush can **erase the grant table wholesale**.
+
+The cause is that the starter kills any existing server and *then* forks, with nothing atomic in
+between — and it has **seven** invocation sites (boot receiver, tile, adb start, home card, …). Two
+of them racing each sweep, each find nothing to kill because neither server exists yet, and each
+forks one. A boot receiver firing while the app is opened is enough.
+
+Reordering cannot close that, so the fix lives in the server: `SingleInstanceLock` takes an
+exclusive lock **before** anything can publish a binder, and the loser of the race stands down. It
+never kills the winner — that process may be holding live user-service bindings for apps that are
+working fine. If the lock cannot be taken *at all*, the server starts unlocked: an unavailable lock
+must not turn a rare race into a total outage. The starter additionally re-checks for a survivor
+immediately before forking, skipping pids it has just killed, since a `SIGKILL`ed process lingers as
+a zombie and would otherwise read as a live conflict.
+
+### A non-null reply from a client is not proof the binder arrived
+
+Every app built against the **published** `dev.rikka.shizuku` artifacts — which is every ordinary
+third-party Shizuku client — was silently locked out, while the server logged a successful send.
+
+`sendBinderToUserApp` tries each binder container in its own `call()`, and treated the first
+non-null reply as delivery. It is not: the client's `ShizukuProvider.call()` runs a **void**
+`handleSendBinder()` and then returns a freshly allocated empty `Bundle` unconditionally, and since
+Android 13 a Bundle received over binder is **defusable** — a container class the client does not
+have is swallowed and yields `null` rather than throwing. A non-null reply therefore means only
+"the provider did not throw".
+
+The container tried first, `rikka.shizuku.BinderContainer`, exists **only** in this repo's vendored
+`api/provider`; no released AAR contains it. So the loop stopped on a container the client had
+ignored, and the `moe` container every client can actually read was never sent. All containers are
+now attempted — free, because a client that already took one bails at its own "already a living
+binder" guard. The log line stays deliberately **single**, since its count per launch is what
+diagnoses a duplicate server.
+
+### The boot checklist asked for a pairing and tested for a completed start
+
+Step 2 read "Connect once via wireless debugging" but tested `lastPort` plus the recorded launch
+mode — both written only *after* adb has connected and run the starter. Pairing successfully left it
+red, with the Wireless debugging screen listing the device as paired at the same moment.
+
+Pairing and connecting are different things and now sit in different steps. There is no API for "is
+this app paired" — the system's paired-device list is not readable by an ordinary app — so the one
+moment the answer is certain is when our own handshake completes, and that is where it is recorded,
+at the single choke point all three pairing entry points pass through. The record can only go stale
+in one direction (saying paired after the authorisation was revoked), so that row keeps its button
+as **Pair again** rather than pretending to be live state.
+
+Step 3 now names the road this device actually has: **paired** means tapping Start is the whole of
+it, and the app finds the port itself; **unpaired** means one cabled `adb tcpip 5555`, which is
+spelled out along with why the cable comes straight back out. It also stops claiming a port is
+reachable on the strength of `lastPort`, which is a memory rather than a probe.
+
+Battery optimisation moves ahead of Start on boot — it decides whether the boot start happens at
+all, while the switch only records an intent the receiver already acts on.
+
 ## 13.6.0.r2201.2026-08-01.g14550b5e+004
 
 Rebased onto upstream `13.6.0.r2201`. Upstream's six commits are one investigation: **`rish` and
