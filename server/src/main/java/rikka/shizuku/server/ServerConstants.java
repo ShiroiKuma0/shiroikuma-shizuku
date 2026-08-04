@@ -4,6 +4,16 @@ public class ServerConstants {
 
     public static final int MANAGER_APP_NOT_FOUND = 50;
 
+    // The privileged process's name. MUST stay identical to SERVER_NAME in
+    // manager/src/main/jni/starter.cpp: the starter finds and kills an existing server by comparing
+    // this string against /proc/<pid>'s name, so a drift between the two makes the sweep silently
+    // match nothing and every start leaves the previous server alive.
+    public static final String SERVER_NAME = "shizuku_plus_server";
+
+    // Exit code used when another server already holds the single-instance lock. Distinct from
+    // MANAGER_APP_NOT_FOUND so a stood-down duplicate is not mistaken for a broken install.
+    public static final int ALREADY_RUNNING = 51;
+
     public static final String PERMISSION = "af.shizuku.plus.permission.API_V23";
     public static final String PERMISSION_LEGACY = "af.shizuku.manager.permission.API_V23";
     public static final String PERMISSION_ORIGINAL = "moe.shizuku.manager.permission.API_V23";
