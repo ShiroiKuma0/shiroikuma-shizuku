@@ -3,6 +3,7 @@ package af.shizuku.manager.adb
 import android.os.Build
 import timber.log.Timber
 import androidx.annotation.RequiresApi
+import af.shizuku.manager.ShizukuSettings
 import com.android.org.conscrypt.Conscrypt
 import java.io.Closeable
 import java.io.DataInputStream
@@ -214,6 +215,12 @@ class AdbPairingClient(private val host: String, private val port: Int, private 
             }
 
             Sentry.addBreadcrumb(Breadcrumb("ADB Pairing succeeded").apply { category = "adb.pairing" })
+            // Recorded here rather than in the callers because this is the only place that knows,
+            // and there are three ways in — the pairing service, the legacy dialog and the
+            // accessibility auto-pairer. Nothing else on the device tells an ordinary app whether it
+            // is paired (see ShizukuSettings.getAdbPairedAt), so a caller that forgot to record it
+            // would leave the boot checklist claiming the step was never done.
+            ShizukuSettings.setAdbPairedNow()
             state = State.Stopped
             return true
         } catch (e: Exception) {

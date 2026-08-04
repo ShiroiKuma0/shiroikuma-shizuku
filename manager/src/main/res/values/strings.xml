@@ -1286,13 +1286,15 @@
     <string name="boot_setup_notifications_todo">The pairing code arrives in a notification, so pairing cannot even start without this.</string>
     <string name="boot_setup_notifications_done">Allowed.</string>
 
-    <string name="boot_setup_connect">2. Connect once via wireless debugging</string>
-    <string name="boot_setup_connect_todo">Pair and start once with this app open, so the boot service knows the port and launch mode to reconnect with. Either route in step 3 records it.</string>
-    <string name="boot_setup_connect_done">Done — last connected on port %1$d.</string>
+    <string name="boot_setup_pair">2. Pair via wireless debugging</string>
+    <string name="boot_setup_pair_todo">Settings → Developer options → Wireless debugging → Pair device with pairing code, then type that code into the notification this puts up. Pairing is what makes the phone trust this app\'s adb key; starting the server is step 3.\n\nIt is also the only road that survives a reboot — an “adb tcpip” port does not — so the unattended start after boot needs this even if the cable route got you going today.</string>
+    <string name="boot_setup_pair_done">Paired — the phone trusts this app\'s adb key. Only pairings made from here can be seen, so if the key was revoked since (Developer options → Revoke USB debugging authorisations, or developer options switched off), pair again.</string>
 
     <string name="boot_setup_start">3. Start the server</string>
-    <string name="boot_setup_start_todo">Two ways in. Wireless: pair over wireless debugging (step 2) and start. Cable: plug the phone into a PC and run “adb tcpip 5555” there once — that restarts the phone\'s own adb on port 5555, so this button can start the server by itself and the cable can come straight back out.</string>
-    <string name="boot_setup_start_ready">adb is reachable on port %1$d — this starts the server from here, with no PC attached.</string>
+    <string name="boot_setup_start_paired">Paired, so this is all of it: turn wireless debugging on and tap Start. The app finds the port itself and connects with the key pairing trusted — no PC, no cable.</string>
+    <string name="boot_setup_start_ready">adb is answering on port %1$d — this starts the server from here, with no PC attached.</string>
+    <string name="boot_setup_start_again">Started before on port %1$d, but nothing is answering there now — neither wireless debugging nor an “adb tcpip” port survives a reboot. Switch wireless debugging back on and tap Start.</string>
+    <string name="boot_setup_start_todo">Not paired yet, so this needs a PC once: plug the phone in and run “adb tcpip 5555” there. That restarts the phone\'s own adb on port 5555 — not a channel to the PC — so this button can then start the server by itself and the cable comes straight back out. Pairing (step 2) gets there with no PC at all.</string>
     <string name="boot_setup_start_done">Running.</string>
 
     <string name="boot_setup_secure">4. Grant secure settings permission</string>
@@ -1302,13 +1304,13 @@
     <string name="boot_setup_secure_adb">The server isn\'t running, but adb is listening on port %1$d — this runs the grant over that connection, from the phone. Accept the “Allow USB debugging” prompt if it appears.</string>
     <string name="boot_setup_secure_blocked">Start the server first (step 3), or run “adb tcpip 5555” once from a PC with the cable in — then it can be granted from here.</string>
 
-    <string name="boot_setup_boot">5. Turn on Start on boot</string>
-    <string name="boot_setup_boot_todo">Records the boot start explicitly. The boot receiver is already active out of the box, so this is belt-and-braces rather than the switch that enables it.</string>
-    <string name="boot_setup_boot_done">On.</string>
-
-    <string name="boot_setup_battery">6. Ignore battery optimisation</string>
+    <string name="boot_setup_battery">5. Ignore battery optimisation</string>
     <string name="boot_setup_battery_todo">The boot start is a background job; Doze will otherwise delay or kill it.</string>
     <string name="boot_setup_battery_done">Exempt.</string>
+
+    <string name="boot_setup_boot">6. Turn on Start on boot</string>
+    <string name="boot_setup_boot_todo">Records the boot start explicitly. The boot receiver is already active out of the box, so this is belt-and-braces rather than the switch that enables it.</string>
+    <string name="boot_setup_boot_done">On.</string>
 
     <string name="boot_setup_oem">7. Allow background launch</string>
     <string name="boot_setup_oem_available">Allow 白い熊 雫 to start itself and keep running in the background, or the system kills the boot start before it gets anywhere. Opens your ROM\'s launch manager. Can\'t be read back, so this row shows no state.</string>
@@ -1319,6 +1321,7 @@
 
     <string name="boot_setup_action_allow">Allow</string>
     <string name="boot_setup_action_pair">Pair</string>
+    <string name="boot_setup_action_pair_again">Pair again</string>
     <string name="boot_setup_action_start">Start</string>
     <string name="boot_setup_action_grant">Grant now</string>
     <string name="boot_setup_action_grant_adb">Grant via adb</string>
