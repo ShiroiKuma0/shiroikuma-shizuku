@@ -13,8 +13,10 @@ import kotlinx.coroutines.withContext
 import af.shizuku.manager.R
 import af.shizuku.manager.home.ChangelogDialogFragment
 import af.shizuku.manager.home.HomeActivity
-import af.shizuku.manager.update.UpdateChecker
+import af.shizuku.manager.migration.MigrationHelper
+import af.shizuku.manager.onboarding.OnboardingActivity
 import af.shizuku.manager.utils.ShizukuStateMachine
+import af.shizuku.manager.shiroikuma.ShiroikumaChangelog
 import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
@@ -91,45 +93,38 @@ class MainActivity : HomeActivity() {
     }
 
     /**
-     * Shows "What's New" once per version bump. Fetches every release since the user's previous
-     * install so they never miss features — if they skipped 10 builds, they see all 10.
+     * Shows "What's New" once per version bump, from the changelog bundled in the APK.
      *
-     * Supports both the new "r{N}" tag format and the legacy "v{semver}.r{N}" format.
+     * FORK: this used to fetch GitHub release notes for a tag built as `"v" + <version part>` —
+     * upstream's tag convention. Our tags carry no `v` and are the full fork versionName, so the
+     * request 404'd every time and the dialog fell back to "couldn't load the release notes" on
+     * every single update. Fixing the tag alone would not have helped: 白い熊 installs every build
+     * and only some are published, so an unpublished build has no release to fetch. The changelog
+     * is now generated into `assets/changelog.md` at build time (see [ShiroikumaChangelog]), which
+     * also means the dialog costs no network request at all.
      */
     private fun checkAndShowChangelog() {
         val currentCode = try { packageManager.getPackageInfo(packageName, 0).versionCode } catch (_: Exception) { 0 }
         val lastSeenCode = ShizukuSettings.getLastSeenChangelogVersion()
         if (currentCode <= lastSeenCode) return
 
-        val versionSuffix = BuildConfig.VERSION_NAME.removePrefix("Shizuku+ ").trim()
-        val tagName = when {
-            // Current format: "Shizuku+ 13.7.0.r2700" → tag is "13.7.0.r2700"
-            Regex("""^\d+\.\d+\.\d+\.r\d+$""").matches(versionSuffix) -> versionSuffix
-            // Transitional format: "Shizuku+ r2673" → tag is "r2673"
-            versionSuffix.matches(Regex("""r\d+""")) -> versionSuffix
-            // Legacy: "Shizuku+ 14.0.0.r2162" → GitHub tag was "v14.0.0.r2162"
-            Regex("""14\.\d+\.\d+\.r\d+""").containsMatchIn(versionSuffix) ->
-                "v${Regex("""\d+\.\d+\.\d+\.r\d+""").find(versionSuffix)!!.value}"
-            else -> {
-                ShizukuSettings.setLastSeenChangelogVersion(currentCode)
-                return
-            }
-        }
-
         lifecycleScope.launch {
-            val releases = try {
-                UpdateChecker.fetchReleasesSince(sinceVersionCode = lastSeenCode)
-            } catch (e: Exception) {
-                Timber.tag("MainActivity").w(e, "Failed to fetch releases")
-                emptyList()
+            val notes = withContext(Dispatchers.IO) {
+                try {
+                    ShiroikumaChangelog.sectionFor(this@MainActivity, BuildConfig.VERSION_NAME)
+                } catch (e: Exception) {
+                    Timber.tag("MainActivity").w(e, "Failed to read bundled changelog")
+                    null
+                }
             }
 
-            // Mark seen regardless of fetch outcome so offline users aren't re-prompted every launch.
+            // Mark seen either way — a build whose asset somehow has no section for it shouldn't
+            // re-prompt on every cold start; the dialog's fallback message covers that case once.
             ShizukuSettings.setLastSeenChangelogVersion(currentCode)
 
             if (isFinishing || isDestroyed) return@launch
             try {
-                ChangelogDialogFragment.newInstance(releases, tagName)
+                ChangelogDialogFragment.newInstance(notes, BuildConfig.VERSION_NAME)
                     .show(supportFragmentManager, ChangelogDialogFragment.TAG)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to show changelog dialog")

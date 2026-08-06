@@ -25,50 +25,28 @@ import af.shizuku.manager.update.UpdateChecker
 import timber.log.Timber
 
 /**
- * Material Expressive bottom sheet that shows what changed since the user's last update.
- * Displays the newest release in full with formatted Markdown, then surfaces older releases
- * as tappable chips so users can browse history without the dialog becoming overwhelming.
+ * Shows what changed in the version the user just updated to. [newInstance] takes the Markdown
+ * section for that version, read by the caller from the changelog bundled in the APK
+ * ([af.shizuku.manager.shiroikuma.ShiroikumaChangelog]) — this fragment only formats and displays
+ * it, so it stays usable if the section is somehow missing.
+ *
+ * FORK: the notes used to come from a GitHub fetch, which could never succeed here — see
+ * [af.shizuku.manager.shiroikuma.ShiroikumaChangelog] for why the tag never matched and why a
+ * network source was the wrong shape for this fork in the first place.
  */
 class ChangelogDialogFragment : BottomSheetDialogFragment() {
 
     companion object {
         const val TAG = "ChangelogDialogFragment"
-        private const val ARG_RELEASES_JSON = "releases_json"
-        private const val ARG_TAG_NAME = "tag_name"
+        private const val ARG_NOTES = "notes"
+        private const val ARG_VERSION_NAME = "version_name"
 
-        fun newInstance(
-            releases: List<UpdateChecker.ReleaseEntry>,
-            currentTagName: String
-        ): ChangelogDialogFragment = ChangelogDialogFragment().apply {
-            val arr = JSONArray()
-            releases.forEach { r ->
-                arr.put(JSONObject().apply {
-                    put("tag", r.tagName)
-                    put("date", r.publishedAt)
-                    put("body", r.body)
-                })
-            }
-            arguments = Bundle().apply {
-                putString(ARG_RELEASES_JSON, arr.toString())
-                putString(ARG_TAG_NAME, currentTagName)
-            }
-        }
-
-        private val COMMIT_HASH_SUFFIX = Regex("""\s+\([0-9a-f]{7,8}\)$""", RegexOption.MULTILINE)
-        private val CC_PREFIX = Regex(
-            """^(fix|feat|chore|refactor|perf|test|docs|build|ci|style|revert)(\([^)]+\))?:\s*""",
-            RegexOption.IGNORE_CASE
-        )
-
-        private fun stripConventionalPrefixes(text: String): String =
-            text.lines().joinToString("\n") { line ->
-                val bulletEnd = Regex("""^[-*]\s+""").find(line)?.range?.last?.plus(1)
-                    ?: return@joinToString line
-                val bullet = line.substring(0, bulletEnd)
-                val rest = line.substring(bulletEnd)
-                val stripped = CC_PREFIX.replaceFirst(rest, "")
-                if (stripped == rest) line
-                else bullet + stripped.replaceFirstChar { it.uppercase() }
+        fun newInstance(notes: String?, versionName: String): ChangelogDialogFragment =
+            ChangelogDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_NOTES, notes)
+                    putString(ARG_VERSION_NAME, versionName)
+                }
             }
 
         fun formatNotes(rawNotes: String): String =
@@ -78,57 +56,29 @@ class ChangelogDialogFragment : BottomSheetDialogFragment() {
                 .trim()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.dialog_changelog, container, false)
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val tagName = arguments?.getString(ARG_TAG_NAME) ?: ""
-        val releases = parseReleases(arguments?.getString(ARG_RELEASES_JSON))
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val rawNotes = arguments?.getString(ARG_NOTES)
+        val versionName = arguments?.getString(ARG_VERSION_NAME) ?: ""
         val markwon = Markwon.create(requireContext())
 
         val current = releases.firstOrNull()
         val previous = releases.drop(1)
 
-        // Version/date subtitle under the title
-        view.findViewById<TextView>(R.id.version_text).text = current?.let { (tag, date, _) ->
-            val formatted = UpdateChecker.formatPublishedDate(date)
-            if (formatted.isNotBlank() && formatted != date) "$tag · $formatted" else tag
-        } ?: tagName
-
-        // Notes body for the current (newest) release
-        val notesView = view.findViewById<TextView>(R.id.notes_text)
-        val rawNotes = current?.third
-        val formatted = rawNotes?.let { formatNotes(it) }?.takeIf { it.isNotBlank() }
-        if (formatted != null) {
-            markwon.setMarkdown(notesView, formatted)
-        } else {
-            notesView.setText(R.string.changelog_fallback_message)
-        }
-        notesView.movementMethod = LinkMovementMethod.getInstance()
-
-        // Earlier releases as tappable chips — each opens that release's GitHub page
-        val earlierSection = view.findViewById<LinearLayout>(R.id.earlier_section)
-        val chipGroup = view.findViewById<ChipGroup>(R.id.earlier_chip_group)
-        if (previous.isNotEmpty()) {
-            earlierSection.isVisible = true
-            previous.forEach { (prevTag, _, _) ->
-                val chip = Chip(requireContext()).apply {
-                    text = prevTag
-                    isCheckable = false
-                    setEnsureMinTouchTargetSize(true)
-                    setOnClickListener {
-                        try {
-                            startActivity(Intent(Intent.ACTION_VIEW,
-                                Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/tag/$prevTag")))
-                        } catch (e: Exception) {
-                            Timber.w(e, "Failed to open release $prevTag")
-                        }
-                    }
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.changelog_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.changelog_close, null)
+            .setNeutralButton(R.string.changelog_view_on_github) { _, _ ->
+                try {
+                    // Our release tags ARE the fork versionName, with no `v` prefix — upstream's
+                    // convention is the other way round and using it here is what broke the
+                    // changelog in the first place. A build that was never published has no page;
+                    // the releases index is the honest destination for it.
+                    val base = "https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases"
+                    val url = if (versionName.isNotEmpty()) "$base/tag/$versionName" else base
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                } catch (e: Exception) {
+                    Timber.w(e, "Failed to open release page for $versionName")
                 }
                 chipGroup.addView(chip)
             }
