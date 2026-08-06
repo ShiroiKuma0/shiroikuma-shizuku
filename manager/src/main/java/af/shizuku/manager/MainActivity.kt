@@ -18,8 +18,8 @@ import af.shizuku.manager.home.ChangelogDialogFragment
 import af.shizuku.manager.home.HomeActivity
 import af.shizuku.manager.migration.MigrationHelper
 import af.shizuku.manager.onboarding.OnboardingActivity
-import af.shizuku.manager.update.UpdateChecker
 import af.shizuku.manager.utils.ShizukuStateMachine
+import af.shizuku.manager.shiroikuma.ShiroikumaChangelog
 import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
@@ -96,38 +96,37 @@ class MainActivity : HomeActivity() {
     }
 
     /**
-     * Shows "What's New" once per version bump, using the real GitHub release notes for the
-     * exact version just installed (not "latest" — a newer build may already be out by the
-     * time the user opens the app).
+     * Shows "What's New" once per version bump, from the changelog bundled in the APK.
+     *
+     * FORK: this used to fetch GitHub release notes for a tag built as `"v" + <version part>` —
+     * upstream's tag convention. Our tags carry no `v` and are the full fork versionName, so the
+     * request 404'd every time and the dialog fell back to "couldn't load the release notes" on
+     * every single update. Fixing the tag alone would not have helped: 白い熊 installs every build
+     * and only some are published, so an unpublished build has no release to fetch. The changelog
+     * is now generated into `assets/changelog.md` at build time (see [ShiroikumaChangelog]), which
+     * also means the dialog costs no network request at all.
      */
     private fun checkAndShowChangelog() {
         val currentCode = try { packageManager.getPackageInfo(packageName, 0).versionCode } catch (e: Exception) { 0 }
         if (currentCode <= ShizukuSettings.getLastSeenChangelogVersion()) return
 
-        val versionPart = Regex("""\d+\.\d+\.\d+\.r\d+""").find(BuildConfig.VERSION_NAME)?.value
-        if (versionPart == null) {
-            // Can't build a release tag from this build's version string — mark seen so we
-            // don't retry every launch, and skip the dialog rather than showing a broken one.
-            ShizukuSettings.setLastSeenChangelogVersion(currentCode)
-            return
-        }
-        val tagName = "v$versionPart"
-
         lifecycleScope.launch {
-            val notes = try {
-                UpdateChecker.fetchReleaseNotesForTag(tagName)
-            } catch (e: Exception) {
-                Timber.tag("MainActivity").w(e, "Failed to fetch changelog for $tagName")
-                null
+            val notes = withContext(Dispatchers.IO) {
+                try {
+                    ShiroikumaChangelog.sectionFor(this@MainActivity, BuildConfig.VERSION_NAME)
+                } catch (e: Exception) {
+                    Timber.tag("MainActivity").w(e, "Failed to read bundled changelog")
+                    null
+                }
             }
 
-            // Mark seen regardless of fetch success — an offline user shouldn't be re-prompted
-            // on every cold start; the dialog's fallback message covers that case once.
+            // Mark seen either way — a build whose asset somehow has no section for it shouldn't
+            // re-prompt on every cold start; the dialog's fallback message covers that case once.
             ShizukuSettings.setLastSeenChangelogVersion(currentCode)
 
             if (isFinishing || isDestroyed) return@launch
             try {
-                ChangelogDialogFragment.newInstance(notes, tagName)
+                ChangelogDialogFragment.newInstance(notes, BuildConfig.VERSION_NAME)
                     .show(supportFragmentManager, ChangelogDialogFragment.TAG)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to show changelog dialog")

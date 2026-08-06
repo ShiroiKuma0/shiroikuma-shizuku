@@ -16,10 +16,14 @@ import af.shizuku.manager.R
 import timber.log.Timber
 
 /**
- * Shows what changed in the version the user just updated to. [newInstance] takes the release's
- * raw GitHub release-notes body (fetched by the caller via
- * [af.shizuku.manager.update.UpdateChecker.fetchReleaseNotesForTag]) — this fragment only
- * formats and displays it, so it stays usable even if notes couldn't be fetched (offline).
+ * Shows what changed in the version the user just updated to. [newInstance] takes the Markdown
+ * section for that version, read by the caller from the changelog bundled in the APK
+ * ([af.shizuku.manager.shiroikuma.ShiroikumaChangelog]) — this fragment only formats and displays
+ * it, so it stays usable if the section is somehow missing.
+ *
+ * FORK: the notes used to come from a GitHub fetch, which could never succeed here — see
+ * [af.shizuku.manager.shiroikuma.ShiroikumaChangelog] for why the tag never matched and why a
+ * network source was the wrong shape for this fork in the first place.
  */
 class ChangelogDialogFragment : DialogFragment() {
 
@@ -43,13 +47,13 @@ class ChangelogDialogFragment : DialogFragment() {
     companion object {
         const val TAG = "ChangelogDialogFragment"
         private const val ARG_NOTES = "notes"
-        private const val ARG_TAG_NAME = "tag_name"
+        private const val ARG_VERSION_NAME = "version_name"
 
-        fun newInstance(notes: String?, tagName: String): ChangelogDialogFragment =
+        fun newInstance(notes: String?, versionName: String): ChangelogDialogFragment =
             ChangelogDialogFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_NOTES, notes)
-                    putString(ARG_TAG_NAME, tagName)
+                    putString(ARG_VERSION_NAME, versionName)
                 }
             }
 
@@ -71,7 +75,7 @@ class ChangelogDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val rawNotes = arguments?.getString(ARG_NOTES)
-        val tagName = arguments?.getString(ARG_TAG_NAME) ?: ""
+        val versionName = arguments?.getString(ARG_VERSION_NAME) ?: ""
         val markwon = Markwon.create(requireContext())
 
         val message: CharSequence = try {
@@ -89,10 +93,15 @@ class ChangelogDialogFragment : DialogFragment() {
             .setPositiveButton(R.string.changelog_close, null)
             .setNeutralButton(R.string.changelog_view_on_github) { _, _ ->
                 try {
-                    val url = "https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/tag/$tagName"
+                    // Our release tags ARE the fork versionName, with no `v` prefix — upstream's
+                    // convention is the other way round and using it here is what broke the
+                    // changelog in the first place. A build that was never published has no page;
+                    // the releases index is the honest destination for it.
+                    val base = "https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases"
+                    val url = if (versionName.isNotEmpty()) "$base/tag/$versionName" else base
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 } catch (e: Exception) {
-                    Timber.w(e, "Failed to open release page for $tagName")
+                    Timber.w(e, "Failed to open release page for $versionName")
                 }
             }
             .create()
