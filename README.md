@@ -16,7 +16,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 authorized sister apps, and the house look driven through every screen. Installs as
 `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2201.2026-08-01.g14550b5e+006`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2219.2026-08-05.gff8ea379+002`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -38,9 +38,30 @@ kind**. Removed outright:
 | **Automatic update poll** — releases API hit on every app start | Off by default, and repointed at *this* repo. |
 | **"Email support"** — device, OS and version report to the upstream author's support address | Button removed. |
 | **Upstream CI** — workflows that injected a Sentry DSN and uploaded debug symbols | Removed. |
+| **Changelog fetch** — the "What's New" dialog pulled release notes from GitHub on every update | Gone. The changelog is built into the APK (see below). |
 
 What remains is exactly one outbound request, and only when **you tap "Check for updates"**: a read
 of this repository's own releases. Nothing about the device is sent.
+
+---
+
+## 📖 The changelog is inside the APK
+
+"What's New" opens after an update with the real notes, **offline, with no network request**, and
+it covers **both halves** of what changed: this fork's own work *and* the upstream commits the
+build was rebased onto.
+
+That is not how it started. The dialog fetched GitHub release notes for a tag it built the way
+*upstream* names tags — `v13.6.0.r2219` — while our tags carry no `v` and are the full version
+string. Every fetch 404'd, so the dialog was empty on every single update. And fixing the tag alone
+would not have been enough: most builds here are never published, so there is frequently no release
+to fetch at all.
+
+So the merge happens at build time. A Gradle task writes the changelog into the APK, splicing in a
+section for the build being made — the upstream commits since the previous base, and the fork
+commits not yet written up. Both bases are read out of the version strings, which embed the upstream
+sha, so they survive a rebase; and the fork half is matched by commit *subject*, because a rebase
+rewrites every one of our shas and a sha-based range would call the whole fork new after every sync.
 
 ---
 
