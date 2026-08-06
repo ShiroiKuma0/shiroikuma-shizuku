@@ -5,6 +5,80 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2219.2026-08-05.gff8ea379+002
+
+An upstream sync of eighteen commits — most of them fixes to the two paths this fork exercises
+hardest, third-party binder delivery and `rish` — plus one fork bug of the same shape as the last
+release's: a feature that had never once worked, and could not have.
+
+### The changelog was empty on every update, and could never have been anything else
+
+Tapping through an update showed a "What's New" dialog with nothing in it. Three faults had to line
+up for that, and each one alone would have been enough.
+
+The tag it asked for could not exist. The dialog fetched GitHub release notes for a tag built as
+`"v"` + the version part — `v13.6.0.r2219` — which is **upstream's** convention. Our release tags
+carry no `v` and are the full fork versionName. Checked against the live API: `v13.6.0.r2201` is a
+404; `13.6.0.r2201.2026-08-01.g14550b5e+006` is the release. So every fetch missed, on every
+update, and the dialog fell back to "couldn't load the release notes" every time.
+
+Fixing the tag would not have been enough either. Every build gets installed here and only some get
+published, so an unpublished build has no release to fetch — the dialog would still have had
+nothing to show for exactly the builds that actually get tested. And upstream's own notes can never
+be fetched at runtime at all: that is precisely the sort of outbound path this fork exists to
+remove.
+
+So the merge happens at build time instead, and the result ships inside the APK. A Gradle task
+writes `assets/changelog.md` — this changelog, with a section for the build being made spliced in,
+covering the upstream commits between the previously documented base and this one *and* the fork
+commits not already written up. Both base shas are read out of the version strings, which embed
+them (`…g14550b5e+006`), so they survive our rebases. The fork half compares commit **subjects**
+rather than shas, because a rebase rewrites every one of ours — a sha- or patch-id-based range
+reports the entire fork as new after each sync, which was measured, and it listed all thirty-two.
+
+Once a release is written up properly, the generated summary is skipped and the prose wins. Every
+step degrades to "no generated section" rather than failing the build, so a source tree without git
+still compiles. The dialog now costs no network request at all, and works offline.
+
+Also gone: `assets/changelog.txt`, a stale copy of upstream's `CHANGES.md` still branded
+"Shizuku+", shipped in every APK and read by nothing.
+
+### From upstream (13.6.0.r2201 → 13.6.0.r2219)
+
+Eighteen commits, and unusually for a sync almost all of them matter here.
+
+**Cached Apps Freezer and binder delivery (#371).** The long-running bug where third-party apps
+intermittently failed to see Shizuku at all. The server now catches up clients that were *already
+running* when it started — the process and uid observers only fire on a transition, so an app that
+was up (and possibly frozen) at server start would wait indefinitely for an unrelated state change.
+Force-stop-and-retry is restored for ordinary clients, having been narrowed to the manager alone by
+an earlier startup-speed change, and then correctly *re*-narrowed so it only fires during the
+one-time startup catch-up: on the live per-event path a transient ping failure was force-stopping
+busy apps, killing one mid-package-install. The `api` submodule gained a 300/1000/3000 ms backoff
+for the freeze race and a whitelist of the client UID before its first callback.
+
+**`rish` consent (#377, #387).** Android 15 does not reliably deliver `IBinder` objects inside
+`PendingIntent` extras, so the binder arrived null and `rish` hung forever after the user tapped
+Allow; the binder is now held in memory and only a key crosses the PendingIntent boundary. The
+consent dialog survives rotation, concurrent invocations no longer overwrite each other's
+notifications, and the client's abort timer — a fixed 15 s sized for when the dialog launched
+directly — is cancelled on success and otherwise stretched to 90 s, which the notification-tap flow
+always needed. `POST_NOTIFICATIONS` is now requested on first launch rather than only from the ADB
+pairing tutorial, without which the consent notification silently never appeared.
+
+**The black flash on theme change is gone.** Snapshotting with `view.draw(Canvas)` misses
+hardware-rendered Compose content and produced a black bitmap; it now uses `PixelCopy` into the
+decor view's overlay, which paints above every hardware layer, and fades out after the recreate.
+This fork feels it more than upstream does, the theme being pure black already.
+
+**Release notes render as Markdown.** Upstream added Markwon, so the update popup and changelog
+dialog show formatted text instead of literal `**` and pipe-table syntax — and the changelog dialog
+scrolls again, its link movement method having been swallowing scroll gestures.
+
+Plus two crash fixes: an `IllegalArgumentException` when stopping mDNS discovery with an
+unregistered listener, and an `ActivityNotFoundException` opening the releases page on a device
+with no browser.
+
 ## 13.6.0.r2201.2026-08-01.g14550b5e+006
 
 Three bugs, all found by using the app rather than by reading it, and all of the same shape: the
