@@ -186,6 +186,135 @@ def collapseReleaseResourceNames = tasks.register("collapseReleaseResourceNames"
     }
 }
 
+// ---- Bundled changelog -----------------------------------------------------------------------
+// FORK: the "What's New" dialog reads `assets/changelog.md` and NEVER the network.
+//
+// It used to fetch GitHub release notes for a tag built as "v" + the version part, which is
+// UPSTREAM's tag convention — our release tags carry no `v` and are the full fork versionName, so
+// every fetch 404'd and the dialog fell back to "couldn't load the release notes" forever.
+//
+// Fixing the tag alone would not have been enough: 白い熊 installs EVERY build and only some are
+// published, so a network-sourced changelog is empty by construction for the builds that actually
+// get tested. And upstream's own notes can never be fetched at runtime — that is exactly the kind
+// of outbound path the no-phone-home rule removes.
+//
+// So the merge happens here, at build time, from git:
+//   * "In this build"    — fork commits on top of the upstream base that were not already in the
+//                          last documented release. Compared BY SUBJECT, not by sha: a rebase
+//                          rewrites every one of our shas, so sha- or patch-id-based ranges report
+//                          the whole fork as new after every upstream sync.
+//   * "From upstream"    — the upstream commits between the previously documented base and the one
+//                          this build sits on. Both shas are read from the version strings, which
+//                          embed them (`…g14550b5e+006`), so they survive our rebases.
+// The generated section is prepended to CHANGELOG-shiroikuma.md, so the dialog shows this build
+// first and the whole history stays scrollable beneath it. Once /publish-version writes a real
+// section for this version, the generated one is skipped and the written prose wins.
+//
+// Every step degrades to "no generated section" rather than failing: a source tarball with no git
+// must still build.
+def bundledChangelogAsset = file("src/main/assets/changelog.md")
+def forkChangelogSource = rootProject.file("CHANGELOG-shiroikuma.md")
+def bundledChangelogVersion = rootProject.ext.versionName
+def bundledChangelogBaseSha = rootProject.ext.forkUpstreamBaseSha
+def bundledChangelogUpstreamName = rootProject.ext.forkUpstreamVersionName
+def bundledChangelogRepoDir = rootProject.rootDir
+
+def generateBundledChangelog = tasks.register("generateBundledChangelog") {
+    description = "Merge our fork changelog with the upstream commit delta into assets/changelog.md."
+    group = "build"
+    inputs.property("versionName", bundledChangelogVersion)
+    inputs.property("baseSha", bundledChangelogBaseSha)
+    inputs.property("upstreamName", bundledChangelogUpstreamName)
+    if (forkChangelogSource.exists()) {
+        inputs.file(forkChangelogSource)
+    }
+    outputs.file(bundledChangelogAsset)
+
+    doLast {
+        def git = { String... cmd ->
+            try {
+                def proc = cmd.toList().execute((List) null, bundledChangelogRepoDir)
+                def out = proc.text.trim()
+                return proc.waitFor() == 0 ? out : ""
+            } catch (Exception e) {
+                logger.warn("changelog: git ${cmd.join(' ')} failed: ${e}")
+                return ""
+            }
+        }
+        def subjects = { String raw ->
+            raw.isEmpty() ? [] : raw.readLines().collect { it.trim() }.findAll { !it.isEmpty() }
+        }
+
+        def history = forkChangelogSource.exists() ? forkChangelogSource.getText("UTF-8") : ""
+
+        // The newest `## <version>` heading is the last release we wrote prose for.
+        def documented = ""
+        def headingMatcher = history =~ /(?m)^##[ \t]+(\S+)[ \t]*$/
+        if (headingMatcher.find()) {
+            documented = headingMatcher.group(1)
+        }
+
+        def generated = ""
+        if (documented != bundledChangelogVersion) {
+            // Both version strings embed the upstream sha they were built on (`…g14550b5e+006`).
+            def prevBase = ""
+            def prevBaseMatcher = documented =~ /\.g([0-9a-f]{8})/
+            if (prevBaseMatcher.find()) {
+                prevBase = prevBaseMatcher.group(1)
+            }
+            def prevUpstreamName = documented.contains(".") ? documented.split("\\.g")[0].replaceFirst(/\.\d{4}-\d{2}-\d{2}$/, "") : ""
+
+            def upstreamCommits = (prevBase && bundledChangelogBaseSha)
+                ? subjects(git("git", "log", "--no-merges", "--format=%s", "${prevBase}..${bundledChangelogBaseSha}"))
+                : []
+            def oursNow = bundledChangelogBaseSha
+                ? subjects(git("git", "log", "--no-merges", "--format=%s", "${bundledChangelogBaseSha}..HEAD"))
+                : []
+            def oursDocumented = (prevBase && documented)
+                ? subjects(git("git", "log", "--no-merges", "--format=%s", "${prevBase}..${documented}"))
+                : []
+            def oursNew = oursNow.findAll { !oursDocumented.contains(it) }
+
+            if (!oursNew.isEmpty() || !upstreamCommits.isEmpty()) {
+                def sb = new StringBuilder()
+                sb << "## ${bundledChangelogVersion}\n\n"
+                sb << "_Not published yet — this summary is generated from git at build time._\n\n"
+                if (!oursNew.isEmpty()) {
+                    sb << "### In this build\n\n"
+                    oursNew.each { sb << "- ${it}\n" }
+                    sb << "\n"
+                }
+                if (!upstreamCommits.isEmpty()) {
+                    def range = (prevUpstreamName && bundledChangelogUpstreamName)
+                        ? " (${prevUpstreamName} → ${bundledChangelogUpstreamName})"
+                        : ""
+                    sb << "### From upstream${range}\n\n"
+                    upstreamCommits.each { sb << "- ${it}\n" }
+                    sb << "\n"
+                }
+                generated = sb.toString()
+            }
+        }
+
+        // Splice the generated section in below the file's own title/preamble rather than above
+        // it, so the asset still reads as the changelog it is if anyone dumps it. The dialog only
+        // ever renders one `## ` section, so this is cosmetic to the app.
+        def merged
+        if (generated.isEmpty()) {
+            merged = history
+        } else {
+            def firstSection = history.indexOf("\n## ")
+            merged = firstSection < 0
+                ? history.trimEnd() + "\n\n" + generated
+                : history.substring(0, firstSection + 1) + generated + history.substring(firstSection + 1)
+        }
+
+        bundledChangelogAsset.parentFile.mkdirs()
+        bundledChangelogAsset.setText(merged, "UTF-8")
+        logger.lifecycle(">>> changelog asset: ${generated.isEmpty() ? 'history only' : 'generated section + history'} (${bundledChangelogAsset.length()} bytes)")
+    }
+}
+
 afterEvaluate {
     def optimizeReleaseResources = tasks.findByName("optimizeReleaseResources")
     if (optimizeReleaseResources != null) {
@@ -216,16 +345,20 @@ afterEvaluate {
     // and the flavor-specific hooks produced when product flavors are configured.
     tasks.findByName("preReleaseBuild")?.dependsOn("copyCompatApkRelease")
     tasks.findByName("preReleaseBuild")?.dependsOn(":shell:assembleRelease")
+    tasks.findByName("preReleaseBuild")?.dependsOn(generateBundledChangelog)
 
     tasks.findByName("preDebugBuild")?.dependsOn("copyCompatApkDebug")
     tasks.findByName("preDebugBuild")?.dependsOn(":shell:assembleDebug")
+    tasks.findByName("preDebugBuild")?.dependsOn(generateBundledChangelog)
 
     android.productFlavors.each { flavor ->
         def name = flavor.name.capitalize()
         tasks.findByName("pre${name}ReleaseBuild")?.dependsOn("copyCompatApkRelease")
         tasks.findByName("pre${name}ReleaseBuild")?.dependsOn(":shell:assembleRelease")
+        tasks.findByName("pre${name}ReleaseBuild")?.dependsOn(generateBundledChangelog)
         tasks.findByName("pre${name}DebugBuild")?.dependsOn("copyCompatApkDebug")
         tasks.findByName("pre${name}DebugBuild")?.dependsOn(":shell:assembleDebug")
+        tasks.findByName("pre${name}DebugBuild")?.dependsOn(generateBundledChangelog)
     }
 }
 

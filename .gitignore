@@ -38,3 +38,7 @@ ktlint
 
 # Fork: build artifact — copyCompatApkRelease/Debug generates this from the :compat module.
 /manager/src/main/assets/compat.apk
+
+# Fork: build artifact — generateBundledChangelog merges CHANGELOG-shiroikuma.md with the upstream
+# commit delta into this asset, which the "What's New" dialog reads instead of the network.
+/manager/src/main/assets/changelog.md
