@@ -5,6 +5,81 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2222.2026-08-07.g82ab63b5+001
+
+A three-commit upstream sync, and both substantive commits land in the one subsystem this fork has
+spent the last week debugging: how the privileged server gets its binder into a client. Upstream
+arrived independently at the same conclusion we did about force-stopping clients, so for once the
+sync narrows the fork rather than widening it.
+
+Worth recording alongside that: upstream's own README, in the very commit we rebased onto, now
+carries the line *"[Latest Version is Semi-Functional... fixes in progress]"*. Nothing in the two
+code commits looks unfinished, and both are coherent fixes to reported issues — but it is their
+assessment of their own tip, and it belongs in the record.
+
+### The remembered shell consent skipped upstream's new pre-grant
+
+Upstream's #391 fix stops `rish` asking twice: `ShellConsentActivity` now resolves the calling
+package's uid from `PackageManager` and calls `AuthorizationManager.grant()` *before* handing over
+the binder, so the `attachApplication()` that follows sees the client already allowed and does not
+raise a second dialog.
+
+That fix lives entirely inside the consent Activity — which this fork's own consent work is
+designed to skip. Since `13.6.0.r2195+2` a granted answer is remembered, and `BinderRequestReceiver`
+short-circuits straight to `deliverBinder()` rather than launching the Activity at all; without it
+every single `rish` command drew a full-screen dialog, because a shell client can never present an
+auth token. Merged as written, the two fixes would have quietly cancelled: the remembered flag is
+one global boolean, so the *first* shell client is granted properly through the Activity and every
+client after it is handed the binder having never been granted anything — putting the second dialog
+straight back for exactly the case #391 was filed about.
+
+The grant now also runs on the short-circuit path, on upstream's terms: the uid is resolved from
+`PackageManager` and never read out of the broadcast extra, so a spoofed broadcast cannot name one
+package and be granted another's uid. A caller that cannot be identified falls through unchanged and
+is still delivered its binder — only the second-dialog suppression is lost, which is where upstream
+stood before the fix.
+
+The new "identified caller" dialog string is de-branded and carries the same *"Allowing is
+remembered — revoke it in Settings → Advanced → ADB Tools"* sentence the anonymous variant already
+had, because in this fork it is equally true of both.
+
+### From upstream (13.6.0.r2219 → 13.6.0.r2222)
+
+**Force-stopping a client is no longer done at startup or catch-up (#394, #386, #385, #381, #380,
+#375, #371).** The previous sync narrowed force-stop-and-retry to the one-time startup catch-up;
+upstream has now removed it from there too, and from the server-start path with it. The reasoning is
+that the 2-second delayed catch-up pass fires *after* the live observer may already have delivered
+the binder, so the target can be mid-operation after all — the reported symptom being
+`IPackageInstaller.asBinder()` on a null reference when MT Manager, Morphe or LSPatch was killed out
+from under an in-flight `PackageInstaller` session. An app still frozen at catch-up time now simply
+waits for its next foreground transition. Force-stop survives only in `sendBinderToUserAppWithRetry`,
+which gained a second attempt at 5 s total because 1 s was not enough for a slow OEM cold start.
+
+This composes with the fork's own delivery fix rather than colliding with it: upstream routed *more*
+traffic through `sendBinderToUserApp`, which is the method rewritten in `13.6.0.r2219+002` to attempt
+every binder container instead of trusting the first non-null reply. The single
+`send binder to user app` log line after that loop is intact, so counting those lines per client
+launch still diagnoses a duplicate server.
+
+**The freeze-binder retry ladder reaches 9 seconds** (`api` submodule). `{300, 1000, 3000}` becomes
+`{300, 1000, 3000, 9000}`, for OEM builds that freeze aggressively enough to miss the old tail. EMUI
+is precisely such a build.
+
+**The app-picker list stops being clipped.** Its dialog had a hardcoded 480 dp height; it is now
+weight-based, so it fills the dialog on a small screen and at a large font scale instead of cutting
+off.
+
+**The toolbar title stops being clamped (#373).** `MaterialToolbar` was a fixed `actionBarSize`
+tall, so raising the system font scale cropped the title rather than wrapping it; the height is now
+`wrap_content` over a minimum.
+
+**TalkBack skips what carries no meaning.** Decorative images in the header and settings-search
+layouts are marked unimportant for accessibility, and the home layout-simulator card — a purely
+visual flow diagram — is skipped whole rather than read out element by element.
+
+Plus a cosmetic one the fork inherits for free: the release-notes dialog strips trailing short commit
+hashes such as `" (a95d0130)"` from bullet lines.
+
 ## 13.6.0.r2219.2026-08-05.gff8ea379+002
 
 An upstream sync of eighteen commits — most of them fixes to the two paths this fork exercises
