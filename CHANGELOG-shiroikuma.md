@@ -5,6 +5,102 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2231.2026-08-08.gd5417ebf+001
+
+A nine-commit upstream sync, and eight of the nine land on one subsystem: how a shell client asks
+for, and is granted, the privileged binder. Upstream spent this batch arriving at the fix this fork
+shipped on 2026-07-31 — by a different route, with different semantics — so the interesting work
+this time was deciding how the two fit together rather than porting anything.
+
+### Upstream reached the fork's shell-consent fix from the other side
+
+Since `13.6.0.r2195+2` this fork has short-circuited `BinderRequestReceiver` on a remembered answer,
+because upstream re-asked on every single request and a shell client can never present an auth
+token — so `rish -c ls` drew a full-screen dialog before each command. Upstream's `b035b101` now
+fixes the same complaint by consulting `AuthorizationManager.granted()` for the calling package
+(#398: "Allow always" was being stored and then never read, so every new `rish` process re-prompted).
+
+The two gates answer different questions, and both are kept — upstream's first (白い熊, 2026-08-08).
+
+Upstream's is **per package**: it names the app, so it can be granted and revoked one app at a time,
+and it can log which app was let through. That is strictly better wherever it applies, so it decides
+first. But it can only apply to a caller that *has* a package — and the case this fork's gate was
+written for is precisely the one that does not. A bare shell has no `callingPackage` in the
+broadcast, so `AuthorizationManager.granted()` can never return true for it, and without the global
+gate that caller is back to a dialog per command. The fork gate therefore answers second, for
+exactly what upstream's structurally cannot reach.
+
+They also compose in one direction worth noting. The fork gate still performs upstream's #391
+pre-grant (uid resolved from `PackageManager`, never read out of the broadcast extra, so a spoofed
+broadcast cannot name one package and be granted another's uid). That grant is what *promotes* an
+identified caller into upstream's gate: the global path answers for it once, and the per-package
+path answers every request after — which is also why the global answer does not quietly widen into
+a permanent blanket grant for apps that could have been named.
+
+Both delivery paths now write to the Activity Log with distinct reasons — `pre-authorized` for
+upstream's, `consent remembered` for the fork's. Upstream added that audit trail in `407656e2`
+specifically so "Allow always doesn't stick" reports could be diagnosed without a logcat; leaving
+the fork path silent would have put the fork's own users back in the dark it was built to remove.
+
+### The backup export chooser, in the house look
+
+Upstream's `f89c4beb` adds a plain-text backup format beside the encrypted one, behind a chooser
+dialog. The chooser is kept — a plain export really is the only thing that survives a reinstall,
+since the encrypted form is keyed per install — but dressed properly: `showHouse()` rather than
+`show()`, so it comes up black with the yellow border instead of the stock Material surface, and
+`ShiroikumaToast` rather than raw toasts. The exported filenames are de-branded to
+`shiroikuma-shizuku_settings_*.json` and `…_settings_plain_*.json`.
+
+Upstream's three new plain-backup toasts arrived raw — the fork's house-toast pass predates them —
+and were converted with the rest. Their errors now route through the existing `backupErrorMessage`
+helper, which among other things handles a null `e.message`; upstream's `"Backup failed: ${e.message}"`
+would have shown the word "null" to anyone whose export failed on a keystore exception, which is the
+#315 symptom that helper was written for.
+
+### From upstream (13.6.0.r2222 → 13.6.0.r2231)
+
+**`rish` works for apps that never declared a Shizuku permission (`a8d2b19c`, #387).** Termux and
+friends use `rish` without declaring a Shizuku permission in their manifest, so they never received
+`grantRuntimePermission()` and `checkCallingPermission()` returned DENIED forever — even after the
+user explicitly tapped Allow, every subsequent call hit "Caller … is not an attached client".
+`checkCallerPermission()` now also consults the stored consent flags when the OS check fails.
+
+**Apps authorized before 2026-07-19 are repaired automatically (`f89c4beb`, #371/#379/#392).** Before
+upstream's `741df2f4`, `grantRuntimePermission` silently failed because the permission had no
+defining package, leaving apps with a config entry but no OS grant — they showed "Shizuku not found"
+and no amount of re-toggling helped. `migratePermissionGrants()` now re-grants at every server start,
+idempotently. This is new work in the server start path, which is worth knowing given how carefully
+this fork guards that path, but it touches nothing the single-instance lock does.
+
+**Allow / Deny buttons on the consent notification (`bd7898de`).** Granting no longer requires
+opening the dialog. The callback binder travels through `PendingConsentStore` rather than
+`PendingIntent` extras — Android 15+ drops an `IBinder` embedded in those — and the receiver is
+`exported=false` with explicit component targeting, so no external app can fire the actions.
+
+**The consent dialog and notification name the app (`dd77e934`, `40468712`, #398).** "Talkman is
+requesting shell access" instead of the raw package ID, falling back to the package ID when the
+`PackageManager` lookup fails.
+
+**Auto-run snippets (`d5417ebf`, #399).** A per-snippet "Auto-run on service start" toggle; flagged
+snippets run sequentially through the privileged shell on every transition to RUNNING, including
+live service restarts. Room schema v1→v2 adds the column; every existing snippet defaults to **off**,
+so nothing runs until you ask it to.
+
+**Decorative icons stop being announced by TalkBack (`b99eadf5`).** `contentDescription="@null"`
+leaves a view focusable and announced as an unnamed image; five layouts now use
+`importantForAccessibility="no"` instead.
+
+### Verified after the rebase
+
+The no-phone-home layer was re-checked whole, as it is on every sync: nothing in the nine commits
+opens a connection, touches Sentry, or revives the remote-database worker, and the only outbound
+path in the tree remains the manual update check against this repo. The identity layer, the
+server-side single-instance lock and the three-container binder delivery all survived intact, and
+the component-name contract test passes.
+
+The `thedjchi/Shizuku` reference remote had **no new commits** — its maintenance pause, announced
+2026-07-14, still holds.
+
 ## 13.6.0.r2222.2026-08-07.g82ab63b5+001
 
 A three-commit upstream sync, and both substantive commits land in the one subsystem this fork has
