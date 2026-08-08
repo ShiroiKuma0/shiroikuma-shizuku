@@ -16,7 +16,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 authorized sister apps, and the house look driven through every screen. Installs as
 `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2231.2026-08-08.gd5417ebf+001`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2231.2026-08-08.gd5417ebf+002`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
