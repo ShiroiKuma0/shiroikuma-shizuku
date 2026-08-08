@@ -7,6 +7,7 @@ import android.content.Intent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.authorization.AuthorizationManager
 import af.shizuku.manager.database.ActivityLogManager
 import af.shizuku.manager.utils.Logger.LOGGER
@@ -36,6 +37,16 @@ class ShellConsentActionReceiver : BroadcastReceiver() {
 
         when (intent.action) {
             ACTION_ALLOW -> {
+                // Fork: the button says "always", so it must mean always here too.
+                //
+                // The per-package grant below is upstream's whole notion of "always", and it can
+                // only fire for a caller that named itself. A bare shell client -- `rish` in
+                // Termux, the case this notification exists for -- has no callingPackage at all,
+                // so upstream's branch remembers NOTHING for it: the binder is handed over once
+                // and the very next command prompts again. Setting the fork's global flag first,
+                // exactly as ShellConsentActivity's Allow button does, is what makes the two
+                // "Allow always" entry points actually equivalent.
+                ShizukuSettings.setShellConsentGranted(true)
                 val callingPackage = intent.getStringExtra("callingPackage")
                 val intentCallingUid = intent.getIntExtra("callingUid", -1).takeIf { it >= 0 }
                 val pending = goAsync()
