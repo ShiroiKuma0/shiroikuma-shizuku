@@ -5,6 +5,31 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2231.2026-08-08.gd5417ebf+002
+
+A single fix, for a regression this fork introduced while merging `+001`.
+
+### The notification's "Allow always" did not mean always
+
+`+001` took upstream's new Allow/Deny buttons on the shell-consent notification (`bd7898de`)
+without noticing they are a **second** way to say "Allow always" — and that upstream's version of
+"always" is `AuthorizationManager.grant()`, which can only be called for a caller that named itself.
+
+A bare shell client has no `callingPackage`. `rish` in Termux is exactly that, and it is the case
+the notification exists for, so the button took its `null` branch, remembered **nothing at all**,
+handed the binder over once, and let the next command prompt again — while still reading
+"Allow always". The generic *"Shell access request"* wording on the notification, rather than
+*"Termux is requesting shell access"*, is itself the tell that no package was attached.
+
+The fork has stored a global answer for unidentified callers since `13.6.0.r2195+2`, and it still
+worked; it was simply never reached. It is written in exactly one place — `ShellConsentActivity`'s
+Allow button — which until this sync was the only way to say "always", so the two could not
+disagree. The new button bypassed it.
+
+It now sets the flag first, on the same terms as the dialog, making the two entry points equivalent
+for identified and unidentified callers alike. The Settings → Advanced switch that exposes the same
+flag was unaffected throughout, and turning it on by hand was the workaround while this shipped.
+
 ## 13.6.0.r2231.2026-08-08.gd5417ebf+001
 
 A nine-commit upstream sync, and eight of the nine land on one subsystem: how a shell client asks
