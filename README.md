@@ -16,7 +16,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 authorized sister apps, and the house look driven through every screen. Installs as
 `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2222.2026-08-07.g82ab63b5+001`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2231.2026-08-08.gd5417ebf+001`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -185,11 +185,18 @@ is bound by AndroidKeyStore to the manager app's own UID. Upstream's consent dia
 nothing to remember an answer by and re-asked on **every single request**, putting a full-screen
 prompt in front of each `rish -c '…'`.
 
-Here the answer is stored. Allow once and shell clients stop asking; revoke in one tap at
-**Settings → Advanced → ADB Tools**. The prompt itself is honest about the trade — while the grant
-stands, any shell client that can reach the manager gets the binder without asking, and the
-requester genuinely cannot be identified. That exposure comes with the shell path itself; what
-changed is that you decide it once, deliberately, instead of tapping past it forever.
+Here the answer is stored, and asked for in two stages. A client that names itself is remembered
+**per app** — allow Termux once and Termux never asks again, while an unrelated app still gets its
+own prompt. A client that cannot be identified at all falls back to a single global answer: allow
+once and shell clients stop asking. Both are revocable — the per-app grant in the authorization
+list, the global one in one tap at **Settings → Advanced → ADB Tools**.
+
+The prompt itself is honest about the trade. While the global grant stands, any shell client that
+can reach the manager gets the binder without asking, and the requester genuinely cannot be
+identified — that exposure comes with the shell path itself. What changed is that you decide it
+once, deliberately, instead of tapping past it forever. The consent notification now also carries
+**Allow / Deny** buttons and names the requesting app where it can, and every grant and refusal is
+written to the Activity Log, so the decisions are auditable after the fact.
 
 ---
 
