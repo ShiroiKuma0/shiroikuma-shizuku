@@ -5,6 +5,73 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2238.2026-08-09.g05fcdfff+001
+
+A seven-commit upstream sync carrying no fork changes of its own. Every commit lands on the manager
+UI — theming, settings wiring, window insets — and nothing this round touches the privileged server,
+the starter, the binder handoff, ADB pairing, the root path or the `api` submodule. For a fork whose
+riskiest rebases are always the ones that move how the service is started, this was the quiet kind.
+
+### Settings that existed only in code are now reachable
+
+Upstream's largest commit here is a wiring audit, and it found preferences that had been dead since
+they were written. `hide_disabled_plus_features` was fully implemented with no XML entry at all.
+Four more — `vector_enabled`, `experimental_root_compat`, `spoof_device_enabled`, `spoof_target` —
+sat in a hidden category that `DeveloperOptionsFragment` could not see, so every one of its
+`findPreference` calls returned `null` and Developer Options was, in practice, a stub screen. They
+now live in `settings_developer_options.xml` where that fragment actually looks.
+
+The same pass removed listeners that could never fire: four root-integration keys registered by a
+fragment whose XML does not contain them, and `ai_core_plus_enabled`, whose generic experimental
+handler was silently *replacing* the biometric one it needs. Toggling the activity log now pushes
+the new value to the server immediately instead of waiting for the next Feature Hub open.
+
+### Two invisible icons, fixed upstream, that this fork felt hardest
+
+Upstream replaced a set of hardcoded colours with M3 semantic roles. Three of them were literally
+invisible here: the edit-mode restore icon was a fixed purple `#4F378B`, the layout-simulator eye
+was `Color.DKGRAY` `#444444`, and the home status card fell back to near-black `#1A1C1E` text. On a
+theme whose every surface is pure `#000000`, "dark grey on dark" is not dim — it is absent. These
+were upstream bugs against its own AMOLED mode, and the fix arrives unchanged.
+
+Stopped-server state also moves from `colorTertiaryContainer` to `colorErrorContainer`, which is the
+correct M3 role for a failure and reads as such under the house palette.
+
+### The black screen after a theme change
+
+`recreateWithoutTransition()` zeroed the window animations on the outgoing window only; the incoming
+activity inherited `windowAnimationStyle` from the theme and, on some API levels, still played an
+enter animation — leaving the screen black until you navigated away. It now zeroes animations on the
+new window too, and paints the old-UI snapshot as the window background immediately after
+`super.onCreate()` so the one-or-two-frame flash of the new theme colour never shows. Every knob on
+the 白い熊 雫 UI page that triggers a recreate goes through this path.
+
+### Three new appearance toggles, and why the house look still wins
+
+Upstream added an **Edge-to-Edge** on/off switch, a **Frosted Glass** window blur on Android 12+,
+and a **One UI style theme** — Samsung Galaxy Blue, pill-like corners, bolder headlines — with a
+nested one-handed mode that pushes the home cards into the lower third of the screen.
+
+The One UI overlay is applied inside `ThemeDelegateImpl`, one line above where this fork's own
+overlay hangs. The order after the rebase is upstream's One UI overlay, then the theme style, then
+`ThemeOverlay.Shiroikuma` **last** — so black-and-yellow still wins over One UI exactly as it
+already won over dynamic colour, the custom accents and the night overlay. Switching One UI on
+changes shapes, type and preference padding; it does not repaint the app blue.
+
+### The rebase itself
+
+One conflict, in `HomeScreen.kt`, and only its import block: upstream's one-handed-mode and blur
+imports landed on the same lines as this fork's long-press-cog imports. Both sides kept. The four
+files that looked most likely to fight — `ServerStatusViewHolder.kt`, where the fork adds nearly
+three hundred lines, plus `settings_shizuku_plus.xml`, `strings.xml` and `ShizukuSettings.java` —
+all merged without help.
+
+The no-phone-home layer was re-audited in full afterwards and is intact: the Sentry plugin is still
+absent and its DSN still hardwired empty, `initializeSentryEarly()` still returns before the SDK can
+arm, the remote-database worker still cancels itself, VirusTotal and Pithus still contact nobody,
+auto-update still defaults off, and `UpdateChecker` — pointed at this repo — remains the only thing
+in the tree that can open a connection.
+
 ## 13.6.0.r2231.2026-08-08.gd5417ebf+002
 
 A single fix, for a regression this fork introduced while merging `+001`.
