@@ -5,6 +5,81 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2241.2026-08-09.ge2207af1+001
+
+A three-commit upstream sync, again with no fork changes of its own — but unlike the last one this
+batch reaches the binder handoff. Nothing moves the privileged server, the starter, ADB pairing or
+the `api` submodule; the one commit that matters lands on the *shell* side of the handoff, which is
+exactly the code this fork's remembered-consent patch owns.
+
+### `rish` could be authorized and still get nothing
+
+The substantive fix. When a shell client asks for the binder, the consent prompt arrives as a
+notification — and while the user reads it, the caller sits in the background. Android's Cached Apps
+Freezer is entitled to freeze it there. A ONEWAY transact into a frozen process does not queue: it
+returns `BR_FROZEN_REPLY` immediately, the caller never receives anything, and every layer above
+reports success. So the notification said allowed, the manager said authorized, and `rish` said
+nothing at all.
+
+`deliverBinder()` now retries four times — at 0, 200, 600 and 1500 ms — to bridge the window while
+the OS thaws the process, and returns whether delivery actually happened rather than merely whether
+it threw. On total failure the consent screen says so in a Toast, and points out that the
+authorization was saved regardless: the next `rish` invocation takes the fast path in
+`BinderRequestReceiver` and connects without asking again.
+
+This is the same class of bug the fork already documents on the *app* side — a non-null reply from
+`sendBinder` proving only that the provider did not throw. Upstream has now found the shell-side
+twin of it.
+
+### A notification that ignored its own switch
+
+Turning the live activity off stopped the foreground service but not the notification. The direct
+posting path in `ActivityLogSettingsImpl.showNotification()` never consulted the toggle, so the
+notification came back on every 雫 action with the switch plainly off. It checks
+`isLiveActivityEnabled()` now.
+
+### The SU bridge could only ever deploy once
+
+`app_process` on Android 14+ requires `rish_shizuku.dex` to be mode 444, so the first root deploy
+sets it read-only — and a file that is read-only is read-only to its owner too. Every subsequent
+deploy then failed with `EACCES` while writing over it. `streamToPrivilegedFile` now removes the old
+file before writing the new one. Root path only; the adb path never touched this.
+
+### USB-tethered ADB now wakes the same machinery as Wi-Fi
+
+`AutomationService` watched `TRANSPORT_WIFI` alone, so an RNDIS/USB-tethering link — the normal
+arrangement on ruggedized and enterprise hardware — never triggered a network-state check or the
+automation event bus. `TRANSPORT_ETHERNET` joins the request, and Ethernet counts as a valid ADB
+transport in `checkNetworkState()`.
+
+The Watchdog summary is honest about its limits in the same commit: it restarts 雫 after a crash or
+an unexpected stop, and it cannot do anything when the underlying network itself goes away — a
+pulled USB cable is not a crash. The wording is upstream's, with this fork's name in it.
+
+### The rebase itself
+
+Two conflicts, both predicted from the diff before the rebase began, and both in files this fork
+edits deliberately.
+
+`ShellConsentActivity.kt` was the real one: upstream rewrote the same click handler that carries
+this fork's remembered consent. The reconciliation keeps `setShellConsentGranted(true)` and the
+house dialog styling, and takes upstream's new shape around them — the `delivered` flag, the widened
+comment about persisting the grant even when delivery fails, and the Toast. All four callers of
+`deliverBinder` discard its new return value, so nothing else needed adjusting.
+
+`strings.xml` conflicted twice, once per commit that touched it. The shell-consent block keeps this
+fork's remembered-consent wording and its "Always allow" button, with upstream's new retry hint added
+beside them; the watchdog summary takes upstream's fuller sentence rather than defending the old
+short one. Both then passed through the de-branding commit unchanged, which is what should happen.
+
+`:manager:testShizukuplusDebugUnitTest` is green, so the component-name contract still holds.
+
+The no-phone-home layer was re-audited in full afterwards and is intact: the Sentry plugin absent
+and its DSN hardwired empty, `initializeSentryEarly()` still returning before the SDK can arm, the
+remote-database worker still cancelling itself, VirusTotal and Pithus still contacting nobody,
+auto-update still defaulting off, `.github/` still gone, and `UpdateChecker` — pointed at this repo
+— still the only thing in the tree that can open a connection.
+
 ## 13.6.0.r2238.2026-08-09.g05fcdfff+001
 
 A seven-commit upstream sync carrying no fork changes of its own. Every commit lands on the manager
