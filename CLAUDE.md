@@ -76,10 +76,12 @@ git config remote.upstream.fetchRecurseSubmodules no
   `+8`) so a shared `~/tmp` sorts in build order; `versionCode` keeps the plain integer.
 - **Upstream tracking: `git`** — `custom` is rebased onto every upstream commit, not onto release
   tags, so the fork `versionName` pins the upstream base:
-  `<UPSTREAM_VERSION_NAME>.<base commit date>.g<8-char merge-base sha>+<BUILD_NUMBER, 3 digits>`
-  → `13.6.0.r2195.2026-07-30.gac2ae085+008`. See the global **`git-versioning`** skill. The sha is
+  `<UPSTREAM_VERSION_NAME>+<base commit date>.<HH-MM>.g<8-char merge-base sha>+<BUILD_NUMBER, 3 digits>`
+  → `13.6.0.r2246+2026-08-12.02-46.g9f2c01e8+008`. See the global **`git-versioning`** skill. The
+  `HH-MM` and the `+` grouping arrived 2026-08-12, together with a fix to render the timestamp in
+  **UTC** rather than the commit's own timezone. The sha is
   `git merge-base HEAD master` — the upstream commit our patches sit on, not our own HEAD and not
-  master's tip — and the date is that commit's own committer date, so the pin moves *only* on a
+  master's tip — and the timestamp is that commit's own committer time, so the pin moves *only* on a
   sync. Upstream's `rNNNN` already counts upstream commits, but it is pinned **by hand** in
   `gradle.properties`; the merge-base is read from git and cannot go stale. No git, or no local
   `master`, degrades to `<UPSTREAM_VERSION_NAME>+<NNN>` — the build never fails over a missing pin.
