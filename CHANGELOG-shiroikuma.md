@@ -5,6 +5,74 @@ Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fol
 Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
 1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2246.2026-08-12.g9f2c01e8+001
+
+A five-commit upstream sync with no new features in it at all — every one of them lands on the
+`rish` consent path, the client-attach handshake, or keeping a frozen client thawed long enough to
+attach. That is the same narrow strip of code the fork's own remembered-consent patch and its `api`
+fixes live on, so this is the first sync where upstream and this fork had to be merged rather than
+stacked, in both the manager and the submodule.
+
+### `rish` could be told "always" and never be remembered
+
+Upstream's fix, and it is the one worth having. The consent flow resolved the caller's UID solely by
+looking `callingPackage` up in `PackageManager` — but the classic `rish_shizuku.dex` sends no
+`callingPackage` at all, and on some devices the lookup simply fails. The UID was then null the whole
+way through, `AuthorizationManager.grant()` was never reached, and "Allow always" therefore granted
+nothing: the next invocation prompted again, forever, while every screen involved reported success.
+
+`ShizukuShellLoader` now puts `Os.getuid()` into the `REQUEST_BINDER` broadcast. That process is
+spawned as the caller, so the value is authoritative rather than a claim. Every consent surface —
+the receiver, the notification's action buttons, the dialog — takes the same fallback chain:
+PackageManager first, because it proves the named package really owns that UID, then the broadcast's
+own UID. The notification also stops falling back to the generic "cannot be identified" wording when
+only the label lookup failed, and shows the package name instead.
+
+### The fork's remembered consent now covers the anonymous caller too
+
+The fork change in this build. The pre-grant that runs behind the fork's global "consent remembered"
+gate still refused any caller with no `callingPackage` — which is exactly `rish` in Termux, the case
+the whole notification path exists to serve. On every server past pre-v11 the grant is a flag stored
+on the UID and the package name is never consulted, so there was nothing to refuse over; the
+notification's own "Allow always" button had been granting on the UID alone the entire time. The two
+entry points now remember the same thing, instead of the answer sticking or not depending on which
+one the user happened to tap.
+
+### A 2.3-second sleep on the main thread
+
+`deliverBinder()` walks a freeze-retry ladder — the fix from the previous release — and can sleep up
+to 2.3 s doing it. Both call sites in the receiver were running that on the main thread for the
+entire broadcast window; they now hold the broadcast open with `goAsync()` and do the work on IO.
+`ShellBinderRequestHandler` also stops allocating a fresh `Parcel` per retry, and passes `null` as
+the reply argument, since a ONEWAY transaction never writes one.
+
+### Where upstream stopped short of this fork's own `api` fix
+
+Upstream arrived independently at the two `api` bugs this fork fixed on 2026-08-07 — the dead code-17
+handler that left every v13+ client unattached (their #406, the null `getPackageInstaller()` that
+crashed installer apps), and the legacy `case 14` shadowing `requestPermission`. Their fix stops
+there, and the remaining half is not cosmetic: `onTransact` still keeps the legacy cases for 3, 4 and
+8, and an AIDL wire code is `id + 1`, so legacy `case 8` answers a live `newProcess()` call with
+`getSELinuxContext()`'s String. The client reads that back as a strong binder, gets null, and
+`Shizuku.newProcess()` fails for every caller — SHIZUKUPLUS-85, which took the whole privileged-shell
+tier down when this fork hit it.
+
+So the submodule was rebased onto upstream's tip with `Service.java` resolved entirely this fork's
+way: the `enforceInterface()` token read instead of reflection for a method that may not be there,
+the three shadowing legacy cases still deleted, and `shouldShowRequestPermissionRationale()` still
+renumbered off wire 17 so the collision cannot be re-armed by the next method added. One line was
+taken from upstream — a second parcel rewind before `super.onTransact`. It cannot fire today, since
+every `RishService` branch that reads the parcel returns true, but it guards the precise trap this
+method has now been fixed for twice.
+
+### Unfreezing on every retry, not just the first
+
+`addPowerSaveTempWhitelistApp()` was called once, from inside `attachApplication()`, while the binder
+call was still on the stack. Some OEM schedulers — Xiaomi and Samsung are named — do not act on the
+unfreeze until a later Looper tick, so by the time a retry ran the client could still be frozen. The
+whitelist is now refreshed before each retry, against the user ID captured at call time rather than
+`Binder.getCallingUid()` read inside the lambda, which by then returns the server's own.
+
 ## 13.6.0.r2241.2026-08-09.ge2207af1+001
 
 A three-commit upstream sync, again with no fork changes of its own — but unlike the last one this
