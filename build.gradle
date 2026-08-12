@@ -68,22 +68,37 @@ def gitOutput = { String... command ->
 // upstream code, which is the whole signal.
 def upstreamBaseSha = gitOutput("git", "merge-base", "HEAD", "master").take(8)
 
-// The base commit's own committer date, never build time: a bare sha is random text, so it orders
-// builds arbitrarily, and build time would differ between two builds on one base and destroy the
-// "the pin moves only on a sync" property.
-def upstreamBaseDate = upstreamBaseSha.length() == 8
-    ? gitOutput("git", "show", "-s", "--format=%cd", "--date=format:%Y-%m-%d", upstreamBaseSha)
-    : ""
+// The base commit's own committer timestamp, never build time: a bare sha is random text, so it
+// orders builds arbitrarily; a bare DATE ties whenever two syncs land on one day and hands the
+// ordering straight back to that random sha (白い熊, 2026-08-12); and build time would differ
+// between two builds on one base and destroy the "the pin moves only on a sync" property.
+//
+// In UTC — format the raw epoch, never `--date=format:` (the commit's own offset, used here until
+// 2026-08-12) or `--date=format-local:` (the build host's). Kakutoku's linked-version watcher reads
+// the same commit back from GitHub, which normalises committer dates to Z.
+def upstreamBaseStamp = ""
+if (upstreamBaseSha.length() == 8) {
+    def upstreamBaseEpoch = gitOutput("git", "show", "-s", "--format=%ct", upstreamBaseSha)
+    if (upstreamBaseEpoch ==~ /\d+/) {
+        upstreamBaseStamp = java.time.Instant.ofEpochSecond(Long.parseLong(upstreamBaseEpoch))
+            .atZone(java.time.ZoneOffset.UTC)
+            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd.HH-mm"))
+    }
+}
 
-// Degrades rather than fails: no git / no local master -> no pin at all; git but no date -> sha
-// only. A shallow clone or a source tarball must still build.
+// `+` opens each top-level group — upstream's version, the pin, our counter — while the pin's own
+// date, time and sha stay dot-joined, all three describing one commit. Never `~`: git rejects it in
+// a refname (no release tag), it sorts above every digit, and dpkg reads it as a pre-release marker.
+//
+// Degrades rather than fails: no git / no local master -> no pin at all; git but no timestamp ->
+// sha only. A shallow clone or a source tarball must still build.
 def upstreamPin
 if (upstreamBaseSha.length() != 8) {
     upstreamPin = ""
-} else if (upstreamBaseDate.length() == 10) {
-    upstreamPin = ".${upstreamBaseDate}.g${upstreamBaseSha}"
+} else if (upstreamBaseStamp.length() == 16) {
+    upstreamPin = "+${upstreamBaseStamp}.g${upstreamBaseSha}"
 } else {
-    upstreamPin = ".g${upstreamBaseSha}"
+    upstreamPin = "+g${upstreamBaseSha}"
 }
 
 // The build counter is zero-padded to three digits in the version name — the standing family
@@ -97,7 +112,7 @@ ext {
     forkUpstreamVersionCode = upstreamVersionCode
     forkUpstreamVersionName = upstreamVersionName
     forkUpstreamBaseSha = upstreamBaseSha
-    forkUpstreamBaseDate = upstreamBaseDate
+    forkUpstreamBaseStamp = upstreamBaseStamp
     forkBuildNumber = shiroikumaBuild
 }
 
