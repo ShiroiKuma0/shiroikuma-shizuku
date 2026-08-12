@@ -114,7 +114,7 @@ class BinderRequestReceiver : BroadcastReceiver() {
             //
             // That grant is also what promotes an identified caller into the gate above, so this
             // path answers for it once and the per-package gate answers every time after.
-            grantIdentifiedCaller(context, callingPackage, effectiveUid)
+            grantIdentifiedCaller(callingPackage, effectiveUid)
             ActivityLogManager.log(
                 callingPackage?.let { appLabelOf(context, it) } ?: "Shell",
                 callingPackage ?: "",
@@ -168,20 +168,23 @@ class BinderRequestReceiver : BroadcastReceiver() {
 
     /**
      * Mirrors [af.shizuku.manager.legacy.ShellConsentActivity]'s pre-grant for the path that never
-     * reaches it. A null package just means an unidentified shell client, which is the case the
-     * generic consent copy already describes — deliver the binder anyway, exactly as before; only
-     * the second-dialog suppression is lost, which is where upstream was.
+     * reaches it, so attachApplication() does not put a second permission dialog in front of a
+     * caller the user has already answered for.
      *
      * [effectiveUid] is the same chain the gates above use — PackageManager first, then the UID
-     * ShizukuShellLoader put in the broadcast. A grant still needs a package name to key on, so an
-     * anonymous caller is skipped no matter how well-known its UID is.
+     * ShizukuShellLoader put in the broadcast. The UID is the whole key: on every server past
+     * pre-v11 the grant is stored as a flag on the uid and the package name is not consulted, which
+     * is why an anonymous shell client (no callingPackage — `rish` in Termux, the case this
+     * receiver exists for) is granted here rather than skipped. Matches what the notification's
+     * "Allow always" button does in ShellConsentActionReceiver; a mismatch would mean the two
+     * entry points remembered different things.
      */
-    private fun grantIdentifiedCaller(context: Context, callingPackage: String?, effectiveUid: Int?) {
-        if (callingPackage == null || effectiveUid == null) return
+    private fun grantIdentifiedCaller(callingPackage: String?, effectiveUid: Int?) {
+        if (effectiveUid == null) return
         try {
-            AuthorizationManager.grant(callingPackage, effectiveUid)
+            AuthorizationManager.grant(callingPackage ?: "", effectiveUid)
         } catch (e: Exception) {
-            Timber.tag("BinderRequestReceiver").w(e, "Could not pre-grant %s", callingPackage)
+            Timber.tag("BinderRequestReceiver").w(e, "Could not pre-grant uid %d", effectiveUid)
         }
     }
 
