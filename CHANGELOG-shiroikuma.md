@@ -1,11 +1,104 @@
 # 白い熊 雫 — fork changelog
 
-Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fold fork notes into it.
+Fork-only notes. Upstream's own release notes live in `CHANGES.md` and, since `r2267`, also in a
+root `CHANGELOG.md` — never fold fork notes into either.
 
 Versions are `<upstream version>+<upstream base date>.<HH-MM>.g<sha>+<our build number>`; the `+N`
 resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5e+004` through
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
+
+## 13.6.0.r2267+2026-08-14.08-14.gd55b5695+002
+
+An upstream sync and nothing else: 21 commits from `13.6.0.r2246` to `13.6.0.r2267`, landed by
+upstream across 2026-08-13 and 2026-08-14. No fork feature work in this build. What follows is what
+arrived, what was refused, and the two places where the two codebases had independently solved the
+same problem and had to be merged rather than picked between.
+
+### What upstream fixed
+
+Two of these are real bugs in the privileged server:
+
+- **The SU bridge was shadowing the real `id` and `whoami`.** The Magisk mock header injected into
+  every `sh -c` routed through the bridge defined `id()` and `whoami()` as shell functions, so they
+  won for *every* command that went through it, not merely for root-check probes. Any script that
+  read `id -u` for a purpose other than detecting root silently got the mocked answer. The two
+  functions are gone; `magisk()`, `su()` and `getenforce()` remain.
+- **`newProcess()` was wiping the boot environment.** With Magisk mocking enabled and a `null` env,
+  the environment was *replaced* with just `MAGISK_VER` and `MAGISK_VER_CODE` instead of appended
+  to — so `BOOTCLASSPATH`, `ANDROID_DATA` and `ANDROID_ROOT` all vanished and any child spawning
+  `app_process`, a user service among them, died instantly with "ANDROID_DATA environment variable
+  unset". It now seeds from the server's own environment first, matching the non-null path.
+
+The rest are manager-side:
+
+- **Update downloads no longer hang.** The silent-install path used when Auto-install is on had no
+  timeout, so a stuck root prompt or a dead Shizuku binder wedged the coroutine forever and no
+  install prompt ever appeared. It now gives up after five seconds and falls back to the system
+  installer.
+- **The download progress notification stopped buzzing.** It rebuilt every 500 ms without
+  `setOnlyAlertOnce`, so on a high-importance channel it re-alerted on every tick.
+- **Manual crash reports carry logs again.** The logcat tail filter allow-listed tags that do not
+  match real crash output, so the "Logs" section shipped empty; it now takes the last 300 unfiltered
+  lines.
+- **The update checker picks the right asset** — by applicationId rather than "first `.apk` in the
+  release" — and the Beta channel, not only Dev, now fetches pre-releases. Two fields that were read
+  as mandatory are optional now, so a release missing either no longer throws.
+- **No more black-screen flash on an appearance change.** Accent, icon style, blur and the OneUI
+  theme used to call `Activity.recreate()`; they bump a counter and recompose instead.
+- **One-handed mode is a scale, not padding** — content shrinks to 75 % anchored at bottom-centre,
+  with a spring animation. Settings gained a Samsung-style ExtraBold large header.
+- **The gesture nav bar no longer covers things**: Feature Hub, the Settings list, the Activity Log
+  and the app search bar all gained bottom clearance.
+- **The Dhizuku Mode switch persists again** — it wrote its value in the wrong branch and then
+  returned `false`, so the switch snapped back.
+- The "Shizuku is running" status icon reverted to the plain circle-check; a redesign in the same
+  batch rendered as a garbled server-rack-and-checkmark mashup.
+
+**Two defaults changed upstream, and they only affect switches you have never touched:** the SU
+bridge now defaults **off** (it was on), and Companion fallback now defaults **on** (it was off).
+Both were misaligned with their own XML declarations, so the settings screen had been showing one
+thing while the code did another.
+
+### What was refused
+
+**The "Plus" badge on the icon.** Upstream renamed the adaptive-icon foreground images to
+`*_foreground_base` and layered a badge over them. Because git follows renames, a rebase quietly
+carried *our* traced mark to the new name and reparented it under *their* badge — the launcher icon
+would have come out black-and-yellow with a Material-You plus sign stuck on the corner. All four
+densities are renamed back, the badge layer is deleted, and both adaptive-icon XMLs point at our
+foreground again.
+
+One half of that commit was worth keeping: the themed (monochrome) icon now resolves to
+`@drawable/ic_monochrome`, which in this fork is the traced mark drawn as a single-tint stroke —
+better at themed-icon sizes than the full-colour foreground the old XML reused.
+
+**Upstream's `api` submodule bump.** Upstream moved its pin for the Android 16 client-attach NPE,
+but that commit only swaps the reflected `readInterfaceToken` for `enforceInterface`. This fork's
+`api` already does that, and also rewinds the parcel on both the failure path and before
+`super.onTransact`, intercepts raw code 17, renumbers the AIDL id that collided with it, and undoes
+the legacy case shadowing that made `newProcess` return null for every client. Ours is a superset;
+the pin stays where it was.
+
+### Where both sides had fixed the same thing
+
+**The theme revision counter.** Upstream's replacement for `Activity.recreate()` is a `themeVersion`
+counter threaded into `AppTheme`'s `remember` key — structurally the same device as this fork's
+`AppThemeOverride.revision`, arrived at independently. Both now sit in both keys. Drop upstream's and
+their appearance settings need a navigation to appear; drop ours and the 白い熊 雫 sliders do, for
+anyone with the live theme provider installed, which is everyone.
+
+**The ADB-key reset toast.** Upstream swapped its `recreateWithoutTransition()` for the new
+recomposition bump; this fork had swapped the toast for the house-styled one. The merged row does
+both.
+
+### Unchanged and re-verified
+
+The whole no-phone-home layer was audited again after the rebase, since upstream develops these paths
+actively: `.github/` still absent, the Sentry plugin still not applied and its DSN still hardwired
+empty, `RemoteDbSyncWorker` still cancels its own work and no-ops, the VirusTotal and Pithus clients
+still hold no network code, `support_email` still blank, and automatic update polling still defaults
+off. The only `openConnection` calls anywhere in the app remain the two in `UpdateChecker`.
 
 ## 13.6.0.r2246+2026-08-12.02-46.g9f2c01e8+004
 
