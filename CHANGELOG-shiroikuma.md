@@ -2,8 +2,75 @@
 
 Fork-only notes. Upstream's own release notes live in `CHANGES.md` — never fold fork notes into it.
 
-Versions are `<upstream version>.<upstream base date>.g<sha>+<our build number>`; the `+N` resets to
-1 on each upstream sync. Builds up to `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
+Versions are `<upstream version>+<upstream base date>.<HH-MM>.g<sha>+<our build number>`; the `+N`
+resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5e+004` through
+`13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
+`13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
+
+## 13.6.0.r2246+2026-08-12.02-46.g9f2c01e8+003
+
+No upstream sync — same base commit as `+001`. Three fork changes: the version name grew a time and
+regrouped its separators, the Device Owner Tools rows stopped hanging off the wrong switch, and the
+update checker was taught to read the new version name it would otherwise have mis-parsed forever.
+
+### The version name is grouped with `+` and pinned to the minute
+
+`+` now opens each top-level group — upstream's version, the pin, our counter — while the pin's own
+date, time and sha stay dot-joined, since all three describe one commit:
+
+```
+13.6.0.r2246.2026-08-12.g9f2c01e8+001    ->    13.6.0.r2246+2026-08-12.02-46.g9f2c01e8+003
+```
+
+The pin gained `HH-MM` because two syncs landing on one day tied on the date and handed the sort
+order back to the sha, which is random text. The timestamp is now rendered in **UTC** from the raw
+epoch (`%ct`) rather than through `--date=format:`, which used the commit's own timezone and so
+disagreed with what a watcher reads back from GitHub. Neither the date nor the sha participates in
+ordering; `versionCode` is untouched at `UPSTREAM_VERSION_CODE * 10000 + BUILD_NUMBER`.
+
+### "Check for updates" would have gone permanently silent
+
+Caused by the change above, and the reason this build exists. `UpdateChecker.parseVersionCode` reads
+upstream's `rNNNN` and our `+NNN` out of the version name, and it matched the **first** `+N` group.
+With `+` now opening the pin as well, that group is the pin's year: `+2026`, clamped to the field's
+0–999 range. Every build on base `r2246` therefore parsed to the same `2246999`, so
+`versionCode > currentVersionCode` could never be true and no future release on this upstream base
+would ever have been offered — the exact failure the function was written to prevent, reintroduced by
+the format it had to parse.
+
+The counter is now read from the **last** `+N` group, which it always is. Older published tags
+(`…g14550b5e+004`, unpadded `…r2178+14`) parse exactly as before, since there it is both the first
+group and the last. `UpdateVersionOrderTest` pins the ordering contract itself rather than the regex:
+consecutive counters compare, the pin's date is never read as the counter, both version-name formats
+resolve to their real counter, and an upstream sync outranks the counter it resets. The bug is
+invisible on the build machine — it shows only as a release that never offers itself — so it needed a
+guard that fails the build.
+
+### Device Owner Tools no longer hang off Dhizuku Mode
+
+Screen Capture Lockdown, USB Data Lockdown and Suspended Applications were declared
+`android:dependency="dhizuku_mode"`, so they greyed out unless the Dhizuku switch was on. They have
+nothing to do with it. All three act through *this* app's own `DevicePolicyManager` under our admin
+component, whereas Dhizuku Mode decides only whether `DhizukuProvider` hands the raw `device_policy`
+binder to third-party Dhizuku clients. The dependency disabled three working features for anyone who
+runs no Dhizuku client, and implied the reverse of the truth — that turning Dhizuku Mode on is what
+makes them safe to use.
+
+They are now gated on what they actually require, Device Owner, re-checked on every return to the
+screen because it can arrive or vanish elsewhere: the boot-setup card, `dpm` over adb, or Remove
+Device Owner two rows above. Gated per row rather than on the category, since disabling a
+`PreferenceCategory` also makes its header unclickable and `CollapsiblePreferenceCategory` uses that
+click to expand. A row that cannot work is disabled and says why, never hidden.
+
+### The app picker described the wrong feature
+
+`AppPickerPreference` is shared — Shadow Binder's hidden-packages row and Device Owner Tools'
+Suspended Applications row both use it — but its empty state was hardcoded to Shadow Binder's string.
+Suspended Applications therefore read "Comma-separated list of package names to hide from other apps.
+If you have both OG Shizuku and 白い熊 雫 installed…", describing a different feature entirely, and
+its own declared `android:summary` was dead text that never appeared. Each row now shows its own
+summary when nothing is selected. Shadow Binder renders identically — it declares that same string
+as its `android:summary` anyway.
 
 ## 13.6.0.r2246.2026-08-12.g9f2c01e8+001
 
