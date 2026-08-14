@@ -15,6 +15,34 @@ README + changelog, and the default branch on `custom` so the landing page shows
 
 > **No `Co-Authored-By: Claude` / "Generated with Claude" trailer** in commits or release notes.
 
+## ⛔ The changelog is written BEFORE the build it describes
+
+The in-app "What's New" dialog reads `assets/changelog.md`, which `generateBundledChangelog`
+(`manager/build.gradle`) bakes **at build time**. It compares the changelog's newest `## <version>`
+heading against the version being built: equal → the file ships as written and the dialog shows the
+real prose; different → it splices in a section generated from git commit subjects, headed
+_"Not published yet — this summary is generated from git at build time."_
+
+So writing the changelog *after* building — the obvious order, and the one every release through
+`…+003` used — guarantees the shipped APK carries the generated summary. Publishing does not fix it:
+the release notes on GitHub are right while the dialog inside the APK is a list of commit subjects,
+and nothing can change that APK afterwards.
+
+**Therefore: write the section for the version that is about to be built, then build, then test,
+then publish that exact APK.** The version name is fully known before the build — it is what
+`./gradlew` echoes at configuration time (`shiroikuma-shizuku <versionName> (versionCode …)`), i.e.
+`UPSTREAM_VERSION_NAME` + the git pin + the *current* `BUILD_NUMBER`.
+
+**Verify it, every time.** `buildApk` logs which branch it took:
+
+```
+>>> changelog asset: history only                  <- correct: the written prose ships
+>>> changelog asset: generated section + history   <- WRONG: no section for this version
+```
+
+If the log says `generated section + history`, the prose is missing or its heading does not match
+the version being built. Fix the heading and rebuild — do not publish that APK.
+
 ## What gets published
 
 The **latest APK in `~/tmp/`** — the build 白い熊 just tested on-device. Derive the version from the
@@ -43,6 +71,32 @@ If `$APK` is empty, stop and tell 白い熊 there is no built APK to publish (ru
 2. **On `custom`** (`git rev-parse --abbrev-ref HEAD` = `custom`) and pushed.
 3. **The tag doesn't already exist** (`git tag -l "$TAG"` empty and `gh release view "$TAG"` 404s).
    If it exists, confirm with 白い熊 before re-cutting.
+4. **The APK bundles the written prose**, per the section above. Check the changelog's newest
+   heading against the version being published:
+   ```bash
+   grep -m1 '^## ' CHANGELOG-shiroikuma.md      # must read "## $VERSION"
+   ```
+   If it doesn't match, the tested APK carries the generated summary — go to phase A below rather
+   than publishing it.
+
+## Two phases, with 白い熊's testing between them
+
+Because the prose has to be baked in at build time, a publish that starts from an APK with no
+written section is **two** passes, not one:
+
+- **Phase A — write and rebuild.** Write the README + changelog section for the version that
+  `BUILD_NUMBER` is about to produce (steps 2–3), then `build-apk`, which delivers via
+  `/after-build`. Confirm `>>> changelog asset: history only`. **Stop there** and hand the build to
+  白い熊 — the standing rule is that nothing is published untested. Do not commit the docs yet; they
+  ride along with the release commit in phase B.
+- **Phase B — publish.** On 白い熊's go-ahead, run steps 1 and 4–6 against that tested APK.
+
+When the tested APK already has its section (phase A ran earlier, or the changelog was written
+before the build as a matter of course), publish straight through — no rebuild.
+
+The rebuild in phase A changes exactly one file in the APK, `assets/changelog.md`. Say so when
+handing it over, so the retest is a spot-check of the What's New dialog rather than another pass
+over the whole app.
 
 ## Steps
 
@@ -54,17 +108,24 @@ If `$APK` is empty, stop and tell 白い熊 there is no built APK to publish (ru
      --description "白い熊 雫 — a fork of ShizukuPlus: run privileged (adb/root) APIs for other apps, de-branded, black-yellow, side-by-side installable. Apache-2.0."
    ```
 
-2. **Update the README badge** — point the "Latest release" line at the new version.
+2. **Update the README badge** — point the "Latest release" line at the new version. *(Phase A: write
+   it now, commit it in phase B.)*
 
-3. **Update `CHANGELOG-shiroikuma.md`.** Upstream owns `CHANGES.md`; **our** fork changelog is
-   `CHANGELOG-shiroikuma.md` — never fold fork notes into an upstream file. Keep it **specific**:
-   rename the `## <old> — current` heading to the released version and add a fresh
-   `## <new> — current` section above it, summarising what changed **since the last tag**:
+3. **Update `CHANGELOG-shiroikuma.md`** — **phase A, before the build.** Upstream owns `CHANGES.md`;
+   **our** fork changelog is `CHANGELOG-shiroikuma.md` — never fold fork notes into an upstream file.
+   Add a `## <new version>` section at the top, above every existing one, summarising what changed
+   **since the last tag**:
    ```bash
    git log --oneline <previous-tag>..HEAD
    ```
    Group by area (service & starter / bridges / manager UI / look / fixes), one specific bullet
    each — not raw commit subjects.
+
+   **The heading is a bare `## <version>` on its own line** — no ` — current` suffix, no trailing
+   text. `generateBundledChangelog` matches `^##[ \t]+(\S+)[ \t]*$` and takes the **first** such
+   heading as "the newest documented release", so a heading with anything after the version does not
+   match the build and the generated summary ships instead. The extraction in step 5 relies on the
+   same shape.
 
 4. **Commit the docs** on `custom` and push:
    ```bash
@@ -83,7 +144,13 @@ If `$APK` is empty, stop and tell 白い熊 there is no built APK to publish (ru
    git tag -a "$TAG" -m "白い熊 雫 $VERSION"
    git push origin "$TAG"
    NOTES="$HOME/tmp/shizuku_release_notes.md"
-   sed -n "/^## ${VERSION} —/,/^## [0-9]/p" CHANGELOG-shiroikuma.md | sed '/^## [0-9]/d' | tail -n +2 > "$NOTES"
+   # Everything under this version's heading, stopping at the next one. `index(...)==1` is a literal
+   # prefix match, so the `+` and `.` in the version are never read as regex metacharacters — and it
+   # matches the bare heading step 3 mandates. (The old `/^## ${VERSION} —/` pattern silently
+   # produced EMPTY notes: no heading in this file has ever carried that em dash.)
+   awk -v v="## $VERSION" 'index($0,v)==1{f=1;next} f && /^## [0-9]/{exit} f{print}' \
+     CHANGELOG-shiroikuma.md > "$NOTES"
+   [ -s "$NOTES" ] || { echo "empty release notes for $VERSION — check the heading"; exit 1; }
    gh release create "$TAG" "$APK" -R "$REPO" \
      --target custom \
      --title "白い熊 雫 $VERSION" \
@@ -103,8 +170,10 @@ If `$APK` is empty, stop and tell 白い熊 there is no built APK to publish (ru
 - `git push`, `gh` and `scp` need `~/.ssh` / `~/.config/gh`, which the command sandbox blocks — run
   the push / `gh` / tag steps with `dangerouslyDisableSandbox: true`, same as the other fork skills.
   Writes anywhere under `~/git` need it too.
-- This skill **does not build** — it ships whatever is newest in `~/tmp/`. For a fresh build, that's
-  the `build-apk` skill's job.
+- **Phase B does not build** — it ships the tested APK in `~/tmp/`. Phase A builds exactly once, via
+  `build-apk`, and only to bake the written changelog into `assets/changelog.md`; when the tested APK
+  already carries its section there is no phase A at all. Never rebuild between 白い熊's test and the
+  release — the tag must point at the code they tested.
 - `master` stays tracking upstream; releases are always cut from `custom`. After an
   `upstream-new-version` rebase, the first release on the new base is `+1`.
 - Upstream's own `.github/workflows/` release pipeline is **not** used — it signs with a repo secret
