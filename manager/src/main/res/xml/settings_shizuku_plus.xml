@@ -149,10 +149,16 @@
             android:icon="@drawable/ic_delete_24"
             android:visible="false" />
 
+        <!-- No android:dependency="dhizuku_mode" here. These three act through *this* app's own
+             DevicePolicyManager as Device Owner; Dhizuku Mode only decides whether DhizukuProvider
+             hands the device_policy binder to third-party Dhizuku clients, which has nothing to do
+             with them. Gating them on it greyed out working features for anyone who runs no Dhizuku
+             client at all. What they genuinely require is Device Owner — enforced in code by
+             ShizukuPlusSettingsFragment.updateDeviceOwnerToolsAvailability(), per row, so an
+             unusable row is disabled and says why rather than silently vanishing. -->
         <af.shizuku.manager.settings.CollapsiblePreferenceCategory
             android:key="category_dhizuku_admin"
             android:title="Device Owner Tools"
-            android:dependency="dhizuku_mode"
             android:defaultValue="true">
 
             <af.shizuku.manager.settings.GrayableIconSwitchPreference
