@@ -1046,6 +1046,10 @@
     <string name="dhizuku_status_active">Device Owner: Active</string>
     <string name="dhizuku_status_not_set">Device Owner not set — tap for setup instructions</string>
 
+    <!-- Shown on the Device Owner Tools rows when the app is not Device Owner. They used to hang off
+         the Dhizuku Mode switch, which was never what they needed. -->
+    <string name="settings_device_owner_tools_blocked">Needs Device Owner — set it up from the home screen or with adb.</string>
+
     <!-- Clear Device Owner (Issue #237) -->
     <string name="settings_clear_device_owner">Remove Device Owner</string>
     <string name="settings_clear_device_owner_summary">Release 白い熊 雫 from Device Owner status. Required before uninstalling or downgrading.</string>

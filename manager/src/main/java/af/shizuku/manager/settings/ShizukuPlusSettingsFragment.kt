@@ -49,6 +49,24 @@ import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
 
+    /** The Device Owner Tools rows — see [updateDeviceOwnerToolsAvailability]. */
+    private val deviceOwnerToolKeys = listOf(
+        "dhizuku_disable_screencap",
+        "dhizuku_disallow_usb",
+        "dhizuku_suspended_packages",
+    )
+
+    /**
+     * The subset whose summary we may rewrite: the two switches, whose summary is the static XML
+     * string and nothing else. `dhizuku_suspended_packages` is an [AppPickerPreference], which owns
+     * its summary and rewrites it with the chosen packages — stashing a "base" for it would capture
+     * whichever list happened to be showing and then reinstate that stale text on every later pass.
+     */
+    private val deviceOwnerToolNoticeKeys = deviceOwnerToolKeys - "dhizuku_suspended_packages"
+
+    /** Their XML summaries, kept so the blocked notice can be un-prepended rather than stacked. */
+    private val deviceOwnerToolSummaries = mutableMapOf<String, CharSequence>()
+
     override fun getTitle(): CharSequence? = "Feature Hub"
 
     override fun onResume() {
@@ -57,6 +75,9 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         // adb), and the delegated scopes are read back from the platform rather than remembered —
         // so the section is rebuilt on every return rather than only when it is first created.
         if (isAdded) DevicePolicyPowersSection.refresh(this)
+        // Same reason, and the same screen can revoke it: Remove Device Owner sits two rows above
+        // the tools it disables.
+        if (isAdded) updateDeviceOwnerToolsAvailability()
     }
 
     // e.message is often null for keystore/cipher exceptions (#315's "Backup failed: null"), and
@@ -494,6 +515,8 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         // Initialize all preference dependencies
         updateAllPlusFeatureDependencies()
 
+        updateDeviceOwnerToolsAvailability()
+
         // Check for integrated apps and update summaries
         checkAppIntegrations()
 
@@ -521,6 +544,38 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 pref.summary = "$note\n\n${pref.summary}"
             }
         }
+    }
+
+    /**
+     * Device Owner Tools are gated on Device Owner — not on Dhizuku Mode.
+     *
+     * All three drive *this* app's own `DevicePolicyManager` under our admin component. Dhizuku Mode
+     * governs something else entirely: whether [af.shizuku.manager.DhizukuProvider] hands the raw
+     * `device_policy` binder to third-party Dhizuku clients. They were declared
+     * `android:dependency="dhizuku_mode"` upstream, which greyed out three working features for
+     * anyone who runs no Dhizuku client — and, worse, implied the reverse of the truth: that turning
+     * Dhizuku Mode on is what makes them safe to use.
+     *
+     * Per row rather than on the category, so the group can still be collapsed and each disabled row
+     * carries its own reason. A row that cannot work is disabled, never hidden.
+     */
+    private fun updateDeviceOwnerToolsAvailability() {
+        val ctx = context ?: return
+        // Re-read on every pass: Device Owner can arrive or vanish from outside this screen (the
+        // boot-setup card, `dpm` over adb, Remove Device Owner two rows up), and without it the DPM
+        // calls in the handlers throw SecurityException — which they can only answer with a toast,
+        // after the user has already flipped the switch.
+        val active = isDeviceOwnerActive(ctx)
+        val blocked = getString(R.string.settings_device_owner_tools_blocked)
+        deviceOwnerToolKeys
+            .mapNotNull { key -> findPreference<Preference>(key)?.let { key to it } }
+            .forEach { (key, pref) ->
+                pref.isEnabled = active
+                if (key !in deviceOwnerToolNoticeKeys) return@forEach
+                // Stash the XML summary on first sight, so repeated passes never stack the notice.
+                val base = deviceOwnerToolSummaries.getOrPut(key) { pref.summary ?: "" }
+                pref.summary = if (active) base else "$blocked\n\n$base"
+            }
     }
 
     private fun isDeviceOwnerActive(ctx: Context): Boolean {
