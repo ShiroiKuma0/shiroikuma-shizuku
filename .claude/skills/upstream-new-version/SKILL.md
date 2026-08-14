@@ -277,9 +277,40 @@ Conflict-prone files, and the shape each must end up in:
 - **`manager/src/main/res/values/strings.xml`** (and the `values-*` translations) — the de-branded
   strings. Upstream edits this file constantly, so expect conflicts here every sync. Anything
   user-visible saying "Shizuku+" / "ShizukuPlus" / "thejaustin" becomes ours.
-- **Icon assets** — `manager/src/main/res/mipmap-*/ic_launcher*.png` and
-  `mipmap-anydpi-v26/ic_launcher*.xml` must stay our black-yellow traced mark. A binary conflict here
-  means upstream redrew theirs — keep **ours**.
+- **⛔ Icon assets — check them EVERY sync even when nothing conflicted.**
+  `manager/src/main/res/mipmap-*/ic_launcher*.png`, `mipmap-anydpi-v26/ic_launcher*.xml` and
+  `drawable/ic_monochrome.xml` must end up our black-yellow traced mark. A binary conflict is the
+  *easy* case — it means upstream redrew theirs, and you keep **ours**.
+
+  **The dangerous case produces no conflict at all.** Upstream renames or re-points instead of
+  redrawing, and because git follows renames the rebase carries our art to the new name without a
+  murmur — where upstream's XML then treats it as an input to *their* composition. That is exactly
+  what `7c14a77d` / `d55b5695` did at `r2267`: the four foreground PNGs were renamed to
+  `ic_launcher_foreground_base.png` and a new `drawable/ic_launcher_foreground.xml` layer-list drew a
+  Material-You "Plus" badge over them. Our mark landed at the `_base` name, both adaptive-icon XMLs
+  pointed at the layer-list, and the build **succeeded** — it would have shipped 白い熊's icon with
+  upstream's plus sign stuck on the corner, with nothing anywhere flagging it.
+
+  So after every rebase, regardless of conflicts:
+
+  ```bash
+  ls manager/src/main/res/mipmap-*/          # any *_base / *_alt / renamed variant is a red flag
+  cat manager/src/main/res/mipmap-anydpi-v26/ic_launcher.xml \
+      manager/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+  git diff --stat -M "$old"..upstream/master -- 'manager/src/main/res/mipmap*' \
+      'manager/src/main/res/drawable/ic_launcher*' 'manager/src/main/res/drawable/ic_monochrome.xml'
+  ```
+
+  `<foreground>` must resolve to **our own art with nothing composited over it** — a bare
+  `@mipmap/ic_launcher_foreground`, not a layer-list. If upstream introduced one, rename our PNGs
+  back to the plain name, **delete** the layer-list drawable, and re-point both adaptive-icon XMLs.
+  Deleting it is not optional: leave it while our PNGs use the plain name and aapt fails on the
+  dangling `_base` reference.
+
+  **Read the `<monochrome>` line separately — it is not always ours to reject.** At `r2267` the same
+  commit re-pointed it from the foreground PNG to `@drawable/ic_monochrome`, which in this fork *is*
+  our traced mark drawn as a single-tint stroke. That half was kept, and is better than what we had.
+  Judge each line by what it resolves to here, not by who wrote it.
 
 ## Step 5 — refresh the version pins and reset the build tail
 
@@ -295,7 +326,7 @@ In `gradle.properties`:
 | Installed app id | `shiroikuma.shizuku` | `gradle.properties` → `APP_ID`, used by `manager/build.gradle` |
 | Code namespace | `af.shizuku.manager` (**never rename**) | `manager/build.gradle` → `android.namespace` |
 | App label | `白い熊 雫` | `app_name` resValue in the `shizukuplus` flavor |
-| Launcher icon | black-yellow traced mark | `manager/src/main/res/mipmap-*` |
+| Launcher icon | black-yellow traced mark, `<foreground>` bare (no layer-list over it) — check even with zero conflicts, see Step 4 | `manager/src/main/res/mipmap-*`, `mipmap-anydpi-v26/ic_launcher*.xml` |
 | Fork version logic | pinned upstream props, `* 10000 +` | `build.gradle` |
 | Sentry | `SENTRY_DSN=` (empty) | `gradle.properties` |
 | Single ABI | `abiFilters "arm64-v8a"` | `manager/build.gradle` |
