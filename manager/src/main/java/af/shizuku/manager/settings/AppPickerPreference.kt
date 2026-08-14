@@ -29,6 +29,19 @@ class AppPickerPreference(context: Context, attrs: AttributeSet?) : Preference(c
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
+    /**
+     * The row's own `android:summary`, read before [updateSummary] can overwrite it, and shown again
+     * whenever the selection is empty.
+     *
+     * This widget is generic — Shadow Binder's hidden-packages row and Device Owner Tools' Suspended
+     * Applications row both use it — but the empty state used to be hardcoded to
+     * `settings_shadow_binder_hidden_packages_summary`. On the suspended-apps row that read
+     * "Comma-separated list of package names to hide from other apps…", describing a different
+     * feature entirely and making the row's declared summary dead text. Shadow Binder is unaffected:
+     * it declares that same string as its `android:summary` anyway.
+     */
+    private val emptySummary: CharSequence = summary ?: ""
+
     companion object {
         private var cachedApps: List<AppItem>? = null
         private val cacheMutex = Mutex()
@@ -248,7 +261,7 @@ class AppPickerPreference(context: Context, attrs: AttributeSet?) : Preference(c
     private fun updateSummary(value: String) {
         val packages = value.split(",").filter { it.isNotBlank() }
         summary = if (packages.isEmpty()) {
-            context.getString(R.string.settings_shadow_binder_hidden_packages_summary)
+            emptySummary
         } else {
             val scope = CoroutineScope(Dispatchers.Main)
             scope.launch {
@@ -267,7 +280,9 @@ class AppPickerPreference(context: Context, attrs: AttributeSet?) : Preference(c
                     displayNames
                 }
             }
-            // Temporary summary while loading names
+            // Temporary summary while loading names. The plural keeps upstream's shadow-binder name,
+            // but its wording ("%d apps selected") is feature-neutral and reads correctly on every
+            // picker — renaming it would touch two modules' strings for no visible change.
             context.resources.getQuantityString(R.plurals.settings_shadow_binder_hidden_packages_count, packages.size, packages.size)
         }
     }
