@@ -275,7 +275,7 @@ object UpdateChecker {
     /**
      * Orders two fork versions: upstream's own commit count, then **our** build counter.
      *
-     * `13.6.0.r2195.2026-07-30.gac2ae085+008` → `2195 * 1000 + 8` = `2195008`.
+     * `13.6.0.r2246+2026-08-12.02-46.g9f2c01e8+002` → `2246 * 1000 + 2` = `2246002`.
      *
      * Both halves are needed. Upstream's `rNNNN` alone made every build on one upstream base
      * compare equal, so a newer fork release of the same upstream version could never be offered.
@@ -286,10 +286,18 @@ object UpdateChecker {
      * The upstream-base date and `.g<sha>` deliberately do not participate: they identify *which*
      * upstream code is in the build, not whether it is newer, and the counter already answers that.
      * Tolerates the older unpadded `+5` form, which still appears in published tags.
+     *
+     * ⛔ **The counter is the LAST `+N` group, never the first.** Since 2026-08-12 the version name
+     * uses `+` to open each top-level group, so the first one introduces the pin's date:
+     * `…r2246+2026-08-12…` matched `+2026`, which clamped to 999 and made every build on one
+     * upstream base compare equal again — the precise failure the paragraph above describes.
+     * Matching from the end also keeps the older `…g<sha>+008` names parsing exactly as before,
+     * since there the counter is both the first and the last group.
      */
     fun parseVersionCode(versionName: String): Int = try {
         val upstream = """\.\br(\d+)\b""".toRegex().find(versionName)?.groupValues?.get(1)?.toIntOrNull() ?: 0
-        val build = """\+(\d+)""".toRegex().find(versionName)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val build = """\+(\d+)""".toRegex().findAll(versionName).lastOrNull()
+            ?.groupValues?.get(1)?.toIntOrNull() ?: 0
         upstream * 1000 + build.coerceIn(0, 999)
     } catch (e: Exception) {
         0
