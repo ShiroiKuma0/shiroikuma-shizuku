@@ -7,11 +7,16 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
-## 13.6.0.r2246+2026-08-12.02-46.g9f2c01e8+003
+## 13.6.0.r2246+2026-08-12.02-46.g9f2c01e8+004
 
-No upstream sync — same base commit as `+001`. Three fork changes: the version name grew a time and
-regrouped its separators, the Device Owner Tools rows stopped hanging off the wrong switch, and the
-update checker was taught to read the new version name it would otherwise have mis-parsed forever.
+No upstream sync — same base commit as `+001`, and the same code as `+003`. This build exists so the
+in-app "What's New" dialog carries the prose below instead of the commit summary the build generates
+when no section has been written yet; `+003` was built before this section existed, which is the one
+thing a release cannot fix after the fact. The changes described here shipped in `+003`.
+
+Three fork changes: the version name grew a time and regrouped its separators, the Device Owner
+Tools rows stopped hanging off the wrong switch, and the update checker was taught to read the new
+version name it would otherwise have mis-parsed forever.
 
 ### The version name is grouped with `+` and pinned to the minute
 
@@ -71,6 +76,12 @@ If you have both OG Shizuku and 白い熊 雫 installed…", describing a differ
 its own declared `android:summary` was dead text that never appeared. Each row now shows its own
 summary when nothing is selected. Shadow Binder renders identically — it declares that same string
 as its `android:summary` anyway.
+
+## 13.6.0.r2246+2026-08-12.02-46.g9f2c01e8+003
+
+Superseded by `+004`, which is the same code. The prose for both is under `+004` above; this build
+was cut before it was written, so its own bundled changelog carries the generated commit summary
+rather than that text. The GitHub release notes for `+003` hold the full text unchanged.
 
 ## 13.6.0.r2246.2026-08-12.g9f2c01e8+001
 
