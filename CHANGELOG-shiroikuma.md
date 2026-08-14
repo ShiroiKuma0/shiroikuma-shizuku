@@ -8,6 +8,55 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2269+2026-08-14.09-08.g234f1250+001
+
+A two-commit upstream sync, landed by upstream less than an hour after the base of the previous
+build. No fork feature work. Both commits touched files this fork owns outright, so neither could
+simply be taken: one was merged into our own version of the same function, the other refused for the
+second build running.
+
+### What arrived
+
+**One UI corner radii now reach the Compose screens.** The XML half of the app has been applying
+upstream's `ShapeAppearance.OneUI.Corner.*` tokens (6/12/18/26/36 dp) through `ThemeOverlay.OneUI`
+for some time, but Compose's `MaterialTheme.shapes` never picked them up — so with the One UI theme
+switched on, cards, app bars and dialogs on the Compose screens kept stock Material 3 radii while
+everything drawn in XML rounded off. `AppTheme` now takes an `isOneUi` flag and swaps in matching
+Compose `Shapes`, wired from the home and settings activities. Every other Shape Style — Modern,
+Classic, Squircle — is untouched.
+
+That commit rewrote the exact function this fork had replaced to host `AppThemeOverride`, the live
+hook that lets a 白い熊 雫 slider recolour every Compose screen without an Activity recreate.
+Upstream's version passes `shapes` to a single `MaterialTheme` call; ours branches, because an
+imported custom font needs a second call carrying a `typography` argument. The merge threads `shapes`
+through **both** branches. Taking upstream's shape verbatim would have silently dropped the new
+corner radii for exactly the users who have a font set.
+
+### What was refused, again
+
+**The Plus badge, this time in the themed icon.** Upstream rebuilt `ic_monochrome.xml`, and as a
+change to their own art it is a genuine improvement: the old single `evenOdd` path merged a hexagon, a
+cat and the badge into one shape that turned to mush once Android flattened it to a single tint, and
+the rebuild splits them into three legible pieces. But the third piece is the "Plus" badge in the far
+top-right, and this fork's themed icon is the traced mark drawn as a single-tint stroke with the
+hexagon deliberately dropped. Ours is kept whole; theirs is discarded.
+
+This is the same badge the previous build refused in the *colour* icon, arriving by a different route.
+The whole icon layer was re-checked afterwards rather than assumed: all five densities still carry the
+plain `ic_launcher_foreground.png` name with no `_base` variant, the layer-list drawable that
+composited the badge is still absent, and both adaptive-icon XMLs still resolve `<foreground>` to a
+bare mipmap and `<monochrome>` to our own mark.
+
+### Unchanged and re-verified
+
+The no-phone-home audit was run again after the rebase: `.github/` absent, the Sentry Gradle plugin
+unapplied and its DSN hardwired empty, `RemoteDbSyncWorker` cancelling its own work and no-opping,
+the VirusTotal and Pithus clients holding no network code, `support_email` blank, automatic update
+polling still defaulting off, and the only `openConnection` calls in the entire app still the two in
+`UpdateChecker`. The two wire-protocol strings, the custom permission names and the `api` submodule
+pin are all where they were. The component-name contract test passes, and the APK carries the same
+signing certificate as every previous release, so it updates in place.
+
 ## 13.6.0.r2267+2026-08-14.08-14.gd55b5695+002
 
 An upstream sync and nothing else: 21 commits from `13.6.0.r2246` to `13.6.0.r2267`, landed by
