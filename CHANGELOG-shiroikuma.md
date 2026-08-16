@@ -8,6 +8,89 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2275+2026-08-16.05-56.g56dc0d74+001
+
+A six-commit upstream sync, all of it fixes — no new features, no new screens, and nothing touching
+how the privileged server is started or kept alive. No fork feature work. Five of the six were driven
+by upstream's own Sentry telemetry, which is inert in this build; the bugs behind them are not.
+
+### What arrived
+
+**Two privilege-escalation holes closed in the privileged server.** The larger one: `newProcess()`
+executed caller-supplied commands for real — SU-bridge mock injection, `build.prop` redirection
+`mkdir`/`cp`, `iptables`/`ip6tables`, `pm list` interception — *before* any permission check, because
+`enforceCallingPermission("newProcess")` only ran later inside `newProcessInternal()`. It gated the
+return value, not the side effects, so any process merely holding a live `IShizukuService` binder
+could trigger real root command execution. The smaller one: four `onTransact()` branches validated
+only the AIDL descriptor token via `data.enforceInterface(…)`, which says nothing about who is
+calling. `getApplications` leaked the full installed-package list with its permission flags, and
+`getDhizukuBinder` handed back the live `DevicePolicyManager` system binder to anyone who asked. That
+second one matters more here than upstream: this app holds Device Owner on the razr, so the binder it
+was giving away is the one carrying those powers.
+
+**An unbounded allocation on the ADB path.** `FakeAdbClientHandler.readMessage()` sized a
+`ByteArray` straight from an unvalidated wire header, before the CRC and magic checks — a corrupt or
+hostile peer could claim any length and take the process out with it, and an 825 MB single allocation
+was observed in the wild. Now capped at 16 MB with the connection dropped cleanly.
+
+**A busy-loop that never slept.** `AutomationService.startForegroundAppMonitor()` used `?: continue`,
+which skipped the `delay(2000)` that followed it, so a null `UsageStatsManager` spun the loop flat
+out on `Dispatchers.IO` forever. A battery bug wearing a style bug's clothes.
+
+**Three smaller ones.** `WatchdogService.startForegroundSafely()` now reports failure and both call
+sites `stopSelf()` instead of leaving a zombie service behind; `RootCompatHelper` stopped discarding
+the privileged process's exit code and stderr on a bridge write failure, which had made a `noexec`
+mount, an `EACCES` and Shizuku dying mid-write indistinguishable; and `Shizuku.newProcess()`'s
+nullable-in-practice return is checked in the Service Doctor's phantom-process fix rather than NPEing
+on `waitFor()`.
+
+**The settings search bar speaks the device's language now.** Its back/search/clear content
+descriptions, its hint and its empty state were raw English literals, so every other locale saw
+English and TalkBack announced English. They are string resources now, the Compose activity log
+reuses the resource its Fragment twin already had, and each log row is a merged semantics node — one
+swipe stop per row instead of four.
+
+### What had to be re-applied by hand
+
+**The update manager's fork strings.** Upstream wrapped the whole of `downloadUpdate()` in
+`scope.launch(Dispatchers.IO)` — correct, since the file-exists check, the delete and `cleanup()` are
+all blocking disk I/O that ran on whatever thread clicked the button. But the rewrite re-introduced
+`Shizuku+-v$versionName.apk` and the `Shizuku+/…` User-Agent inside the new wrapper, so this was not a
+conflict that could be resolved by taking either side: upstream's structure was kept and both strings
+re-de-branded inside it. Taking theirs would have quietly put upstream's name back on every
+downloaded APK.
+
+**The server's de-branded comments** sat on the exact lines upstream inserted its new permission
+checks into, and the string table conflicted twice — once where our de-branded automation-plugin
+strings meet upstream's five new search strings, once where our home-status and boot-setup blocks
+meet the same tail. All three kept both sides.
+
+### One thing upstream left mismatched
+
+The new server-side checks throw `SecurityException` for an unauthorized caller, but the client-side
+call sites in the `api` submodule — `Shizuku.isCustomApiEnabled()` and `Shizuku.Dhizuku.getBinder()` —
+catch only `RemoteException`. A `SecurityException` is a `RuntimeException` and will not be caught, so
+an unauthorized client that used to receive `false` or `null` now takes an uncaught exception instead.
+Both halves shipped in the same batch, which is how the pairing went unnoticed. Nothing in this fork
+reaches it — the policy contract goes through a `ContentProvider.call`, and the manager's own two
+callers pass unconditionally as the manager app — so it is recorded here rather than patched, since
+the fix belongs in the `api` submodule and would change the client library for everyone.
+
+### Unchanged and re-verified
+
+The no-phone-home audit was run again after the rebase and holds in full: `.github/` absent, the
+Sentry Gradle plugin unapplied and its DSN hardwired empty, `initializeSentryEarly()` still returning
+before `SentryAndroid.init()`, `RemoteDbSyncWorker` cancelling its own work and no-opping, the
+VirusTotal and Pithus clients holding no network code, `support_email` blank, automatic update
+polling still defaulting off, and the only `openConnection` calls in the app still the two in
+`UpdateChecker` — both pointed at this fork's releases. The icon layer was re-checked rather than
+assumed even though upstream touched no icon file this round: all five densities carry the plain
+`ic_launcher_foreground.png` with no `_base` variant, the badge layer-list is still absent, and both
+adaptive-icon XMLs resolve `<foreground>` to a bare mipmap and `<monochrome>` to our own mark. The two
+wire-protocol strings, the custom permission names and the `api` submodule pin are where they were.
+The component-name contract test passes, and the APK carries the same signing certificate as every
+previous release, so it updates in place.
+
 ## 13.6.0.r2269+2026-08-14.09-08.g234f1250+001
 
 A two-commit upstream sync, landed by upstream less than an hour after the base of the previous
