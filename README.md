@@ -16,7 +16,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 authorized sister apps, and the house look driven through every screen. Installs as
 `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2275+2026-08-16.05-56.g56dc0d74+002`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2279+2026-08-16.13-12.g690b3632+002`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -178,25 +178,54 @@ previously read none.
 
 ---
 
-## ⌨️ `rish` asks once, not on every command
+## ⌨️ `rish` asks once, not on every command — and proves who is asking
 
-Shell clients — `rish`, `adb`, Termux — can never present an encrypted auth token, because that key
-is bound by AndroidKeyStore to the manager app's own UID. Upstream's consent dialog therefore had
-nothing to remember an answer by and re-asked on **every single request**, putting a full-screen
-prompt in front of each `rish -c '…'`.
+Upstream's consent dialog has nothing to remember an answer by, so it re-asks on **every single
+request**, putting a full-screen prompt in front of each `rish -c '…'`. The obvious fix — store one
+"shell clients are allowed" flag — is the wrong one, and this fork shipped it before removing it:
+once set, *any* installed app that could send a broadcast got the full-privilege binder, identifying
+itself as nothing at all.
 
-Here the answer is stored, and asked for in two stages. A client that names itself is remembered
-**per app** — allow Termux once and Termux never asks again, while an unrelated app still gets its
-own prompt. A client that cannot be identified at all falls back to a single global answer: allow
-once and shell clients stop asking. Both are revocable — the per-app grant in the authorization
-list, the global one in one tap at **Settings → Advanced → ADB Tools**.
+The answer here is to establish **who is actually asking**, in three tiers, cheapest first:
 
-The prompt itself is honest about the trade. While the global grant stands, any shell client that
-can reach the manager gets the binder without asking, and the requester genuinely cannot be
-identified — that exposure comes with the shell path itself. What changed is that you decide it
-once, deliberately, instead of tapping past it forever. The consent notification now also carries
-**Allow / Deny** buttons and names the requesting app where it can, and every grant and refusal is
-written to the Activity Log, so the decisions are auditable after the fact.
+1. **The auth token.** Upstream's own mechanism, compared constant-time, no round trip. The setup
+   card below bakes it into your `rish` script, so a normal setup never gets past this tier.
+2. **An identity challenge**, and then the grant you already gave that client.
+3. **Upstream's consent prompt**, unchanged, for anything the first two could not settle.
+
+The challenge is what makes a remembered answer safe to keep. `Binder.getCallingUid()` tells you
+nothing inside a broadcast receiver — which is why a fast path that trusted the *sender's own claim*
+about its package and uid was forgeable, and why upstream removed it. But `rish`'s callback binder is
+a real binder in `rish`'s own process, so rather than asking the caller who it is, the manager hands
+it a fresh binder and a single-use nonce and requires it to call back. On that inbound transaction
+the uid comes from the kernel.
+
+A hostile app can answer the challenge perfectly well — and the uid the kernel reports is then its
+own. It can only ever satisfy the check with a grant it already holds; it cannot borrow Termux's.
+Every failure falls through to tier 3, so the worst case is upstream's behaviour and never weaker.
+
+Grants stay revocable in the authorization list, and every grant and refusal is written to the
+Activity Log, so the decisions are auditable after the fact.
+
+---
+
+## 📋 One pasted command sets `rish` up
+
+A fixed card under the server status copies a single command. Paste it into your terminal and that
+is the whole setup — no file shuffling, no classpath to work out.
+
+The card turns green **only on evidence**: a token-authenticated request actually arriving. It is not
+guessing, and it cannot guess — a terminal app's own directory is unreadable without root, so there
+is no file it could check. The token it saw is fingerprinted too, so regenerating your auth token
+turns the card red again instead of leaving a stale pass over a script that can no longer
+authenticate.
+
+The command is shaped by three failures that are all invisible when you hit them: pointing the
+classpath at the installed APK kills the process **silently with exit 0** (the loader ships only as a
+bundled dex asset, never in the APK's own `classes.dex`); a hand-copied dex goes stale on the next app
+update, whose only symptom is "it still prompts"; and writing to `$PREFIX/bin/rish` quietly loses to
+any older `rish` earlier on your `PATH`. So the script re-extracts itself whenever the install path
+changes, targets `command -v rish`, and **prints the path it wrote**.
 
 ---
 

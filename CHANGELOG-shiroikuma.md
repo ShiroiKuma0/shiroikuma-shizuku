@@ -8,6 +8,95 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2279+2026-08-16.13-12.g690b3632+002
+
+Shell access rebuilt from the ground up, and four upstream fixes — two of them security. This is the
+first published build on the `r2277`/`r2279` line; everything below arrived since `r2275+002`.
+
+**If you are running an earlier release, this one is worth taking.** Every build published before it
+carries the spoofable authorization fast path described below.
+
+### The prompt-free `rish` path no longer rests on a blanket grant
+
+The fork used to silence the per-command consent prompt with a single stored flag,
+`KEY_SHELL_CONSENT_GRANTED`. Upstream then closed a hole in `REQUEST_BINDER` — the public,
+unauthenticated part of the client API — where the receiver trusted the intent's own
+`callingPackage` / `callingUid` extras. Any installed app could name an already-authorized package,
+supply its own callback binder, and be handed the live full-privilege binder without a single tap.
+
+Taking that fix exposed the fork's flag as **wider than the hole upstream had just closed**: once
+set, any app that could broadcast got the binder, with no identification at all — not even a spoofed
+package name was needed. The flag, its accessors, its ADB Tools switch and its strings are all gone.
+A control that no longer gates anything is worse than a missing feature.
+
+What replaces it is a three-tier receiver of our own, `VerifiedBinderRequestReceiver`, tried cheapest
+first:
+
+1. **The auth token** — upstream's own mechanism, compared constant-time, no round trip. The setup
+   card bakes it into the `rish` script, so a normal setup never gets past this tier.
+2. **An identity challenge**, then the stored per-uid grant.
+3. **Upstream's consent flow**, reached by re-broadcasting the public action so the notification path
+   is reused rather than copied.
+
+The challenge is the interesting half. `Binder.getCallingUid()` is meaningless inside `onReceive()`
+for a plain broadcast, which is exactly why the old fast path was forgeable. But `rish`'s callback
+binder is a real `Binder` living in `rish`'s own process — so instead of *asking* the caller who it
+is, the manager hands it a fresh binder plus a single-use nonce and requires it to call back. On that
+**inbound** transaction the uid is supplied by the kernel, not by the sender.
+
+A malicious app can certainly answer the challenge. The uid the kernel then reports is its own, so it
+can only ever satisfy the check with a grant it already holds — it cannot borrow Termux's, which is
+precisely what the removed fast path allowed. Every failure falls through to tier 3, so the worst
+case is upstream's behaviour and never anything weaker.
+
+`BinderRequestReceiver.kt` is now byte-identical to upstream again, carrying no fork diff at all. The
+file upstream actively develops is the one file here that can no longer conflict.
+
+### Setting `rish` up is one pasted command
+
+A fixed home card, directly under the server status. Its button copies a single command; pasting that
+into the terminal is the entire setup. The card goes green **only on evidence** — a token-authenticated
+request actually arriving — and the token it recorded is fingerprinted, so regenerating the auth token
+turns the card red again rather than leaving a stale pass over a script that can no longer
+authenticate. Guessing would be worse than asking: the terminal's own directory is unreadable without
+root, so checking for the file is not an option.
+
+The generated command exists to avoid three failures that are all invisible when you hit them:
+
+- Pointing `-Djava.class.path` at the installed APK kills the process **silently, with exit 0** — the
+  loader class ships only in `assets/rish_shizuku.dex`, never in the APK's `classes.dex`. The script
+  extracts the asset instead.
+- A hand-copied dex goes stale on the next app update, and the only symptom is "it still prompts".
+  The script re-extracts whenever the APK path changes — that path carries a random segment that
+  changes on every install, which makes it a reliable staleness stamp.
+- Writing to `$PREFIX/bin/rish` loses to any older `rish` earlier on `PATH`, while reporting success.
+  So the command targets `command -v rish` and **prints the path it wrote**.
+
+### From upstream: two security fixes
+
+**The spoofable fast path** (`c7c9f6c8`) described above — taken in full.
+
+**A world-writable grant table** (`690b3632`). The per-uid authorization file was written with
+`setReadable(true, false)` / `setWritable(true, false)`, i.e. readable and writable by everything on
+the device, and it is loaded with no integrity check. Any process that reached the path could forge
+grant entries directly and walk past the consent flow — and past both permission fixes above. It now
+gets mode `0660` with the group forced to shell on every write: root bypasses DAC checks anyway, shell
+is covered by the group bit, and no third party has access at all. Inherited from RikkaApps rather
+than introduced by this fork or upstream.
+
+### Also from upstream
+
+**The Compat Hub install button explains itself** (`cf77523e`). Installing the bundled compat shim over
+`moe.shizuku.privileged.api` always fails when something else already holds that package under a
+different signing certificate — genuine stock Shizuku, most often. That surfaced as the same generic
+"failed to install" as any other error. The signing certificates are now compared before the attempt,
+and the message names what is actually blocking it. This one is more reachable here than upstream:
+this fork is built to sit beside stock Shizuku.
+
+**The Service Doctor stopped faking a result** (`a519414c`). Its Samsung "Sleeping Apps" check
+reported a verdict it had never actually determined. Compat Hub install failures are also logged now
+instead of vanishing.
+
 ## 13.6.0.r2275+2026-08-16.05-56.g56dc0d74+002
 
 One fix, in the `api` submodule, closing the mismatch the previous build recorded but did not patch.
