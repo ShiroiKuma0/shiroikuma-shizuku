@@ -8,6 +8,47 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2275+2026-08-16.05-56.g56dc0d74+002
+
+One fix, in the `api` submodule, closing the mismatch the previous build recorded but did not patch.
+
+### The client half of upstream's security fix
+
+`+001` took upstream's two privilege-escalation fixes in the privileged server, which added
+`enforceCallingPermission()` in front of four binder transactions. What upstream did not do in the
+same batch was update the *client* side to expect the new refusal: the server answers an
+unauthorized caller with `SecurityException`, and `SecurityException` is a `RuntimeException`, not a
+`RemoteException`. The two call sites in `Shizuku.java` catch only the latter, so the exception
+escaped both methods uncaught — an app that used to get a polite `false` now took a crash.
+
+That is a contract break rather than a reasonable refusal, because of *which* two transactions
+these are. `isCustomApiEnabled()` and `Dhizuku.getBinder()` are capability probes: a client is meant
+to call them **before** it has been authorized, precisely to find out whether the enhanced API is
+usable at all. The first is documented to return `false` when it is not; the second is `@Nullable`
+and already answers `null` for every other unavailable case. "Not permitted" is the *no* answer, not
+a crash. Both now return those values.
+
+`SecurityException` is caught narrowly rather than by widening to `RuntimeException`. A probe that
+swallows everything would also hide a `BadParcelableException` or an `IllegalStateException` —
+genuine defects worth seeing — and the whole point of the change is to answer one specific,
+expected refusal correctly.
+
+### Why nothing else was touched
+
+Every raw-transact and `catch (RemoteException)` site in `Shizuku.java` was checked before deciding
+the scope. The rest are AIDL proxy calls into methods that were **already** permission-enforced
+before this upstream batch, so their behaviour did not change — and for a privileged *operation*, as
+opposed to a probe, throwing at an unauthorized caller is the correct answer and worth keeping. Only
+the two probes were affected.
+
+The manager-side callers of the other two newly-enforced transactions were verified rather than
+assumed: `HomeViewModel.queryServerPatchVersion()` already catches `Throwable`, and
+`AuthorizationManager.getApplications()` runs in the manager itself, which passes `isManagerAppId`
+unconditionally and can never be refused. Neither needed a change.
+
+This is a change to the `api` submodule, so it is two commits in two repositories — the fix in
+`ShiroiKuma0/ShizukuPlus-API` on `custom`, and the moved pin here.
+
 ## 13.6.0.r2275+2026-08-16.05-56.g56dc0d74+001
 
 A six-commit upstream sync, all of it fixes — no new features, no new screens, and nothing touching
