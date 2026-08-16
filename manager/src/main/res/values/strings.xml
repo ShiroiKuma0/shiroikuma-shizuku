@@ -750,8 +750,17 @@
     <string name="grant_dialog_button_allow_always">Allow all the time</string>
     <string name="grant_dialog_button_deny">"Deny"</string>
 
-    <string name="settings_shell_consent">Shell client authorization</string>
-    <string name="settings_shell_consent_summary">Let rish and adb take the 白い熊 雫 binder without asking each time. Turn this off to be prompted again on the next shell command.</string>
+    <!-- rish home card -->
+    <string name="home_rish_title">rish in Termux</string>
+    <string name="home_rish_summary_working">✓ Set up — rish runs without asking for confirmation.</string>
+    <string name="home_rish_summary_working_since">✓ Set up — rish runs without asking for confirmation.\nLast connected %1$s.</string>
+    <string name="home_rish_summary_needs_setup">Not set up yet, so rish asks for confirmation on every command.\n\nPress the button below to copy the setup command, then paste and run it in Termux — after that rish runs prompt-free.</string>
+    <string name="home_rish_summary_no_terminal">Termux is not installed, so there is nothing to set rish up in.</string>
+    <string name="home_rish_button_copy">Copy setup command</string>
+    <string name="home_rish_button_copy_again">Copy setup command again</string>
+    <string name="home_rish_copy_failed">Could not copy to the clipboard</string>
+    <string name="home_rish_dialog_title">Setup command copied</string>
+    <string name="home_rish_dialog_message">Now open %1$s, long-press the terminal, choose Paste, and press Enter.\n\nIt writes the rish command and prints a confirmation. From then on rish runs without asking — try:\n\nrish -c id\n\nThis card turns green by itself once rish has connected. You only need to do this again if you regenerate the auth token.</string>
     <!-- Starter -->
     <string name="starter">Starter</string>
     <string name="starting_root_shell" translatable="false">Starting root shell…</string>

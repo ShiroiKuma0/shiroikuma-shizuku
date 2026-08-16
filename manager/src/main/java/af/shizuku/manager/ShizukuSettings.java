@@ -187,11 +187,11 @@ public class ShizukuSettings {
         public static final String KEY_AUTOMATION_TRUSTED_NETWORKS = "automation_trusted_networks";
         public static final String KEY_AUTOMATION_APP_PROFILES = "automation_app_profiles";
 
-        // Standing consent for shell clients (rish / adb). Upstream's ShellConsentActivity asks on
-        // every single request, because a shell process can never produce an IntentCrypto token —
-        // that key is scoped to this app's own UID — so there is nothing to remember it by. This is
-        // the remembered answer. Revocable from Settings → Advanced → ADB Tools.
-        public static final String KEY_SHELL_CONSENT_GRANTED = "shell_consent_granted";
+        // "<token fingerprint>:<epoch millis>" of the last shell request that authenticated with a
+        // valid auth token — i.e. the last time rish actually ran without a consent prompt. The
+        // home screen's rish card reads it; the fingerprint is what stops a regenerated token from
+        // leaving a green light over a script that can no longer authenticate. See RishSetup.
+        public static final String KEY_RISH_TOKEN_AUTH = "rish_token_auth";
     }
 
     private static SharedPreferences sPreferences;
@@ -1342,17 +1342,15 @@ public class ShizukuSettings {
         if (p != null) p.edit().putBoolean(Keys.KEY_STEALTH_MODE, enable).apply();
     }
 
-    /** Whether shell clients (rish / adb) may take the binder without asking again. */
-    public static boolean isShellConsentGranted() {
+    public static String getRishTokenAuth() {
         SharedPreferences p = getPreferences();
-        return p != null && p.getBoolean(Keys.KEY_SHELL_CONSENT_GRANTED, false);
+        return p == null ? null : p.getString(Keys.KEY_RISH_TOKEN_AUTH, null);
     }
 
-    public static void setShellConsentGranted(boolean granted) {
+    public static void setRishTokenAuth(String value) {
         SharedPreferences p = getPreferences();
-        if (p != null) p.edit().putBoolean(Keys.KEY_SHELL_CONSENT_GRANTED, granted).apply();
+        if (p != null) p.edit().putString(Keys.KEY_RISH_TOKEN_AUTH, value).apply();
     }
-
 
     public static boolean isLiveActivityEnabled() {
         SharedPreferences p = getPreferences();

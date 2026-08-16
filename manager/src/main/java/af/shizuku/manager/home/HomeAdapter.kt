@@ -35,6 +35,9 @@ class HomeAdapter(
         const val ID_COMPANION = 9L
         const val ID_START_VIA_STOCK = 10L
         const val ID_BOOT_SETUP = 11L
+        // Fixed, not draggable, and not in DEFAULT_ORDER: it reports setup state rather than
+        // offering a feature, and it belongs directly under the status card.
+        const val ID_RISH = 12L
         // Upstream's App Backup card arrived at r2431 claiming 11L, which this fork had already
         // spent on ID_BOOT_SETUP and 12L on ID_RISH — both persisted in saved card orders. Upstream's
         // new card takes the next free id instead; nothing references these numerically.
@@ -220,6 +223,9 @@ class HomeAdapter(
         // Fixed cards
         var fixedCardCount = 0
         addItem(serverStatusCreator, status, ID_STATUS); fixedCardCount++
+        // Directly beneath the status card: after "is the server up", whether rish runs prompt-free
+        // is the next thing worth knowing, and the card is how it gets set up on a new phone.
+        addItem(RishViewHolder.CREATOR, null, ID_RISH); fixedCardCount++
         if (isOriginalShizukuRunning) {
             addItem(startStockCreator, null, ID_START_VIA_STOCK); fixedCardCount++
         }
