@@ -392,6 +392,23 @@
             </intent-filter>
         </receiver>
 
+        <!-- Fork: the verified-uid shell path. Exported with NO android:permission on purpose —
+             the gate is the kernel-supplied Binder.getCallingUid() read during the identity
+             challenge, not a permission the caller could hold. Only our own ShizukuShellLoader
+             sends this action; every other client keeps using the public one above, which always
+             asks. See VerifiedBinderRequestReceiver for why this is not the fast path upstream
+             removed in c7c9f6c8. -->
+        <receiver
+            android:name=".shell.VerifiedBinderRequestReceiver"
+            android:directBootAware="true"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter android:priority="1000">
+                <action android:name="${applicationId}.intent.action.REQUEST_BINDER_VERIFIED" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".receiver.BootCompleteReceiver"
             android:enabled="true"
