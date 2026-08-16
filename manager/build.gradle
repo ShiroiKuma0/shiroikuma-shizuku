@@ -219,6 +219,14 @@ def bundledChangelogBaseSha = rootProject.ext.forkUpstreamBaseSha
 def bundledChangelogUpstreamName = rootProject.ext.forkUpstreamVersionName
 def bundledChangelogRepoDir = rootProject.rootDir
 
+// ⛔ ONE definition, used by the writer AND the reader below. It was two independent string
+// literals for exactly one build, and that was already enough to matter: the reader searched for a
+// SUBSTRING of it, anywhere in the file, so a changelog entry that merely *quoted* the marker while
+// explaining this mechanism reported its own written prose as a generated placeholder. A marker
+// that means "this section was machine-written" cannot be spelled twice, and cannot be matched
+// loosely — it appears in prose about itself.
+def bundledChangelogGeneratedMarker = "_Not published yet — this summary is generated from git at build time._"
+
 def generateBundledChangelog = tasks.register("generateBundledChangelog") {
     description = "Merge our fork changelog with the upstream commit delta into assets/changelog.md."
     group = "build"
@@ -278,7 +286,7 @@ def generateBundledChangelog = tasks.register("generateBundledChangelog") {
             if (!oursNew.isEmpty() || !upstreamCommits.isEmpty()) {
                 def sb = new StringBuilder()
                 sb << "## ${bundledChangelogVersion}\n\n"
-                sb << "_Not published yet — this summary is generated from git at build time._\n\n"
+                sb << "${bundledChangelogGeneratedMarker}\n\n"
                 if (!oursNew.isEmpty()) {
                     sb << "### In this build\n\n"
                     oursNew.each { sb << "- ${it}\n" }
@@ -344,15 +352,28 @@ def verifyBundledChangelog = tasks.register("verifyBundledChangelog") {
         def asset = bundledChangelogAsset.getText("UTF-8")
         def bytes = bundledChangelogAsset.length()
         def newest = ""
+        def newestAt = -1
         def newestMatcher = asset =~ /(?m)^##[ \t]+(\S+)[ \t]*$/
         if (newestMatcher.find()) {
             newest = newestMatcher.group(1)
+            newestAt = newestMatcher.end()
         }
+
+        // Only the NEWEST section is the one this build ships as its own notes, so the marker is
+        // looked for there and nowhere else — every older section below it is free to discuss the
+        // marker as prose. Matched as a whole line against the single definition above, never as a
+        // loose substring.
+        def newestSection = ""
+        if (newestAt >= 0) {
+            def nextHeading = asset.indexOf("\n## ", newestAt)
+            newestSection = nextHeading < 0 ? asset.substring(newestAt) : asset.substring(newestAt, nextHeading)
+        }
+        def isGenerated = newestSection.readLines().any { it.trim() == bundledChangelogGeneratedMarker }
 
         if (newest != bundledChangelogVersion) {
             // Neither written nor generated — the dialog will open on some older release.
             logger.warn(">>> changelog asset: NO section for ${bundledChangelogVersion} — newest heading is '${newest}' (${bytes} bytes)")
-        } else if (asset.contains("Not published yet")) {
+        } else if (isGenerated) {
             logger.warn(">>> changelog asset: generated section + history — NO written prose for ${bundledChangelogVersion}, do not publish this APK (${bytes} bytes)")
         } else {
             logger.lifecycle(">>> changelog asset: history only — written prose for ${bundledChangelogVersion} (${bytes} bytes)")
