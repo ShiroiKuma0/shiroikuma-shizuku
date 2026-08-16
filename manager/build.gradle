@@ -311,8 +311,57 @@ def generateBundledChangelog = tasks.register("generateBundledChangelog") {
 
         bundledChangelogAsset.parentFile.mkdirs()
         bundledChangelogAsset.setText(merged, "UTF-8")
-        logger.lifecycle(">>> changelog asset: ${generated.isEmpty() ? 'history only' : 'generated section + history'} (${bundledChangelogAsset.length()} bytes)")
     }
+}
+
+// ---- Changelog report ------------------------------------------------------------------------
+// ⛔ This is a SEPARATE task on purpose, and it must stay one.
+//
+// The report used to be the last line of `generateBundledChangelog`'s `doLast`. That task declares
+// real inputs and an output, so Gradle rightly skips it as UP-TO-DATE whenever neither the fork
+// changelog nor the version changed — and a line printed from inside it then never appears at all.
+//
+// /publish-version's documented check is "if the log says `generated section + history`, do not
+// publish that APK", which treats SILENCE AS A PASS. So an UP-TO-DATE skip silently satisfied the
+// one check standing between a release and an APK whose What's New dialog is a list of raw commit
+// subjects — the exact failure that check exists to catch. Measured 2026-08-16: the first build of
+// `r2279+001` shipped the generated summary and nothing in the log said so.
+//
+// Two properties follow from that, and both matter:
+//   * it is never UP-TO-DATE, so the line is printed on every single build; and
+//   * it reads the ASSET THAT SHIPS rather than the generator's own control flow, so it reports
+//     what is actually in the APK even if the file was written by an earlier invocation.
+def verifyBundledChangelog = tasks.register("verifyBundledChangelog") {
+    description = "Report whether assets/changelog.md carries written prose for the version being built."
+    group = "verification"
+    outputs.upToDateWhen { false }
+
+    doLast {
+        if (!bundledChangelogAsset.exists()) {
+            logger.warn(">>> changelog asset: MISSING — ${bundledChangelogAsset}")
+            return
+        }
+        def asset = bundledChangelogAsset.getText("UTF-8")
+        def bytes = bundledChangelogAsset.length()
+        def newest = ""
+        def newestMatcher = asset =~ /(?m)^##[ \t]+(\S+)[ \t]*$/
+        if (newestMatcher.find()) {
+            newest = newestMatcher.group(1)
+        }
+
+        if (newest != bundledChangelogVersion) {
+            // Neither written nor generated — the dialog will open on some older release.
+            logger.warn(">>> changelog asset: NO section for ${bundledChangelogVersion} — newest heading is '${newest}' (${bytes} bytes)")
+        } else if (asset.contains("Not published yet")) {
+            logger.warn(">>> changelog asset: generated section + history — NO written prose for ${bundledChangelogVersion}, do not publish this APK (${bytes} bytes)")
+        } else {
+            logger.lifecycle(">>> changelog asset: history only — written prose for ${bundledChangelogVersion} (${bytes} bytes)")
+        }
+    }
+}
+
+generateBundledChangelog.configure {
+    finalizedBy(verifyBundledChangelog)
 }
 
 afterEvaluate {

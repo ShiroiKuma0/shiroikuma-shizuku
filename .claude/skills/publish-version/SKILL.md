@@ -33,15 +33,33 @@ then publish that exact APK.** The version name is fully known before the build 
 `./gradlew` echoes at configuration time (`shiroikuma-shizuku <versionName> (versionCode …)`), i.e.
 `UPSTREAM_VERSION_NAME` + the git pin + the *current* `BUILD_NUMBER`.
 
-**Verify it, every time.** `buildApk` logs which branch it took:
+**Verify it, every time.** `verifyBundledChangelog` reports what is actually inside the built APK's
+`assets/changelog.md`, on every build, in one of three forms:
 
 ```
->>> changelog asset: history only                  <- correct: the written prose ships
->>> changelog asset: generated section + history   <- WRONG: no section for this version
+>>> changelog asset: history only — written prose for <version>        <- correct: publish this
+>>> changelog asset: generated section + history — NO written prose    <- WRONG: commit subjects ship
+>>> changelog asset: NO section for <version> — newest heading is …    <- WRONG: dialog opens on an older release
 ```
 
-If the log says `generated section + history`, the prose is missing or its heading does not match
-the version being built. Fix the heading and rebuild — do not publish that APK.
+Only the first is publishable. The other two mean the prose is missing or its heading does not match
+the version being built — fix the heading and rebuild rather than publishing that APK.
+
+**⛔ An absent line is a failure, not a pass.** Do not read "I didn't see the bad line" as success —
+check the good line is actually *there*. The report is a separate always-running task precisely
+because it used to live inside `generateBundledChangelog`, which declares inputs and an output and is
+therefore skipped as UP-TO-DATE on most rebuilds; the line then never printed at all and this check
+silently passed. That is how `r2279+001` came to ship the generated summary (2026-08-16). If no line
+appears, the wiring is broken — investigate before publishing.
+
+**Do not grep a truncated log.** `./gradlew buildApk … | tail -30` cuts the line off, which looks
+identical to the line not existing. Grep the full output, or read the asset out of the APK directly —
+the strongest check, and the one that settles any doubt:
+
+```bash
+unzip -p <the apk> assets/changelog.md | head -20      # first heading must be the built version
+unzip -p <the apk> assets/changelog.md | grep -c "Not published yet"   # must be 0
+```
 
 ## What gets published
 
