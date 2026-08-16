@@ -202,6 +202,7 @@ matter, and the fork keeps all three working:
 | Apps built against the **stock** Shizuku API (SD Maid SE, Swift Backup, …) | The **Compat Hub**: the separate `:compat` module, package `moe.shizuku.privileged.api`, bundled as `manager/src/main/assets/compat.apk` and installed on demand. It owns the stock provider authority and forwards to our manager. Upstream's design — left alone. |
 | Apps built against the **Shizuku+** API | The `af.shizuku.plus.API` meta-data key + the binder extra above, both unchanged. |
 | The manager itself | `ShizukuManagerProvider`, authority `${applicationId}.shizuku` → `shiroikuma.shizuku.shizuku`. |
+| **Shell clients** (`rish` in Termux, `adb shell`) | Our own action `${applicationId}.intent.action.REQUEST_BINDER_VERIFIED` → `VerifiedBinderRequestReceiver`. See "Shell access" below — this is the fork's, not upstream's. |
 
 The **`dropin` flavor** (applicationId `moe.shizuku.privileged.api`) is upstream's stock-Shizuku
 *replacement*. We never build it — it is incompatible with our own app id by definition. `buildApk`
@@ -251,6 +252,115 @@ The redundant calls are free: a client that already took a container bails at th
 binder" guard. **Keep `LOGGER.i("send binder to user app …")` as a single line after the loop** —
 the count of those lines per client launch is how a duplicate server is diagnosed, and moving it
 inside the loop makes that check silently meaningless.
+
+## Shell access — how `rish` gets the binder without a prompt (2026-08-16)
+
+Upstream asks for consent on **every** `REQUEST_BINDER`, and it is right to. That action is the
+public, unauthenticated part of the client API, `Binder.getCallingUid()` is meaningless in
+`onReceive()` for a plain broadcast, and `c7c9f6c8` removed a fast path that trusted the intent's own
+`callingPackage` / `callingUid`: any app could name an already-authorized package, supply its own
+callback binder, and be handed the live full-privilege binder with no interaction at all.
+
+That fix is taken **in full**, and `BinderRequestReceiver.kt` is deliberately kept **byte-identical
+to upstream** — it carries no fork diff, so the file upstream actively develops never conflicts.
+Verify with:
+
+```bash
+diff <(git show master:manager/src/main/java/af/shizuku/manager/receiver/BinderRequestReceiver.kt) \
+     manager/src/main/java/af/shizuku/manager/receiver/BinderRequestReceiver.kt
+```
+
+### ⛔ `KEY_SHELL_CONSENT_GRANTED` is gone — do not bring it back
+
+The fork used to silence the per-command prompt with a single global flag. It was **wider than the
+hole upstream had just closed**: once set, *any* installed app that could broadcast got the binder,
+with no identification whatsoever — not even a spoofed package name was needed. The flag, its
+accessors, its ADB Tools switch and its strings were all removed together, because a control that no
+longer gates anything is worse than a missing feature.
+
+### The three tiers, cheapest first — `VerifiedBinderRequestReceiver`
+
+Our loader sends **our** action, always, whenever the resolved manager is ours. The receiver tries:
+
+| Tier | Mechanism | Notes |
+| --- | --- | --- |
+| 1 | **Auth token** — `IntentCrypto.decrypt(auth)` vs `ShizukuSettings.getAuthToken()`, constant-time | Upstream's own mechanism, no round trip. The card bakes this into the `rish` script, so a normal setup never reaches tier 2. |
+| 2 | **Identity challenge** — verified uid, then `AuthorizationManager.granted` | What makes a remembered consent actually count |
+| 3 | **Upstream's consent flow** | Re-broadcasts the public action so `postConsentNotification` is reused, never copied |
+
+**⛔ Never route a token-carrying request to the public action instead.** An earlier attempt did, and
+the consequence is not a performance detail: the challenge then never runs, so a stored per-uid grant
+is never consulted, and answering the consent prompt has **no effect on the next command**. The user
+taps Allow, the grant is written, and they are asked again forever.
+
+### How the identity challenge works, and why it is not the hole upstream closed
+
+`rish`'s callback binder is a real `Binder` in `rish`'s own process. So rather than asking the caller
+who it is, the manager hands it a fresh `Binder` plus a single-use nonce and requires it to call
+back — on that **inbound** transaction `Binder.getCallingUid()` is supplied by the kernel, the same
+property that lets `PolicyProvider` gate on the calling uid with no shared token.
+
+```
+rish  --broadcast-->  VerifiedBinderRequestReceiver   (extras ignored for identity)
+us    --code 2   -->  rish.receiverBinder             [identityBinder, nonce]
+rish  --code 1   -->  our identityBinder              [nonce]
+                       |
+      Binder.getCallingUid() == the real uid of the rish process
+```
+
+A malicious app can absolutely answer the challenge — but the uid the kernel reports is then **its
+own**, so it can only ever satisfy the check with a grant it already holds. It cannot borrow Termux's,
+which is exactly what the removed fast path allowed.
+
+- Transaction code **2** must agree between `VerifiedBinderRequestReceiver` and
+  `ShizukuShellLoader.receiverBinder.onTransact`. Code 1 is the binder handoff itself.
+- No `writeInterfaceToken` on either side — matches the existing code-1 convention, which
+  `deliverBinder` documents. Adding one is read as the binder slot and breaks the handoff.
+- Both directions are `FLAG_ONEWAY`, so there is no deadlock; the loader answers **inline on the
+  binder thread**, because the challenge can arrive before `main()` reaches `Looper.loop()`.
+- The grant is keyed on the **uid alone** — past pre-v11 `granted`/`grant` use
+  `getFlagsForUid`/`updateFlagsForUid` and never consult the package name. That is why an anonymous
+  shell client is handled rather than skipped.
+- Every failure falls through to tier 3. The worst case is upstream's behaviour, never weaker.
+
+## Setting `rish` up — `RishSetup` and the home card
+
+The card is **fixed**, directly under the server-status card (`HomeAdapter.ID_RISH`, added in the
+fixed block, not `DEFAULT_ORDER`). Its button copies one command; pasting that into the terminal is
+the whole setup. It green-lights **only on evidence** — a token-authenticated request actually
+arriving, recorded by `ShellBinderRequestHandler` and `VerifiedBinderRequestReceiver` — and the
+recorded token is fingerprinted, so regenerating the auth token turns the card red again instead of
+leaving a pass over a script that can no longer authenticate. The terminal's own directory is
+unreadable without root, so checking for files is not an option and guessing would be worse.
+
+### ⛔ Three traps the generated command exists to avoid — all measured on-device
+
+| Trap | What actually happens |
+| --- | --- |
+| **`-Djava.class.path=<the APK>`** | `rikka.shizuku.shell.ShizukuShellLoader` is built by the separate **`:shell` application module** and ships **only** in `assets/rish_shizuku.dex` — it is **not** in the APK's `classes.dex`. Point the classpath at the APK and the process dies **silently with exit 0**: no error, no output. The script extracts the asset instead. |
+| **A hand-copied dex** | `rish` loads `$(dirname "$0")/rish_shizuku.dex`, a copy beside the script — **not** the one in the installed APK. An app update does not update it, so a manager with a new protocol talks to a loader that lacks it, and the only symptom is "it still prompts". The script re-extracts whenever the APK path changes; that path carries a random segment that changes on **every** install, which makes it a reliable staleness stamp. |
+| **Writing to `$PREFIX/bin/rish`** | An older `rish` earlier on `PATH` keeps winning. The setup reports success and the script that runs is untouched — this survived being pasted correctly on every install for an afternoon. So the command targets **`command -v rish`** and **prints the path it wrote**. A success message that does not name the file it wrote hides this completely. |
+
+`/system/bin/unzip` is toybox's `ziptool` and `pm path` resolves from an unprivileged app uid — both
+confirmed on the Mate XT. If either is unavailable an already-extracted dex keeps working.
+
+**The waiting notice is deferred, not deleted.** `ShizukuShellLoader` prints "Waiting for … 
+authorization" 1.5 s after the request and cancels it in `onBinderReceived`. Printed unconditionally
+it lands in front of every authorized command; removed entirely, a genuine 90 s wait for a human is
+indistinguishable from a hang, which is why it was added.
+
+### ⛔ Diagnostics on 白い熊's devices: use `Log.e`, never Timber
+
+Two independent reasons a log line can be a silent no-op here, both of which cost a full
+build-and-test round trip:
+
+- **Timber is unarmed in release.** `ShizukuApplication` plants `Timber.DebugTree()` only when
+  `BuildConfig.DEBUG`; release plants just the Sentry tree, and this fork keeps Sentry DSN-less.
+- **EMUI drops everything below error level.** The Mate XT's logcat buffer holds only `E/` and `F/`
+  lines — measured 7282 and 37, with zero `V`/`D`/`I`/`W`. `Log.i` is invisible.
+
+An empty grep is therefore **not** evidence that the code did not run. Check the level distribution
+first: `adb logcat -d -v brief | grep -oE '^[VDIWEF]/' | sort | uniq -c`.
 
 ## ⛔ Never assume `applicationId` == `namespace`
 
@@ -554,3 +664,15 @@ Verified end to end from the 応用管理 side: `dumpsys device_policy` shows
 `mDelegationMap → shiroikuma.oyokanri[size=3]`, and a permission locked from that app reads back
 `granted=false, flags=[…POLICY_FIXED…]`. See the section above. The Mate XT has **no** Device Owner
 (its only device admin is `shiroikuma.jiyusagyoban`), so this is testable on the razr only.
+
+**Shell access reworked** (2026-08-16, `13.6.0.r2277…+011`): upstream's `c7c9f6c8` closed a spoofable
+fast path, the fork's wider `KEY_SHELL_CONSENT_GRANTED` flag went with it, and prompt-free `rish` was
+rebuilt on the auth token plus a uid-verified binder challenge. `BinderRequestReceiver.kt` is back to
+byte-identical upstream. A fixed home card generates the one-paste setup command. Working on the Mate
+XT in Termux; the two published releases on the older base (`…r2277+001`/`+002`) still carry the
+upstream vulnerability and may be worth pulling.
+
+See the "Shell access" and "Setting `rish` up" sections above — **all three traps recorded there cost
+a failed build each**, and every one was discoverable by running the thing on the phone instead of
+reasoning about it. If shell access ever breaks again, measure first: check which `rish` is on `PATH`,
+check the loader is not a stale dex, and remember that a silent logcat on EMUI proves nothing.
