@@ -42,6 +42,26 @@ public class ShizukuShellLoader {
     private static String callingPackage;
     private static Handler handler;
     private static Runnable timeoutCallback;
+    private static Runnable waitingNoticeCallback;
+
+    // Transaction code the manager uses to ask us to prove our uid. Code 1 is the binder handoff
+    // itself, so the challenge is the next one up. Must agree exactly with
+    // VerifiedBinderRequestReceiver.TRANSACTION_IDENTITY_CHALLENGE.
+    //
+    // ⛔ A HAND-COPIED DEX GOES STALE. This loader runs from "$BASEDIR"/rish_shizuku.dex — a COPY
+    // beside the rish script, NOT the copy inside the installed APK — so an app update does not
+    // update it, and a manager that has the challenge can be talking to a loader that does not.
+    // The script RishSetup generates re-extracts this dex from the APK whenever the APK path
+    // changes, which fixes it for any setup done through the app; a hand-made rish is still on its
+    // own. So every change here must degrade gracefully on the manager side.
+    private static final int TRANSACTION_IDENTITY_CHALLENGE = 2;
+
+    // Fork: the verified-uid entry point. Sending this instead of the public action is what lets an
+    // already-granted shell client skip the consent prompt; the manager still falls back to asking
+    // whenever the challenge fails or no grant exists yet, so this is never weaker than the public
+    // path, only quieter. Suffix must match VerifiedBinderRequestReceiver.ACTION_SUFFIX.
+    private static final String ACTION_REQUEST_BINDER_VERIFIED_SUFFIX = ".intent.action.REQUEST_BINDER_VERIFIED";
+    private static final String ACTION_REQUEST_BINDER = "rikka.shizuku.intent.action.REQUEST_BINDER";
 
     private static final Binder receiverBinder = new Binder() {
 
@@ -56,6 +76,32 @@ public class ShizukuShellLoader {
                 } else {
                     LOGGER.severe("Server is not running");
                     System.exit(1);
+                }
+                return true;
+            }
+            if (code == TRANSACTION_IDENTITY_CHALLENGE) {
+                // The manager cannot learn who we are from the broadcast — Intent extras carry no
+                // verified sender identity, which is exactly why upstream's "pre-authorized" fast
+                // path was a privilege escalation (c7c9f6c8). So it hands us a binder of its own
+                // plus a nonce and asks us to call back: on THAT transaction the kernel tells it
+                // our real uid, and it can honour an existing grant without prompting.
+                //
+                // Answered inline on this binder thread rather than posted to the handler: the
+                // challenge can arrive before main() reaches Looper.loop(), and a queued reply
+                // would then miss the manager's timeout window.
+                IBinder identityBinder = data.readStrongBinder();
+                String nonce = data.readString();
+                if (identityBinder != null) {
+                    Parcel out = Parcel.obtain();
+                    try {
+                        out.writeString(nonce);
+                        identityBinder.transact(1, out, null, IBinder.FLAG_ONEWAY);
+                    } catch (Throwable tr) {
+                        // Non-fatal: the manager falls back to asking the user for consent.
+                        LOGGER.warning("Failed to answer identity challenge: " + tr);
+                    } finally {
+                        out.recycle();
+                    }
                 }
                 return true;
             }
@@ -87,8 +133,25 @@ public class ShizukuShellLoader {
 
         String authToken = System.getenv("SHIZUKU_TOKEN");
 
-        Intent intent = new Intent("rikka.shizuku.intent.action.REQUEST_BINDER")
-                .setPackage(resolveManagerPackageName())
+        String managerPackage = resolveManagerPackageName();
+        // ALWAYS the verified action when talking to our own manager, token or not. Routing a
+        // token-carrying request to the public action instead — which this did — means only the
+        // token is ever checked: the identity challenge never runs, so a stored per-uid grant is
+        // never consulted, and a user who answers the consent prompt is asked again on the very
+        // next command because their answer has no path that reads it. VerifiedBinderRequestReceiver
+        // checks the token FIRST (no round trip, so no latency cost), then the challenge, and only
+        // then hands over to the public consent flow. The token still travels in the extras for
+        // that last hop.
+        //
+        // Only OUR manager declares the verified receiver. The Drop-In flavor is never built by
+        // this fork, but resolveManagerPackageName() can still land on that id if something else
+        // occupies it — such a manager gets the public action, which every manager understands.
+        String action = PLUS_APPLICATION_ID.equals(managerPackage)
+                ? managerPackage + ACTION_REQUEST_BINDER_VERIFIED_SUFFIX
+                : ACTION_REQUEST_BINDER;
+
+        Intent intent = new Intent(action)
+                .setPackage(managerPackage)
                 .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                 .putExtra("data", data);
 
@@ -123,7 +186,7 @@ public class ShizukuShellLoader {
 
             LOGGER.warning("broadcastIntent fails on Android 8.0 or 8.1, fallback to startActivity");
 
-            Intent baseActivityIntent = new Intent("rikka.shizuku.intent.action.REQUEST_BINDER")
+            Intent baseActivityIntent = new Intent(ACTION_REQUEST_BINDER)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
@@ -145,6 +208,11 @@ public class ShizukuShellLoader {
     private static void onBinderReceived(IBinder binder, String sourceDir) {
         if (timeoutCallback != null) {
             handler.removeCallbacks(timeoutCallback);
+        }
+        // Cancelled before it can print: on an authorized path the binder is here in milliseconds,
+        // and the "waiting for authorization" line would otherwise precede every single command.
+        if (waitingNoticeCallback != null) {
+            handler.removeCallbacks(waitingNoticeCallback);
         }
 
         var base = sourceDir.substring(0, sourceDir.lastIndexOf('/'));
@@ -201,12 +269,17 @@ public class ShizukuShellLoader {
             abort("Failed to request binder: " + tr, tr);
         }
 
-        // The 90s failure-path budget below (see the comment on the postDelayed call) covers a
-        // genuine wait for a human to notice and tap the consent notification, but prints nothing
-        // while it's waiting - which reads identically to a hang for a setup that's actually
-        // broken (dialog never displayed, wrong flavor installed, etc). One line up front at least
-        // tells the caller what it's blocked on.
-        System.err.println("Waiting for Shizuku authorization... check your notifications.");
+        // The 90s failure-path budget below covers a genuine wait for a human to notice and tap the
+        // consent notification, but prints nothing while it waits - which reads identically to a
+        // hang for a setup that is actually broken. So this line still exists; it is just DEFERRED.
+        //
+        // Printed unconditionally (as it was) it lands in front of every single command, including
+        // the authorized fast paths where the binder arrives in milliseconds and nobody is being
+        // asked for anything - noise on every prompt, which is exactly what a working setup must not
+        // produce. onBinderReceived cancels it, so it only ever appears when the wait is real.
+        waitingNoticeCallback = () ->
+                System.err.println("Waiting for 白い熊 雫 authorization... check your notifications.");
+        handler.postDelayed(waitingNoticeCallback, 1500);
 
         timeoutCallback = () -> abort(
                 String.format(

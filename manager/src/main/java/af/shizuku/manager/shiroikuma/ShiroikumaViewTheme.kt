@@ -34,8 +34,23 @@ object ShiroikumaViewTheme {
     /** Marks a subtree the applier must not touch (the UI page styles itself). */
     private val SKIP_TAG = "shiroikuma_skip".hashCode()
 
+    /**
+     * Marks a view whose **colour** is its own business, while everything else — font, size, letter
+     * spacing — is still applied. For state indicators: a view that says "not set up" in red is
+     * saying it with the colour, and the generic body-text pass would silently flatten that to the
+     * ordinary text colour, leaving a status line that renders identically in every state.
+     *
+     * Distinct from [markSkipped], which excludes the subtree entirely and therefore also drops the
+     * user's chosen typeface and sizes.
+     */
+    private val COLOR_OWNED_TAG = "shiroikuma_color_owned".hashCode()
+
     fun markSkipped(view: View) {
         view.setTag(SKIP_TAG, true)
+    }
+
+    fun markColorOwned(view: View) {
+        view.setTag(COLOR_OWNED_TAG, true)
     }
 
     fun applyToTree(root: View?, tintBackground: Boolean = true) {
@@ -97,7 +112,12 @@ object ShiroikumaViewTheme {
                 is TextView -> {
                     // The androidx summary id marks the dim secondary line; everything else is body.
                     val isSummary = v.id == android.R.id.summary
-                    v.setTextColor(if (isSummary) dim else text)
+                    // Typography still applies below — only the colour is left alone. See
+                    // markColorOwned: this runs on every layout pass, so a state colour set in
+                    // onBind is otherwise overwritten before it is ever seen.
+                    if (v.getTag(COLOR_OWNED_TAG) != true) {
+                        v.setTextColor(if (isSummary) dim else text)
+                    }
                     v.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (isSummary) summarySize else bodySize)
                     v.letterSpacing = letterSpacing
                     // Preserve an existing bold face rather than flattening headings.
