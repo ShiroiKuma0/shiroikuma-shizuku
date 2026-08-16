@@ -7,7 +7,6 @@ import android.content.Intent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.authorization.AuthorizationManager
 import af.shizuku.manager.database.ActivityLogManager
 import af.shizuku.manager.utils.Logger.LOGGER
@@ -37,16 +36,11 @@ class ShellConsentActionReceiver : BroadcastReceiver() {
 
         when (intent.action) {
             ACTION_ALLOW -> {
-                // Fork: the button says "always", so it must mean always here too.
-                //
-                // The per-package grant below is upstream's whole notion of "always", and it can
-                // only fire for a caller that named itself. A bare shell client -- `rish` in
-                // Termux, the case this notification exists for -- has no callingPackage at all,
-                // so upstream's branch remembers NOTHING for it: the binder is handed over once
-                // and the very next command prompts again. Setting the fork's global flag first,
-                // exactly as ShellConsentActivity's Allow button does, is what makes the two
-                // "Allow always" entry points actually equivalent.
-                ShizukuSettings.setShellConsentGranted(true)
+                // The grant below does two jobs: it spares the caller attachApplication()'s second
+                // dialog (#391), and it is what [VerifiedBinderRequestReceiver] checks so this
+                // caller's next request is delivered without a prompt. It is keyed on the uid, and
+                // when this consent came through the verified path that uid was reported by the
+                // kernel rather than claimed by the caller.
                 val callingPackage = intent.getStringExtra("callingPackage")
                 val intentCallingUid = intent.getIntExtra("callingUid", -1).takeIf { it >= 0 }
                 val pending = goAsync()
@@ -65,7 +59,7 @@ class ShellConsentActionReceiver : BroadcastReceiver() {
                         if (callingUid != null) {
                             AuthorizationManager.grant(callingPackage ?: "", callingUid)
                         }
-                        ActivityLogManager.log(appLabel ?: "Shell", callingPackage ?: "", "Shell: allowed always (notification)")
+                        ActivityLogManager.log(appLabel ?: "Shell", callingPackage ?: "", "Shell: allowed (notification)")
                         ShellBinderRequestHandler.deliverBinder(context, callbackBinder)
                     } catch (e: Exception) {
                         LOGGER.w(e, "ShellConsentActionReceiver: deliver failed")
