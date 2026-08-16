@@ -10,7 +10,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import af.shizuku.core.ui.AppActivity
 import af.shizuku.manager.R
-import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.authorization.AuthorizationManager
 import af.shizuku.manager.database.ActivityLogManager
 import af.shizuku.manager.databinding.ConfirmationDialogBinding
@@ -69,9 +68,14 @@ class ShellConsentActivity : AppActivity() {
         val binding = ConfirmationDialogBinding.inflate(layoutInflater).apply {
             if (appLabel != null) {
                 title.text = getString(R.string.shell_consent_dialog_title_identified, appLabel)
-                // button1 keeps its layout-default "Allow all the time" text
+                // Keeps the layout default "Allow all the time", and it is now literally true: an
+                // app label only reaches here when VerifiedBinderRequestReceiver established the
+                // caller's uid from the kernel, so the grant stored below lets its next request
+                // through unprompted.
             } else {
                 title.text = getString(R.string.shell_consent_dialog_title)
+                // Unverified caller — the grant cannot be trusted to mean "this app", so promise
+                // only what this tap actually does.
                 button1.text = getString(R.string.shell_consent_button_allow)
             }
             button3.text = getString(R.string.grant_dialog_button_deny)
@@ -85,23 +89,23 @@ class ShellConsentActivity : AppActivity() {
         dialog.setCanceledOnTouchOutside(false)
 
         binding.button1.setOnClickListener {
-            // Remember it. A shell client can never present an auth token (IntentCrypto's key is
-            // UID-scoped to this app), so without a stored answer this dialog would appear in front
-            // of every single `rish` command. Revoke from Settings → Advanced → ADB Tools.
-            ShizukuSettings.setShellConsentGranted(true)
+            // The grant below is what makes the next request unprompted, via
+            // VerifiedBinderRequestReceiver's identity challenge — it is keyed on a uid the kernel
+            // reported, not on anything the caller claimed. The fork's old global
+            // KEY_SHELL_CONSENT_GRANTED flag did the same job by trusting every broadcaster, which
+            // was wider than the hole upstream closed in c7c9f6c8; this replaced it.
             // deliverBinder does synchronous binder transacts with retries - keep it off Main.
             lifecycleScope.launch {
                 val delivered = withContext(Dispatchers.IO) {
                     try {
                         // Grant permanent authorization before delivering the binder so that
                         // Shell.java's attachApplication() sees allowed=true and skips the
-                        // redundant second consent dialog (#391). Grant is persisted even if
-                        // delivery fails below - the next rish invocation then hits the fast
-                        // path in BinderRequestReceiver and succeeds without another dialog.
+                        // redundant second consent dialog (#391) — and so the next request from
+                        // this uid clears VerifiedBinderRequestReceiver's check without a prompt.
                         if (callingPackage != null && callingUid != null) {
                             AuthorizationManager.grant(callingPackage, callingUid)
                         }
-                        ActivityLogManager.log(appLabel ?: "Shell", callingPackage ?: "", "Shell: allowed always (dialog)")
+                        ActivityLogManager.log(appLabel ?: "Shell", callingPackage ?: "", "Shell: allowed (dialog)")
                         ShellBinderRequestHandler.deliverBinder(this@ShellConsentActivity, callbackBinder)
                     } catch (e: Exception) {
                         LOGGER.w(e, "ShellConsentActivity: deliverBinder failed")
@@ -110,8 +114,8 @@ class ShellConsentActivity : AppActivity() {
                 }
                 if (!delivered && !isFinishing && !isDestroyed) {
                     // Delivery failed even after retries: the rish process was frozen by Android's
-                    // Cached Apps Freezer while waiting. Authorization is saved — rish will connect
-                    // automatically on the next invocation without another prompt.
+                    // Cached Apps Freezer while waiting. The grant above is already stored, so
+                    // running the command again connects — unprompted if the caller was verified.
                     Toast.makeText(
                         this@ShellConsentActivity,
                         getString(R.string.shell_consent_retry_hint),
