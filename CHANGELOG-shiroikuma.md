@@ -8,6 +8,46 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2279+2026-08-16.13-12.g690b3632+004
+
+**The app itself is unchanged from `+002`.** This build fixes the release machinery that decides
+whether an APK's own What's New dialog is real prose or a placeholder — worth a release only because
+the previous one shipped despite that check being broken.
+
+### The changelog check could not fail, so it never did
+
+The dialog reads `assets/changelog.md`, which is baked at build time: if the changelog has a written
+section for the exact version being built, that prose ships; otherwise a summary generated from git
+commit subjects does, headed _"Not published yet"_. Which branch was taken got reported in one log
+line, and publishing is supposed to stop on the bad one.
+
+That line lived inside the task that writes the asset — a task with real inputs and a real output,
+which Gradle therefore skips as `UP-TO-DATE` on any rebuild that changed neither the changelog nor
+the version. The line then never printed at all. Since the rule was *"do not publish if you see the
+bad line"*, silence read as a pass, and the check quietly approved everything. `+001` shipped the
+generated commit-subject summary with nothing anywhere saying so.
+
+The report is now its own task, finalized by the generator and never up to date, so it prints on
+every build. It also reads the asset **that ships** rather than the generator's own control flow, so
+it describes what is genuinely in the APK even when an earlier invocation wrote the file.
+
+It distinguishes a third case the old two-way line could not express: an asset whose newest heading
+belongs to an *older* release, meaning this build has neither written prose nor a generated section.
+That previously reported as "history only" — the publishable answer — while the dialog would open on
+the previous release's notes.
+
+### The check's first act was to fail on this very entry
+
+`+003` was built and rejected by the new check, correctly in form and wrongly in substance: the
+placeholder marker was spelled once in the task that writes it and again in the task that looks for
+it, and the reader matched it as a loose substring anywhere in the file. This entry explains the
+mechanism, so it *quotes* the marker — and the check read its own written prose as machine-generated.
+
+A marker meaning "this section was machine-written" is going to appear in prose about itself, so it
+now has exactly one definition, shared by writer and reader, and it is matched as a whole line inside
+the newest section only. Every older section below is free to discuss it. `+003` is not published;
+the fix ships here.
+
 ## 13.6.0.r2279+2026-08-16.13-12.g690b3632+002
 
 Shell access rebuilt from the ground up, and four upstream fixes — two of them security. This is the
