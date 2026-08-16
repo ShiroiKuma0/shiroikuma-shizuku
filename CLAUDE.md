@@ -665,12 +665,13 @@ Verified end to end from the 応用管理 side: `dumpsys device_policy` shows
 `granted=false, flags=[…POLICY_FIXED…]`. See the section above. The Mate XT has **no** Device Owner
 (its only device admin is `shiroikuma.jiyusagyoban`), so this is testable on the razr only.
 
-**Shell access reworked** (2026-08-16, `13.6.0.r2277…+011`): upstream's `c7c9f6c8` closed a spoofable
-fast path, the fork's wider `KEY_SHELL_CONSENT_GRANTED` flag went with it, and prompt-free `rish` was
-rebuilt on the auth token plus a uid-verified binder challenge. `BinderRequestReceiver.kt` is back to
-byte-identical upstream. A fixed home card generates the one-paste setup command. Working on the Mate
-XT in Termux; the two published releases on the older base (`…r2277+001`/`+002`) still carry the
-upstream vulnerability and may be worth pulling.
+**Shell access reworked** (2026-08-16, first built at `13.6.0.r2277…+011`, first published on the
+`r2279` base): upstream's `c7c9f6c8` closed a spoofable fast path, the fork's wider
+`KEY_SHELL_CONSENT_GRANTED` flag went with it, and prompt-free `rish` was rebuilt on the auth token
+plus a uid-verified binder challenge. `BinderRequestReceiver.kt` is back to byte-identical upstream. A
+fixed home card generates the one-paste setup command. Working on the Mate XT in Termux. Every release
+published before this one — the newest being `…r2275+…+002` — predates `c7c9f6c8` and still carries
+the upstream vulnerability, so they are worth pulling.
 
 See the "Shell access" and "Setting `rish` up" sections above — **all three traps recorded there cost
 a failed build each**, and every one was discoverable by running the thing on the phone instead of
