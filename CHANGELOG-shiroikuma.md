@@ -8,6 +8,69 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2282+2026-08-16.18-54.ge1eef5d4+002
+
+Rebased onto upstream `13.6.0.r2282`. Three upstream commits, all hardening — and one of them had to
+be undone here, while a fourth, in the API submodule, had to be refused outright because taking it
+would have reintroduced a bug this fork measured and fixed weeks ago.
+
+Nothing user-visible changes. Take it for the two robustness fixes below; there is no new behaviour
+to learn.
+
+### Two upstream hardening fixes, taken
+
+`CrashReporter.shareAsFile()` wrote the report with an unguarded `writeText`, so a full disk or a
+storage-mount race would crash the crash reporter itself — at the one moment the app is trying to
+tell you something went wrong. It is now wrapped, and the failed-`mkdirs` path returns instead of
+falling through.
+
+In the API library, `transactRemote()` read the target binder out of the transact payload and called
+`getInterfaceDescriptor()` on it without checking. A caller writing a null strong binder got an
+opaque `NullPointerException` from inside the privileged server; it now fails with a named
+`IllegalArgumentException`.
+
+### The launcher icon, fixed by upstream in a way that breaks it here
+
+Upstream's adaptive icon composites a Material-You "Plus" badge over its foreground art, drawn by a
+layer-list at `@drawable/ic_launcher_foreground`. This fork deletes that layer-list — the badge is
+upstream's branding, not ours — and keeps the traced black-yellow mark at the plain
+`@mipmap/ic_launcher_foreground` name.
+
+Upstream had a stale reference to that mipmap in a second, legacy copy of the adaptive-icon XML, and
+their build had been failing on it for three CI runs. Their fix repointed it at the layer-list. That
+file carries no fork diff, so the rebase took their line **without a conflict** — leaving this tree
+pointing at a drawable it deliberately does not have. It is pointed back at the mipmap here.
+
+The failure mode is worth naming, because it is the same shape as the trap recorded at `r2267` and
+the opposite of how icon problems usually present: nothing conflicts, nothing warns, and the mistake
+is caught only because resource linking refuses to resolve the dangling name. An icon change that
+*does* conflict is the easy case.
+
+### Upstream's own version of the client-attach fix, refused
+
+The API submodule turned out to be two upstream commits behind rather than one, and the extra commit
+is upstream independently arriving at this fork's `enforceInterface` fix for reading the interface
+token in `onTransact`. Both rewrite the same block, so they collided.
+
+Ours is kept, because upstream's raw-code switch still carries the cases this fork removed. Binder
+wire codes are `FIRST_CALL_TRANSACTION + id`, so a raw case may only name a code no current AIDL
+method answers to. Upstream keeps raw `3`, `4` and `8`, which shadow the live `getVersion`, `getUid`
+and `newProcess` respectively — and raw `8` is exactly the collision that made `Shizuku.newProcess()`
+return null for every caller, taking the whole privileged-shell tier down with it. Upstream also
+routes raw `14` to `requestPermission(int)`, but `requestPermission` answers to wire `15`; raw `14`
+is what the client hand-writes for the v11 `attachApplication` payload, which this fork handles.
+
+So the API submodule now carries upstream's null-binder guard on top of this fork's `onTransact`,
+and nothing else changed in it.
+
+### Not shipped, but present
+
+Upstream generalized its pre-push guard to check every XML under `manager/` for dangling
+`@drawable`, `@mipmap`, `@color` and `@style` references, and wired it into CI as a fast-fail job.
+The CI half is inert here — this fork has no `.github/`, deliberately — but the script itself is in
+the tree and is precisely the check that would have caught the icon reference above, in either
+direction.
+
 ## 13.6.0.r2279+2026-08-16.13-12.g690b3632+004
 
 **The app itself is unchanged from `+002`.** This build fixes the release machinery that decides
