@@ -27,17 +27,36 @@ import java.util.concurrent.atomic.AtomicInteger
  *
  * ## Why this exists at all
  *
- * Upstream's [af.shizuku.manager.receiver.BinderRequestReceiver] asks for consent on *every*
- * request, and it is right to: `REQUEST_BINDER` is a plain broadcast, `Binder.getCallingUid()` is
- * meaningless in `onReceive()` for one, and the action is the public, unauthenticated part of the
- * client API that any installed app can send. Upstream removed a fast path that trusted the
- * intent's own `callingPackage` / `callingUid` extras (`c7c9f6c8`), because any app could name an
- * already-authorized package, supply its *own* callback binder, and be handed the live
- * full-privilege binder with no user interaction.
+ * `REQUEST_BINDER` is a plain broadcast: `Binder.getCallingUid()` is meaningless in `onReceive()`
+ * for one, and the action is the public, unauthenticated part of the client API that any installed
+ * app can send. Upstream removed a fast path that trusted the intent's own `callingPackage` /
+ * `callingUid` extras (`c7c9f6c8`), because any app could name an already-authorized package,
+ * supply its *own* callback binder, and be handed the live full-privilege binder with no user
+ * interaction. It then gated every request on a consent notification instead, which cost a prompt
+ * per shell command. This class answered that with an identity check the caller cannot fake.
  *
  * This fork previously papered over the per-command prompt with a global "shell consent granted"
  * flag, which was **worse** — once set it handed the binder to any app that could broadcast, with
  * no identification at all. Both are gone.
+ *
+ * ## What changed upstream at `32382e89`, and what it leaves this class doing
+ *
+ * Upstream now delivers the binder **unconditionally** and makes no authorization decision in
+ * [af.shizuku.manager.receiver.BinderRequestReceiver] at all: receiving a bare binder reference is
+ * not the privilege boundary, because every privileged AIDL method is separately gated by
+ * `enforceCallingPermission()`, reading the kernel-supplied uid of the real transaction the caller
+ * makes once attached. The one consent prompt now happens downstream — `attachApplication()` →
+ * `checkSelfPermission()` → `requestPermission()` → `showPermissionConfirmation()` →
+ * `RequestPermissionActivity` — already keyed on that verified uid, and already skipped once the
+ * uid is granted. The notification-consent machinery this class used to fall back into
+ * (`ShellConsentActivity`, `ShellConsentActionReceiver`, `PendingConsentStore`) was deleted with it.
+ *
+ * So the tiers below no longer decide *whether* the binder is handed over — upstream would hand it
+ * over regardless. What they still buy the fork is the **evidence** [RishSetup] needs (only a
+ * token-authenticated delivery proves `rish` is set up prompt-free; the terminal's own directory
+ * cannot be read without root), a truthful [ActivityLogManager] entry naming a kernel-verified
+ * caller rather than a self-declared one, and a delivery path that skips the round trip entirely
+ * when the token matches.
  *
  * ## The mechanism: make the caller transact into US
  *
@@ -54,8 +73,8 @@ import java.util.concurrent.atomic.AtomicInteger
  *                        |
  *       Binder.getCallingUid() == the real uid of the rish process
  *                        |
- *   granted(uid)? --yes--> deliver, NO prompt
- *                 --no --> upstream's consent notification, exactly as today
+ *   granted(uid)? --yes--> deliver here, logged against the verified uid
+ *                 --no --> hand off to upstream's public action
  * ```
  *
  * **Why this is not the hole upstream closed.** A malicious app can absolutely answer the
@@ -71,15 +90,15 @@ import java.util.concurrent.atomic.AtomicInteger
  * A kernel-verified uid is therefore exactly the right key, and it is why an anonymous shell
  * client (`rish` in Termux, which may report no package at all) is handled rather than skipped.
  *
- * **Failure always falls back to asking.** Any failure — the challenge transact throwing, the
+ * **Failure always falls back to upstream.** Any failure — the challenge transact throwing, the
  * reply not arriving inside [CHALLENGE_TIMEOUT_MS], a mismatched nonce, or simply no grant yet —
- * re-broadcasts the public action so upstream's receiver posts its consent notification. The worst
- * case is the behaviour without this class, never anything weaker.
+ * re-broadcasts the public action and lets upstream's receiver handle the request on its own
+ * terms. The worst case is exactly the behaviour without this class, never anything weaker.
  *
  * Deliberately a *separate* receiver on a *separate* action: it keeps
  * [af.shizuku.manager.receiver.BinderRequestReceiver] byte-identical to upstream, so the
- * security-critical file upstream actively develops stays conflict-free on every rebase, and the
- * consent-notification code is reused rather than duplicated.
+ * security-critical file upstream actively develops stays conflict-free on every rebase — which is
+ * exactly what let `32382e89`, a full rewrite of that file, land here without a single conflict.
  */
 class VerifiedBinderRequestReceiver : BroadcastReceiver() {
 
@@ -87,7 +106,7 @@ class VerifiedBinderRequestReceiver : BroadcastReceiver() {
         /** Suffix appended to the applicationId. Sent only by our own [ShizukuShellLoader]. */
         const val ACTION_SUFFIX = ".intent.action.REQUEST_BINDER_VERIFIED"
 
-        /** Upstream's public action, used for the always-ask fallback. */
+        /** Upstream's public action, used for the hand-off fallback. */
         private const val PUBLIC_ACTION = "rikka.shizuku.intent.action.REQUEST_BINDER"
 
         /**
@@ -103,7 +122,7 @@ class VerifiedBinderRequestReceiver : BroadcastReceiver() {
         /**
          * The client is blocked waiting for its binder, so a genuine reply is a single round trip
          * on a binder thread — milliseconds. This only bounds the pathological case; exceeding it
-         * costs a consent prompt, not a failure.
+         * costs the hand-off to upstream's own path, not a failure.
          */
         private const val CHALLENGE_TIMEOUT_MS = 3_000L
     }
@@ -120,16 +139,17 @@ class VerifiedBinderRequestReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // Three tiers, cheapest first. The token needs no round trip, so it costs nothing
-                // to try it before the challenge; the challenge is what makes a remembered consent
-                // actually count; the public consent flow is the backstop.
+                // to try it before the challenge; the challenge is what lets the delivery be
+                // logged against an identity the caller could not have invented; upstream's own
+                // public action is the backstop.
                 if (deliverIfTokenValid(context, intent, callbackBinder)) return@launch
                 val verifiedUid = challengeForUid(callbackBinder)
                 if (verifiedUid == null || !deliverIfGranted(context, callbackBinder, verifiedUid)) {
-                    fallBackToConsentFlow(context, intent, verifiedUid)
+                    handOffToPublicAction(context, intent)
                 }
             } catch (e: Throwable) {
-                LOGGER.w(e, "verified binder request failed, falling back to consent")
-                runCatching { fallBackToConsentFlow(context, intent, null) }
+                LOGGER.w(e, "verified binder request failed, handing off to upstream")
+                runCatching { handOffToPublicAction(context, intent) }
             } finally {
                 pending.finish()
             }
@@ -177,8 +197,8 @@ class VerifiedBinderRequestReceiver : BroadcastReceiver() {
         if (!granted) return false
 
         if (!ShellBinderRequestHandler.deliverBinder(context, callbackBinder)) {
-            // The client is gone, or stayed frozen past the whole retry ladder. Prompting cannot
-            // help it, and a consent notification for a dead client would only orphan a binder.
+            // The client is gone, or stayed frozen past the whole retry ladder. Reported as handled
+            // regardless: re-broadcasting for a dead client would only orphan another binder.
             LOGGER.w("verified caller uid $uid was authorized but delivery failed")
             return true
         }
@@ -258,12 +278,12 @@ class VerifiedBinderRequestReceiver : BroadcastReceiver() {
         if (!latch.await(CHALLENGE_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
             // Overwhelmingly the stale-dex case: rish loads rish_shizuku.dex from a copy beside the
             // rish script, so a loader predating the challenge simply ignores transaction code 2
-            // and never answers. Named explicitly because the symptom — a consent prompt on every
-            // command — otherwise looks like the verified path is broken rather than absent.
+            // and never answers. Named explicitly because the symptom — this path never confirming
+            // an identity — otherwise looks like the verified path is broken rather than absent.
             LOGGER.w(
                 "identity challenge unanswered after ${CHALLENGE_TIMEOUT_MS}ms; " +
                     "shell client is probably running an out-of-date rish_shizuku.dex " +
-                    "(re-copy rish and rish_shizuku.dex from the app), falling back to consent"
+                    "(re-copy rish and rish_shizuku.dex from the app), handing off to upstream"
             )
             return null
         }
@@ -274,48 +294,31 @@ class VerifiedBinderRequestReceiver : BroadcastReceiver() {
 
     /**
      * Re-broadcasts the request on upstream's public action so
-     * [af.shizuku.manager.receiver.BinderRequestReceiver] runs its unmodified consent flow.
+     * [af.shizuku.manager.receiver.BinderRequestReceiver] handles it on its own terms.
      *
-     * Reusing it this way — rather than extracting or copying `postConsentNotification` — is what
-     * keeps that file byte-identical to upstream. The live callback binder survives the hop the
-     * same way it survived the original broadcast: `Bundle.putBinder` is carried by the binder
+     * Handing off this way — rather than copying its logic here — is what keeps that file
+     * byte-identical to upstream, and it is why `32382e89` rewrote it end to end without
+     * conflicting with anything in this fork. The live callback binder survives the hop the same
+     * way it survived the original broadcast: `Bundle.putBinder` is carried by the binder
      * transaction, not serialised into the parcel body.
      *
-     * When the challenge succeeded, [verifiedUid] **replaces** the caller-supplied identity extras:
-     * the consent prompt names the caller from `callingPackage`, and any app can put any name
-     * there, so an app holding no grant could otherwise raise a prompt reading "Termux is
-     * requesting shell access" and phish the tap that authorizes it. Substituting a kernel-verified
-     * identity makes that prompt truthful.
+     * **The identity extras are deliberately not forwarded.** They used to be: when the challenge
+     * succeeded the verified uid replaced them, so the consent prompt named a caller that could not
+     * lie about itself, and when it failed the caller's own extras went through unchanged because
+     * the consent flow needed *some* uid to store a grant against. Since `32382e89` there is no
+     * prompt on this path and no grant written from it — upstream reads only `auth` and the callback
+     * binder, and decides nothing here — so passing them on would be theatre. Consent moved to
+     * `attachApplication()` → `RequestPermissionActivity`, which reads the uid from a real
+     * transaction and never sees this broadcast at all.
      *
-     * When it failed, the original extras are forwarded **unchanged**. Dropping them instead looks
-     * safer and is not: an attacker who wants the spoofable label simply sends the public action
-     * directly to upstream's receiver, which never consults this class at all — so withholding them
-     * here closes nothing, while it does destroy the only uid the consent flow has to store a grant
-     * against. Without that uid [ShellConsentActionReceiver] cannot call
-     * [af.shizuku.manager.authorization.AuthorizationManager.grant], so "Allow" remembers nothing
-     * and every single command re-prompts — measured on-device, and strictly worse than upstream.
+     * The `auth` token still is forwarded: without it a client holding a real `SHIZUKU_TOKEN` would
+     * lose upstream's own fast path, and that check lives in that receiver by design.
      */
-    private fun fallBackToConsentFlow(context: Context, original: Intent, verifiedUid: Int?) {
+    private fun handOffToPublicAction(context: Context, original: Intent) {
         val intent = Intent(PUBLIC_ACTION)
             .setPackage(context.packageName)
             .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
         original.getBundleExtra("data")?.let { intent.putExtra("data", it) }
-
-        if (verifiedUid != null) {
-            intent.putExtra("callingUid", verifiedUid)
-            packageNameFor(context, verifiedUid)
-                .takeIf { it.isNotEmpty() }
-                ?.let { intent.putExtra("callingPackage", it) }
-        } else {
-            original.getStringExtra("callingPackage")?.let { intent.putExtra("callingPackage", it) }
-            original.getIntExtra("callingUid", -1)
-                .takeIf { it >= 0 }
-                ?.let { intent.putExtra("callingUid", it) }
-        }
-
-        // Must be forwarded, or a client holding a real SHIZUKU_TOKEN would lose upstream's
-        // auth-token fast path and be prompted instead — the token check lives in that receiver and
-        // is deliberately not duplicated here.
         original.getStringExtra("auth")?.let { intent.putExtra("auth", it) }
         context.sendBroadcast(intent)
     }
