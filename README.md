@@ -16,7 +16,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 authorized sister apps, and the house look driven through every screen. Installs as
 `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2282+2026-08-16.18-54.ge1eef5d4+002`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2284+2026-08-17.18-29.g32382e89+002`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -178,31 +178,32 @@ previously read none.
 
 ---
 
-## ⌨️ `rish` asks once, not on every command — and proves who is asking
+## ⌨️ `rish` asks once, and the answer is tied to a caller that cannot lie
 
-Upstream's consent dialog has nothing to remember an answer by, so it re-asks on **every single
-request**, putting a full-screen prompt in front of each `rish -c '…'`. The obvious fix — store one
-"shell clients are allowed" flag — is the wrong one, and this fork shipped it before removing it:
-once set, *any* installed app that could send a broadcast got the full-privilege binder, identifying
-itself as nothing at all.
+`REQUEST_BINDER` is a plain broadcast, so `Binder.getCallingUid()` tells you nothing about who sent
+it. That single fact has driven every version of this feature. Upstream once trusted the sender's own
+claim about its package and uid — forgeable, and removed. It then asked for consent on **every**
+request, which was safe and unusable. Since `13.6.0.r2284` it hands the binder out unconditionally
+instead, on the correct observation that holding a binder reference is not the privilege boundary:
+each privileged call is gated on the uid the *kernel* attaches to the real transaction, and the one
+consent prompt now lives on that verified path. So `rish` asks once and then stops.
 
-The answer here is to establish **who is actually asking**, in three tiers, cheapest first:
+This fork got there first, by a different route, and keeps the machinery because it still earns its
+place — in three tiers, cheapest first:
 
 1. **The auth token.** Upstream's own mechanism, compared constant-time, no round trip. The setup
-   card below bakes it into your `rish` script, so a normal setup never gets past this tier.
-2. **An identity challenge**, and then the grant you already gave that client.
-3. **Upstream's consent prompt**, unchanged, for anything the first two could not settle.
+   card below bakes it into your `rish` script, so a normal setup never gets past this tier — and a
+   token-authenticated connection is the only observable proof that your terminal is set up at all,
+   which is what turns the card green.
+2. **An identity challenge**, so a delivery can be logged against a caller that could not have
+   invented its own identity.
+3. **Hand off to upstream's own path** for anything the first two could not settle.
 
-The challenge is what makes a remembered answer safe to keep. `Binder.getCallingUid()` tells you
-nothing inside a broadcast receiver — which is why a fast path that trusted the *sender's own claim*
-about its package and uid was forgeable, and why upstream removed it. But `rish`'s callback binder is
-a real binder in `rish`'s own process, so rather than asking the caller who it is, the manager hands
-it a fresh binder and a single-use nonce and requires it to call back. On that inbound transaction
-the uid comes from the kernel.
-
-A hostile app can answer the challenge perfectly well — and the uid the kernel reports is then its
-own. It can only ever satisfy the check with a grant it already holds; it cannot borrow Termux's.
-Every failure falls through to tier 3, so the worst case is upstream's behaviour and never weaker.
+The challenge works because `rish`'s callback binder is a real binder in `rish`'s own process. Rather
+than asking the caller who it is, the manager hands it a fresh binder and a single-use nonce and
+requires it to call back; on that inbound transaction the uid comes from the kernel. A hostile app can
+answer it perfectly well — and the uid reported is then its own. It can only ever satisfy the check
+with a grant it already holds; it cannot borrow Termux's.
 
 Grants stay revocable in the authorization list, and every grant and refusal is written to the
 Activity Log, so the decisions are auditable after the fact.

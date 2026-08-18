@@ -8,6 +8,94 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2284+2026-08-17.18-29.g32382e89+002
+
+Rebased onto upstream `13.6.0.r2284`. Two upstream commits, plus one in the API submodule — and
+between them they retire the mechanism the last three fork releases were built around.
+
+**This one is worth installing.** `rish` should now prompt **once**, on the first privileged command
+after a fresh install, and never again. Every release before this asked on some schedule or other;
+the newest of them, `…r2282+002`, asked once per command unless the setup card had been used.
+
+### Upstream stopped guarding the binder, and it is right to
+
+`REQUEST_BINDER` is a plain broadcast, so `Binder.getCallingUid()` says nothing about who sent it.
+Upstream's `c7c9f6c8` had closed a real hole there — a fast path that trusted the intent's own
+`callingPackage` / `callingUid`, which let any installed app name an already-authorized package and
+be handed the live privileged binder with no interaction — and replaced it with a consent
+notification on **every** request. That was safe and unusable: "Allow always" stopped meaning
+always, and each shell command asked again.
+
+`32382e89` removes the guard instead of tightening it. Receiving a bare binder reference is not the
+privilege boundary: every privileged AIDL method is separately gated by `enforceCallingPermission()`,
+which reads the uid the kernel attaches to the real transaction a caller makes once it has attached
+— not anything a broadcast claimed. So the binder now goes out unconditionally, and the single
+consent prompt happens downstream, in `attachApplication()` → `RequestPermissionActivity`, which was
+already keyed on that verified uid and already skipped once the uid is granted.
+
+The notification machinery is gone with it: `ShellConsentActivity`, `ShellConsentActionReceiver` and
+`PendingConsentStore` are deleted, along with their manifest entries and eleven strings.
+
+### What that leaves of this fork's own shell layer
+
+This fork answered the per-command prompt its own way, in `VerifiedBinderRequestReceiver`: hand the
+caller a fresh binder and a single-use nonce, make it transact back, and read its uid from the
+kernel on that inbound call. That still works and is still in the build — but it no longer decides
+whether the binder is handed over, because upstream would hand it over regardless.
+
+What the tiers are still worth is stated plainly in the code now: the auth-token delivery is the
+only observable evidence that `rish` is set up prompt-free, which is what turns the home card green
+(a terminal's own directory cannot be read without root); the challenge is what lets a delivery be
+logged against an identity the caller could not have invented; and the token path skips the round
+trip entirely.
+
+One piece was removed as inert. The fallback used to substitute the kernel-verified uid into the
+extras it re-broadcast, so the consent prompt could not be made to read "Termux is requesting shell
+access" by an app that was not Termux. There is no prompt on that path any more, and upstream's
+receiver reads only `auth` and the callback binder, so the substitution protected nothing. It is
+gone, `fallBackToConsentFlow` is now `handOffToPublicAction`, and the `auth` extra is still
+forwarded — without it a client holding a real token would lose upstream's own fast path.
+
+`BinderRequestReceiver.kt` needed no reconciliation at all. Upstream rewrote it end to end and it
+still applied byte-for-byte, which is the entire reason this fork keeps its shell entry point in a
+separate receiver on a separate action rather than patching that file.
+
+### A permission check that had been quietly answering "no"
+
+`checkCallerPermission`'s fallbacks — the OS permission check, and the config-flag bridge that
+recognizes a grant for an app with no declared Shizuku permission, which is exactly Termux's case —
+all sat inside `if (clientRecord == null)`. Once a client has successfully attached, that record is
+never null again, so for every already-attached non-manager caller the function skipped its own
+checks and fell through to `return false`.
+
+Not a live bypass: `enforceCallingPermission()` independently checks `clientRecord.allowed` one
+layer up, which is what actually kept authorized callers working. But the function was reporting the
+opposite of the truth about clients it was asked about, and its real behaviour depended entirely on
+a duplicate check elsewhere. It now reads `clientRecord.allowed` directly when a record exists.
+
+Upstream also fixed `showPermissionConfirmation` / `RequestPermissionActivity` bailing in silence
+when PackageManager cannot resolve the caller — which left the caller's `requestPermission()` call
+hanging forever with nothing dispatched. It now falls back to a package-name/uid label.
+
+### `rish` will tell you what went wrong now
+
+In the API submodule, `Rish.startShell` printed only `e.getMessage()`. For an exception carrying no
+message — a `RemoteException`-wrapped `SecurityException` loses its text in transit — that is a
+blank line, indistinguishable from the command having run and done nothing. `RishTerminal.waitFor()`
+was worse: a failed exit-code round trip went to `Log.w` only.
+
+Both now print the exception class and message to **stderr**. That matters more here than upstream
+had reason to know: EMUI's logcat buffer on the Mate XT keeps only `E/` and `F/` records, so a
+`Log.w` diagnostic on this hardware is not merely inconvenient, it is invisible.
+
+### The launcher icon, once again untouched by a commit that aimed at it
+
+`0d6f357a` moved upstream's Material-You "Plus" badge onto the hexagon's top-right lobe, so circular
+icon masks stop clipping it. That badge is drawn by the layer-list at `@drawable/ic_launcher_foreground`
+which this fork deletes, so the change arrived as a modify/delete conflict and the deletion was kept.
+The traced black-yellow mark stays bare at `@mipmap/ic_launcher_foreground`, with nothing composited
+over it — the third sync in a row where upstream's icon work is correctly declined.
+
 ## 13.6.0.r2282+2026-08-16.18-54.ge1eef5d4+002
 
 Rebased onto upstream `13.6.0.r2282`. Three upstream commits, all hardening — and one of them had to
