@@ -8,6 +8,66 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2292+2026-08-20.07-19.g794da9d8+002
+
+Rebased onto upstream `13.6.0.r2292` — eight upstream commits, all bug fixes plus one new
+translation. Nothing touches the privileged server, the starter or the binder handoff, so the shell
+layer reworked in the last two releases is untouched and `BinderRequestReceiver.kt` is still
+byte-identical to upstream.
+
+**Worth installing for one reason:** a crash this fork was carrying on its own is fixed.
+
+### A notification icon could take the app down on launch
+
+Upstream's `64f552d8` chased down issue #422 — an app that crashed at launch on OneUI 3.1 with
+`RemoteServiceException: "Couldn't create icon StatusBarIcon"`. The cause is that notification icons
+are rendered by the system in its **own** theme context, where an app-defined
+`android:tint="?attr/colorControlNormal"` may not resolve at all. A vector carrying that tint is
+fine everywhere in the UI and fatal the moment it is handed to `setSmallIcon()` or `addAction()`.
+Upstream added untinted `ic_notification_*` twins and swapped its own call sites.
+
+Two tinted call sites survived that fix, and this release closes both.
+
+The first is **ours**. `StateExportService` — the foreground service behind 保存復元 automated
+exports — posted its progress notification with `ic_server_24`, which carries the tint. That is the
+same crash, in fork-only code upstream never saw, waiting on whichever device resolves the attribute
+least forgivingly. It now uses a new `ic_notification_server_24`, an untinted twin of the same
+glyph rather than a different icon, so the notification looks exactly as it did.
+
+The second is **upstream's own miss**. `WatchdogService`'s "Turn Off Alerts" action still passed
+`ic_close_24`; upstream created `ic_notification_close_24` for precisely this and swapped it only in
+`ShizukuReceiverStarter`. Fixed here.
+
+Upstream also shipped a JUnit regression test for this class of bug, which runs in our suite now.
+It matches `.setSmallIcon(`/`.addAction(` followed directly by the drawable reference — so a comment
+placed *between* the call and the reference does not fail the check, it silently removes that call
+site from it. The comment explaining the `WatchdogService` swap therefore sits above the call, and
+says why. The tree currently reports 22 notification icon call sites and no violations.
+
+### Brazilian Portuguese, de-branded by hand
+
+Upstream took a community translation (#409) that replaces `values-pt-rBR/strings.xml` wholesale —
+305 lines to 1077. Rather than search-and-replace the brand across it, each string was checked
+against the same key in the de-branded English file: 126 keys become 白い熊 雫, and 12 deliberately
+keep saying "Shizuku" because they mean *stock* Shizuku, the original Shizuku API, or a package id.
+
+Three things upstream's file got wrong on its way in were fixed too: the translation-credit link
+pointed at upstream's repository, the migration dialog named upstream's application id instead of
+ours, and an em dash had been written as a bare literal `2014`, which would have rendered as those
+four digits mid-sentence in two strings. The translator is credited by name rather than upstream's
+author.
+
+### Upstream fixes that come along
+
+- **Dev/beta update channel** picked the newest release by date rather than by its prerelease flag,
+  so it silently converged on whatever stable release came last. Irrelevant here — this fork
+  publishes no prereleases and the automatic poll is off by default — but the code is now correct.
+- **SU Bridge** redeploys its version-specific dex on app update instead of waiting for someone to
+  reopen the settings screen, and its self-test now reports the actual exit code and stderr rather
+  than a generic failure. Both are no-ops unless the SU Bridge is enabled.
+- **Swift Backup's SU-path entry was removed** after upstream decompiled the app and confirmed it
+  never reads a custom `su` path at all.
+
 ## 13.6.0.r2284+2026-08-17.18-29.g32382e89+002
 
 Rebased onto upstream `13.6.0.r2284`. Two upstream commits, plus one in the API submodule — and
