@@ -5,9 +5,9 @@
     <string name="server_memory_uncapped">Sem limite</string>
     <string name="server_clients_connected">%1$d aplicativos conectados</string>
 
-    <!--Para tradutores: você pode deixar o seu aqui-->
-    <string name="translation_contributors">thejaustin</string>
-    <string name="translation_url">https://github.com/thejaustin/白い熊 雫</string>
+    <!-- To translators: you can leave your here -->
+    <string name="translation_contributors">Odorizzi</string>
+    <string name="translation_url">https://github.com/ShiroiKuma0/shiroikuma-shizuku</string>
 
     <!--Configurações da interface - Expressiva-->
     <string name="settings_expressive_title">Design Expressivo (M3E)</string>
@@ -436,6 +436,7 @@
     <string name="diagnostics_shadow_binder_navigate_hint">Acesse Central de Recursos → Segurança e Acesso → Shadow Binder para selecionar aplicativos</string>
     <string name="diagnostics_device_owner_setup_title">Configurar Device Owner</string>
     <string name="diagnostics_device_owner_setup_message">O Modo Dhizuku requer que este aplicativo seja o Device Owner.
+    <string name="help_general_plus_summary"><![CDATA[<b>Como o 白い熊 雫 funciona com outros aplicativos</b><br><br>O 白い熊 雫 oferece <i>recursos exclusivos Plus</i> (Ponte de Armazenamento, Ponte de IA, Ponte de Personalização) acessíveis por este aplicativo e por qualquer aplicativo de terceiros que use explicitamente a API do 白い熊 雫 (shiroikuma.shizuku).<br><br><b>Importante:</b> O 白い熊 雫 é totalmente compatível com a API original do Shizuku. Aplicativos existentes que usam o Shizuku padrão (como SD Maid SE e SwiftBackup) descobrirão e funcionarão automaticamente com o 白い熊 雫 sem qualquer atualização do desenvolvedor.<br><br><b>Usando junto com o Shizuku padrão:</b> Apenas um serviço pode ser executado por vez. O cartão de Complemento na tela inicial facilita a troca caso você ainda tenha o Shizuku padrão instalado, mas é recomendado desinstalar o Shizuku padrão e usar apenas o 白い熊 雫.]]></string>
 
 Execute este comando no PC (a depuração USB deve estar ativada):
 

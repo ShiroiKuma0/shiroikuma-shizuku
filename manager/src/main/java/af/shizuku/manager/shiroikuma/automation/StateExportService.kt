@@ -178,7 +178,7 @@ class StateExportService : Service() {
         return Notification.Builder(this, CHANNEL)
             .setContentTitle("白い熊 雫")
             .setContentText("保存復元 — exporting…")
-            .setSmallIcon(R.drawable.ic_server_24)
+            .setSmallIcon(R.drawable.ic_notification_server_24)
             .setOngoing(true)
             .build()
     }
