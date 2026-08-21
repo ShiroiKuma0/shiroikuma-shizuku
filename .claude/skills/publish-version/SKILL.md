@@ -57,8 +57,16 @@ identical to the line not existing. Grep the full output, or read the asset out 
 the strongest check, and the one that settles any doubt:
 
 ```bash
-unzip -p <the apk> assets/changelog.md | head -20      # first heading must be the built version
-unzip -p <the apk> assets/changelog.md | grep -c "Not published yet"   # must be 0
+# The first `## ` heading must be exactly the version being published.
+unzip -p <the apk> assets/changelog.md | grep -m1 '^## '
+
+# Match the placeholder as a WHOLE LINE, never as a loose phrase. The changelog's own prose
+# discusses this mechanism by name, so `grep -c "Not published yet"` matches that discussion
+# and false-alarms on a perfectly good APK (it did, on r2292+002). `manager/build.gradle`
+# defines the marker once as `bundledChangelogGeneratedMarker` and matches it as a line for
+# exactly this reason — use the same shape here.
+unzip -p <the apk> assets/changelog.md \
+  | grep -cxF '_Not published yet — this summary is generated from git at build time._'   # must be 0
 ```
 
 ## What gets published
