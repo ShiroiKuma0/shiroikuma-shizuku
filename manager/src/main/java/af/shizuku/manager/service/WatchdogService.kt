@@ -154,8 +154,12 @@ class WatchdogService : Service() {
             .setContentTitle(getString(R.string.watchdog_running))
             .setSmallIcon(R.drawable.ic_notification_icon)
             .setContentIntent(launchPendingIntent)
+            // Untinted twin — a theme-attribute tint can fail to resolve in the system's own
+            // theme context (upstream 64f552d8 / #422). Upstream added ic_notification_close_24
+            // for exactly this but missed this call site. Keep the drawable ref on the line
+            // directly after `.addAction(` or the regression check stops seeing it.
             .addAction(
-                R.drawable.ic_close_24,
+                R.drawable.ic_notification_close_24,
                 getString(R.string.watchdog_turn_off),
                 stopPendingIntent
             )
