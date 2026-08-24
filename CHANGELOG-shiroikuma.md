@@ -8,6 +8,53 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2298+2026-08-23.03-16.g7a3e4098+002
+
+Rebased onto upstream `13.6.0.r2298`. **This release changes nothing about how the app behaves** —
+the entire upstream delta is six commits to `README.md`, and no fork code was touched either. It
+exists so the installed build's pin says `r2298`, which is where upstream actually is.
+
+Say plainly what that means: if `13.6.0.r2292+…+002` is running and working, this build is
+byte-for-byte equivalent in behaviour and there is no reason to hurry. Install it to keep the
+version string honest, not to fix anything.
+
+### The whole upstream delta is a README banner
+
+`8e973871`, `7cf983b1`, `56a6f28d`, `73664e90`, `0e28255f` and `7a3e4098` were pushed within 106
+seconds of each other on 2026-08-22 — one paragraph, edited six times in place. `git diff --stat`
+across the range is a single line: `README.md | 8 ++++++++`.
+
+What they land is a **`[ DEVELOPMENT PAUSED ]`** notice at the top of upstream's README. thejaustin
+has moved to a new phone, is rebuilding his development environment, asks for issues to keep coming
+in, and is looking for contributors to help stabilize the project.
+
+No source, resource, manifest, Gradle or submodule file appears anywhere in the range. The
+privileged server, the starter, the binder handoff and the whole `rish` shell layer are untouched by
+definition rather than by inspection, and `BinderRequestReceiver.kt` remains byte-identical to
+upstream.
+
+### That banner was the rebase's only conflict
+
+Our `README.md` on `custom` is our own fork README, so upstream's new opening paragraph collided
+with it on the first fork commit. Resolved in our favour and one-sidedly: upstream's banner and
+their `# Shizuku+` heading are dropped, our icon line and `# 白い熊 雫` heading kept. It is
+upstream-identity text about upstream's author — not something this fork should be repeating to
+白い熊 as though it were our own status.
+
+The `api/` submodule pin also stays at our own `83cc09e`; upstream's `master` pins `b77af0e7`, which
+we do not take.
+
+### Both trees this fork watches are now paused
+
+Upstream has just said so in as many words, and `thedjchi/Shizuku` — upstream's own base, which we
+track as a read-only reference remote — has been dormant since its own maintenance-pause notice on
+2026-07-14. The djchi delta is unchanged at zero new commits, and the two items standing on that
+ledger (reading the manager package name from the APK path instead of hardcoding it, and moving
+`:server` off gson) remain deliberately deferred rather than resolved.
+
+Practically: expect the upstream side of these releases to be quiet for a while. Fork work does not
+depend on upstream moving.
+
 ## 13.6.0.r2292+2026-08-20.07-19.g794da9d8+002
 
 Rebased onto upstream `13.6.0.r2292` — eight upstream commits, all bug fixes plus one new
