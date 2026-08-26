@@ -8,6 +8,103 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2318+2026-08-26.09-45.ga3222cd2+001
+
+Rebased onto upstream `13.6.0.r2318` — four commits, all pushed by thejaustin within seventy-three
+minutes on 2026-08-26, hours after the sixteen that made up `r2314`. Three files touched in total,
+41 insertions against 16 deletions, all of it inside `manager/`.
+
+**One of the four does anything on 白い熊's phones.** The other three are Samsung One UI deep-link
+corrections, and every call site is behind `EnvironmentUtils.isSamsung()` — inert on a Huawei Mate XT
+and on a Motorola razr 40 ultra alike. They are taken anyway, because carrying upstream's fix costs
+nothing and refusing it would create a permanent conflict in a file this fork does not otherwise
+touch.
+
+### The battery-optimization button finally does what its own label says
+
+`c72a4ff3`, and it is the reason to install this build.
+
+The Diagnostics dashboard's `battery_optimization` warning has always read **"Battery optimization is
+active. 白い熊 雫 may be killed in the background. Tap to exempt."** Tapping it fired
+`Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS` — the plain alphabetical list of *every*
+installed app, three hundred-odd entries deep, with no scroll position and no highlight. There was
+nothing to tap; there was a list to search. The promise in the message and the behaviour of the row
+had simply never matched.
+
+It now calls `SettingsHelper.requestIgnoreBatteryOptimizations()`, which uses
+`ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`: the system's own Allow/Deny dialog, scoped to this app
+and nothing else. One tap, done.
+
+The helper was already there and already correct — `HomeActivity`, `BaseSettingsFragment` and
+`ServiceDoctorActivity` all used it. This one row was the straggler that never got converted.
+
+The change landed on a line adjacent to two of this fork's own edits in that file (the de-branded
+warning text, and `Toast` replaced by the house `ShiroikumaToast` in the fallback path). Git merged
+all three without a conflict, and both fork edits are intact.
+
+### Samsung deep links, researched rather than guessed
+
+Three commits, worth recording even though they are dead code here, because they are a good example
+of the difference between a fix that compiles and a fix that was checked.
+
+`1ac9011a` found that **Auto Blocker moved out of `com.android.settings` entirely** at some point
+after One UI 6, into its own package `com.samsung.android.rampart`; `.ui.MainSettingActivity` lands
+straight on the toggle with no permission wall. The two old in-settings paths are demoted to
+fallbacks rather than deleted, for devices still routing through them.
+
+The same commit found that while the categorized **App Power Management** hub genuinely is
+`READ_SEARCH_INDEXABLES`-walled — a protected permission no third-party app can hold — the list
+screen underneath it, `CheckableAppListActivity`, carries no such guard and opens directly.
+
+`a3222cd2` then found Samsung's **own Deeplink API documentation** and learned that this single
+activity backs three different lists, selected by an `activity_type` int extra that is invisible in a
+manifest dump: `0` sleeping, `1` deep sleeping, `2` never sleeping. The button now passes `2` and
+lands on **Never sleeping apps** — the actual exemption list its guidance describes — rather than on
+the restriction list it had been reaching by default. No per-package extra is documented, so it opens
+the list rather than scrolling to the app; upstream says so plainly instead of implying otherwise.
+
+`41c5f449` and the tail of `a3222cd2` rewrote `doctor_tip_samsung_sleeping` twice in the same hour,
+first hedging the wording to match the wrong destination and then restoring confident wording once
+the right one was verified. **Both conflicted here**, since this fork de-brands that string. The
+resolution takes upstream's final wording with `Shizuku+` replaced by 白い熊 雫: *"Tapping Fix opens
+the 'Never sleeping apps' list directly. Tap the + button and add 白い熊 雫 to prevent Samsung from
+freezing the background service."* The neighbouring three Samsung and phantom-process tips keep their
+de-branded text unchanged.
+
+### Nothing touched the privileged path
+
+No commit in this range goes near `server/`, `starter/`, `shell/`, `compat/`, the `api` submodule or
+any build file. `starter.cpp`, `ServiceStarter`, `SingleInstanceLock`, the binder handoff and all
+three watchdog layers are untouched, so the one-server invariant and prompt-free `rish` are
+unaffected. `BinderRequestReceiver.kt` remains **byte-identical to upstream**.
+
+### The icon trap did not fire this time
+
+Upstream did not touch a single icon asset in this range — verified by diffing the whole
+`mipmap*`/`ic_launcher*`/`ic_monochrome` surface across the range rather than by trusting the absence
+of a conflict, which is exactly the check that `r2267` and `r2314` both taught. All fifteen PNGs stay
+ours, no `_base` variant exists, no `drawable/ic_launcher_foreground.xml` layer-list exists, and both
+adaptive-icon XMLs still resolve `<foreground>` to a bare `@mipmap/ic_launcher_foreground` with
+nothing composited over it.
+
+### The no-phone-home layer, re-verified in full
+
+Nothing regressed. `UpdateChecker` is still the only `openConnection` call site in the entire app and
+still points at `ShiroiKuma0/shiroikuma-shizuku`; the Sentry Gradle plugin is still absent with a
+hardwired empty DSN, an empty manifest DSN and auto-init false; `RemoteDbSyncWorker` is still never
+scheduled; `isAutoUpdateEnabled()` still defaults **false**; `VirusTotalClient` and `PithusClient`
+still contact nobody; `support_email` is still empty; `.github/` is still absent; and both
+wire-protocol strings plus the two custom permission names are untouched.
+
+`Helps.kt` keeps the split decided on 2026-08-26 — `ADB`, `ADB_ANDROID11`, `APPS` and
+`ADB_PERMISSION` point at upstream's wiki because that is where the writing is, while `HOME`,
+`DOWNLOAD`, `RISH` and the `getHelpUrl` fallback stay ours.
+
+### The djchi reference remote
+
+Still **zero new commits**. `thedjchi/Shizuku` has not moved since its maintenance-pause README on
+2026-07-14, and the standing ledger items remain deliberately deferred.
+
 ## 13.6.0.r2314+2026-08-26.08-02.g8faa3e23+002
 
 Rebased onto upstream `13.6.0.r2314` — sixteen commits, all pushed by thejaustin on 2026-08-26 in
