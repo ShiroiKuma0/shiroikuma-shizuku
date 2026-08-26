@@ -8,6 +8,118 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2314+2026-08-26.08-02.g8faa3e23+002
+
+Rebased onto upstream `13.6.0.r2314` — sixteen commits, all pushed by thejaustin on 2026-08-26 in
+one working session. The development pause announced at `r2298` evidently did not last.
+
+One of the sixteen matters on-device; five are launcher-icon work this fork discards; the rest are
+smaller fixes, docs, and CI that does not exist in this tree.
+
+### A third watchdog layer that survives the process being killed
+
+`c6a76f3f` adds **`WatchdogAlarmReceiver`**, and it is the reason to install this build.
+
+The watchdog could previously only notice a *service* dying. When an OEM battery manager freezes or
+kills the **whole manager process** — Samsung One UI's "Sleeping apps" is the reported case, EMUI
+behaves the same way — nothing inside that process survives to notice, so neither `WatchdogService`'s
+state-flow listener nor the two-hour `WatchdogWorker` backstop can ever fire. A dead process cannot
+detect its own death.
+
+The new layer is an `AlarmManager.setExactAndAllowWhileIdle` re-arm that reschedules itself every 15
+minutes. It survives because **`system_server` dispatches it**, not the app. It is wired into
+`setWatchdog()`, `BootCompleteReceiver` (exact alarms do not survive a reboot) and
+`ShizukuApplication.onCreate()`, and it declares `SCHEDULE_EXACT_ALARM`, falling back to an inexact
+wake when that permission is declined or restricted.
+
+Upstream is explicit, and it is worth repeating: this is a **mitigation bounded by the 15-minute
+interval**, not a cure. An aggressive freezer can still take the service down; it just cannot keep it
+down indefinitely.
+
+Nothing about `starter.cpp`, the fork, `SingleInstanceLock` or the binder handoff changes, so the
+one-server invariant is untouched by this.
+
+### Upstream rebuilt the icon trap; we discard it again
+
+Five commits (`0baba52c`, `bff27741`, `b41156c6`, and the two doc commits recording them) rework
+upstream's own launcher icon: the "plus" badge was extracted back out of their flattened art and
+re-added as a translucent overlay in a **`drawable/ic_launcher_foreground.xml` layer-list** over
+`ic_launcher_foreground_base.png`, after a real-device screenshot showed it clipped by the
+adaptive-icon safe-zone mask.
+
+This is the same composition recorded at `r2267` as the trap that produces **no conflict** — git
+follows the rename, our art lands at the `_base` name, and upstream's plus is drawn over it while the
+build succeeds. It was caught: the layer-list and all four `_base` PNGs are deleted, our art stays at
+the plain name, and both adaptive-icon XMLs still resolve `<foreground>` to a bare
+`@mipmap/ic_launcher_foreground` with nothing composited over it. All fifteen icon PNGs were verified
+byte-identical to the pre-rebase tree and none matching upstream's.
+
+`ic_monochrome.xml` was trimmed upstream to just their plus; ours stays the traced mark drawn as a
+single-tint stroke, which is the better themed icon of the two.
+
+### The help links now go where the content actually is
+
+A change of position, decided by 白い熊 on 2026-08-26.
+
+Upstream discovered (`e03f1f80`, `6e84d574`) that four in-app "Learn more" buttons pointed at wiki
+pages that never existed — `wiki/Setup` and `wiki/Supported-apps` — so every one of them 404'd, and
+repointed them at real pages and anchors. This fork had de-branded those same URLs to our own repo,
+where the wiki has **no pages at all**, so ours were dead in exactly the same way.
+
+So the split is now explicit: **`ADB`, `ADB_ANDROID11`, `APPS` and `ADB_PERMISSION` point at
+upstream's wiki**, because that is where the writing is, while **`HOME`, `DOWNLOAD`, `RISH` and the
+`getHelpUrl` fallback stay ours** — offering upstream's releases would be actively wrong, since they
+are signed with a different key and could never install over this build. The `getHelpUrl` fallback
+was the last 404 left in the file and now points at our README. A block comment in `Helps.kt` records
+the reasoning so a future sync does not de-brand it back into dead buttons.
+
+### Smaller upstream fixes taken
+
+- **The home screen no longer flashes "0 apps authorized"** on a cold start (`2089a6c4`).
+  `HomeState.grantedAppCount` was an `Int` defaulting to `0` and rendered before the async count
+  loaded; it is now `Int?` end to end, showing a neutral loading title until the real number lands.
+- **The SU bridge redeploys on every service start**, not only on app self-update (`e980c0b3`). If
+  the privileged server was not yet running at the moment of a self-update, the redeploy silently
+  no-op'd with nothing to retry it — common precisely on the devices that delay background processes.
+- **Compat Hub install failures name their cause.** Insufficient storage and unsupported ABI now get
+  their own messages instead of one generic failure; both were merged onto this fork's house toast
+  rather than upstream's plain one, so the styling is unchanged.
+- **Update-download failures name their cause too** — out of space, interrupted and unresumable, or
+  a network error, instead of one generic string.
+- **The Dev/Beta update channel can no longer stick on a stale prerelease** (`c13bf851`). It always
+  preferred the newest prerelease-flagged entry even when a newer stable had since been cut; it now
+  compares actual version codes and takes whichever is genuinely newer. It reads the fork's own
+  `parseVersionCode`, whose `rNNNN * 1000 + N` contract it happens to respect exactly.
+- **A Themed Icons toggle** appears in onboarding, on by default, with a best-effort deep link — no
+  `Settings.ACTION_*` exists for a launcher's themed-icon setting. Its new strings are de-branded.
+- **Samsung Service Doctor deep links** were fixed for One UI 8 (`8faa3e23`). Not relevant to either
+  of 白い熊's phones, but it is the path that made upstream's own "exempt this app from Sleeping
+  apps" guidance functional, which is what the new watchdog layer leans on.
+
+### `.github/` stays absent, and had to be removed again
+
+This fork deleted upstream's whole `.github/` directory — `app.yml` injected a Sentry DSN, uploaded
+native debug symbols, and triggered on pushes to `master`, which we push every sync. Upstream added a
+**brand-new** `pull_request_template.md` in this range, and since our de-branding commit only deleted
+the files that existed at the time, it arrived unopposed. It is removed.
+
+### The no-phone-home layer, re-verified in full
+
+Nothing regressed. `UpdateChecker` remains the only `openConnection` call site in the entire app;
+Sentry stays plugin-free with a hardwired empty DSN and an early return before `SentryAndroid.init()`;
+`RemoteDbSyncWorker.schedule()` still cancels rather than schedules; `isAutoUpdateEnabled()` still
+defaults **false**; `support_email` is still empty; and both wire-protocol strings are untouched.
+`BinderRequestReceiver.kt` remains **byte-identical to upstream**, so `rish` is unaffected.
+
+The `:manager` unit suite passes, so `ComponentNameContractTest` still guarantees the Compat Hub's
+string-literal component references resolve and that `applicationId` and `namespace` stay distinct.
+
+### The djchi reference remote
+
+Unchanged at **zero new commits** — `thedjchi/Shizuku` has been dormant since its own maintenance
+notice on 2026-07-14. The two standing ledger items (reading the manager package name from the APK
+path instead of hardcoding it, and moving `:server` off gson) remain deliberately deferred.
+
 ## 13.6.0.r2298+2026-08-23.03-16.g7a3e4098+002
 
 Rebased onto upstream `13.6.0.r2298`. **This release changes nothing about how the app behaves** —
