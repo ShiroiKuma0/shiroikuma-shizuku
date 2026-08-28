@@ -71,7 +71,14 @@ jobs:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       IS_DEBUG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug == true }}
-      IS_PRERELEASE: ${{ (github.event_name == 'push' && github.ref_name == 'master') || (github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease == true) }}
+      # github.ref_name != 'master' forces prerelease regardless of trigger/inputs - workflow_dispatch's
+      # prerelease input defaults to false, which is the intentional "promote to stable" mechanism
+      # for master, but nothing previously stopped that same default from applying to a manual
+      # dispatch against a feature branch too. That published a real "Latest"/stable release
+      # (v13.6.0.r2344, later deleted) built from an in-progress branch - a manual `gh workflow run
+      # --ref <branch>` to sanity-check compilation, with no intent to cut a release at all, silently
+      # became one because the default is stable-not-prerelease. Non-master can never be stable now.
+      IS_PRERELEASE: ${{ github.ref_name != 'master' || (github.event_name == 'push' && github.ref_name == 'master') || (github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease == true) }}
 
     outputs:
       artifactName: ${{ steps.buildWithGradle.outputs.artifactName }}
@@ -315,7 +322,14 @@ jobs:
       contents: write
 
     env:
-      IS_PRERELEASE: ${{ (github.event_name == 'push' && github.ref_name == 'master') || (github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease == true) }}
+      # github.ref_name != 'master' forces prerelease regardless of trigger/inputs - workflow_dispatch's
+      # prerelease input defaults to false, which is the intentional "promote to stable" mechanism
+      # for master, but nothing previously stopped that same default from applying to a manual
+      # dispatch against a feature branch too. That published a real "Latest"/stable release
+      # (v13.6.0.r2344, later deleted) built from an in-progress branch - a manual `gh workflow run
+      # --ref <branch>` to sanity-check compilation, with no intent to cut a release at all, silently
+      # became one because the default is stable-not-prerelease. Non-master can never be stable now.
+      IS_PRERELEASE: ${{ github.ref_name != 'master' || (github.event_name == 'push' && github.ref_name == 'master') || (github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease == true) }}
 
     steps:
       - name: Checkout

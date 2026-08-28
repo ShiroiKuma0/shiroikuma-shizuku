@@ -42,6 +42,20 @@ HEADLINE_DESC = ("Fixed two separate reasons Shizuku+ could look broken even whe
                  "changed.")
 MAJOR_REVS = {m[0] for m in MAJORS}
 
+# Most recent CRITICAL FIX to spotlight - mirrors app.yml's CRITICAL_RELEASE/CRITICAL_DESC (keep
+# both in sync by hand, same as MAJORS above). Unlike MAJORS, this has no per-era history: a
+# critical-fix callout is meant to be occasional and doesn't track "the critical fix of this
+# build's own era" - just the single most recent one, same on every page, like the headline major.
+# Set CRITICAL_REV to None to omit this callout entirely once nothing recent qualifies.
+CRITICAL_REV = 2244
+CRITICAL_TAG = "v13.6.0.r2244"
+CRITICAL_DESC = ("attachApplication (binder code 17) had fallen into a dead branch of "
+                 "Service.onTransact() — the call appeared to succeed to the connecting app, but "
+                 "the server never actually registered it as a client, so every API v13+ client's "
+                 "connection silently failed at the first step. Affected Morphe, InstallerX "
+                 "Revived, Droid-ify, ObtainX, Obtainium, MT Manager, Termux rish, and others. If "
+                 "you're still on a build before this, update.")
+
 
 def sh(args, retries=4):
     """Run a command, retrying on transient GitHub API failures (503/timeout/rate)."""
@@ -100,7 +114,9 @@ def contemporary_major(rev):
 
 CUR5_ROWS = None
 def cur5_rows():
-    """The actual latest 5 releases (newest first), marking the latest and any major."""
+    """The actual latest 5 releases (newest first), marking the latest, any major, and the
+    critical fix (mirrors app.yml's per-release table - only visible here if CRITICAL_TAG happens
+    to still be within the last 5 releases)."""
     global CUR5_ROWS
     if CUR5_ROWS is None:
         top = gh_tags()[:5]
@@ -110,6 +126,8 @@ def cur5_rows():
             mark = ""
             if rev_of(t) in MAJOR_REVS:
                 mark += " 🚀 **major**"
+            if CRITICAL_REV is not None and t == CRITICAL_TAG:
+                mark += " ⚠️ **critical fix**"
             if t == newest:
                 mark += " _(latest)_"
             rows.append(f"| [{t}]({BASE}/{t}){mark} | {subj(t)} |")
@@ -133,6 +151,11 @@ def build_rollup(rev, tag):
         _, ctag, clabel = cm
         this = " _(this release)_" if ctag == tag else ""
         L += ["", f"> 🏛️ **Major release of this build's era — [{ctag}]({BASE}/{ctag})**{this} — {clabel}"]
+    # Most recent critical fix — single callout, same on every page (no era-tracking, unlike
+    # majors above - see CRITICAL_REV's own comment for why).
+    if CRITICAL_REV is not None:
+        this = " _(this release)_" if CRITICAL_TAG == tag else ""
+        L += ["", f"> ⚠️ **Most recent critical fix — [{CRITICAL_TAG}]({BASE}/{CRITICAL_TAG})**{this}", f"> {CRITICAL_DESC}"]
     L += ["", "| Release | Highlight |", "|:--|:--|"] + cur5_rows()
     return "\n".join(L)
 
