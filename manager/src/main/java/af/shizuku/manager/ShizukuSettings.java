@@ -27,6 +27,7 @@ public class ShizukuSettings {
     public static final String NAME = "settings";
     public static class Keys {
         public static final String KEY_START_ON_BOOT = "start_on_boot";
+        public static final String KEY_SYNCED_START_ON_BOOT_DEFAULT = "synced_start_on_boot_default";
         public static final String KEY_WATCHDOG = "watchdog";
         public static final String KEY_TCP_MODE = "tcp_mode";
         public static final String KEY_TCP_PORT = "tcp_port";
@@ -423,6 +424,24 @@ public class ShizukuSettings {
             PackageManager.DONT_KILL_APP
         );
         getPreferences().edit().putBoolean(Keys.KEY_START_ON_BOOT, enable).apply();
+    }
+
+    /**
+     * getStartOnBoot() reads getComponentEnabledSetting(), which returns COMPONENT_ENABLED_STATE_DEFAULT
+     * (not COMPONENT_ENABLED_STATE_ENABLED) for anyone who has never explicitly touched the "Start on
+     * boot" toggle - even though BootCompleteReceiver's manifest declaration is android:enabled="true",
+     * so it's actually live and DOES auto-start on every boot for those users. That made the Settings
+     * toggle silently report "off" while the boot-triggered start (and its notification) still fired
+     * regardless - the toggle didn't reflect, let alone control, the real behavior. Call once, on first
+     * launch, to make the explicit component-enabled-state match the manifest's declared default so the
+     * toggle is accurate from the first time anyone looks at it; not a behavior change for anyone who
+     * already relies on boot auto-start, since it stays enabled either way.
+     */
+    public static void syncStartOnBootDefaultIfNeeded(Context context) {
+        SharedPreferences prefs = getPreferences();
+        if (prefs == null || prefs.getBoolean(Keys.KEY_SYNCED_START_ON_BOOT_DEFAULT, false)) return;
+        setStartOnBoot(context, true);
+        prefs.edit().putBoolean(Keys.KEY_SYNCED_START_ON_BOOT_DEFAULT, true).apply();
     }
 
     public static boolean getWatchdog() {
