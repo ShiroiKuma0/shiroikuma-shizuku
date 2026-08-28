@@ -29,14 +29,17 @@ MAJORS = [
     (2139, "v13.6.0.r2139", "Stock-client compatibility (App-Ops / OptiDroid / Obtainium)"),
     (2149, "v13.6.0.r2149", "SU Bridge — root features for third-party apps on non-root"),
     (2202, "v13.6.0.r2202", "Cached Apps Freezer fix — third-party apps reliably detect Shizuku+"),
+    (2341, "v13.6.0.r2341", "Watchdog crash-recovery and permission grant-notification fixes"),
 ]
 
 HEADLINE_REV, HEADLINE_TAG, _ = MAJORS[-1]
-HEADLINE_DESC = ("Third-party apps that Shizuku+ grants permissions to (WifiList, App Ops, Hail, "
-                 "Tasker, and others) now reliably detect and connect to the service. Closed the "
-                 "last gap in the Cached Apps Freezer guard: a UserService's very first connect "
-                 "callback could be silently dropped if the client app was frozen in the background "
-                 "while its process was still starting.")
+HEADLINE_DESC = ("Fixed two separate reasons Shizuku+ could look broken even when it appeared to be "
+                 "running: the privileged server could silently die during normal use and never "
+                 "recover, even with Watchdog enabled (a bug in the watchdog's own crash-detection "
+                 "logic defeated the external re-arm added for #415/#417); and an app authorized "
+                 "from Shizuku+'s own screen could stay stuck showing \"no access\" until manually "
+                 "force-stopped, because nothing told its already-running process the grant had "
+                 "changed.")
 MAJOR_REVS = {m[0] for m in MAJORS}
 
 
