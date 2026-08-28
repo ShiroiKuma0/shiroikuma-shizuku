@@ -33,6 +33,40 @@ All notable changes to ShizukuPlus are documented here.
 - Added `.github/pull_request_template.md` and `CONTRIBUTING.md`.
 - Repo description, topics, and homepage updated on GitHub for discoverability.
 
+## [v13.6.0.r2287 → r2343]
+
+### 🐛 Bug Fixes
+
+#### Server / Service
+- **Fixed `attachApplication` (binder code 17) falling into a dead branch of `Service.onTransact()`** — the call appeared to succeed to the connecting app, but the server never actually registered it as a client, so every API v13+ client's connection silently failed at the first step. The single largest root cause behind "Shizuku+ not detected" reports across this project's history. Affected Morphe, InstallerX Revived, Droid-ify, ObtainX, Obtainium, MT Manager, Termux `rish`, and others. (`8fbe5e47`, [#406](https://github.com/thejaustin/ShizukuPlus/issues/406))
+- **Fixed the Watchdog's external crash-recovery mechanism (added for [#415](https://github.com/thejaustin/ShizukuPlus/issues/415)/[#417](https://github.com/thejaustin/ShizukuPlus/issues/417)) being silently inert** — `ShizukuStateMachine.update()` only preserved `STARTING`/`STOPPING`/`CRASHED` from the prior in-memory state when the binder was found dead; a prior `RUNNING` state fell through to `STOPPED` instead of `CRASHED`, so `WatchdogService`'s restart logic (which only reacts to `CRASHED`) never fired for an unexpected death — even with Watchdog enabled, even after the dedicated external `AlarmManager` re-arm added specifically to survive a full process freeze/kill. Also: a freshly cold-started process (exactly what that re-arm produces) had no in-memory record of the prior state at all, so even the "was it running" check was blind across a restart — fixed by persisting the last settled state. Found via live on-device verification, not a bug report.
+- **Fixed apps authorized from Shizuku+'s own Application Management screen staying stuck showing "no access"** until manually force-stopped and relaunched — the server updated its own permission record and the OS-level runtime permission, but never told an already-connected client anything changed (there's no protocol-level way to push that correction to a live client). Fixed by force-stopping the app on a denied→granted transition, so its next launch gets a fresh handshake — mirroring the mechanism the revoke path already used for the identical reason. A second, related gap fixed the same way: only the specific process that triggered an interactive permission-request dialog got notified: any other already-connected process of the same app (e.g. a background `:service`) stayed stale. Found by directly comparing two screenshots from a reporter running an old vs. current build of the same third-party app ([#371](https://github.com/thejaustin/ShizukuPlus/issues/371)).
+- Multiple rounds of Cached Apps Freezer (Android 12+) hardening: retry ladders extended to `{300, 1000, 3000, 9000}ms`, a post-startup catch-up pass for apps already running/frozen when the server (re)starts, and `IBinder.addFrozenStateChangeCallback` on API 36+ where available — see [#371](https://github.com/thejaustin/ShizukuPlus/issues/371) for the full investigation history.
+- SU Bridge: fixed a redeploy leaving `rish_shizuku.dex` read-only from the previous run, breaking subsequent deploys with `EACCES`. ([#402](https://github.com/thejaustin/ShizukuPlus/issues/402))
+- Shell (`rish`) consent: fixed the caller's UID not being threaded through when `callingPackage` is absent (classic `rish_shizuku.dex` doesn't include it), which made "Allow always" silently grant nothing. ([#391](https://github.com/thejaustin/ShizukuPlus/issues/391))
+
+#### Manager App (UI)
+- **Fixed the app icon diverging from upstream RikkaApps/Shizuku's cat/hexagon artwork** beyond the intentional plus badge (size, position, and background/foreground layer split had all drifted) — reverted to upstream's unmodified art with just the plus repositioned over it.
+- **Fixed the "Network monitor" notification and its background foreground-app polling running permanently for every user**, regardless of whether they used any automation feature — the two rules it existed to serve were non-functional placeholders that could never match real data (hardcoded demo SSIDs/package names, real logic commented out). Replaced with two real, opt-in automations — trusted-network → Binder Firewall, and per-app ShadowBinder auto-hide-while-foregrounded — that only run once the user configures at least one entry.
+- **Fixed the "Start on boot" toggle silently reporting "off" while boot auto-start was actually enabled and running regardless** — it read `getComponentEnabledSetting()`, which returns "default" (not "enabled") for anyone who never explicitly touched the toggle, even though the receiver's manifest declares it enabled by default.
+- Fixed the Auto Blocker "Check" action routing to a raw system intent instead of the correct Samsung settings deep link.
+- Restored the responsive 2-column home grid on large screens/DeX. ([#76](https://github.com/thejaustin/ShizukuPlus/issues/76))
+- Fixed deprecated `ListPreference` summary warnings across 10+ settings screens; extracted 100+ hardcoded English strings for i18n; added TalkBack support for swipe-to-act gestures in Application Management.
+
+### ✨ Enhancements
+
+#### Theming
+- **New "Cut (Angular)" shape style** — a real octagon silhouette (cut corners), not just another rounded-corner radius variant.
+- **One UI Style toggle rescoped to structure only** (shapes/typography) — color is the dynamic-color/custom-accent toggle's job; removed the color overrides that previously competed with it.
+
+#### Locale
+- **Migrated locale handling to `AppCompatDelegate.setApplicationLocales()`** (Android 13+ per-app language API), replacing the legacy custom mechanism — integrates with the system Settings → App Info → Language screen. ([#429](https://github.com/thejaustin/ShizukuPlus/issues/429))
+
+#### Developer Experience
+- **Fixed release notes silently generating empty Added/Fixed/Other sections on every release** since the Keep a Changelog restyle above — a `grep -vFf` against an empty exclude pattern matches every line, so the categorization step excluded everything whenever a release had no security/breaking commits (the common case). Verified against GitHub's actual published bodies for several recent releases before fixing; republished corrected notes for the affected releases and backfilled the historical rollup.
+- **Fixed a manual `workflow_dispatch` run against a non-master branch being able to publish a real, non-prerelease "Latest" release** — the `prerelease` input defaults to `false`, which is the intentional stable-promotion mechanism for master, but nothing stopped that default from applying to any other branch too.
+- Updated the release-notes "most recent major"/"most recent critical fix" spotlight pointers, stale since r2202/r2153.
+
 ## [v13.6.0.r2287]
 
 ### 🐛 Bug Fixes
