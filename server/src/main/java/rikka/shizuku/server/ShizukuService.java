@@ -1871,6 +1871,23 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             List<ClientRecord> records = clientManager.findClients(uid);
             for (ClientRecord record : records) {
                 if (allowed) {
+                    // If this client already connected while denied (e.g. it auto-started before
+                    // the user got to authorize it here), it cached that denial the moment it
+                    // attached - Shizuku.checkSelfPermission()'s cached `permissionGranted` field is
+                    // only ever set from attachApplication()'s reply, and there's no protocol-level
+                    // way to push a correction to an already-connected client: dispatchRequestPermissionResult
+                    // requires a caller-chosen requestCode tied to an active requestPermission() call
+                    // we were never given, and re-sending the same server binder is a no-op client-
+                    // side (onBinderReceived() short-circuits on `binder == newBinder`). Force-
+                    // stopping mirrors the revoke branch below, which already relies on this being
+                    // the only reliable way to make a live client observe a permission change - the
+                    // app's next launch gets a fresh attachApplication() handshake reflecting the new
+                    // grant instead of silently showing stale "not granted" state until manually
+                    // killed (#371 - reported via LSPatch: granted in Shizuku+'s own UI, but the app
+                    // itself kept showing "Shizuku is running but I don't have access").
+                    if (!record.allowed) {
+                        ActivityManagerApis.forceStopPackageNoThrow(record.packageName, UserHandleCompat.getUserId(record.uid));
+                    }
                     record.allowed = true;
                 } else {
                     record.allowed = false;
