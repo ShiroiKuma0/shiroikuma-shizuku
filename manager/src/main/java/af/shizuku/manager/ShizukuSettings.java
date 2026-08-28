@@ -413,6 +413,16 @@ public class ShizukuSettings {
     public static boolean getStartOnBoot(Context context) {
         ComponentName bootCompleteReceiver = new ComponentName(context.getPackageName(), BootCompleteReceiver.class.getName());
         int state = context.getPackageManager().getComponentEnabledSetting(bootCompleteReceiver);
+        // COMPONENT_ENABLED_STATE_DEFAULT (nobody has ever called setComponentEnabledSetting on
+        // this component) must fall back to the manifest's own android:enabled="true" declaration,
+        // not read as "off" - otherwise this reports false while BootCompleteReceiver is actually
+        // live and auto-starting on every boot regardless, same bug syncStartOnBootDefaultIfNeeded()
+        // migrates existing installs past. Kept as a real fallback (not just relying on that
+        // one-time migration having run) in case a backup/restore or partial data clear ever loses
+        // the migration flag without also losing the component-enabled-state override.
+        if (state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+            return true;
+        }
         return state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
     }
 
