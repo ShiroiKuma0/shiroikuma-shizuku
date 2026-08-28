@@ -1766,9 +1766,21 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         } else {
             for (ClientRecord record : records) {
                 packages.add(record.packageName);
+                boolean previouslyAllowed = record.allowed;
                 record.allowed = allowed;
                 if (record.pid == requestPid) {
                     record.dispatchRequestPermissionResult(requestCode, allowed);
+                } else if (previouslyAllowed != allowed) {
+                    // Same uid, different pid - e.g. a background :service process that
+                    // independently attached before this dialog was answered. Only the process
+                    // that actually showed requestPermission() gets a live callback above (it needs
+                    // the caller-chosen requestCode that process supplied, which we don't have for
+                    // any other pid - there's no protocol-level way to push a correction otherwise).
+                    // Force-stop so its next launch gets a fresh attachApplication() handshake
+                    // reflecting the real decision, instead of silently caching whatever it saw
+                    // before this dialog was answered - same reasoning as the analogous grant/
+                    // revoke asymmetry fixed in updateFlagsForUid() (b392c8f3, #371).
+                    ActivityManagerApis.forceStopPackageNoThrow(record.packageName, UserHandleCompat.getUserId(record.uid));
                 }
             }
         }
