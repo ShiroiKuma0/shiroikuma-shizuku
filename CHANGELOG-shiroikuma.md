@@ -8,6 +8,94 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2347+2026-08-28.22-32.g39bdbdf1+002
+
+Rebased onto upstream `13.6.0.r2347` — twenty-nine commits across three days, 827 insertions against
+214 deletions in 46 files. The widest overlap with this fork's own patches since the fork started:
+**38 of those 46 files carry a fork diff**, and nine of the eighty-five replayed commits needed a
+hand reconciliation rather than a clean replay.
+
+**The one that matters runs on 白い熊's phones.** `a6c6136b` fixes the reason the server could die
+and stay dead: `ShizukuStateMachine.update()` classified an unexpected binder death as `STOPPED`
+rather than `CRASHED`, and `WatchdogService` only restarts on `CRASHED` — so the watchdog's external
+`AlarmManager` re-arm, added specifically to survive an OEM freezer killing the whole process, never
+restarted anything. A freshly cold-started process had no in-memory record of the prior state either,
+so even the "was it running" check was blind across a restart; the last settled state is now
+persisted through `ShizukuSettings`.
+
+That commit lands in the same function as this fork's own `b33280e2`, which split `update()` (the
+passive refresh, which may keep a transition that is still plausibly in flight) from `settle()` (the
+one that resolves a start or stop you just performed). Both survive, and the merged order is what
+each needs: a **failed start** still settles to `STOPPED`, so the home card's start button is
+re-enabled instead of latching on "Starting…", while a server that **was running and died** now
+reports `CRASHED` and the watchdog acts on it.
+
+### Also taken from upstream
+
+- **Two server-side force-stops** (`b392c8f3`, `640342d9`). Authorizing an app that is already
+  connected updated the server record and the OS permission but never told the live client, so it
+  stayed stuck on "no access" until force-stopped by hand; the same gap applied to any other process
+  of the same uid when a permission dialog was answered. Both now force-stop, which is the only
+  mechanism that makes a live client observe the change. Expect an authorized app to visibly restart.
+- **`AutomationService` no longer auto-starts** (`f65fdab7`). It ran a permanent "Network monitor"
+  foreground notification, a two-second `UsageStatsManager` foreground-app poll and an always-on
+  network callback — for two rules that are placeholders matching hardcoded demo SSIDs and package
+  names, with their real logic commented out. Pure background cost, including a privacy-sensitive
+  poll, for something that could not do anything. Its remaining notification string is de-branded
+  here as well.
+- **"Start on boot" stops lying** (`f65fdab7`, `d79a9935`). The toggle read `getComponentEnabledSetting()`,
+  which answers "default" — not "enabled" — for anyone who never touched it, while the receiver's
+  manifest declares it enabled and it really did auto-start on every boot. It is now accurate from
+  first launch and can actually be turned off.
+- **A real edge-to-edge / Blur UI fix** (`e627539d`). `AppActivity` read both preferences from
+  `"${packageName}_preferences"` while `ShizukuSettings` writes them to a device-protected file named
+  `settings`, so the reads always fell back to their defaults: edge-to-edge could never be turned
+  off and Blur UI never turned on. The same commit makes `AppCompatDelegate.setApplicationLocales()`
+  the locale source of truth, so the in-app language picker and Android 13+'s system "App language"
+  screen finally agree.
+- **Haptics no longer crash on HyperOS/MIUI** (`b687d860`) — those OEMs route
+  `performHapticFeedback()` through the real vibrator service and enforce `VIBRATE`. The permission
+  is declared and every call is guarded. `6245b91f` adds a dedicated Haptic Feedback toggle so
+  feedback is no longer chained to the unrelated Expressive Animations setting.
+- **"Cut (Angular)" shape style** (`4e3edfb5`), a genuine octagon silhouette rather than another
+  corner radius, and **One UI Style rescoped to structure only** (`9097822f`) — all colour items
+  stripped, so it composes with the colour source instead of fighting it.
+- The **responsive two-column home grid** returns at ≥600 dp or in landscape (`e405d30c`), TalkBack
+  can now trigger swipe-to-act on app rows (`a4d97930`), the pairing accessibility service stops
+  showing as a bare duplicate entry (`38bc9675`), and roughly a hundred hardcoded English strings
+  across Settings, Appearance and the diagnostics dashboard became real resources.
+
+### What the rebase had to defend
+
+- **The launcher icon, again — and this time upstream replaced the art itself.** `2f61a052` swapped
+  all four densities of `ic_launcher_background.png`, `ic_launcher_foreground_base.png` and
+  `ic_launcher.png` for RikkaApps' unmodified cat and hexagon, then `ae4d0d42` and `91ac8fd0`
+  repositioned upstream's plus badge and rewrote `ic_monochrome.xml` twice. Fifteen files, every one
+  of them ours. The black-yellow traced mark is kept byte-for-byte, the `_base` names stay renamed
+  back to the plain form, upstream's `drawable/ic_launcher_foreground.xml` layer-list is deleted
+  again, and `<foreground>` still resolves to a bare `@mipmap/ic_launcher_foreground` with nothing
+  composited over it.
+- **The house theme still goes on last.** Four upstream commits rewrote
+  `ThemeDelegateImpl.onApplyUserThemeResource` — a reorder, its revert, the One UI colour strip and
+  the new shape style. `ThemeOverlay.Shiroikuma` remains the final `applyStyle` call, so the app
+  still comes up pure black and pure yellow on a fresh install, and `getThemeKey` still carries no
+  live knob value that would recreate the Activity on every slider frame.
+- **The no-phone-home layer is intact.** Re-audited in full: the Sentry plugin is still absent, the
+  DSN still hardwired empty, `initializeSentryEarly()` still returns before `SentryAndroid.init()`,
+  `RemoteDbSyncWorker` still cancels its own work, VirusTotal and Pithus still contact nobody,
+  auto-update still defaults off, and `.github/` is still deleted — upstream touched `app.yml` three
+  times this cycle and it stays gone. The only code in the app that can open a connection is
+  `UpdateChecker`, pointed at our own releases.
+- **`sendBinderToUserApp` still attempts every container** and still logs exactly one line after the
+  loop, which is how a duplicate server is diagnosed. `BinderRequestReceiver.kt` remains
+  byte-identical to upstream, and `SingleInstanceLock` is untouched.
+
+### Reference remote
+
+`thedjchi/Shizuku` published nothing — still the 2026-07-14 maintenance-pause tip. The two standing
+outstanding items (package-name de-hardcoding, and gson → kotlinx.serialization in `:server`) remain
+unported.
+
 ## 13.6.0.r2318+2026-08-26.09-45.ga3222cd2+001
 
 Rebased onto upstream `13.6.0.r2318` — four commits, all pushed by thejaustin within seventy-three
