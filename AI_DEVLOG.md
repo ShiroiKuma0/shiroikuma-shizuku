@@ -123,6 +123,83 @@ Things discussed or sketched that we never formally decided to build.
 
 ## Session History (newest first)
 
+### 2026-08-30 — Claude Code (Sonnet 4.6) [PRoot ShizukuPlus, comprehensive analysis + cleanup]
+
+**Commits:** `8c649a84`..`39bdbdf1` (40 commits — devlog was not updated during the session, recorded here retrospectively)
+
+**Context:** wide-ranging "ultracode" analysis and enhancement pass. Session did not update the devlog before ending.
+
+**Icon / app identity fixes (`ae4d0d42`, `2f61a052`, `91ac8fd0`, `b687d860`):**
+- Restored the plus badge to the approved safe-zone position after it drifted again; confirmed via actual circular-mask simulation (not flat preview).
+- Reverted to upstream Shizuku's unmodified cat/hexagon artwork — the only thing that belongs to ShizukuPlus in the icon is the plus badge.
+- Fixed a notification-icon regression (stale tint attr) and misleading "Automation running" notification title.
+- Fixed `SecurityException` crash from haptic feedback vibration on HyperOS/MIUI (`SHIZUKUPLUS-8E`) — `VibrationEffect.createOneShot()` + `Vibrator.vibrate()` is not callable from a foreground service context on those ROMs; wrapped with try/catch and fallback.
+
+**Haptic feedback (`6245b91f`):**
+- Added a dedicated `Haptic Feedback` toggle in Settings > Appearance, decoupled from the Animations toggle — previously tied together, so disabling animations silently also disabled all haptics.
+
+**Accessibility service label fix (`38bc9675`, fixes #427):**
+- The pairing accessibility service (`FakeAdbPairingActivity`'s backing service) was showing as a bare duplicate "Shizuku+" entry in the system Accessibility settings list. Added the correct label.
+
+**Deprecation / i18n sweep (`d638fcff`, `66c2509f`, `cd34d64e`, `a0eb09db`):**
+- Silenced deprecated `ListPreference` summary-format-marker warnings across 10+ settings screens.
+- Extracted 100+ hardcoded English strings from Settings screens, Appearance, and FakeAdbPairingActivity (which was using raw `AlertDialog` + hardcoded English — migrated to `MaterialAlertDialogBuilder` + `@string` refs).
+
+**Accessibility (`a4d97930`, fixes #41):**
+- Added a TalkBack-accessible long-press equivalent for swipe-to-act gestures in Application Management. Users relying on TalkBack could not trigger swipe actions at all.
+
+**Theming (`9097822f`, `cdb8707d`, `b91315e0`):**
+- Rescoped One UI Style toggle to structure-only (shapes, typography) — it was also overriding dynamic color / Material You accent, competing with the explicit color toggle. Reverted an incorrect "fix" to the overlay precedence comment (the comment was wrong, not the code). Fixed One UI accent overlay silently overriding Material You dynamic color even when the user had dynamic color enabled.
+
+**Locale (`e627539d`, fixes #429):**
+- Migrated locale handling to `AppCompatDelegate.setApplicationLocales()` (Android 13+ per-app language API), replacing the legacy custom mechanism. Includes a one-time migration of the existing pref key. Now integrates with system Settings > App Info > Language.
+
+**Shape style (`c17ce59e`, `e405d30c`, `4e3edfb5`):**
+- Fixed Shape Style picker's "Zen" option not describing the shape it gives (#78 — it's a squircle, not the labeled name).
+- Restored the responsive 2-column home grid on large screens/DeX that had been broken (#76).
+- Added "Cut (Angular)" as a new genuine shape style option (octagon/cut-corner silhouette, not just another radius variant).
+
+**Service / auth fixes (`a6c6136b`, `b392c8f3`, `640342d9`, `f65fdab7`, `d79a9935`):**
+- `ShizukuStateMachine.update()` was misreporting unexpected service deaths as intentional stops (`RUNNING → STOPPED` instead of `RUNNING → CRASHED`), so the Watchdog's crash-detection restart path never fired. Fixed by preserving the prior state before the binder goes dead.
+- Force-stop an already-connected app on authorization granted (so the next launch picks up the new grant) — mirroring what revoke already did for the same reason.
+- Force-stop other same-uid processes on an interactive permission-dialog decision — previously only the dialog-triggering process got the force-stop.
+- Stopped `AutomationService` from auto-starting unconditionally (it was running permanently for every user with hardcoded-demo non-functional rules — see below). Fixed `getStartOnBoot()` falling back to hardcoded `false` instead of the manifest default `true`.
+
+**Samsung deep links (`8faa3e23`, `1ac9011a`, `41c5f449`, `c72a4ff3`, `a3222cd2`, `5bc2ae2a`):**
+- Service Doctor's Samsung Sleeping Apps and Auto Blocker deep links were broken on One UI 8 (Android 16). Found working direct deep links via `adb shell am start` research; landing directly on the specific screen (not the top-level settings).
+- Battery optimization warning said "tap to exempt" but opened a 300+ app alphabetical list — now opens the direct per-app exemption dialog for Shizuku+ specifically.
+- Auto Blocker snackbar "Check" button routed to a dead settings action.
+
+**ADB help link fix (`6e84d574`):** help link in the ADB pairing flow resolved but answered a different question than the one it was linked from.
+
+**CI / release pipeline (`71ae51b3`, `c9d795da`, `88485f2f`, `4698e799`):**
+- Release-notes generation silently produced empty Added/Fixed/Other sections on every release since the Keep a Changelog restyle — `grep -vFf` against an empty exclude pattern matches every line, excluding everything.
+- Smoke-test job's `gradlew` invocation broke under `workflow_dispatch`, treating a stray backslash as a task name.
+- `workflow_dispatch` on a non-master branch could publish a real non-prerelease "Latest" release. Now enforces `prerelease=true` for all non-master manual runs.
+- Release tag push rejected by GitHub when the commit modifies `app.yml` (requires `workflow` scope PAT, not `GITHUB_TOKEN`) — documented; not a code fix.
+
+**CHANGELOG (`39bdbdf1`):** Backfilled the entire `r2287–r2343` range that was skipped when the version counter jumped.
+
+**GitHub housekeeping (`eb7cc0e0`, `20b28237`):** issue templates referenced deleted/renamed labels; fixed. Dead `wiki#troubleshooting` anchor in bug report template.
+
+**Docs (`8c649a84`):** recorded the icon safe-zone verification lesson (flat composite preview ≠ real adaptive-icon mask) and later session work.
+
+**This session (2026-08-30) — continuation of above analysis:**
+- Deleted dead `activity_plus_dashboard.xml` layout (no Activity, no reference anywhere).
+- Extracted 2 hardcoded English strings from `layout_diagnostics_dashboard.xml` (`"Action Required"`, `"Disable Diagnostics"`).
+- Removed dead `registerDefaultRules()` call from `ShizukuApplication.kt` — `AutomationService` never starts, so `NetworkEvent`/`ForegroundAppEvent` are never dispatched; the registered stubs achieved nothing.
+- Corrected CHANGELOG [Unreleased] automation entry: previously claimed "real opt-in automations" were implemented; corrected to accurately describe what happened (service stopped from auto-starting; rules remain stubs pending #6).
+
+**Open items (as of 2026-08-30):**
+- [ ] #199 Shadow Binder hidden packages — needs ADB/on-device testing.
+- [ ] #200 Mavericks factory crash + SQLite race — ProGuard/try-catch in place; strong indirect evidence (zero Sentry recurrence since v_code 1668) but no direct ADB verification.
+- [ ] #333 Card `shapeAppearanceOverlay` — every card hardcodes `cardCornerRadius` (overrides shape_style setting); blocked on confirming base theme attr defaults without local SDK.
+- [ ] #428 Themed Icons auto-toggle — needs on-device testing before writing code.
+- [ ] #6 Automation rules — real opt-in rules still unimplemented; scaffolding only.
+- [ ] Android 17 ADB pairing (mDNS host + `ACCESS_LOCAL_NETWORK`) — needs Android 17 device.
+
+---
+
 ### 2026-08-26 — Claude Code (Sonnet 5) [PRoot ShizukuPlus, icon rework + GitHub issue triage + Watchdog resilience]
 
 **All of the below eventually landed on `master`** across commits `34663bd4`..`c13bf851` (see `git log` for the full list) — the "not yet committed" note below is stale, kept for narrative order within this entry.

@@ -471,22 +471,10 @@ class ShizukuApplication : Application(), Configuration.Provider {
             }
         }
 
-        // AutomationService used to be started unconditionally here, for every user, on every
-        // process start - a permanent "Network monitor" foreground notification plus a 2-second
-        // UsageStatsManager foreground-app poll and an always-on network callback, all running
-        // indefinitely in the background. Its only two registered rules (NetworkFirewallRule,
-        // AppSpecificProfileRule, in AutomationRules.kt) are non-functional placeholders: they
-        // match hardcoded demo values ("HomeWiFi"/"WorkNetwork" SSIDs, "com.banking.app"/
-        // "com.games.app" package names) that can never match a real device, and their execute()
-        // bodies are just Timber logs with the real logic commented out. Nothing else in the app
-        // depends on AutomationService or the events it dispatches (ShizukuStateMachine's own
-        // AutomationEngine.dispatchEvent call also has no functional listener right now) - the
-        // real Tasker/MacroDroid "control Shizuku with automation apps" feature on the Home screen
-        // is a separate mechanism (AuthenticatedReceiver) that doesn't need this service running.
-        // So this was pure background cost - notification, polling, battery - for a feature that
-        // cannot do anything yet. Leaving the service/engine/rules code in place as scaffolding for
-        // when real rules exist (#6), but no longer starting it until then.
-        af.shizuku.manager.automation.registerDefaultRules()
+        // AutomationService is intentionally not started here. Its two registered rules
+        // (NetworkFirewallRule, AppSpecificProfileRule) are non-functional stubs with hardcoded
+        // demo values; the real opt-in automation feature is pending (#6). ShizukuStateMachine
+        // still dispatches ShizukuStateEvent through AutomationEngine as the future hook point.
 
         Shizuku.addLogListener { appName, packageName, action ->
             ActivityLogManager.log(appName, packageName, action)
