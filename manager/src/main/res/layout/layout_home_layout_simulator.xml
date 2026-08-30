@@ -71,7 +71,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="6dp"
-                    android:text="Wireless ADB"
+                    android:text="@string/home_layout_sim_adb"
                     android:textSize="10sp"
                     android:textColor="?colorOnSurfaceVariant" />
                 <ImageView

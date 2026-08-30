@@ -18,7 +18,7 @@
             android:key="black_night_theme"
             android:summary="@string/settings_black_night_theme_summary"
             android:title="@string/settings_black_night_theme"
-            android:icon="@drawable/ic_monochrome" />
+            android:icon="@drawable/ic_bedtime_24" />
 
         <SwitchPreferenceCompat
             android:key="use_system_color"
@@ -80,7 +80,7 @@
             android:defaultValue="standard"
             android:entries="@array/icon_styles"
             android:entryValues="@array/icon_styles_value"
-            android:icon="@drawable/ic_monochrome" />
+            android:icon="@drawable/ic_settings_suggest_24" />
 
         <rikka.preference.SimpleMenuPreference
             android:key="icon_color_mode"

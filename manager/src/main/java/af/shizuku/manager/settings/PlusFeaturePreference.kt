@@ -1,13 +1,13 @@
 package af.shizuku.manager.settings
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.text.style.BackgroundColorSpan
-import android.text.style.ForegroundColorSpan
-import android.text.style.RelativeSizeSpan
-import android.text.style.StyleSpan
+import android.text.style.ReplacementSpan
 import android.util.AttributeSet
 import android.widget.TextView
 import androidx.preference.PreferenceViewHolder
@@ -101,18 +101,75 @@ class PlusFeaturePreference(context: Context, attrs: AttributeSet) : SwitchPrefe
     private fun applyBadges(titleView: TextView) {
         val badges = listOfNotNull(badgeStyleFor(badgeType), severityBadgeStyleFor(severityBadge))
         if (badges.isEmpty()) return
+        val density = titleView.resources.displayMetrics.density
         val spannable = SpannableStringBuilder(titleView.text)
         for ((badgeLabel, bgColor, fgColor) in badges) {
             spannable.append("  ")
             val start = spannable.length
-            spannable.append(" $badgeLabel ")
+            // Single placeholder char; InlineBadgeSpan draws the full pill itself so the
+            // background is always tight around the text (BackgroundColorSpan+RelativeSizeSpan
+            // caused the top-heavy padding seen in issue #442).
+            spannable.append(" ")
             val end = spannable.length
-            spannable.setSpan(BackgroundColorSpan(bgColor), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            spannable.setSpan(ForegroundColorSpan(fgColor), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            spannable.setSpan(RelativeSizeSpan(0.65f), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            spannable.setSpan(StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannable.setSpan(
+                InlineBadgeSpan(badgeLabel, bgColor, fgColor, density),
+                start, end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
         }
         titleView.text = spannable
+    }
+
+    /** Draws a pill-shaped badge inline with the preference title. Replaces the stacked
+     *  BackgroundColorSpan+RelativeSizeSpan approach that caused asymmetric top/bottom padding
+     *  because BackgroundColorSpan draws at the full line's ascent/descent, not the scaled text's. */
+    private class InlineBadgeSpan(
+        private val label: String,
+        private val bgColor: Int,
+        private val fgColor: Int,
+        private val density: Float,
+    ) : ReplacementSpan() {
+
+        private val textSizePx = 9f * density
+        private val paddingH = 5f * density
+        private val paddingV = 2f * density
+        private val cornerRadius = 4f * density
+
+        private fun styledPaint(base: Paint) = Paint(base).apply {
+            textSize = textSizePx
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            isAntiAlias = true
+        }
+
+        override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
+            val p = styledPaint(paint)
+            if (fm != null) {
+                val pfm = p.fontMetricsInt
+                // Adjust font metrics so the line height accommodates the badge height
+                val halfHeight = ((textSizePx + paddingV * 2) / 2).toInt()
+                fm.ascent = minOf(fm.ascent, -halfHeight)
+                fm.descent = maxOf(fm.descent, halfHeight)
+                fm.top = minOf(fm.top, pfm.top)
+                fm.bottom = maxOf(fm.bottom, pfm.bottom)
+            }
+            return (p.measureText(label) + paddingH * 2).toInt()
+        }
+
+        override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+            val p = styledPaint(paint)
+            val w = p.measureText(label) + paddingH * 2
+            val badgeH = textSizePx + paddingV * 2
+            val centerY = (top + bottom) / 2f
+            val rect = RectF(x, centerY - badgeH / 2, x + w, centerY + badgeH / 2)
+            p.color = bgColor
+            p.style = Paint.Style.FILL
+            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, p)
+            p.color = fgColor
+            p.style = Paint.Style.FILL
+            // Baseline: center text vertically inside the pill
+            val textBaseline = rect.top + paddingV + textSizePx - p.fontMetrics.descent / 2
+            canvas.drawText(label, x + paddingH, textBaseline, p)
+        }
     }
 
     private fun launchIntegration() {
