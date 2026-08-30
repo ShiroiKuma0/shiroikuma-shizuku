@@ -6,19 +6,19 @@
         android:title="Startup &amp; Recovery"
         android:defaultValue="true">
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="start_on_boot"
             android:title="@string/settings_start_on_boot"
             android:summary="@string/settings_start_on_boot_summary"
             android:icon="@drawable/ic_power_settings_new_24" />
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="watchdog"
             android:summary="@string/settings_watchdog_summary"
             android:title="@string/settings_watchdog"
             android:icon="@drawable/ic_visibility_24" />
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="auto_reconnect_mdns"
             android:title="Intelligent Auto-Reconnect"
             android:summary="Run a lightweight mDNS listener to automatically rebind the server if the ADB daemon drops on sleep or doze."
@@ -32,7 +32,7 @@
         android:title="Network"
         android:defaultValue="true">
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="tcp_mode"
             android:title="@string/settings_tcp_mode"
             android:icon="@drawable/ic_adb_24"
@@ -51,13 +51,13 @@
         android:title="Activity &amp; Status"
         android:defaultValue="true">
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="auto_disable_usb_debugging"
             android:title="@string/settings_auto_disable_usb_debugging"
             android:summary="@string/settings_auto_disable_usb_debugging_summary"
             android:icon="@drawable/ic_warning_24" />
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="live_activity_enabled"
             android:title="@string/settings_live_activity"
             android:summary="@string/settings_live_activity_summary"

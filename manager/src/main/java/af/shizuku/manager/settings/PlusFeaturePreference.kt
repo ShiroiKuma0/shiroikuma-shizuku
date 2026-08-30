@@ -11,7 +11,6 @@ import android.text.style.ReplacementSpan
 import android.util.AttributeSet
 import android.widget.TextView
 import androidx.preference.PreferenceViewHolder
-import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -19,7 +18,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import af.shizuku.manager.R
 
-class PlusFeaturePreference(context: Context, attrs: AttributeSet) : SwitchPreferenceCompat(context, attrs) {
+class PlusFeaturePreference(context: Context, attrs: AttributeSet) : GrayableIconSwitchPreference(context, attrs) {
 
     private val infoTitle: Int
     private val infoDetail: Int

@@ -7,21 +7,21 @@
         android:title="ADB Connection"
         android:defaultValue="true">
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="adb_proxy_enabled"
             android:title="@string/settings_adb_proxy"
             android:summary="@string/settings_adb_proxy_summary"
             android:icon="@drawable/ic_wadb_24"
             android:defaultValue="false" />
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="on_device_adb_tcp"
             android:title="@string/settings_on_device_adb_tcp"
             android:summary="@string/settings_on_device_adb_tcp_summary"
             android:icon="@drawable/ic_adb_24"
             android:defaultValue="false" />
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="force_start_wadb"
             android:title="@string/settings_force_start_wadb"
             android:summary="@string/settings_force_start_wadb_summary"
@@ -35,7 +35,7 @@
         android:title="Stock Shizuku Compatibility"
         android:defaultValue="true">
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="companion_fallback"
             android:title="@string/settings_companion_fallback"
             android:summary="@string/settings_companion_fallback_summary"
@@ -55,7 +55,7 @@
         android:title="SU Bridge Configuration"
         android:defaultValue="true">
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="su_bridge_enabled"
             android:title="@string/settings_fake_su"
             android:summary="@string/settings_fake_su_summary"

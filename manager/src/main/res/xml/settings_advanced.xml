@@ -12,14 +12,14 @@
             android:summary="@string/home_service_doctor_summary"
             android:icon="@drawable/ic_medical_services_24" />
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="diagnostics_enabled"
             android:title="Settings Diagnostics"
             android:summary="Scan configurations for conflicts and anomalies proactively"
             android:icon="@drawable/ic_warning_24"
             android:defaultValue="true" />
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="enable_activity_log"
             android:title="@string/settings_enable_activity_log"
             android:summary="@string/settings_enable_activity_log_summary"
@@ -51,14 +51,14 @@
         android:title="ADB Tools"
         android:defaultValue="false">
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="stealth_mode"
             android:title="@string/settings_stealth_mode"
             android:summary="@string/settings_stealth_mode_summary"
             android:icon="@drawable/ic_visibility_off_24"
             android:defaultValue="false" />
 
-        <SwitchPreferenceCompat
+        <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="legacy_pairing"
             android:summary="@string/settings_legacy_pairing_summary"
             android:title="@string/settings_legacy_pairing"

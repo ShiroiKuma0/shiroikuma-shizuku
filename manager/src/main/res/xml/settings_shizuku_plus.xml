@@ -5,7 +5,7 @@
     <af.shizuku.manager.settings.DiagnosticsDashboardPreference
         android:key="diagnostics_dashboard" />
 
-    <SwitchPreferenceCompat
+    <af.shizuku.manager.settings.GrayableIconSwitchPreference
         android:key="hide_disabled_plus_features"
         android:title="@string/settings_hide_disabled_plus_features"
         android:summary="@string/settings_hide_disabled_plus_features_summary"
@@ -121,14 +121,14 @@
             android:dependency="dhizuku_mode"
             android:defaultValue="false">
 
-            <SwitchPreferenceCompat
+            <af.shizuku.manager.settings.GrayableIconSwitchPreference
                 android:key="dhizuku_disable_screencap"
                 android:title="Screen Capture Lockdown"
                 android:summary="Disable screenshots and screen recordings globally across the device"
                 android:icon="@drawable/ic_visibility_off_24"
                 android:defaultValue="false" />
 
-            <SwitchPreferenceCompat
+            <af.shizuku.manager.settings.GrayableIconSwitchPreference
                 android:key="dhizuku_disallow_usb"
                 android:title="USB Data Lockdown"
                 android:summary="Disallow USB file transfer (MTP) and secure device physically"
