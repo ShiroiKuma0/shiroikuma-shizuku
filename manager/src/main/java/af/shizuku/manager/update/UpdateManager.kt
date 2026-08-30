@@ -17,7 +17,6 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
-import io.sentry.Sentry
 import af.shizuku.manager.home.HomeActivity
 import af.shizuku.manager.ShizukuSettings
 import java.io.File
@@ -110,8 +109,9 @@ class UpdateManager(private val context: Context) {
                 // Monitor download progress
                 monitorDownload(downloadId, file, versionName)
             } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "Failed to start download")
-                Sentry.captureException(e)
+                // WARN not ERROR: some ROMs (MIUI/HyperOS) don't expose the DownloadManager
+                // content URI — expected incompatibility, not a crash (SHIZUKUPLUS-8N).
+                Timber.tag(TAG).w(e, "Failed to start download")
                 showDownloadErrorNotification()
             }
         }
@@ -155,11 +155,12 @@ class UpdateManager(private val context: Context) {
                                 // COLUMN_REASON holds a DownloadManager.ERROR_* code when
                                 // STATUS_FAILED - without it "Download failed" (SHIZUKUPLUS-8H)
                                 // gives no way to tell insufficient-storage, HTTP errors, and
-                                // unresumable transfers apart.
+                                // unresumable transfers apart. WARN not ERROR: download failures
+                                // are expected user-facing events (bad network, no storage, etc.).
                                 val reasonIdx = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
                                 val reason = if (reasonIdx >= 0) cursor.getInt(reasonIdx) else -1
                                 cursor.close()
-                                Timber.tag(TAG).e("Download failed (reason=$reason)")
+                                Timber.tag(TAG).w("Download failed (reason=$reason)")
                                 showDownloadErrorNotification(reason)
                                 break
                             }
@@ -177,7 +178,6 @@ class UpdateManager(private val context: Context) {
                     }
                 } catch (e: Exception) {
                     Timber.tag(TAG).e(e, "Error monitoring download")
-                    Sentry.captureException(e)
                 }
                 delay(500)
             }
@@ -265,7 +265,6 @@ class UpdateManager(private val context: Context) {
             // "Failed to find configured root" when the APK landed on a volume our paths don't
             // cover). The download itself succeeded; degrade to the error notification.
             Timber.tag(TAG).e(e, "Failed to build install notification")
-            Sentry.captureException(e)
             showDownloadErrorNotification()
         }
     }
@@ -375,7 +374,6 @@ class UpdateManager(private val context: Context) {
             return true
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Failed to launch install intent")
-            Sentry.captureException(e)
             return false
         }
     }

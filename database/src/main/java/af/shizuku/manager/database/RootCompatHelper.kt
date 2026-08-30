@@ -174,11 +174,12 @@ object RootCompatHelper {
                 val bytes = context.assets.open(name).use { it.readBytes() }
                 val result = streamToPrivilegedFile(bytes, "$dir/$name", mode)
                 if (result.exitCode != 0) {
-                    // Previously logged with no detail (SHIZUKUPLUS-8A/8G/8D) — exitCode/stderr are
-                    // needed to tell noexec-mount, EACCES-on-readonly-remount, and Shizuku-died-mid-
-                    // write apart, none of which have the same fix.
+                    // WARN not ERROR: failure here is expected on devices where the ADB shell (uid 2000)
+                    // lacks write access to /data/local/tmp (SELinux, read-only remount, etc.) — the
+                    // reason is shown to the user via selfTest's failureDetail; no Sentry event needed.
+                    // SHIZUKUPLUS-8A/8G/8D were all non-rooted devices hitting this on Android 16.
                     val detail = "failed to write $dir/$name (exit=${result.exitCode}, stderr=${result.stderr.take(500)})"
-                    Timber.e("deployBridgeToTmp: $detail")
+                    Timber.w("deployBridgeToTmp: $detail")
                     return@withContext DeployResult(null, detail)
                 }
             }
