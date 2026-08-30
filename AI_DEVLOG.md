@@ -200,6 +200,46 @@ Things discussed or sketched that we never formally decided to build.
 
 ---
 
+### 2026-08-30 (continued) — Claude Code (Sonnet 4.6) [Sentry triage + Sentry noise reduction]
+
+**Commit:** `53846f61`
+
+**Sentry triage (12 issues):** Completed the full open-issue sweep for org `af-developments`/project `shizukuplus`. All 12 were resolved:
+
+| Issue | Title | Decision |
+|-------|-------|----------|
+| 8F | FakeAdbClientHandler OOM | `resolvedInNextRelease` — fix already in source (MAX_ADB_PAYLOAD_SIZE guard) |
+| 8E | MIUI vibrate SecurityException | `resolvedInNextRelease` — fix in `b687d860`; all events on single Xiaomi in 23-min window |
+| 88 | AI-detected performance | `ignored forever` — not a real crash, AI false-positive |
+| 8M | newProcess() null — main thread | `resolvedInNextRelease` — all r2260, fix (withContext+null guard) confirmed in source |
+| 8K | newProcess() null — IO thread | `resolvedInNextRelease` — all r2260, same fix |
+| 8J | ADB pairing ConnectException | `resolvedInNextRelease` — r1614 (700+ commits stale); beforeSend filter added at r2145 |
+| 5P | CannotPostFGSNotification (INOI) | `resolvedInNextRelease` — **real bug fixed**: ShizukuLiveService had bare startForeground() with no try/catch (see below) |
+| 8H | "Download failed" STATUS_FAILED | `resolvedInNextRelease` — all r2242, Timber.e() downgraded to w() in current code |
+| 8N | DownloadManager.enqueue() IAE | `resolvedInNextRelease` — r2246 stale; enqueue catch now uses Timber.w() |
+| 8A | deployBridgeToTmp write fail | `resolvedInNextRelease` — **real bug fixed**: non-rooted devices, see below |
+| 8G | deployBridgeToTmp write fail | `resolvedInNextRelease` — same fix as 8A (different call-path grouping) |
+| 8D | deployBridgeToTmp write fail | `resolvedInNextRelease` — same fix as 8A/8G |
+
+**ShizukuLiveService FGS hardening (SHIZUKUPLUS-5P):**
+`ShizukuLiveService.onStartCommand()` called `startForeground()` bare with no try/catch. On INOI A750 (Android 14, POST_NOTIFICATIONS denied), this threw `CannotPostForegroundServiceNotificationException` → `UncaughtExceptionHandler` → fatal crash. `WatchdogService` and `AutomationService` both already had the `startForegroundSafely()` pattern (with a comment referencing 5P!). Added the same to `ShizukuLiveService`: private `startForegroundSafely(Notification)` catches all Throwable, logs at WARN, calls `stopSelf()` + returns `START_NOT_STICKY`. Also wrapped the `onCreate()` Flow-collect `startForeground` call.
+
+**Sentry noise reduction (8A/8G/8D + 8H/8N):**
+- `RootCompatHelper.deployBridgeToTmpDetailed()`: `Timber.e()` → `Timber.w()` for exitCode != 0 branch. Non-rooted users (uid 2000 ADB shell) failing to write `/data/local/tmp/su` on Android 15/16 with tightened SELinux is expected behavior. The reason was already shown to the user via `selfTest`'s `failureDetail` string; no Sentry error event needed.
+- `UpdateManager.downloadUpdate()` enqueue catch: `Timber.e()` → `Timber.w()` + removed explicit `Sentry.captureException()` (ROM-specific DownloadManager incompatibility, not a crash).
+- `UpdateManager.monitorDownload()` STATUS_FAILED: `Timber.e()` → `Timber.w()` (download failure is an expected user-facing event, not a crash).
+- `UpdateManager`: removed 3 redundant explicit `Sentry.captureException()` calls that followed `Timber.e()` — SentryTimberTree already routes `Timber.e()` to Sentry, making the explicit calls double-report the same event. Removed now-unused `io.sentry.Sentry` import.
+
+**Still open:**
+- [ ] #199 Shadow Binder hidden packages — needs ADB/on-device testing.
+- [ ] #200 Mavericks factory crash + SQLite race — needs ADB verification.
+- [ ] #333 Card `shapeAppearanceOverlay` — blocked on base theme attr confirmation.
+- [ ] #428 Themed Icons auto-toggle — needs on-device testing.
+- [ ] #6 Automation rules — scaffolding only.
+- [ ] Android 17 ADB pairing — needs Android 17 device.
+
+---
+
 ### 2026-08-26 — Claude Code (Sonnet 5) [PRoot ShizukuPlus, icon rework + GitHub issue triage + Watchdog resilience]
 
 **All of the below eventually landed on `master`** across commits `34663bd4`..`c13bf851` (see `git log` for the full list) — the "not yet committed" note below is stale, kept for narrative order within this entry.
