@@ -4,16 +4,19 @@
     android:viewportWidth="432"
     android:viewportHeight="432"
     android:tint="?attr/colorControlNormal">
-    <!-- Only the plus badge is exposed to Themed Icons (Android 13+ Material You single-color
-         re-tint) and notification-shade icons. A hand-drawn hexagon+cat reconstruction was tried
-         here and reverted - copied vector coordinates don't match the real (raster) cat+hexagon
-         art in mipmap/ic_launcher_background.png / ic_launcher_foreground_base.png, which this
-         vector layer can't reuse, so it rendered as a misaligned mess of lines instead of the
-         icon. The OS re-tints this whole layer to one flat color regardless, so a full-color
-         cat+hexagon couldn't have been shown correctly here anyway - this is as close as the
-         platform allows to "just the plus is themed." Position must stay in sync with the plus
-         in drawable/ic_launcher_foreground.xml (scaled 4x: this viewport is 432 units for the
-         same 108dp canvas). -->
+    <!-- Hexagon ring — flat-top hexagon matching the launcher art bounding box
+         (x: 134–311, y: 145–303 in 432-unit space, centre 222.5,224, r=88.5).
+         Stroke-only so the shape reads as the recognisable Shizuku hexagon outline
+         under one-colour themed-icon and notification-shade rendering, rather than
+         the opaque "+" blob shown previously. -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="20"
+        android:strokeLineJoin="round"
+        android:pathData="M 311.0,224.0 L 266.75,300.64 L 178.25,300.64 L 134.0,224.0 L 178.25,147.36 L 266.75,147.36 Z" />
+    <!-- Plus badge — upper-right shoulder of the hexagon (centre 285,170).
+         Coordinates kept in sync with ic_launcher_foreground.xml (×4 viewport scale). -->
     <path
         android:fillColor="@android:color/white"
         android:pathData="M 277.88,141.50 h 14.25 v 21.38 h 21.38 v 14.25 h -21.38 v 21.38 h -14.25 v -21.38 h -21.38 v -14.25 h 21.38 z" />
