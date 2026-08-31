@@ -5,17 +5,19 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
-import android.os.Build
-import android.os.IBinder
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.net.wifi.WifiInfo
+import android.os.Build
+import android.os.IBinder
+import android.content.Context
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import timber.log.Timber
 import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
 
 class AutomationService : Service() {
 
@@ -25,6 +27,11 @@ class AutomationService : Service() {
     private var connectivityManager: ConnectivityManager? = null
     private var callbackRegistered = false
     private var isForeground = false
+
+    // Rule instances kept as fields so state (isSafeNetwork, currentApp) persists across events.
+    private val networkFirewallRule = NetworkFirewallRule()
+    private val appProfileRule = AppSpecificProfileRule()
+
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
@@ -33,7 +40,7 @@ class AutomationService : Service() {
 
         override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
             super.onCapabilitiesChanged(network, networkCapabilities)
-            checkNetworkState()
+            checkNetworkState(networkCapabilities)
         }
 
         override fun onLost(network: Network) {
@@ -51,6 +58,15 @@ class AutomationService : Service() {
     override fun onCreate() {
         super.onCreate()
         Timber.tag("AutomationService").d("Service created")
+
+        // Don't run if no rules are configured — avoids a permanent foreground notification
+        // for users who have never touched the automation settings.
+        if (!ShizukuSettings.hasAnyAutomationRulesConfigured()) {
+            Timber.tag("AutomationService").d("No automation rules configured; stopping")
+            stopSelf()
+            return
+        }
+
         // Promote to foreground before any work so the 5-second startForegroundService() deadline
         // is met. If the platform refuses (background-start restriction, FGS time-limit, type
         // validation), bail out gracefully instead of crashing — see SHIZUKUPLUS-6H/6M/6G/6V.
@@ -58,6 +74,9 @@ class AutomationService : Service() {
             stopSelf()
             return
         }
+
+        AutomationEngine.registerRule(networkFirewallRule)
+        AutomationEngine.registerRule(appProfileRule)
 
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
         connectivityManager = cm
@@ -129,21 +148,44 @@ class AutomationService : Service() {
         }
     }
 
+    // Called when no caps are available (onLost / onAvailable before caps arrive).
     private fun checkNetworkState() {
         val cm = connectivityManager ?: return
         try {
-            val activeNetwork = cm.activeNetwork
-            val caps = cm.getNetworkCapabilities(activeNetwork)
-            // Count Ethernet (RNDIS/USB tethering, common on Samsung XCover, Zebra, Honeywell
-            // ruggedized devices) as a valid ADB transport alongside WiFi (#403).
-            // WifiManager.getConnectionInfo() is deprecated since API 31 and throws
-            // SecurityException on some OEM builds even with ACCESS_WIFI_STATE declared
-            // (SHIZUKUPLUS-50). SSID is intentionally omitted; getNetworkCapabilities needs
-            // no wifi permission.
+            val caps = cm.getNetworkCapabilities(cm.activeNetwork)
+            checkNetworkState(caps)
+        } catch (e: Exception) {
+            Timber.tag("AutomationService").w(e, "Failed to check network state")
+        }
+    }
+
+    private fun checkNetworkState(caps: NetworkCapabilities?) {
+        try {
             val isWifi = caps != null &&
                     (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
                      caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
-            AutomationEngine.dispatchEvent(NetworkEvent(isWifi, null), applicationContext)
+
+            // On API 29+ the SSID is available from NetworkCapabilities.getTransportInfo() within
+            // a network callback without requiring ACCESS_FINE_LOCATION, which was revoked in Android 10.
+            // WifiManager.getConnectionInfo() (deprecated API 31) throws SecurityException on some OEM
+            // builds even with ACCESS_WIFI_STATE declared (SHIZUKUPLUS-50).
+            val ssid: String? = if (Build.VERSION.SDK_INT >= 29 && isWifi && caps != null) {
+                (caps.transportInfo as? WifiInfo)?.ssid?.let { raw ->
+                    // WifiInfo.getSSID() wraps SSIDs in double-quotes: "\"MyNetwork\""
+                    // Strip them; "<unknown ssid>" means the platform declined to share it.
+                    if (raw.startsWith("\"") && raw.endsWith("\"") && raw.length >= 2) {
+                        raw.substring(1, raw.length - 1)
+                    } else if (raw == "<unknown ssid>") {
+                        null
+                    } else {
+                        raw
+                    }
+                }
+            } else {
+                null
+            }
+
+            AutomationEngine.dispatchEvent(NetworkEvent(isWifi, ssid), applicationContext)
         } catch (e: Exception) {
             Timber.tag("AutomationService").w(e, "Failed to check network state")
         }
@@ -193,6 +235,8 @@ class AutomationService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        AutomationEngine.unregisterRule(networkFirewallRule)
+        AutomationEngine.unregisterRule(appProfileRule)
         if (callbackRegistered) {
             try {
                 connectivityManager?.unregisterNetworkCallback(networkCallback)

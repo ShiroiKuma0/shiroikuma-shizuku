@@ -161,6 +161,10 @@ public class ShizukuSettings {
         public static final String KEY_LIVE_ACTIVITY_ENABLED = "live_activity_enabled";
         public static final String KEY_AUTO_RECONNECT_MDNS = "auto_reconnect_mdns";
         public static final String KEY_STEALTH_MODE = "stealth_mode";
+
+        // Automation Engine (Shizuku+ additions)
+        public static final String KEY_AUTOMATION_TRUSTED_NETWORKS = "automation_trusted_networks";
+        public static final String KEY_AUTOMATION_APP_PROFILES = "automation_app_profiles";
     }
 
     private static SharedPreferences sPreferences;
@@ -826,6 +830,40 @@ public class ShizukuSettings {
     public static boolean isBinderFirewallEnabled() {
         SharedPreferences p = getPreferences();
         return p != null && p.getBoolean(Keys.KEY_BINDER_FIREWALL_ENABLED, false);
+    }
+
+    public static void setBinderFirewallEnabled(boolean enable) {
+        SharedPreferences p = getPreferences();
+        if (p != null) p.edit().putBoolean(Keys.KEY_BINDER_FIREWALL_ENABLED, enable).apply();
+    }
+
+    public static java.util.Set<String> getAutomationTrustedNetworks() {
+        SharedPreferences p = getPreferences();
+        java.util.Set<String> stored = p != null
+                ? p.getStringSet(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, java.util.Collections.emptySet())
+                : java.util.Collections.emptySet();
+        return new java.util.HashSet<>(stored);
+    }
+
+    public static void setAutomationTrustedNetworks(java.util.Set<String> ssids) {
+        SharedPreferences p = getPreferences();
+        if (p != null) p.edit().putStringSet(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, ssids).apply();
+    }
+
+    public static String getAutomationAppProfilesJson() {
+        SharedPreferences p = getPreferences();
+        return p != null ? p.getString(Keys.KEY_AUTOMATION_APP_PROFILES, "{}") : "{}";
+    }
+
+    public static void setAutomationAppProfilesJson(String json) {
+        SharedPreferences p = getPreferences();
+        if (p != null) p.edit().putString(Keys.KEY_AUTOMATION_APP_PROFILES, json).apply();
+    }
+
+    public static boolean hasAnyAutomationRulesConfigured() {
+        if (!getAutomationTrustedNetworks().isEmpty()) return true;
+        String json = getAutomationAppProfilesJson();
+        return !"{}".equals(json) && json.length() > 2;
     }
 
     public static boolean isBinderLoggingEnabled() {
