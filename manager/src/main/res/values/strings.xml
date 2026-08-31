@@ -671,6 +671,12 @@
     <string name="lp_action_freeze_app">Freeze App (Disable)</string>
     <string name="lp_action_unfreeze_app">Unfreeze App (Enable)</string>
     <string name="su_path_preset_applied">SU path preset applied: %1$s</string>
+    <string name="stock_shizuku_conflict_title">Incompatible Server Detected</string>
+    <string name="stock_shizuku_conflict_description">The original Shizuku server is running in the background. It is incompatible with Shizuku+ and blocks it from starting.</string>
+    <string name="stock_shizuku_conflict_fix_button">Fix Conflict</string>
+    <string name="stock_shizuku_conflict_dialog_title">Incompatible Server Running</string>
+    <string name="stock_shizuku_conflict_dialog_message">The original Shizuku server is currently running in the background. Because of Android security constraints, Shizuku+ cannot communicate with or kill the original server.\n\nPlease completely restart your device to kill the original server, then start Shizuku+ using ADB or Root.</string>
+    <string name="stock_shizuku_restarting_via_root">Restarting via Root…</string>
     <string name="toast_shizuku_already_starting">Shizuku is already starting in the background</string>
     <string name="toast_accessibility_tv_only">This automation is for TV or Samsung One UI devices with TLS support.</string>
     <string name="toast_pairing_timeout">Shizuku pairing service timed out</string>
