@@ -77,9 +77,9 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             ctx.contentResolver.openOutputStream(uri)?.use { os ->
                 OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
             }
-            Toast.makeText(ctx, "Plain backup exported. Keep this file private — it is not encrypted.", Toast.LENGTH_LONG).show()
+            Toast.makeText(ctx, R.string.backup_plain_exported, Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
-            Toast.makeText(ctx, "Backup failed: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(ctx, ctx.getString(R.string.backup_failed_generic, e.message), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -96,7 +96,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 ctx.contentResolver.openOutputStream(uri)?.use { os ->
                     OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
                 }
-                Toast.makeText(ctx, "Backup exported successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, R.string.backup_exported_success, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG).show()
             }
@@ -111,15 +111,15 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                     ctx.contentResolver.openOutputStream(uri)?.use { os ->
                         OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
                     }
-                    Toast.makeText(ctx, "Backup exported successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, R.string.backup_exported_success, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     Toast.makeText(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG).show()
                 }
             }, onError = { errCode ->
-                Toast.makeText(ctx, "Authentication failed ($errCode)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT).show()
             }, crypto = BiometricPrompt.CryptoObject(cipher))
         } catch (e: Exception) {
-            Toast.makeText(ctx, "Backup failed: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(ctx, ctx.getString(R.string.backup_failed_generic, e.message), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -138,9 +138,9 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             if (!BackupRestoreManager.isEncrypted(payload)) {
                 try {
                     BackupRestoreManager.restoreFromPlainPayload(ctx, payload)
-                    Toast.makeText(ctx, "Backup restored successfully. Please restart the app.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(ctx, R.string.backup_restored_success, Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
-                    Toast.makeText(ctx, "Restore failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG).show()
                 }
                 return@registerForActivityResult
             }
@@ -151,7 +151,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 try {
                     val cipher = CryptoUtils.getCipherForDecryption(iv, userAuthRequired = false)
                     BackupRestoreManager.restoreFromPayload(ctx, payload, cipher)
-                    Toast.makeText(ctx, "Backup restored successfully. Please restart the app.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(ctx, R.string.backup_restored_success, Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
                     Toast.makeText(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG).show()
                 }
@@ -162,15 +162,15 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             lock.authenticate(onSuccess = { crypto ->
                 try {
                     BackupRestoreManager.restoreFromPayload(ctx, payload, crypto?.cipher ?: cipher)
-                    Toast.makeText(ctx, "Backup restored successfully. Please restart the app.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(ctx, R.string.backup_restored_success, Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
                     Toast.makeText(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG).show()
                 }
             }, onError = { errCode ->
-                Toast.makeText(ctx, "Authentication failed ($errCode)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT).show()
             }, crypto = BiometricPrompt.CryptoObject(cipher))
         } catch (e: Exception) {
-            Toast.makeText(ctx, "Restore failed: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG).show()
         }
     }
 

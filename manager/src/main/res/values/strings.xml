@@ -677,6 +677,12 @@
     <string name="stock_shizuku_conflict_dialog_title">Incompatible Server Running</string>
     <string name="stock_shizuku_conflict_dialog_message">The original Shizuku server is currently running in the background. Because of Android security constraints, Shizuku+ cannot communicate with or kill the original server.\n\nPlease completely restart your device to kill the original server, then start Shizuku+ using ADB or Root.</string>
     <string name="stock_shizuku_restarting_via_root">Restarting via Root…</string>
+    <string name="backup_plain_exported">Plain backup exported. Keep this file private — it is not encrypted.</string>
+    <string name="backup_exported_success">Backup exported successfully</string>
+    <string name="backup_restored_success">Backup restored successfully. Please restart the app.</string>
+    <string name="backup_failed_generic">Backup failed: %1$s</string>
+    <string name="restore_failed_generic">Restore failed: %1$s</string>
+    <string name="backup_auth_failed">Authentication failed (%1$s)</string>
     <string name="toast_shizuku_already_starting">Shizuku is already starting in the background</string>
     <string name="toast_accessibility_tv_only">This automation is for TV or Samsung One UI devices with TLS support.</string>
     <string name="toast_pairing_timeout">Shizuku pairing service timed out</string>
