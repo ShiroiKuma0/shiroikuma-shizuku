@@ -991,6 +991,8 @@
     <string name="service_doctor_fix_phantom_attempted">Phantom process limit disabled. Restart the service if needed.</string>
     <string name="service_doctor_fix_requires_service">Shizuku must be running to apply this fix automatically.</string>
     <string name="service_doctor_fix_failed">Auto-fix failed: %1$s</string>
+    <string name="service_doctor_fix_blocked_samsung">Auto-fix blocked — Samsung Maximum Restrictions may be enabled. Disable it in Auto Blocker and try again.</string>
+    <string name="service_doctor_fix_blocked_generic">Auto-fix blocked — device restrictions prevent privileged shell commands. Check ADB/OEM settings.</string>
 
     <!-- ADB Pairing -->
     <string name="adb_foreground_op_denied">Unable to start foreground service — START_FOREGROUND permission is denied. Please check your device\'s app permissions.</string>

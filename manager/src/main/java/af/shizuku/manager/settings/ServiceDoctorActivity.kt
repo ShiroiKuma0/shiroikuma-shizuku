@@ -266,9 +266,9 @@ class ServiceDoctorActivity : AppBarActivity() {
                             Timber.w(e, "Phantom process fix failed")
                             withContext(Dispatchers.Main) {
                                 val msg = if (isNullProcess && EnvironmentUtils.isSamsung()) {
-                                    "Auto-fix blocked — Samsung Maximum Restrictions may be enabled. Disable it in Auto Blocker and try again."
+                                    getString(R.string.service_doctor_fix_blocked_samsung)
                                 } else if (isNullProcess) {
-                                    "Auto-fix blocked — device restrictions prevent privileged shell commands. Check ADB/OEM settings."
+                                    getString(R.string.service_doctor_fix_blocked_generic)
                                 } else {
                                     getString(R.string.service_doctor_fix_failed, e.message)
                                 }
