@@ -236,10 +236,10 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
                 val admin = ComponentName(ctx, af.shizuku.manager.admin.DhizukuAdminReceiver::class.java)
                 dpm.setScreenCaptureDisabled(admin, enabled)
-                Toast.makeText(ctx, if (enabled) "Screen Capture Disabled Globally" else "Screen Capture Enabled", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, if (enabled) R.string.dpm_screen_capture_disabled else R.string.dpm_screen_capture_enabled, Toast.LENGTH_SHORT).show()
                 true
             } catch (e: Exception) {
-                Toast.makeText(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG).show()
+                Toast.makeText(ctx, R.string.dpm_requires_device_owner, Toast.LENGTH_LONG).show()
                 false
             }
         }
@@ -253,14 +253,14 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 val admin = ComponentName(ctx, af.shizuku.manager.admin.DhizukuAdminReceiver::class.java)
                 if (enabled) {
                     dpm.addUserRestriction(admin, android.os.UserManager.DISALLOW_USB_FILE_TRANSFER)
-                    Toast.makeText(ctx, "USB Data Locked Down", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, R.string.dpm_usb_locked, Toast.LENGTH_SHORT).show()
                 } else {
                     dpm.clearUserRestriction(admin, android.os.UserManager.DISALLOW_USB_FILE_TRANSFER)
-                    Toast.makeText(ctx, "USB Data Unlocked", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, R.string.dpm_usb_unlocked, Toast.LENGTH_SHORT).show()
                 }
                 true
             } catch (e: Exception) {
-                Toast.makeText(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG).show()
+                Toast.makeText(ctx, R.string.dpm_requires_device_owner, Toast.LENGTH_LONG).show()
                 false
             }
         }
@@ -290,9 +290,9 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                         val toSuspend = packagesList.filter { installed.contains(it) }
                         val failed = dpm.setPackagesSuspended(admin, toSuspend.toTypedArray(), true)
                         message = if (failed.isNotEmpty()) {
-                            "Failed to freeze: ${failed.joinToString()}"
+                            ctx.getString(R.string.dpm_freeze_failed, failed.joinToString())
                         } else {
-                            "Frozen ${toSuspend.size} applications"
+                            ctx.getString(R.string.dpm_freeze_success, toSuspend.size)
                         }
                     }
                     withContext(Dispatchers.Main) {
@@ -300,7 +300,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(ctx, "Failed: Device Owner privileges required", Toast.LENGTH_LONG).show()
+                        Toast.makeText(ctx, R.string.dpm_requires_device_owner, Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -325,10 +325,10 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         backupSettingsPref?.setOnPreferenceClickListener {
             val dateStr = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US).format(java.util.Date())
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Export backup")
+                .setTitle(R.string.backup_export_title)
                 .setItems(arrayOf(
-                    "Encrypted (recommended)",
-                    "Plain text — for testing across reinstalls"
+                    getString(R.string.backup_type_encrypted),
+                    getString(R.string.backup_type_plain)
                 )) { _, which ->
                     try {
                         when (which) {
@@ -336,7 +336,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                             1 -> createPlainBackupLauncher.launch("ShizukuPlus_Settings_plain_$dateStr.json")
                         }
                     } catch (e: android.content.ActivityNotFoundException) {
-                        Toast.makeText(requireContext(), "No file manager app found to save the backup", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), R.string.backup_no_file_manager_save, Toast.LENGTH_LONG).show()
                     }
                 }
                 .show()
@@ -348,7 +348,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             try {
                 restoreBackupLauncher.launch(arrayOf("application/json", "*/*"))
             } catch (e: android.content.ActivityNotFoundException) {
-                Toast.makeText(requireContext(), "No file manager app found to open the backup", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), R.string.backup_no_file_manager_open, Toast.LENGTH_LONG).show()
             }
             true
         }

@@ -117,14 +117,14 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                 if (newValue is Boolean) {
                     if (newValue && key == "bootloader_flash_ota_enabled") {
                         com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
-                            .setTitle("Dangerous Experimental Feature")
-                            .setMessage("Systemless OTA Flashing uses android.os.UpdateEngine via the Shizuku shell to install zip payloads to your inactive slot.\n\nDANGER: Flashing an incompatible payload WILL result in a hard brick or bootloop. Are you sure you want to enable this feature?")
-                            .setPositiveButton("I Understand, Enable") { _, _ ->
+                            .setTitle(R.string.ota_flash_danger_title)
+                            .setMessage(R.string.ota_flash_danger_message)
+                            .setPositiveButton(R.string.ota_flash_danger_confirm) { _, _ ->
                                 preferenceManager.sharedPreferences?.edit()?.putBoolean(key, true)?.apply()
                                 pref.isChecked = true
                                 ShizukuSettings.syncAllPlusFeaturesToServer()
                             }
-                            .setNegativeButton("Cancel", null)
+                            .setNegativeButton(android.R.string.cancel, null)
                             .show()
                         return@setOnPreferenceChangeListener false
                     } else {
@@ -169,7 +169,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
             )
 
             com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
-                .setTitle("Select SU Path Preset")
+                .setTitle(R.string.su_path_preset_dialog_title)
                 .setItems(presets) { _, which ->
                     val chosen = presetValues[which]
                     if (chosen == "custom") {

@@ -1177,4 +1177,37 @@
     <string name="binder_firewall_trusted_networks_save">Save</string>
     <string name="binder_firewall_trusted_networks_no_ssid">Could not detect current network name</string>
     <string name="binder_firewall_trusted_networks_already_added">"%s" is already in the list</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_prompt_title">Unlock Shizuku+</string>
+    <string name="biometric_prompt_subtitle">Authenticate to access sensitive settings</string>
+
+    <!-- Stealth mode -->
+    <string name="stealth_mode_enable_title">Enable Stealth Mode?</string>
+    <string name="stealth_mode_enable_message">The app icon will be removed from your launcher.\n\nYou can still open the app from the Shizuku notification. Disable stealth mode via ADB to restore the icon:\n\nadb shell pm enable %1$s/af.shizuku.manager.LauncherAlias</string>
+    <string name="stealth_mode_enable_button">Enable</string>
+
+    <!-- OTA flash danger dialog -->
+    <string name="ota_flash_danger_title">Dangerous Experimental Feature</string>
+    <string name="ota_flash_danger_message">Systemless OTA Flashing uses android.os.UpdateEngine via the Shizuku shell to install zip payloads to your inactive slot.\n\nDANGER: Flashing an incompatible payload WILL result in a hard brick or bootloop. Are you sure you want to enable this feature?</string>
+    <string name="ota_flash_danger_confirm">I Understand, Enable</string>
+
+    <!-- SU path preset picker dialog -->
+    <string name="su_path_preset_dialog_title">Select SU Path Preset</string>
+
+    <!-- Device Owner (Dhizuku) toasts -->
+    <string name="dpm_screen_capture_disabled">Screen Capture Disabled Globally</string>
+    <string name="dpm_screen_capture_enabled">Screen Capture Enabled</string>
+    <string name="dpm_requires_device_owner">Failed: Device Owner privileges required</string>
+    <string name="dpm_usb_locked">USB Data Locked Down</string>
+    <string name="dpm_usb_unlocked">USB Data Unlocked</string>
+    <string name="dpm_freeze_failed">Failed to freeze: %1$s</string>
+    <string name="dpm_freeze_success">Frozen %1$d applications</string>
+
+    <!-- Backup/restore picker dialog -->
+    <string name="backup_export_title">Export backup</string>
+    <string name="backup_type_encrypted">Encrypted (recommended)</string>
+    <string name="backup_type_plain">Plain text — for testing across reinstalls</string>
+    <string name="backup_no_file_manager_save">No file manager app found to save the backup</string>
+    <string name="backup_no_file_manager_open">No file manager app found to open the backup</string>
 </resources>

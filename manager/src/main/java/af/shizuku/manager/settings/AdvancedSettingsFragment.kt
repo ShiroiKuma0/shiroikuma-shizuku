@@ -132,14 +132,9 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                 val enable = newValue as Boolean
                 if (enable) {
                     MaterialAlertDialogBuilder(context)
-                        .setTitle("Enable Stealth Mode?")
-                        .setMessage(
-                            "The app icon will be removed from your launcher.\n\n" +
-                            "You can still open the app from the Shizuku notification. " +
-                            "Disable stealth mode via ADB to restore the icon:\n\n" +
-                            "adb shell pm enable ${context.packageName}/af.shizuku.manager.LauncherAlias"
-                        )
-                        .setPositiveButton("Enable") { _, _ ->
+                        .setTitle(R.string.stealth_mode_enable_title)
+                        .setMessage(getString(R.string.stealth_mode_enable_message, context.packageName))
+                        .setPositiveButton(R.string.stealth_mode_enable_button) { _, _ ->
                             context.packageManager.setComponentEnabled(launcherAlias, false)
                             ShizukuSettings.setStealthModeEnabled(true)
                             (pref as? TwoStatePreference)?.isChecked = true
