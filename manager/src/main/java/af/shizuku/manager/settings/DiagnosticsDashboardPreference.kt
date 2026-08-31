@@ -1,11 +1,11 @@
 package af.shizuku.manager.settings
 
+import android.app.ActivityManager
 import android.app.admin.DevicePolicyManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.AttributeSet
@@ -20,6 +20,7 @@ import androidx.preference.PreferenceViewHolder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.automation.AutomationService
 
 class DiagnosticsDashboardPreference @JvmOverloads constructor(
     context: Context,
@@ -77,6 +78,16 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                 WarningItem(
                     id = "battery_optimization",
                     message = context.getString(R.string.diagnostics_warning_battery_optimization)
+                )
+            )
+        }
+
+        // Diagnostic 4: Automation rules configured but service not running
+        if (ShizukuSettings.hasAnyAutomationRulesConfigured() && !isAutomationServiceRunning(context)) {
+            activeWarnings.add(
+                WarningItem(
+                    id = "automation_service_stopped",
+                    message = context.getString(R.string.diagnostics_warning_automation_stopped)
                 )
             )
         }
@@ -147,6 +158,14 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             .setNegativeButton(R.string.diagnostics_dismiss, null)
                             .show()
                     }
+                    "automation_service_stopped" -> {
+                        try {
+                            context.startService(Intent(context, AutomationService::class.java))
+                            notifyChanged()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Could not start automation service", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
 
@@ -186,6 +205,21 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
             pm.isIgnoringBatteryOptimizations(ctx.packageName)
         } catch (e: Exception) {
             true // default to true to not raise warnings if system query fails
+        }
+    }
+
+    // getRunningServices() is deprecated in API 26+ for third-party apps but remains
+    // functional for querying the caller's OWN services — exactly what we need here.
+    @Suppress("DEPRECATION")
+    private fun isAutomationServiceRunning(ctx: Context): Boolean {
+        return try {
+            val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            am.getRunningServices(100)?.any {
+                it.service.packageName == ctx.packageName &&
+                it.service.className.endsWith("AutomationService")
+            } == true
+        } catch (e: Exception) {
+            true // default to "running" to suppress false warnings
         }
     }
 
