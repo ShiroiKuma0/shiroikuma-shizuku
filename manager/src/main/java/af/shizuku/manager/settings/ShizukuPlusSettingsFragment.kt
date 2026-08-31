@@ -451,6 +451,24 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
 
         // Check for integrated apps and update summaries
         checkAppIntegrations()
+
+        applyModeConstraints()
+    }
+
+    // Disable preferences that can't function in the current privilege mode.
+    // Only restricts when the server is running (uid != -1) — if it's not attached yet,
+    // leave everything editable so the user can configure before starting Shizuku.
+    private fun applyModeConstraints() {
+        val uid = try { Shizuku.getUid() } catch (_: Exception) { -1 }
+        if (uid == -1) return // server not running — no restrictions
+
+        if (uid != 0) {
+            // Samsung UID escalation uses a Samsung-specific root exploit; ADB UID 2000 can't use it.
+            findPreference<Preference>("samsung_system_uid_escalation_enabled")?.apply {
+                isEnabled = false
+                summary = "Root mode only — this exploit requires the server to run as UID 0."
+            }
+        }
     }
 
     private fun isDeviceOwnerActive(ctx: Context): Boolean {

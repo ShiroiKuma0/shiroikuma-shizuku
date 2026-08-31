@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
+import androidx.preference.PreferenceGroup
 import androidx.preference.TwoStatePreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -184,6 +185,30 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                 }
                 .show()
             true // Intercept click to show presets dialog first
+        }
+
+        applyModeConstraints()
+    }
+
+    // Gray out categories that require root when running in ADB/shell mode (uid 2000).
+    // Only applied when the server is actually running — if uid == -1 (not attached), leave
+    // everything enabled so the user can still configure settings before starting Shizuku.
+    private fun applyModeConstraints() {
+        val uid = try { Shizuku.getUid() } catch (_: Exception) { -1 }
+        if (uid != 2000) return // root or not running — no restrictions to apply
+
+        val rootOnlyCategories = listOf(
+            "category_su_bridge",
+            "category_root_modules",
+            "category_ghost_bridge",
+            "category_unlocked_bootloader"
+        )
+        for (key in rootOnlyCategories) {
+            findPreference<PreferenceGroup>(key)?.apply {
+                isEnabled = false
+                // Append the mode hint to the category title so users understand why it's grayed.
+                title = "$title (root mode only)"
+            }
         }
     }
 
