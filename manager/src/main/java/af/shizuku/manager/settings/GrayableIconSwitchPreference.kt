@@ -6,7 +6,7 @@ import android.widget.ImageView
 import androidx.preference.PreferenceViewHolder
 import androidx.preference.SwitchPreferenceCompat
 
-class GrayableIconSwitchPreference @JvmOverloads constructor(
+open class GrayableIconSwitchPreference @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : SwitchPreferenceCompat(context, attrs) {
