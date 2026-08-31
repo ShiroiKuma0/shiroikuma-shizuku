@@ -327,6 +327,38 @@ The 2026-08-26 nullable `Int?` fix handled cold start; a second path remained. `
 
 ---
 
+### 2026-08-31 (session 5) — Claude Code (Sonnet 4.6) [storage proxy fixes + privilege grant API + aShell You regression fix]
+
+**Commit:** `0c65a9eb`
+
+**StorageProxyImpl — three fixes (`StorageProxyImpl.kt`):**
+- **Broken pipe fallback:** `createPipe()` sets `O_CLOEXEC` on both ends; the original code embedded the fd number in the shell command string (`cat "$1" > /proc/self/fd/<n>`), which the child shell can never access because `exec()` closes all O_CLOEXEC fds before the shell starts. Rewrote to a daemon thread that copies the child process's stdout into the write end via `AutoCloseOutputStream` — write end is closed on thread exit, giving the AIDL reader a clean EOF.
+- **Android 13+ `/Android/data` access:** The pipe fallback was gated on `SDK_INT >= 36` (Android 16). The `/Android/data` restriction began at Android 13 (API 33). Extended to `>= 33`.
+- **`run-as` support for ADB mode:** When the server runs as UID 2000 (ADB/shell) and a direct `open()` of a `/data/data/<pkg>/` or `/data/user/<n>/<pkg>/` path fails, now tries `run-as <pkg> cat <file>` via the same pipe mechanism. `run-as` is Android's built-in mechanism to impersonate debuggable apps; this gives ADB-mode clients access to any debuggable app's private data directory without root. Package name is validated with a regex (`[a-zA-Z0-9_.]+`, must contain a dot) before being passed to `run-as`.
+
+**Privileged permission grant/revoke (`ServerConstants.java`, `ShizukuService.java`):**
+- Added `BINDER_TRANSACTION_grantRuntimePermission = 10005` and `BINDER_TRANSACTION_revokeRuntimePermission = 10006` to `ServerConstants`.
+- Wired up handlers in `ShizukuService.onTransact()`: read packageName + permissionName + userId from the Parcel, delegate to `Android17Compat.grantRuntimePermission()` / `revokeRuntimePermission()` (already used internally for WRITE_SECURE_SETTINGS grants), write 1 (success) / 0 (failure) to reply. Both require `enforceCallingPermission`.
+- In root mode the permission manager call is unrestricted; in ADB mode it works for dangerous runtime permissions.
+
+**aShell You regression fix #426 (`ShizukuService.java`):**
+- **`id`/`whoami` mocking scoped to Magisk Mocking:** Previously, when `su_bridge` was globally enabled, every `newProcess(["id"])` call from any app returned `uid=0(root) gid=0(root)` — including terminal apps that call `id` to display the current user context. aShell You (and similar shell terminals) expected the real UID (2000 in ADB mode) and could be confused by the fake root UID. Now gated on `root_magisk_mocking` like `getenforce`.
+- **`service call` exception handler no longer swallows transient errors:** Previously, any exception during the binder firewall lookup (`ServiceManager.getService()` → `getInterfaceDescriptor()` → `isBinderCallBlocked()`) caused the handler to return a fake `"Result: Parcel(00000000 '....')"` success. aShell You users issuing `service call` through Shizuku got garbage output silently. Now only blocks when `isBinderCallBlocked()` explicitly returns true; lookup exceptions fall through to native execution.
+
+**Updated issue #426** with both fixes and a note that a logcat during crash would pinpoint any remaining cause.
+
+**Still open:**
+- [ ] #426 aShell You — two likely contributors fixed; may still need logcat if a third cause exists
+- [ ] #444 SamFonts UID -1 — `grantRuntimePermission` server path now exposed as binder transaction; needs user test
+- [ ] #199 Shadow Binder hidden packages — needs ADB/on-device testing
+- [ ] #200 Mavericks factory crash + SQLite race — needs ADB verification
+- [ ] #333 Card `shapeAppearanceOverlay` — blocked on base theme attr confirmation
+- [ ] #428 Themed Icons auto-toggle — needs on-device testing
+- [ ] #6 Automation rules — scaffolding only
+- [ ] Android 17 ADB pairing — needs Android 17 device
+
+---
+
 ### 2026-08-26 — Claude Code (Sonnet 5) [PRoot ShizukuPlus, icon rework + GitHub issue triage + Watchdog resilience]
 
 **All of the below eventually landed on `master`** across commits `34663bd4`..`c13bf851` (see `git log` for the full list) — the "not yet committed" note below is stale, kept for narrative order within this entry.
