@@ -232,10 +232,23 @@ object RootCompatHelper {
         }
         val deployResult = deployBridgeToTmpDetailed(context)
         val tmpSu = deployResult.suPath
-            ?: return@withContext BridgeSelfTest(false,
-                "❌ Could not deploy the bridge to /data/local/tmp.\n\n" +
-                    (deployResult.failureDetail?.let { "Reason: $it\n\n" } ?: "") +
-                    "Make sure the Shizuku service is running, then retry.")
+            ?: run {
+                val serverUid = try { Shizuku.getUid() } catch (_: Exception) { -1 }
+                val detail = deployResult.failureDetail?.let { "Reason: $it\n\n" } ?: ""
+                val action = if (serverUid == 2000) {
+                    // On Android 16+ the SELinux policy for the shell (ADB) process was tightened
+                    // to deny writes to /data/local/tmp (SHIZUKUPLUS-8A/8G/8D). This is expected
+                    // and the bridge still functions via the user-exported path.
+                    "ADB/shell mode detected. Android 16+ restricts writes to /data/local/tmp from " +
+                        "the shell process — this is expected. The SU Bridge still works via your " +
+                        "exported path. Tap \"Export\" in the compatibility hub and direct root apps " +
+                        "to that path, or switch to root mode for full /data/local/tmp access."
+                } else {
+                    "Make sure the Shizuku service is running, then retry."
+                }
+                return@withContext BridgeSelfTest(false,
+                    "❌ Could not deploy the bridge to /data/local/tmp.\n\n$detail$action")
+            }
         val tmpDir = tmpSu.substringBeforeLast('/')
 
         // Probe A — deploy check + true privilege, via Shizuku.
