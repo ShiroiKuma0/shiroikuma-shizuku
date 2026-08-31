@@ -163,7 +163,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             context.startService(Intent(context, AutomationService::class.java))
                             notifyChanged()
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Could not start automation service", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }

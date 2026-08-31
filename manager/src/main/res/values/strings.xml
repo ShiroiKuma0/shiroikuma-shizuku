@@ -435,6 +435,7 @@
     <string name="diagnostics_warning_shadow_binder_no_apps">Shadow Binder is enabled but no apps are selected to hide. Tap to select.</string>
     <string name="diagnostics_warning_battery_optimization">Battery optimization is active. Shizuku may be killed in the background. Tap to exempt.</string>
     <string name="diagnostics_warning_automation_stopped">Network automation rules configured but the service is stopped — Binder Firewall won\'t auto-toggle. Tap to restart.</string>
+    <string name="diagnostics_automation_start_failed">Could not start automation service</string>
     <string name="diagnostics_battery_settings_open_failed">Could not open battery settings</string>
     <string name="diagnostics_shadow_binder_navigate_hint">Go to Feature Hub → Security &amp; Access → Shadow Binder to select apps</string>
     <string name="diagnostics_device_owner_setup_title">Set Up Device Owner</string>
