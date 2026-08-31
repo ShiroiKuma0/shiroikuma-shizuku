@@ -32,10 +32,13 @@ class ThemeDelegateImpl : ThemeDelegate {
             if (customAccent != "DEFAULT") {
                 val isNight = context.resources.configuration.isNight()
                 val styleRes = when (customAccent) {
-                    "VIOLET" -> if (isNight) R.style.ThemeOverlay_Accent_Violet_Dark else R.style.ThemeOverlay_Accent_Violet
-                    "GREEN" -> if (isNight) R.style.ThemeOverlay_Accent_Green_Dark else R.style.ThemeOverlay_Accent_Green
+                    "VIOLET"  -> if (isNight) R.style.ThemeOverlay_Accent_Violet_Dark  else R.style.ThemeOverlay_Accent_Violet
+                    "GREEN"   -> if (isNight) R.style.ThemeOverlay_Accent_Green_Dark   else R.style.ThemeOverlay_Accent_Green
                     "CRIMSON" -> if (isNight) R.style.ThemeOverlay_Accent_Crimson_Dark else R.style.ThemeOverlay_Accent_Crimson
-                    "OCEAN" -> if (isNight) R.style.ThemeOverlay_Accent_Ocean_Dark else R.style.ThemeOverlay_Accent_Ocean
+                    "OCEAN"   -> if (isNight) R.style.ThemeOverlay_Accent_Ocean_Dark   else R.style.ThemeOverlay_Accent_Ocean
+                    "AMBER"   -> if (isNight) R.style.ThemeOverlay_Accent_Amber_Dark   else R.style.ThemeOverlay_Accent_Amber
+                    "ROSE"    -> if (isNight) R.style.ThemeOverlay_Accent_Rose_Dark    else R.style.ThemeOverlay_Accent_Rose
+                    "SLATE"   -> if (isNight) R.style.ThemeOverlay_Accent_Slate_Dark   else R.style.ThemeOverlay_Accent_Slate
                     else -> 0
                 }
                 if (styleRes != 0) {

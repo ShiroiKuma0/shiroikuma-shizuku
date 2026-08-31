@@ -796,6 +796,9 @@
     <string name="settings_accent_green_applied">Forest Green applied</string>
     <string name="settings_accent_crimson_applied">Crimson Rose applied</string>
     <string name="settings_accent_ocean_applied">Deep Ocean applied</string>
+    <string name="settings_accent_amber_applied">Amber Sunset applied</string>
+    <string name="settings_accent_rose_applied">Rose Petal applied</string>
+    <string name="settings_accent_slate_applied">Midnight Slate applied</string>
     <string name="settings_accent_default_applied">Standard Blue (Default)</string>
     <string name="fake_adb_pairing_title">Allow fake ADB connection?</string>
     <string name="fake_adb_pairing_message">An app is trying to connect to Shizuku+ via the Fake Local ADB server.\n\nRSA key fingerprint:\n%1$s</string>

@@ -345,11 +345,14 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
     private fun getCustomAccentSummary(value: String? = null): String {
         val currentValue = value ?: ShizukuSettings.getPreferences().getString("custom_accent", "DEFAULT")
         return when (currentValue) {
-            "VIOLET" -> getString(R.string.settings_accent_violet_applied)
-            "GREEN" -> getString(R.string.settings_accent_green_applied)
+            "VIOLET"  -> getString(R.string.settings_accent_violet_applied)
+            "GREEN"   -> getString(R.string.settings_accent_green_applied)
             "CRIMSON" -> getString(R.string.settings_accent_crimson_applied)
-            "OCEAN" -> getString(R.string.settings_accent_ocean_applied)
-            else -> getString(R.string.settings_accent_default_applied)
+            "OCEAN"   -> getString(R.string.settings_accent_ocean_applied)
+            "AMBER"   -> getString(R.string.settings_accent_amber_applied)
+            "ROSE"    -> getString(R.string.settings_accent_rose_applied)
+            "SLATE"   -> getString(R.string.settings_accent_slate_applied)
+            else      -> getString(R.string.settings_accent_default_applied)
         }
     }
 }
