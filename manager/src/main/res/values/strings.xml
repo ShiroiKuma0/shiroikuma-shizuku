@@ -670,6 +670,7 @@
     <string name="toast_error_with_message">Error: %1$s</string>
     <string name="lp_action_freeze_app">Freeze App (Disable)</string>
     <string name="lp_action_unfreeze_app">Unfreeze App (Enable)</string>
+    <string name="su_path_preset_applied">SU path preset applied: %1$s</string>
     <string name="toast_shizuku_already_starting">Shizuku is already starting in the background</string>
     <string name="toast_accessibility_tv_only">This automation is for TV or Samsung One UI devices with TLS support.</string>
     <string name="toast_pairing_timeout">Shizuku pairing service timed out</string>
