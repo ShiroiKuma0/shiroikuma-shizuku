@@ -664,6 +664,12 @@
 
     <!-- Toast -->
     <string name="toast_no_email_app">No email app found</string>
+    <string name="toast_app_frozen">App frozen</string>
+    <string name="toast_app_unfrozen">App unfrozen</string>
+    <string name="toast_operation_failed">Operation failed</string>
+    <string name="toast_error_with_message">Error: %1$s</string>
+    <string name="lp_action_freeze_app">Freeze App (Disable)</string>
+    <string name="lp_action_unfreeze_app">Unfreeze App (Enable)</string>
     <string name="toast_shizuku_already_starting">Shizuku is already starting in the background</string>
     <string name="toast_accessibility_tv_only">This automation is for TV or Samsung One UI devices with TLS support.</string>
     <string name="toast_pairing_timeout">Shizuku pairing service timed out</string>

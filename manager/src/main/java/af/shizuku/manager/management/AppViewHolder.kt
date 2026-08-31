@@ -234,24 +234,24 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                     } catch (e: Exception) { null }
                     if (amPlus != null) {
                         val isFrozen = try { amPlus.isAppFrozen(capturedPackage) } catch (e: Exception) { false }
-                        val freezeLabel = if (isFrozen) "Unfreeze App (Enable)" else "Freeze App (Disable)"
+                        val freezeLabel = context.getString(if (isFrozen) R.string.lp_action_unfreeze_app else R.string.lp_action_freeze_app)
                         add(LpAction(freezeLabel) {
                             CoroutineScope(Dispatchers.IO).launch {
                                 try {
                                     val success = if (isFrozen) amPlus.unfreezeApp(capturedPackage) else amPlus.freezeApp(capturedPackage)
                                     withContext(Dispatchers.Main) {
                                         if (success) {
-                                            Toast.makeText(context, if (isFrozen) "App unfrozen" else "App frozen", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, if (isFrozen) R.string.toast_app_unfrozen else R.string.toast_app_frozen, Toast.LENGTH_SHORT).show()
                                             ActivityLogManager.log(appLabel, capturedPackage, "Long-press: ${if (isFrozen) "unfreeze" else "freeze"}")
                                             val pos = adapterPosition
                                             if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) adapter.notifyItemChanged(pos)
                                         } else {
-                                            Toast.makeText(context, "Operation failed", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, R.string.toast_operation_failed, Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 } catch (e: Exception) {
                                     withContext(Dispatchers.Main) {
-                                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.toast_error_with_message, e.message), Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
