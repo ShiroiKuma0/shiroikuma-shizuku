@@ -390,9 +390,14 @@ class RootCompatibilityActivity : AppBarActivity() {
                 holder.binding.switchWidget.visibility = View.GONE
                 holder.binding.checkbox.visibility = View.GONE
 
+                val isShizukuNative = metadata?.supportsShizukuNatively == true
                 val navHint = metadata?.suPathSettingNav ?: this@RootCompatibilityActivity.getString(R.string.su_bridge_default_nav_hint)
                 holder.binding.suPathNav.text = navHint
                 holder.binding.suPathNav.visibility = View.VISIBLE
+
+                // SU Bridge actions are irrelevant for Shizuku-native apps — they handle their
+                // own auth flow and have no SU path to copy or configure.
+                holder.binding.suCopyOpen.isVisible = !isShizukuNative
 
                 holder.binding.suCopyOpen.setContent {
                     af.shizuku.core.ui.compose.Button(
@@ -425,7 +430,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                 // canAutoSetup() is the single source of truth: GLOBAL_SETTINGS_APPS in any mode,
                 // ROOT_PREFS_APPS only when running as root (UID 0).
                 val canMagicSetup = RootCompatHelper.canAutoSetup(pkg, isRoot)
-                holder.binding.suMagicSetup.isVisible = isInstalled
+                holder.binding.suMagicSetup.isVisible = isInstalled && !isShizukuNative
                 if (isInstalled) {
                     holder.binding.suMagicSetup.alpha = if (canMagicSetup) 1.0f else 0.5f
 
