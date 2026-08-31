@@ -43,7 +43,7 @@ Shizuku+ provides exclusive system interfaces for advanced automation and tools 
 
 *   **AICore+ Automation Bridge**: Privileged UI automation (hierarchy dumps, tap/swipe) for AI-driven tools — no root needed. ([added](https://github.com/thejaustin/ShizukuPlus/commit/e9bd1187))
 *   **AVF (Virtual Machine) Manager**: Run isolated Linux/Microdroid VMs with GPU acceleration. ([added](https://github.com/thejaustin/ShizukuPlus/commit/c8e962f6))
-*   **Privileged Storage Proxy**: Authenticated access to restricted paths (`/data/data/`, `/data/app/`) for backups and file management. ([added](https://github.com/thejaustin/ShizukuPlus/commit/c8e962f6))
+*   **Privileged Storage Proxy**: Authenticated access to restricted paths for backups and file management. `/data/app/` and external `/Android/data/` work in ADB mode; `/data/data/` requires root (the server must run as UID 0 to cross app-private directory boundaries). ([added](https://github.com/thejaustin/ShizukuPlus/commit/c8e962f6))
 *   **Device Spoofing** (*Spoof Device Identity* in Settings): Present a different device identity to bypass device-specific restrictions. ([added](https://github.com/thejaustin/ShizukuPlus/commit/11867f44))
 *   **Intelligence Bridge** (*AI Core Plus*): Privileged NPU scheduling and screen context intelligence. ([added](https://github.com/thejaustin/ShizukuPlus/commit/e9bd1187))
 *   **Window Manager Plus**: Force free-form resizing, manage the Bubble Bar, and resilient overlays. ([added](https://github.com/thejaustin/ShizukuPlus/commit/e9bd1187))
