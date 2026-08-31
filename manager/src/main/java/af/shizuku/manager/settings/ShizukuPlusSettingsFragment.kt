@@ -5,7 +5,13 @@ import android.content.ComponentName
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.wifi.WifiInfo
+import android.os.Build
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -16,6 +22,7 @@ import kotlinx.coroutines.withContext
 import rikka.html.text.toHtml
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.automation.AutomationService
 import af.shizuku.manager.security.BiometricLock
 import androidx.biometric.BiometricPrompt
 import af.shizuku.manager.ShizukuSettings.Keys.*
@@ -420,6 +427,14 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             true
         }
 
+        findPreference<Preference>("binder_firewall_trusted_networks")?.let { pref ->
+            updateTrustedNetworksSummary(pref)
+            pref.setOnPreferenceClickListener {
+                showTrustedNetworksDialog()
+                true
+            }
+        }
+
         findPreference<Preference>("ai_core_plus_enabled")?.setOnPreferenceChangeListener { _, newValue ->
             val enabled = newValue as? Boolean ?: false
             if (enabled) {
@@ -689,5 +704,106 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 updatePreferenceDependency("native_window_crawler_enabled", active, hideDisabled)
             }
         }
+    }
+
+    private fun updateTrustedNetworksSummary(pref: Preference) {
+        val count = ShizukuSettings.getAutomationTrustedNetworks().size
+        pref.summary = when (count) {
+            0 -> getString(R.string.settings_binder_firewall_trusted_networks_summary_none)
+            1 -> getString(R.string.settings_binder_firewall_trusted_networks_summary_one)
+            else -> getString(R.string.settings_binder_firewall_trusted_networks_summary_many, count)
+        }
+    }
+
+    private fun getCurrentSsid(): String? {
+        val ctx = context ?: return null
+        return try {
+            val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return null
+            val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return null
+            if (!caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) &&
+                !caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) return null
+            if (Build.VERSION.SDK_INT >= 29) {
+                val ssid = (caps.transportInfo as? WifiInfo)?.ssid ?: return null
+                // Strip surrounding quotes that WifiInfo adds; null out "<unknown ssid>"
+                when {
+                    ssid == "<unknown ssid>" -> null
+                    ssid.startsWith("\"") && ssid.endsWith("\"") && ssid.length >= 2 ->
+                        ssid.substring(1, ssid.length - 1)
+                    else -> ssid
+                }
+            } else {
+                null
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun showTrustedNetworksDialog(initialLines: Set<String>? = null) {
+        val ctx = context ?: return
+        val current = initialLines ?: ShizukuSettings.getAutomationTrustedNetworks()
+        val currentSsid = getCurrentSsid()
+
+        val input = EditText(ctx).apply {
+            hint = getString(R.string.binder_firewall_trusted_networks_hint)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 3
+            maxLines = 8
+            setText(current.joinToString("\n"))
+            setPadding(
+                (16 * resources.displayMetrics.density).toInt(),
+                (8 * resources.displayMetrics.density).toInt(),
+                (16 * resources.displayMetrics.density).toInt(),
+                (8 * resources.displayMetrics.density).toInt(),
+            )
+        }
+
+        val builder = MaterialAlertDialogBuilder(ctx)
+            .setTitle(R.string.binder_firewall_trusted_networks_title)
+            .setMessage(R.string.binder_firewall_trusted_networks_detail)
+            .setView(input)
+            .setPositiveButton(R.string.binder_firewall_trusted_networks_save) { _, _ ->
+                val lines = input.text.toString()
+                    .lines()
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                    .toSet()
+                ShizukuSettings.setAutomationTrustedNetworks(lines)
+                findPreference<Preference>("binder_firewall_trusted_networks")
+                    ?.let { updateTrustedNetworksSummary(it) }
+                // Start AutomationService when rules exist; let it self-stop when empty.
+                val intent = Intent(ctx, AutomationService::class.java)
+                if (ShizukuSettings.hasAnyAutomationRulesConfigured()) {
+                    ctx.startService(intent)
+                } else {
+                    ctx.stopService(intent)
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+
+        if (currentSsid != null) {
+            builder.setNeutralButton(getString(R.string.binder_firewall_trusted_networks_add_current)) { _, _ ->
+                val existing = input.text.toString()
+                    .lines()
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                if (currentSsid in existing) {
+                    Toast.makeText(
+                        ctx,
+                        getString(R.string.binder_firewall_trusted_networks_already_added, currentSsid),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    // Re-open so the user can still Save or edit.
+                    input.post { showTrustedNetworksDialog(existing.toSet()) }
+                } else {
+                    val withNew = (existing + currentSsid).toSet()
+                    // Re-open with the SSID appended so the user sees it before saving.
+                    input.post { showTrustedNetworksDialog(withNew) }
+                }
+            }
+        }
+
+        builder.show()
     }
 }

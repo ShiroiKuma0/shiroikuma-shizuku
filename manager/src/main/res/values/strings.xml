@@ -1141,4 +1141,17 @@
     <string name="cd_settings_search_clear">Clear</string>
     <string name="settings_search_hint">Search settings…</string>
     <string name="settings_search_empty_state">No settings found</string>
+
+    <!-- Network Firewall automation trusted networks -->
+    <string name="settings_binder_firewall_trusted_networks">Trusted Networks</string>
+    <string name="settings_binder_firewall_trusted_networks_summary_none">Not configured — firewall state is manual only</string>
+    <string name="settings_binder_firewall_trusted_networks_summary_one">Auto-toggles on 1 trusted network</string>
+    <string name="settings_binder_firewall_trusted_networks_summary_many">Auto-toggles on %d trusted networks</string>
+    <string name="binder_firewall_trusted_networks_title">Trusted Networks</string>
+    <string name="binder_firewall_trusted_networks_detail">When connected to a trusted network (e.g. your home Wi-Fi), Binder Firewall is automatically disabled. On any other network it is automatically re-enabled.\n\nEnter each Wi-Fi SSID on its own line. Only exact matches count.</string>
+    <string name="binder_firewall_trusted_networks_hint">One SSID per line</string>
+    <string name="binder_firewall_trusted_networks_add_current">Add current network</string>
+    <string name="binder_firewall_trusted_networks_save">Save</string>
+    <string name="binder_firewall_trusted_networks_no_ssid">Could not detect current network name</string>
+    <string name="binder_firewall_trusted_networks_already_added">"%s" is already in the list</string>
 </resources>

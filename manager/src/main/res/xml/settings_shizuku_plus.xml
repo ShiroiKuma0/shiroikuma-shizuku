@@ -44,6 +44,13 @@
             android:defaultValue="false"
             app:badgeType="plus" />
 
+        <Preference
+            android:key="binder_firewall_trusted_networks"
+            android:title="@string/settings_binder_firewall_trusted_networks"
+            android:summary="@string/settings_binder_firewall_trusted_networks_summary_none"
+            android:icon="@drawable/ic_lan_24"
+            android:dependency="binder_firewall_enabled" />
+
         <af.shizuku.manager.settings.PlusFeaturePreference
             android:key="continuity_bridge_enabled"
             android:title="Continuity Bridge"
