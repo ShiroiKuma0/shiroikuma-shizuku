@@ -2,24 +2,36 @@ package rikka.shizuku.server
 
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
-import android.os.RemoteException
 import af.shizuku.server.IStorageProxy
 import rikka.shizuku.server.util.InputValidationUtils
 import java.io.File
 
 class StorageProxyImpl : IStorageProxy.Stub() {
+
+    // Cached once per process — getuid() is a syscall, not a field.
+    private val serverUid: Int by lazy { android.system.Os.getuid() }
+
     override fun openFile(path: String?, mode: Int): ParcelFileDescriptor? {
         if (!InputValidationUtils.isSafePath(path)) return null
         return try {
-            val file = File(path!!)
-            
-            // Standard open
             try {
-                return ParcelFileDescriptor.open(file, mode)
+                ParcelFileDescriptor.open(File(path!!), mode)
             } catch (e: Exception) {
-                // Android 16+ / OneUI 8+ may require manual descriptor passing for /Android/data
-                if (android.os.Build.VERSION.SDK_INT >= 36 && path.contains("/Android/data")) {
-                    return openViaShellFallback(path, mode)
+                // Android 13+ (API 33) progressively restricts /Android/data to the owning app's
+                // UID; Android 16 (API 36) + OneUI 8 tightened it further. The shell-pipe fallback
+                // works from API 33 onwards — not just the API 36+ check that was here before.
+                if (android.os.Build.VERSION.SDK_INT >= 33 && path!!.contains("/Android/data")) {
+                    return openViaShellPipe(arrayOf("sh", "-c", "cat \"$1\"", "sh", path))
+                }
+                // ADB mode (UID 2000): /data/data/<pkg>/ is owned by the app UID, but `run-as`
+                // lets the shell impersonate the target app if it is debuggable. Only attempt
+                // this when direct open already failed — no-op for non-debuggable or root mode.
+                if (serverUid == 2000 &&
+                    (path!!.startsWith("/data/data/") || path.startsWith("/data/user/"))) {
+                    val pkg = extractPackageName(path)
+                    if (pkg != null) {
+                        return openViaShellPipe(arrayOf("run-as", pkg, "cat", path))
+                    }
                 }
                 throw e
             }
@@ -28,23 +40,43 @@ class StorageProxyImpl : IStorageProxy.Stub() {
         }
     }
 
-    private fun openViaShellFallback(path: String, mode: Int): ParcelFileDescriptor? {
-        // Implementation for OneUI 8+ fallback using raw shell redirections 
-        // to handle stricter storage access protection.
-        // We create a pipe and 'cat' the file into it from a shell process 
-        // that might have better namespace access on some restricted Samsung builds.
+    private fun extractPackageName(path: String): String? {
+        val pkg = when {
+            path.startsWith("/data/data/") ->
+                path.removePrefix("/data/data/").substringBefore("/")
+            path.startsWith("/data/user/") ->
+                path.removePrefix("/data/user/").substringAfter("/").substringBefore("/")
+            else -> null
+        }
+        // Basic package-name sanity: must contain a dot and only safe characters.
+        // `run-as` enforces its own security (debuggable flag); we only guard against injection.
+        return pkg?.takeIf { it.isNotEmpty() && it.contains('.') &&
+                it.matches(Regex("[a-zA-Z0-9_.]+")) }
+    }
+
+    // Spawns `cmd` and pipes its stdout into the write end of an Android pipe on a daemon thread,
+    // returning the read end to the caller. AutoCloseOutputStream closes the write end on exit,
+    // so the reader sees EOF when the process finishes — no leaked fd, no hung readers.
+    //
+    // Note: ParcelFileDescriptor.createPipe() sets O_CLOEXEC on both ends, so we cannot pass the
+    // fd number via /proc/self/fd/<n> in the child's command string — exec() closes those fds
+    // before the shell starts. Instead we copy stdout here in the parent process.
+    private fun openViaShellPipe(cmd: Array<String>): ParcelFileDescriptor? {
         return try {
-            val pipe = ParcelFileDescriptor.createPipe()
-            val readSide = pipe[0]
-            val writeSide = pipe[1]
-            
-            // Pass path as a positional arg ($1), not interpolated into the script text,
-            // so shell metacharacters in path can't break out of the quoted argument.
-            val cmd = arrayOf("sh", "-c", "cat \"\$1\" > /proc/self/fd/${writeSide.fd}", "sh", path)
-            Runtime.getRuntime().exec(cmd)
-            
-            // The shell process will exit once cat is done. 
-            // We return the read side of the pipe.
+            val (readSide, writeSide) = ParcelFileDescriptor.createPipe()
+            Thread {
+                try {
+                    val proc = Runtime.getRuntime().exec(cmd)
+                    proc.inputStream.use { src ->
+                        ParcelFileDescriptor.AutoCloseOutputStream(writeSide).use { dst ->
+                            src.copyTo(dst)
+                        }
+                    }
+                    proc.waitFor()
+                } catch (_: Exception) {
+                    try { writeSide.close() } catch (_: Exception) {}
+                }
+            }.also { it.isDaemon = true }.start()
             readSide
         } catch (e: Exception) {
             null

@@ -31,4 +31,10 @@ public class ServerConstants {
     // delivered via the oneway bindApplication callback, which the manager's own client doesn't
     // reliably receive; this lets it (and any client) read it directly, like getVersion()/getUid().
     public static final int BINDER_TRANSACTION_getServerPatchVersion = 10004;
+
+    // Privileged runtime permission grant/revoke. In root mode these call the permission manager
+    // directly via Android17Compat; in ADB mode the shell UID can grant dangerous permissions.
+    // Both require the calling app to hold the Shizuku+ API permission.
+    public static final int BINDER_TRANSACTION_grantRuntimePermission = 10005;
+    public static final int BINDER_TRANSACTION_revokeRuntimePermission = 10006;
 }

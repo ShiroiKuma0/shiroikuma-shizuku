@@ -1109,14 +1109,22 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 }
 
                 if (baseCmd.equals("id")) {
-                    LOGGER.i("SUBridge: mocking id command");
-                    if (cmd.length > 1 && (cmd[1].equals("-u") || cmd[1].equals("-g") || cmd[1].equals("-G"))) {
-                        return newProcessInternal(new String[]{"echo", "0"}, env, dir);
+                    // Only mock id when root/Magisk mocking is specifically enabled. Terminal apps
+                    // (aShell You, etc.) also use Shizuku's newProcess() and rely on the real id
+                    // output to show users their actual UID — returning "uid=0(root)" to a shell
+                    // terminal that's running as uid=2000 confuses it and can cause crashes (#426).
+                    if (isFeatureEnabled("root_magisk_mocking")) {
+                        LOGGER.i("SUBridge: mocking id command");
+                        if (cmd.length > 1 && (cmd[1].equals("-u") || cmd[1].equals("-g") || cmd[1].equals("-G"))) {
+                            return newProcessInternal(new String[]{"echo", "0"}, env, dir);
+                        }
+                        return newProcessInternal(new String[]{"echo", "uid=0(root) gid=0(root) groups=0(root)"}, env, dir);
                     }
-                    return newProcessInternal(new String[]{"echo", "uid=0(root) gid=0(root) groups=0(root)"}, env, dir);
                 } else if (baseCmd.equals("whoami")) {
-                    LOGGER.i("SUBridge: mocking whoami command");
-                    return newProcessInternal(new String[]{"echo", "root"}, env, dir);
+                    if (isFeatureEnabled("root_magisk_mocking")) {
+                        LOGGER.i("SUBridge: mocking whoami command");
+                        return newProcessInternal(new String[]{"echo", "root"}, env, dir);
+                    }
                 } else if (baseCmd.equals("getenforce")) {
                     if (isFeatureEnabled("root_magisk_mocking")) {
                         LOGGER.i("SUBridge: mocking getenforce command");
@@ -1662,9 +1670,12 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                             }
                         }
                     } catch (Exception e) {
-                        LOGGER.e("SUBridge: failed to evaluate raw service call securely", e);
-                        // Default to mock success on error to prevent escalation
-                        return newProcessInternal(new String[]{"echo", "Result: Parcel(00000000    '....')"}, env, dir);
+                        // Don't swallow transient service-lookup errors with a fake result.
+                        // The binder firewall only blocks when isBinderCallBlocked() explicitly
+                        // matches — a ServiceManager lookup failure is not a security block, and
+                        // returning mock success here caused aShell You and other tools that use
+                        // 'service call' through Shizuku to get garbage output (#426).
+                        LOGGER.e("SUBridge: binder firewall check failed (will allow natively)", e);
                     }
                 }
             } else if (isFeatureEnabled("storage_proxy") && (baseCmd.equals("ls") || baseCmd.equals("rm") || baseCmd.equals("mkdir") || baseCmd.equals("cat") || baseCmd.equals("stat"))) {
@@ -2048,6 +2059,36 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             enforceCallingPermission("getServerPatchVersion");
             reply.writeNoException();
             reply.writeInt(ShizukuApiConstants.SERVER_PATCH_VERSION);
+            return true;
+        } else if (code == ServerConstants.BINDER_TRANSACTION_grantRuntimePermission) {
+            data.enforceInterface(ShizukuApiConstants.BINDER_DESCRIPTOR);
+            enforceCallingPermission("grantRuntimePermission");
+            String packageName = data.readString();
+            String permissionName = data.readString();
+            int userId = data.readInt();
+            reply.writeNoException();
+            try {
+                Android17Compat.grantRuntimePermission(packageName, permissionName, userId);
+                reply.writeInt(1);
+            } catch (Throwable e) {
+                LOGGER.w(e, "grantRuntimePermission %s %s (user %d) failed", packageName, permissionName, userId);
+                reply.writeInt(0);
+            }
+            return true;
+        } else if (code == ServerConstants.BINDER_TRANSACTION_revokeRuntimePermission) {
+            data.enforceInterface(ShizukuApiConstants.BINDER_DESCRIPTOR);
+            enforceCallingPermission("revokeRuntimePermission");
+            String packageName = data.readString();
+            String permissionName = data.readString();
+            int userId = data.readInt();
+            reply.writeNoException();
+            try {
+                Android17Compat.revokeRuntimePermission(packageName, permissionName, userId);
+                reply.writeInt(1);
+            } catch (Throwable e) {
+                LOGGER.w(e, "revokeRuntimePermission %s %s (user %d) failed", packageName, permissionName, userId);
+                reply.writeInt(0);
+            }
             return true;
         }
         return super.onTransact(code, data, reply, flags);
