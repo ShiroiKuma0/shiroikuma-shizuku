@@ -240,6 +240,42 @@ Things discussed or sketched that we never formally decided to build.
 
 ---
 
+### 2026-08-30 (continued, session 3) — Claude Code (Sonnet 4.6) [issue triage + icon dimming + count-guard fixes]
+
+**Commits:** `1fba77da`..`c35f1c6c` (6 commits)
+
+**Visual diagnosis from user screenshots (#437, #438, #439, #440, #441, #442):**
+Downloaded and reviewed screenshots for 6 open issues to distinguish pre-existing report artifacts from live bugs.
+
+**#440 / #441 / #442 — Wrong icons + asymmetric badge labels in Appearance settings (`1fba77da`):**
+Screenshots revealed mismatched icons (e.g., wrong drawable for "Rounded Corners" toggle) and badge labels that were off-by-one relative to their companion item. Fixed icon assignments and badge alignment in the Appearance settings screen.
+
+**#438 — Missing icon on `hide_disabled_plus_features` preference (`0fb80542`):**
+`hide_disabled_plus_features` in `settings_shizuku_plus.xml` was the only switch in the file without an `android:icon` attribute. Added `ic_visibility_off_24`. (TCP mode/port icon reported in the same issue was already present from `af11cf5a`; the screenshot was from a pre-release build.)
+
+**#439 — Switch icons stay full-color when toggled off (`4aa88f6e`):**
+All 43 `SwitchPreferenceCompat` items across 7 settings XML files kept full-color icons when their toggle was off, violating Material 3's 38% disabled opacity for de-emphasized controls. Added `GrayableIconSwitchPreference` (new file: `settings/GrayableIconSwitchPreference.kt`) — a 20-line `SwitchPreferenceCompat` subclass that sets `icon.alpha = if (isChecked) 1.0f else 0.38f` in `onBindViewHolder`. Changed `PlusFeaturePreference` to extend `GrayableIconSwitchPreference` instead of `SwitchPreferenceCompat` (inherits the dimming for free). Batch-replaced all 43 XML occurrences via Python script.
+
+**#437 — Service Doctor phantom-process fix crashes with "null remote process" on S26 Ultra (`a30a6dc9`):**
+`Shizuku.newProcess()` is a Java platform type that can return null at runtime (binder died mid-call) despite Kotlin not flagging it as nullable. The null case was already guarded (throws `IllegalStateException`). Improved the catch block: replaced a generic Sentry-capturing toast with Timber.w() logging + a device-aware message — Samsung devices with "Maximum Restrictions" active in Auto Blocker get a specific explanation pointing to Auto Blocker settings; other devices get a generic "device restrictions" message. Removed `import io.sentry.Sentry` (now uses Timber only, consistent with project's SentryTimberTree pattern).
+
+**#417 — Samsung watchdog can't recover when process is frozen:** Investigated `WatchdogAlarmReceiver.kt`, `BootCompleteReceiver.kt`, and `WatchdogService.kt`. The 15-minute `AlarmManager.setExactAndAllowWhileIdle` recovery is already fully implemented from the 2026-08-26 session. `ACTION_USER_PRESENT` as a static broadcast receiver cannot work reliably on Android 8+ (apps targeting API 26+ cannot receive implicit broadcasts). No additional code change warranted.
+
+**#424 — Authorized-app count flashes 0 on resume — additional layer (`02f548bd`, `c35f1c6c`):**
+The 2026-08-26 nullable `Int?` fix handled cold start; a second path remained. `AuthorizationManager.getPackages()` silently swallows IPC exceptions and returns `[]`, so when called on resume (both `onResume()` and the RUNNING state listener call `load()`), a transient binder drop would cause `load()` to post `success(0)` and overwrite a previously-correct count. Added a guard before the existing `loadGeneration` check: if `allPackages.isEmpty() && ShizukuStateMachine.isRunning() && (_grantedCount.value?.data ?: 0) > 0`, skip posting — treating it as a transient IPC failure rather than a real zero-app state. The `> 0` condition ensures fresh installs with genuinely zero authorized apps still post normally.
+
+**Still open:**
+- [ ] #199 Shadow Binder hidden packages — needs ADB/on-device testing.
+- [ ] #200 Mavericks factory crash + SQLite race — needs ADB verification.
+- [ ] #333 Card `shapeAppearanceOverlay` — blocked on base theme attr confirmation.
+- [ ] #428 Themed Icons auto-toggle — needs on-device testing.
+- [ ] #6 Automation rules — scaffolding only.
+- [ ] Android 17 ADB pairing — needs Android 17 device.
+- [ ] #426 aShell You null newProcess() — Samsung One UI 8.5 specific; no code change yet.
+- [ ] #437 "Useless +" button complaint — the toolbar "+" is intentional (needed when list is non-empty); needs a comment on the issue but no write token available.
+
+---
+
 ### 2026-08-26 — Claude Code (Sonnet 5) [PRoot ShizukuPlus, icon rework + GitHub issue triage + Watchdog resilience]
 
 **All of the below eventually landed on `master`** across commits `34663bd4`..`c13bf851` (see `git log` for the full list) — the "not yet committed" note below is stale, kept for narrative order within this entry.
