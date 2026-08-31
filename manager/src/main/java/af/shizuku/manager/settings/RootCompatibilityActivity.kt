@@ -421,10 +421,10 @@ class RootCompatibilityActivity : AppBarActivity() {
                     Timber.tag(TAG).e(e, "Failed to check if package $pkg is installed")
                 }
 
-                // Magic Setup works in ADB mode for GLOBAL_SETTINGS_APPS (settings put global key val);
-                // requires root for ROOT_PREFS_APPS (direct shared_prefs editing).
-                val canSetupInAdbMode = RootCompatHelper.canAutoSetupInAdbMode(pkg)
-                val canMagicSetup = isRoot || (isAdbMode && canSetupInAdbMode)
+                // Magic Setup is only meaningful when we know how to configure this specific app.
+                // canAutoSetup() is the single source of truth: GLOBAL_SETTINGS_APPS in any mode,
+                // ROOT_PREFS_APPS only when running as root (UID 0).
+                val canMagicSetup = RootCompatHelper.canAutoSetup(pkg, isRoot)
                 holder.binding.suMagicSetup.isVisible = isInstalled
                 if (isInstalled) {
                     holder.binding.suMagicSetup.alpha = if (canMagicSetup) 1.0f else 0.5f

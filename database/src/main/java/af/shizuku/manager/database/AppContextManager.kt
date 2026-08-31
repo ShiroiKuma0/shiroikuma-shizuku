@@ -76,14 +76,19 @@ object AppContextManager {
         put("com.vipercn.viper4android_v2", AppMetadata("ViPER4Android FX: Audio effects engine. Driver installation requires real root, but basic setup is mockable.", listOf(ENH_SHELL), true, rootSupportLevel = RootSupportLevel.ROOT_REQUIRED))
 
         // --- Legacy Root Apps ---
-        put("org.adaway", AppMetadata("AdAway: Open-source ad blocker. Use 'Network Governor' in Shizuku+ for rootless blocking.", listOf(ENH_SHELL, ENH_NETWORK), true))
+        put("org.adaway", AppMetadata("AdAway: Open-source ad blocker. SU path auto-configured; use 'Network Governor' in Shizuku+ for rootless DNS blocking.", listOf(ENH_SHELL, ENH_NETWORK), true))
         put("dev.ukanth.ufirewall", AppMetadata("AFWall+: Firewall app. Fully functional rootless under Shizuku+ via automatic local iptables fallback mocking.", listOf(ENH_SHELL, ENH_NETWORK), true, "Menu > Preferences > SU path", rootSupportLevel = RootSupportLevel.FULL))
+        put("com.ramdaas.ramexe", AppMetadata("RamExe: RAM manager and process killer. SU path auto-configured via Android global settings (no root needed).", listOf(ENH_SHELL), true))
+        put("me.piebridge.prevent", AppMetadata("Prevent: Blocks apps from auto-starting to reduce memory and data leakage. SU path auto-configured via Android global settings.", listOf(ENH_SHELL), true))
         put("com.samsung.android.hexinstall", AppMetadata("Hex Installer: Theming engine for Samsung. Shizuku+ provides the necessary Overlay Bridge for OneUI 8+.", listOf(ENH_WIN, ENH_OVERLAY), true))
         put("com.samsung.android.themepark", AppMetadata("Theme Park: Official Samsung customization. Enhanced by Shizuku+ Overlay API.", listOf(ENH_WIN, ENH_OVERLAY), true))
         put("com.keramidas.TitaniumBackup", AppMetadata("Titanium Backup: App data backup and restore fully works via SU Bridge using native 'bu' mapping.", emptyList(), true, "Menu > More > Preferences > su executable path", rootSupportLevel = RootSupportLevel.FULL))
         put("eu.darken.sdm", AppMetadata("SD Maid (Legacy): Fully functional via SU Bridge; deep system paths and shell execution are safely routed.", emptyList(), true, "Settings > Root > Binary path", rootSupportLevel = RootSupportLevel.FULL))
-        put("com.speedsoftware.explorer", AppMetadata("Root Explorer: File manager with elevated access. Storage Bridge handles browsing, and SU Bridge proxy allows deep file viewing.", listOf(ENH_STORAGE), true, "Settings > Root > SU path", rootSupportLevel = RootSupportLevel.FULL))
-        put("com.jrummy.root.browserfree", AppMetadata("Root Browser: File manager with elevated access. Storage Bridge and SU Bridge interceptor handle system browsing.", listOf(ENH_STORAGE), true, rootSupportLevel = RootSupportLevel.FULL))
+        put("com.speedsoftware.rootexplorer", AppMetadata("Root Explorer: File manager with elevated access. SU path auto-configured; Storage Bridge handles deep system browsing.", listOf(ENH_STORAGE), true, "Settings > Root access > SU path", rootSupportLevel = RootSupportLevel.FULL))
+        put("com.speedsoftware.explorer", AppMetadata("Speed Explorer: File manager by Speed Software.", listOf(ENH_STORAGE), true, rootSupportLevel = RootSupportLevel.FULL))
+        put("com.jrummy.root.browserfree", AppMetadata("Root Browser: File manager with elevated access. SU path auto-configured; Storage Bridge handles system browsing.", listOf(ENH_STORAGE), true, "Settings > Superuser > SU binary path", rootSupportLevel = RootSupportLevel.FULL))
+        put("com.estrongs.android.pop", AppMetadata("ES File Explorer: All-in-one file manager. SU path auto-configured via shared_prefs when running as root.", listOf(ENH_STORAGE), true, "Tools > Root Explorer > su path", rootSupportLevel = RootSupportLevel.FULL))
+        put("com.github.machiav3lli.backup", AppMetadata("OAndBackupX: Open-source backup for root users. SU path auto-configured via shared_prefs.", listOf(ENH_STORAGE, ENH_SHELL), true, "Preferences > Advanced > Custom shell", rootSupportLevel = RootSupportLevel.ROOT_REQUIRED))
         put("com.jrummy.apps.build.prop.editor", AppMetadata("BuildProp Editor: Edit system properties. Fully functional rootless under Shizuku+ via build.prop shadow-copy redirection.", emptyList(), true, rootSupportLevel = RootSupportLevel.FULL))
         put("com.machiav3lli.neo_backup", AppMetadata("Neo Backup: Modern open-source backup solution.", listOf(ENH_STORAGE), true, "Preferences > Advanced > Custom shell"))
         put("projekt.substratum.lite", AppMetadata("Substratum Lite: Theming engine for Android.", listOf(ENH_WIN), true))
@@ -116,8 +121,8 @@ object AppContextManager {
 
         // --- File Management ---
         put("bin.mt.plus", AppMetadata("MT Manager: Sophisticated file manager.", listOf(ENH_STORAGE), true))
-        put("pl.solidexplorer2", AppMetadata("Solid Explorer: Powerful file manager.", listOf(ENH_STORAGE), true))
-        put("com.ghisler.android.TotalCommander", AppMetadata("Total Commander: Desktop-class file explorer.", listOf(ENH_STORAGE), true))
+        put("pl.solidexplorer2", AppMetadata("Solid Explorer: Powerful file manager. SU path auto-configured via shared_prefs when running as root.", listOf(ENH_STORAGE), true, "Settings > Root access > Root binary"))
+        put("com.ghisler.android.TotalCommander", AppMetadata("Total Commander: Desktop-class file explorer. SU path auto-configured via shared_prefs when running as root.", listOf(ENH_STORAGE), true, "Config > Root path"))
         put("com.lonelycatgames.Xplore", AppMetadata("X-Plore: Dual-pane file manager.", listOf(ENH_STORAGE), true))
         put("ru.zdevs.zarchiver", AppMetadata("ZArchiver: Comprehensive archive manager.", listOf(ENH_STORAGE), true))
         put("com.alphainventor.filemanager", AppMetadata("File Manager Plus: Cloud and local explorer.", listOf(ENH_STORAGE), true))
@@ -169,11 +174,17 @@ object AppContextManager {
                 "com.keramidas.TitaniumBackup",
                 "eu.darken.sdm",
                 "org.swiftapps.swiftbackup",
-                "com.machiav3lli.neo_backup"
+                "com.machiav3lli.neo_backup",
+                "com.github.machiav3lli.backup"
+            ),
+            "File Management" to listOf(
+                "com.speedsoftware.rootexplorer",
+                "com.jrummy.root.browserfree",
+                "pl.solidexplorer2",
+                "com.ghisler.android.TotalCommander",
+                "com.estrongs.android.pop"
             ),
             "System Customization" to listOf(
-                "com.speedsoftware.explorer",
-                "com.jrummy.root.browserfree",
                 "projekt.substratum.lite",
                 "com.zacharee.tweaker",
                 "com.samsung.android.themepark",
@@ -182,12 +193,14 @@ object AppContextManager {
             "Battery & Optimization" to listOf(
                 "com.oasisfeng.greenify",
                 "com.franco.doze",
-                "com.paget96.chargemonitor"
+                "com.paget96.chargemonitor",
+                "com.ramdaas.ramexe"
             ),
             "Privacy & Security" to listOf(
                 "org.adaway",
                 "dev.ukanth.ufirewall",
-                "com.uzumapps.wakelockdetector"
+                "com.uzumapps.wakelockdetector",
+                "me.piebridge.prevent"
             ),
             "Advanced Tools" to listOf(
                 "com.asksven.betterbatterystats",

@@ -13,6 +13,12 @@ object RootCompatHelper {
      *  These apps read their SU path from a global settings key that the ADB shell can write. */
     fun canAutoSetupInAdbMode(packageName: String): Boolean = packageName in GLOBAL_SETTINGS_APPS
 
+    /** Returns true if [packageName] supports Magic Setup in the current privilege mode.
+     *  Pass [rootMode] = true when Shizuku is running as UID 0.
+     *  This is the single source of truth for whether the Magic Setup button should be enabled. */
+    fun canAutoSetup(packageName: String, rootMode: Boolean): Boolean =
+        packageName in GLOBAL_SETTINGS_APPS || (rootMode && packageName in ROOT_PREFS_APPS)
+
     private fun escapeSed(s: String) = s
         .replace("\\", "\\\\")
         .replace("|", "\\|")
@@ -69,10 +75,14 @@ object RootCompatHelper {
                 prefsEntry != null && isShizukuRoot() -> {
                     // Root Shizuku (UID 0) can directly edit another app's shared_prefs.
                     val (prefsFile, prefsKey) = prefsEntry
+                    // Force-stop first: a running app periodically flushes its in-memory
+                    // SharedPreferences to disk, which would overwrite the edit we are about to
+                    // make. Stopping it ensures the on-disk file is stable before we touch it.
+                    executePrivileged(arrayOf("am", "force-stop", packageName))
                     val escapedPath = escapeShellSingleQuote(escapeSed(suPath))
                     val escapedKey  = escapeSed(prefsKey)
                     val target = "/data/data/$packageName/shared_prefs/$prefsFile.xml"
-                    // Replace existing value or append if key is absent
+                    // Replace existing value or append before </map> if key is absent.
                     val cmd = """
                         if [ -f '$target' ]; then
                             if grep -q 'name="$escapedKey"' '$target'; then
@@ -85,8 +95,8 @@ object RootCompatHelper {
                     success = executePrivileged(arrayOf("sh", "-c", cmd))
                 }
                 else -> {
-                    // No automatic path; UI will guide the user through manual setup.
-                    success = true
+                    // Not in either map — canAutoSetup() should be checked before calling this.
+                    success = false
                 }
             }
         } catch (e: Exception) {
