@@ -9,6 +9,10 @@ import timber.log.Timber
 
 object RootCompatHelper {
 
+    /** Returns true if [packageName] can be auto-configured via global settings (no root needed).
+     *  These apps read their SU path from a global settings key that the ADB shell can write. */
+    fun canAutoSetupInAdbMode(packageName: String): Boolean = packageName in GLOBAL_SETTINGS_APPS
+
     private fun escapeSed(s: String) = s
         .replace("\\", "\\\\")
         .replace("|", "\\|")

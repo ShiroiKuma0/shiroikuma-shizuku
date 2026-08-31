@@ -43,8 +43,6 @@ import af.shizuku.manager.database.AppContextManager
 import af.shizuku.manager.database.RootCompatHelper
 import rikka.shizuku.Shizuku
 import af.shizuku.manager.database.RootSupportLevel
-import io.sentry.Sentry
-
 class RootCompatibilityActivity : AppBarActivity() {
 
     companion object {
@@ -52,6 +50,9 @@ class RootCompatibilityActivity : AppBarActivity() {
     }
 
     private var resolvedSuPath: String? = null
+    // Cached once per activity instance — avoids repeated Shizuku IPC in onBindViewHolder.
+    private var isRoot: Boolean = false
+    private var isAdbMode: Boolean = false
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CategorizedSuggestedAppsAdapter
     private val packageReceiver = object : android.content.BroadcastReceiver() {
@@ -66,59 +67,65 @@ class RootCompatibilityActivity : AppBarActivity() {
         val binding = ActivityRootCompatibilityBinding.inflate(layoutInflater, rootView, true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        // Cache privilege mode once — avoids repeated Shizuku IPC in onBindViewHolder.
+        isRoot = try { Shizuku.pingBinder() && Shizuku.getUid() == 0 } catch (_: Exception) { false }
+        isAdbMode = try { Shizuku.pingBinder() && Shizuku.getUid() == 2000 } catch (_: Exception) { false }
+
         resolvedSuPath = resolveSuPath()
 
-        resolvedSuPath?.let { path ->
-            val isRoot = try { Shizuku.pingBinder() && Shizuku.getUid() == 0 } catch (e: Exception) { false }
+        // Show the setup card whenever a path is available OR the tmp deploy might provide one.
+        // ADB mode users can still auto-configure GLOBAL_SETTINGS_APPS (AdAway, AFWall+, etc.)
+        // via `settings put global`, so the card is useful for them too.
+        val exportPath = resolvedSuPath
+        if (exportPath != null) {
+            binding.globalSuPath.text = exportPath
+        }
+        binding.globalSetupCard.isVisible = exportPath != null || Shizuku.pingBinder()
 
-            // Only show the automated setup card if we are rooted.
-            // For ADB users, this card is irrelevant and confusing.
-            binding.globalSetupCard.isVisible = isRoot
-
-            binding.globalSuPath.text = path
-            binding.btnCopyGlobal.setContent {
-                af.shizuku.core.ui.compose.Button(
-                    // Read the field at click time so a later /data/local/tmp deploy is reflected.
-                    onClick = { copyToClipboard(resolvedSuPath ?: path) }
-                ) {
-                    androidx.compose.material3.Text(getString(R.string.su_bridge_copy_path))
-                }
+        binding.btnCopyGlobal.setContent {
+            af.shizuku.core.ui.compose.Button(
+                // Read the field at click time so a later /data/local/tmp deploy is reflected.
+                onClick = { copyToClipboard(resolvedSuPath ?: return@Button) }
+            ) {
+                androidx.compose.material3.Text(getString(R.string.su_bridge_copy_path))
             }
+        }
 
-            // Deploy the bridge to /data/local/tmp and prefer that path: it's exec-permitted (shared
-            // storage is usually noexec, so apps can't exec the su path there) and holds the
-            // read-only dex app_process requires on Android 14+. Falls back to the storage path if
-            // deployment isn't possible.
-            lifecycleScope.launch {
-                val tmpPath = RootCompatHelper.deployBridgeToTmp(this@RootCompatibilityActivity)
-                if (tmpPath != null && !isFinishing) {
-                    resolvedSuPath = tmpPath
-                    binding.globalSuPath.text = tmpPath
-                }
+        // Deploy the bridge to /data/local/tmp and prefer that path: it's exec-permitted (shared
+        // storage is usually noexec, so apps can't exec the su path there) and holds the
+        // read-only dex app_process requires on Android 14+. Works independently of whether the
+        // user has set an export directory — falls back to the storage path if deploy fails.
+        lifecycleScope.launch {
+            val tmpPath = RootCompatHelper.deployBridgeToTmp(this@RootCompatibilityActivity)
+            if (tmpPath != null && !isFinishing) {
+                resolvedSuPath = tmpPath
+                binding.globalSuPath.text = tmpPath
+                binding.globalSetupCard.isVisible = true
             }
+        }
 
-            if (isRoot) {
-                binding.btnSetupAll.setContent {
-                    af.shizuku.core.ui.compose.Button(
-                        onClick = {
-                            lifecycleScope.launch {
-                                val count = RootCompatHelper.autoSetupAll(this@RootCompatibilityActivity, path)
-                                if (!isFinishing && !isDestroyed) {
-                                    if (count > 0) {
-                                        Toast.makeText(this@RootCompatibilityActivity, getString(R.string.su_bridge_magic_setup_all_summary, count), Toast.LENGTH_LONG).show()
-                                    } else {
-                                        Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_magic_setup_all_no_apps, Toast.LENGTH_SHORT).show()
-                                    }
-                                }
+        // "Setup All" works for both root (all automatable apps) and ADB mode (GLOBAL_SETTINGS_APPS only).
+        binding.btnSetupAll.setContent {
+            af.shizuku.core.ui.compose.Button(
+                onClick = {
+                    val path = resolvedSuPath ?: run {
+                        Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    lifecycleScope.launch {
+                        val count = RootCompatHelper.autoSetupAll(this@RootCompatibilityActivity, path)
+                        if (!isFinishing && !isDestroyed) {
+                            if (count > 0) {
+                                Toast.makeText(this@RootCompatibilityActivity, getString(R.string.su_bridge_magic_setup_all_summary, count), Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_magic_setup_all_no_apps, Toast.LENGTH_SHORT).show()
                             }
                         }
-                    ) {
-                        androidx.compose.material3.Text(getString(R.string.su_bridge_setup_all))
                     }
                 }
+            ) {
+                androidx.compose.material3.Text(getString(R.string.su_bridge_setup_all))
             }
-        } ?: run {
-            binding.globalSetupCard.isVisible = false
         }
 
         // Device Identity Card
@@ -408,31 +415,36 @@ class RootCompatibilityActivity : AppBarActivity() {
                 try {
                     pm.getPackageInfo(pkg, 0)
                     isInstalled = true
+                } catch (_: PackageManager.NameNotFoundException) {
+                    // expected for suggested-but-not-installed apps
                 } catch (e: Exception) {
-                    Timber.tag(TAG).w(e, "Failed to check if package $pkg is installed")
-                    if (e !is PackageManager.NameNotFoundException) {
-                        Sentry.captureException(e)
-                    }
+                    Timber.tag(TAG).e(e, "Failed to check if package $pkg is installed")
                 }
 
+                // Magic Setup works in ADB mode for GLOBAL_SETTINGS_APPS (settings put global key val);
+                // requires root for ROOT_PREFS_APPS (direct shared_prefs editing).
+                val canSetupInAdbMode = RootCompatHelper.canAutoSetupInAdbMode(pkg)
+                val canMagicSetup = isRoot || (isAdbMode && canSetupInAdbMode)
                 holder.binding.suMagicSetup.isVisible = isInstalled
                 if (isInstalled) {
-                    val isRoot = try { Shizuku.pingBinder() && Shizuku.getUid() == 0 } catch (e: Exception) { false }
-                    holder.binding.suMagicSetup.alpha = if (isRoot) 1.0f else 0.5f
+                    holder.binding.suMagicSetup.alpha = if (canMagicSetup) 1.0f else 0.5f
 
                     holder.binding.suMagicSetup.setContent {
                         af.shizuku.core.ui.compose.Button(
-                            enabled = isRoot,
+                            enabled = canMagicSetup,
                             onClick = {
                                 val path = resolvedSuPath
                                 if (path == null) {
                                     Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT).show()
                                     return@Button
                                 }
+                                // Capture app name before the coroutine — holder may be recycled
+                                // by the time the IPC completes, making title.text stale.
+                                val appName = holder.binding.title.text?.toString() ?: pkg
                                 lifecycleScope.launch {
                                     val success = RootCompatHelper.autoSetup(this@RootCompatibilityActivity, pkg, path)
                                     if (success) {
-                                        Toast.makeText(this@RootCompatibilityActivity, this@RootCompatibilityActivity.getString(R.string.su_bridge_magic_setup_success, holder.binding.title.text), Toast.LENGTH_LONG).show()
+                                        Toast.makeText(this@RootCompatibilityActivity, this@RootCompatibilityActivity.getString(R.string.su_bridge_magic_setup_success, appName), Toast.LENGTH_LONG).show()
                                         launchOrStore(pkg)
                                     } else {
                                         Toast.makeText(this@RootCompatibilityActivity, R.string.su_bridge_magic_setup_fail, Toast.LENGTH_SHORT).show()
@@ -466,8 +478,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                             try {
                                 startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$pkg")))
                             } catch (e: Exception) {
-                                timber.log.Timber.w(e, "start application details settings failed")
-                                Sentry.captureException(e)
+                                Timber.tag(TAG).w(e, "start application details settings failed")
                             }
                         }
                     }
@@ -501,8 +512,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                             try {
                                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$pkg")))
                             } catch (e2: Exception) {
-                                Timber.w("start view intent failed", e2)
-                                Sentry.captureException(e2)
+                                Timber.tag(TAG).w(e2, "start view intent failed for $pkg")
                             }
                         }
                     }
