@@ -91,9 +91,11 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
                 val allPackages = AuthorizationManager.getPackages()
 
                 // getPackages() silently swallows IPC exceptions and returns [] — if the list is
-                // empty while Shizuku is running, treat it as a transient IPC failure and skip
-                // posting rather than overwriting a valid non-zero count with 0 (#424).
-                if (allPackages.isEmpty() && ShizukuStateMachine.isRunning()) {
+                // empty while Shizuku is running AND we previously had a non-zero count, treat
+                // it as a transient IPC failure and skip posting rather than overwriting a valid
+                // count with 0 (#424). Fresh installs (previous count null or 0) post normally.
+                if (allPackages.isEmpty() && ShizukuStateMachine.isRunning()
+                        && (_grantedCount.value?.data ?: 0) > 0) {
                     return@launch
                 }
 
