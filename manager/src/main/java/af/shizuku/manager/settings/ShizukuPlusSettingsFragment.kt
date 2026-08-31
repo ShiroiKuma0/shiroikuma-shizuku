@@ -470,7 +470,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         applyModeConstraints()
     }
 
-    // Disable preferences that can't function in the current privilege mode.
+    // Disable or annotate preferences that can't fully function in the current privilege mode.
     // Only restricts when the server is running (uid != -1) — if it's not attached yet,
     // leave everything editable so the user can configure before starting Shizuku.
     private fun applyModeConstraints() {
@@ -482,6 +482,13 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             findPreference<Preference>("samsung_system_uid_escalation_enabled")?.apply {
                 isEnabled = false
                 summary = "Root mode only — this exploit requires the server to run as UID 0."
+            }
+            // Storage Bridge uses `run-as` in ADB mode (uid 2000), which only works for
+            // debuggable apps. Production app data (/data/data) is inaccessible — backup
+            // tools like Neo Backup will silently see no app data.
+            findPreference<Preference>("storage_proxy_enabled")?.let { pref ->
+                val note = "ADB mode: /data/data limited to debuggable apps — backup tools may not see app data."
+                pref.summary = "$note\n\n${pref.summary}"
             }
         }
     }
