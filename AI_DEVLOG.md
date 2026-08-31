@@ -195,7 +195,7 @@ Things discussed or sketched that we never formally decided to build.
 - [ ] #200 Mavericks factory crash + SQLite race — ProGuard/try-catch in place; strong indirect evidence (zero Sentry recurrence since v_code 1668) but no direct ADB verification.
 - [ ] #333 Card `shapeAppearanceOverlay` — every card hardcodes `cardCornerRadius` (overrides shape_style setting); blocked on confirming base theme attr defaults without local SDK.
 - [ ] #428 Themed Icons auto-toggle — needs on-device testing before writing code.
-- [ ] #6 Automation rules — real opt-in rules still unimplemented; scaffolding only.
+- [x] **#6 / #435 Automation Engine** — Live SSID-based firewall rule + JSON app-profile rule implemented. `setBinderFirewallEnabled()` setter added. Service gates on `hasAnyAutomationRulesConfigured()`. SSID extraction from `NetworkCapabilities.getTransportInfo()`. Done 2026-08-31, `19ffdbe0`.
 - [ ] Android 17 ADB pairing (mDNS host + `ACCESS_LOCAL_NETWORK`) — needs Android 17 device.
 
 ---
@@ -273,6 +273,53 @@ The 2026-08-26 nullable `Int?` fix handled cold start; a second path remained. `
 - [ ] Android 17 ADB pairing — needs Android 17 device.
 - [ ] #426 aShell You null newProcess() — Samsung One UI 8.5 specific; no code change yet.
 - [ ] #437 "Useless +" button complaint — the toolbar "+" is intentional (needed when list is non-empty); needs a comment on the issue but no write token available.
+
+---
+
+### 2026-08-31 (session 6) — Claude Code (Sonnet 4.6) [Automation Engine + mode-aware settings + deploy error UX]
+
+**Commits:** `19ffdbe0`, `6a93e993`, `c5c84d76`
+
+**Automation Engine — fully working rules (#435, #6):**
+
+`ShizukuSettings.java` — Added the missing write path (`setBinderFirewallEnabled()`) that was the root cause of all rules being commented out. Also added:
+- `KEY_AUTOMATION_TRUSTED_NETWORKS` / `KEY_AUTOMATION_APP_PROFILES` constants
+- `getAutomationTrustedNetworks()` / `setAutomationTrustedNetworks()` (StringSet)
+- `getAutomationAppProfilesJson()` / `setAutomationAppProfilesJson()` (JSON string)
+- `hasAnyAutomationRulesConfigured()` helper (used to gate the service)
+
+`AutomationRules.kt` — Full rewrite:
+- `NetworkFirewallRule`: reads user-configured trusted SSIDs from `ShizukuSettings`; calls `setBinderFirewallEnabled()` + `syncFeatureToServer("binder_firewall", …)` on SSID match/mismatch. Inactive when trusted list is empty (no hardcoded "HomeWiFi").
+- `AppSpecificProfileRule`: reads app profiles from a JSON object in settings (key = package name, value = `{binder_firewall: true/false}`); applies per-app overrides; no-op restore until a "default profile" settings screen exists.
+- `syncFeatureToServer()` top-level helper using `moe.shizuku.server.IShizukuService`.
+- Removed `registerDefaultRules()` (dead function).
+
+`AutomationService.kt`:
+- Gates `onCreate()` on `hasAnyAutomationRulesConfigured()` — no foreground notification until rules exist.
+- Keeps `NetworkFirewallRule` / `AppSpecificProfileRule` as class fields so rule state (isSafeNetwork, currentApp) persists across events.
+- Extracts SSID from `NetworkCapabilities.getTransportInfo() as? WifiInfo` on API 29+ (no location permission needed in callback context); strips WifiInfo's double-quote wrapping; treats `<unknown ssid>` as null.
+- Unregisters rule instances in `onDestroy()`.
+
+`strings.xml` — simplified automation notification channel/title from verbose description to "Automation" / "Automation is running" (matches upstream Shizuku's terse style: "Watchdog is running").
+
+**Mode-aware settings (#433):**
+
+`RootIntegrationSettingsFragment.kt` — Added `applyModeConstraints()` called at the end of `onCreateSettingsPreferences()`. When server UID == 2000 (ADB/shell), disables and appends "(root mode only)" to four root-exclusive categories: SU Bridge Configuration, Rootless Bridges, Mocking & Simulation, Bootloader Integration. No-ops when server is not running (uid -1) so users can pre-configure.
+
+`ShizukuPlusSettingsFragment.kt` — Same pattern: disables `samsung_system_uid_escalation_enabled` with a targeted summary when uid != 0 (the exploit requires UID 0).
+
+**SU Bridge deploy error UX (#402):**
+
+`RootCompatHelper.selfTest()` — When `deployBridgeToTmpDetailed()` fails, now checks the server UID. If uid == 2000 (ADB mode): explains that Android 16+ SELinux restricts uid 2000 writes to `/data/local/tmp` (expected; no action needed), and directs the user to the exported path or root mode instead of the misleading "make sure Shizuku is running" advice.
+
+**Still open:**
+- [ ] #199 Shadow Binder hidden packages — needs ADB/on-device testing
+- [ ] #200 Mavericks factory crash + SQLite race — needs ADB verification
+- [ ] #333 Card `shapeAppearanceOverlay` — blocked on base theme attr confirmation
+- [ ] #428 Themed Icons auto-toggle — needs on-device testing
+- [ ] Android 17 ADB pairing — needs Android 17 device
+- [ ] #444 SamFonts UID -1 — `grantRuntimePermission` server path exposed; needs user test
+- [ ] #426 aShell You — two contributors fixed; may need logcat if third cause exists
 
 ---
 
