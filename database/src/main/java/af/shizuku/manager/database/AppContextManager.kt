@@ -96,7 +96,7 @@ object AppContextManager {
         put("com.franco.doze", AppMetadata("Naptime: Aggressive Doze for better battery life.", listOf(ENH_SHELL), true))
         put("com.uzumapps.wakelockdetector", AppMetadata("Wakelock Detector: Find apps draining your battery.", listOf(ENH_SHELL), true))
         put("com.asksven.betterbatterystats", AppMetadata("BetterBatteryStats: Deep dive into battery drain.", listOf(ENH_SHELL), true))
-        put("org.swiftapps.swiftbackup", AppMetadata("Swift Backup: Fast and reliable backup tool.", listOf(ENH_STORAGE, ENH_SHELL), true, "Settings > Storage > Custom shell"))
+        put("org.swiftapps.swiftbackup", AppMetadata("Swift Backup: Uses native Shizuku integration — no SU Bridge path needed. Grant access in App Management, then use its own \"Grant with Root or Shizuku\" option.", listOf(ENH_STORAGE, ENH_SHELL), true, suPathSettingNav = "Shizuku-native: no SU path setting. Use Swift Backup's \"Grant with Root or Shizuku\" flow.", supportsShizukuNatively = true))
 
         // --- thejaustin's Apps ---
         put("thejaustin.hexodus", AppMetadata("Hexodus: Spiritual successor to Hex Installer for OneUI 8.", listOf(ENH_SHELL, ENH_WIN), true))
