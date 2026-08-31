@@ -96,7 +96,13 @@ class AutomationService : Service() {
             }
         }
 
-        startForegroundAppMonitor()
+        // App profile monitor polls UsageStats every 2 seconds — skip it entirely when no
+        // per-app profiles are configured. The network callback alone is sufficient for users
+        // who only use Trusted Networks automation.
+        val appProfilesJson = ShizukuSettings.getAutomationAppProfilesJson()
+        if (appProfilesJson != "{}" && appProfilesJson.length > 2) {
+            startForegroundAppMonitor()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
