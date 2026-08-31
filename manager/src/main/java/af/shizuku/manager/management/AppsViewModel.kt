@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
 import af.shizuku.manager.authorization.AuthorizationManager
+import af.shizuku.manager.utils.ShizukuStateMachine
 import rikka.lifecycle.Resource
 
 enum class SortOrder { NAME_ASC, LAST_INSTALLED, LAST_UPDATED }
@@ -88,6 +89,13 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val allPackages = AuthorizationManager.getPackages()
+
+                // getPackages() silently swallows IPC exceptions and returns [] — if the list is
+                // empty while Shizuku is running, treat it as a transient IPC failure and skip
+                // posting rather than overwriting a valid non-zero count with 0 (#424).
+                if (allPackages.isEmpty() && ShizukuStateMachine.isRunning()) {
+                    return@launch
+                }
 
                 var granted = 0
                 for (pi in allPackages) {
