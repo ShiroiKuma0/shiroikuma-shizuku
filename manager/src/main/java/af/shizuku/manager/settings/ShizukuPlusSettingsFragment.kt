@@ -435,6 +435,14 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             }
         }
 
+        findPreference<Preference>("binder_firewall_app_profiles")?.let { pref ->
+            updateAppProfilesSummary(pref)
+            pref.setOnPreferenceClickListener {
+                startActivity(Intent(requireContext(), af.shizuku.manager.automation.AppProfilesActivity::class.java))
+                true
+            }
+        }
+
         findPreference<Preference>("ai_core_plus_enabled")?.setOnPreferenceChangeListener { _, newValue ->
             val enabled = newValue as? Boolean ?: false
             if (enabled) {
@@ -713,12 +721,31 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Refresh the App Profiles summary when returning from AppProfilesActivity.
+        findPreference<Preference>("binder_firewall_app_profiles")?.let { updateAppProfilesSummary(it) }
+    }
+
     private fun updateTrustedNetworksSummary(pref: Preference) {
         val count = ShizukuSettings.getAutomationTrustedNetworks().size
         pref.summary = when (count) {
             0 -> getString(R.string.settings_binder_firewall_trusted_networks_summary_none)
             1 -> getString(R.string.settings_binder_firewall_trusted_networks_summary_one)
             else -> getString(R.string.settings_binder_firewall_trusted_networks_summary_many, count)
+        }
+    }
+
+    private fun updateAppProfilesSummary(pref: Preference) {
+        val json = ShizukuSettings.getAutomationAppProfilesJson()
+        val count = if (json == "{}" || json.length <= 2) 0
+        else try {
+            org.json.JSONObject(json).length()
+        } catch (_: Exception) { 0 }
+        pref.summary = if (count == 0) {
+            getString(R.string.app_profiles_summary_none)
+        } else {
+            getString(R.string.app_profiles_summary_count, count)
         }
     }
 

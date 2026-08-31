@@ -72,6 +72,9 @@ class NetworkFirewallRule : AutomationRule {
 class AppSpecificProfileRule : AutomationRule {
     override val name: String = "App Profile Rule"
     private var currentApp: String? = null
+    // Snapshot of the user's binder_firewall setting before the first profile override.
+    // Null means no profile has been applied yet (baseline not captured).
+    private var baselineBinderFirewall: Boolean? = null
 
     override fun evaluate(event: AutomationEvent, context: Context): Boolean {
         if (event !is ForegroundAppEvent) return false
@@ -90,6 +93,11 @@ class AppSpecificProfileRule : AutomationRule {
     override fun execute(context: Context) {
         val app = currentApp ?: return
         val json = ShizukuSettings.getAutomationAppProfilesJson()
+
+        // Capture the user's baseline before the first override so restoreDefaults() can undo it.
+        if (baselineBinderFirewall == null) {
+            baselineBinderFirewall = ShizukuSettings.isBinderFirewallEnabled()
+        }
 
         // Minimal JSON parsing without pulling in a full JSON library.
         // Looks for the package-name key and extracts the nested object.
@@ -112,9 +120,10 @@ class AppSpecificProfileRule : AutomationRule {
     }
 
     private fun restoreDefaults() {
-        // Nothing to restore until we know the baseline — for now log only.
-        // A future settings screen will save a "default profile" to restore here.
-        Timber.tag("AutomationRules").d("AppProfileRule: no-op default restore (no baseline saved yet)")
+        val baseline = baselineBinderFirewall ?: return // No baseline yet — nothing to restore.
+        Timber.tag("AutomationRules").d("AppProfileRule: restoring baseline binder_firewall=%b", baseline)
+        ShizukuSettings.setBinderFirewallEnabled(baseline)
+        syncFeatureToServer("binder_firewall", baseline)
     }
 
     // Extracts the value of a top-level string key from minimal JSON.

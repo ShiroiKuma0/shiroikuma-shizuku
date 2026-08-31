@@ -1216,4 +1216,15 @@
 
     <!-- Tile service error -->
     <string name="tile_state_update_failed">Failed to update Shizuku state: %1$s</string>
+
+    <!-- App Profiles automation activity -->
+    <string name="app_profiles_title">App Profiles</string>
+    <string name="app_profiles_summary_none">No per-app Binder Firewall overrides</string>
+    <string name="app_profiles_summary_count">%1$d app override(s) active</string>
+    <string name="app_profiles_description">Override Binder Firewall per app. Tap a chip to cycle: Default → Block → Allow. Active when AutomationService is running.</string>
+    <string name="app_profile_state_default">Default</string>
+    <string name="app_profile_state_block">Block</string>
+    <string name="app_profile_state_allow">Allow</string>
+    <string name="app_profile_search_hint">Search apps…</string>
+    <string name="app_profile_empty">No apps found</string>
 </resources>

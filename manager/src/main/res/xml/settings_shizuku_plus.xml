@@ -51,6 +51,13 @@
             android:icon="@drawable/ic_lan_24"
             android:dependency="binder_firewall_enabled" />
 
+        <Preference
+            android:key="binder_firewall_app_profiles"
+            android:title="@string/app_profiles_title"
+            android:summary="@string/app_profiles_summary_none"
+            android:icon="@drawable/ic_admin_panel_settings_24"
+            android:dependency="binder_firewall_enabled" />
+
         <af.shizuku.manager.settings.PlusFeaturePreference
             android:key="continuity_bridge_enabled"
             android:title="Continuity Bridge"

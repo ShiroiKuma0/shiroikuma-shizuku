@@ -213,6 +213,10 @@
             android:exported="false"
             android:label="@string/su_bridge_title" />
         <activity
+            android:name=".automation.AppProfilesActivity"
+            android:exported="false"
+            android:label="@string/app_profiles_title" />
+        <activity
             android:name=".settings.ServiceDoctorActivity"
             android:theme="@style/Theme"
             android:exported="false"
