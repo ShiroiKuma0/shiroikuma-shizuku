@@ -1210,4 +1210,10 @@
     <string name="backup_type_plain">Plain text — for testing across reinstalls</string>
     <string name="backup_no_file_manager_save">No file manager app found to save the backup</string>
     <string name="backup_no_file_manager_open">No file manager app found to open the backup</string>
+
+    <!-- Samsung ADB dialog -->
+    <string name="adb_dialog_popup_settings">Pop-up Settings</string>
+
+    <!-- Tile service error -->
+    <string name="tile_state_update_failed">Failed to update Shizuku state: %1$s</string>
 </resources>

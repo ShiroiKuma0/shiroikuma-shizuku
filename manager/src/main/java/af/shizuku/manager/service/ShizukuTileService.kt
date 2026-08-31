@@ -90,7 +90,7 @@ class ShizukuTileService : TileService() {
                 }
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to update Shizuku state: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.tile_state_update_failed, e.localizedMessage), Toast.LENGTH_SHORT).show()
         }
     }
 }
