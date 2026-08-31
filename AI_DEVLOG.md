@@ -276,6 +276,57 @@ The 2026-08-26 nullable `Int?` fix handled cold start; a second path remained. `
 
 ---
 
+### 2026-08-31 — Claude Code (Sonnet 4.6) [GitHub auth fixed + mass issue triage + README clarification]
+
+**Commits:** `8339afaf` (devlog), `0f3c7881` (README)
+
+**GitHub auth established:** `gh` CLI was installed via apt in the PRoot environment; authenticated with `repo`+`workflow` scopes. Git credential helper (`!/data/data/com.termux/files/usr/bin/gh auth git-credential`) was already correctly configured. All pending commits pushed.
+
+**Issues closed (15):**
+
+| # | Title | Resolution |
+|---|-------|-----------|
+| 438 | Missing icons | `0fb80542` — added `ic_visibility_off_24` to `hide_disabled_plus_features` |
+| 439 | Grey out icons | `4aa88f6e` — `GrayableIconSwitchPreference` |
+| 440/441/442 | Wrong icons / badge labels | `1fba77da` — corrected drawables and badge alignment |
+| 429 | Migrate locale handling | `e627539d` — already done in prior session |
+| 417 | Samsung watchdog freeze | `WatchdogAlarmReceiver` (2026-08-26 session) |
+| 415 | Samsung background kill | Same fix; AlarmManager bypasses process-level freeze |
+| 424 | Count shows 0 on resume | Two-layer fix: nullable `Int?` + IPC-failure guard |
+| 407 | Downloads wrong APK | `bbe3ab76` — already fixed in prior session |
+| 431 | Storage Proxy requirements | Answered + README updated |
+| 391 | Shell client unidentified | `9f2c01e8`/`32382e89` — already fixed |
+| 411 | rish authorized, no effect | `32382e89` + `b77af0e` debug log |
+| 421 | PM-lookup hard-fail tracking | Investigation complete; fix in place |
+| 397 | WIKO T10 crash report | Responded: wireless ADB disabled, battery opt on |
+| 415 | Samsung "I don't know if it's a bug" | Resolved — AlarmManager fix covers it |
+
+**Diagnostic comments posted:**
+- #444 (SamFonts UID -1): likely permission not granted or `grantRuntimePermission` silently failing on OneUI 8; asked for app-management state + logcat
+- #432 (Compat Hub install): asked for flavor (Drop-In can't install Compat Hub) + specific `ShizukuCompanion:` log line
+- #437: explained the "+" button is intentional (add-script action); noted the Service Doctor toast was improved in `a30a6dc9`
+- #425: no crash visible in log — asked for description of what went wrong
+- #405: r2142 is 200+ builds behind; asked to retest on current build
+- #402: asked for self-test output on current build (diagnostics improved in `d22e84bc`)
+- #387: asked Xperia reporter to retest — `8fbe5e47` fixed `onTransact` dead-branch that blocked `attachApplication`
+
+**PR #404 review (Simplified Chinese):** PR has 87 files including CI, build.gradle, and Kotlin source changes beyond the localization content. Changes look legitimate but scope is too wide for one PR. Requested split into: (1) pure strings/docs, (2) string extraction refactor, (3) CI/build changes. PR is currently conflicting and needs rebase.
+
+**README clarification (`0f3c7881`):** `/data/data/` in the Storage Proxy feature description was misleadingly unconditional. Clarified that `/data/data/` requires root; `/data/app/` and `/Android/data/` work in ADB mode.
+
+**Still open (actionable):**
+- [ ] #444 SamFonts UID -1 — waiting for user diagnostics
+- [ ] #426 aShell You null newProcess — waiting for logcat
+- [ ] #199 Shadow Binder hidden packages — needs ADB/on-device testing
+- [ ] #200 Mavericks factory crash + SQLite race — needs ADB verification
+- [ ] #333 Card `shapeAppearanceOverlay` — blocked on base theme attr confirmation
+- [ ] #428 Themed Icons auto-toggle — needs on-device testing
+- [ ] #6 Automation rules — scaffolding only
+- [ ] Android 17 ADB pairing — needs Android 17 device
+- [ ] #377/#387 rish fixes — asked reporters to retest on current builds
+
+---
+
 ### 2026-08-26 — Claude Code (Sonnet 5) [PRoot ShizukuPlus, icon rework + GitHub issue triage + Watchdog resilience]
 
 **All of the below eventually landed on `master`** across commits `34663bd4`..`c13bf851` (see `git log` for the full list) — the "not yet committed" note below is stale, kept for narrative order within this entry.
