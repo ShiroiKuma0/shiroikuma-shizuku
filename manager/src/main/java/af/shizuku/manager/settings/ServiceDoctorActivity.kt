@@ -33,7 +33,7 @@ import af.shizuku.manager.utils.SettingsHelper
 import af.shizuku.manager.utils.SettingsPage
 import af.shizuku.manager.utils.ShizukuStateMachine
 import rikka.shizuku.Shizuku
-import io.sentry.Sentry
+import timber.log.Timber
 
 class ServiceDoctorActivity : AppBarActivity() {
 
@@ -262,8 +262,18 @@ class ServiceDoctorActivity : AppBarActivity() {
                                 withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, R.string.service_doctor_fix_requires_service, Toast.LENGTH_SHORT).show() }
                             }
                         } catch (e: Exception) {
-                            Sentry.captureException(e)
-                            withContext(Dispatchers.Main) { Toast.makeText(this@ServiceDoctorActivity, getString(R.string.service_doctor_fix_failed, e.message), Toast.LENGTH_LONG).show() }
+                            val isNullProcess = e is IllegalStateException && e.message?.contains("null remote process") == true
+                            Timber.w(e, "Phantom process fix failed")
+                            withContext(Dispatchers.Main) {
+                                val msg = if (isNullProcess && EnvironmentUtils.isSamsung()) {
+                                    "Auto-fix blocked — Samsung Maximum Restrictions may be enabled. Disable it in Auto Blocker and try again."
+                                } else if (isNullProcess) {
+                                    "Auto-fix blocked — device restrictions prevent privileged shell commands. Check ADB/OEM settings."
+                                } else {
+                                    getString(R.string.service_doctor_fix_failed, e.message)
+                                }
+                                Toast.makeText(this@ServiceDoctorActivity, msg, Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }
