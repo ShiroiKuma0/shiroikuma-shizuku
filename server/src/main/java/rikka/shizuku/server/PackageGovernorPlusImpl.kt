@@ -68,4 +68,31 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
         if (apkPath.isNullOrBlank()) return false
         return exec("pm", "install", "-g", apkPath)
     }
+
+    override fun isAppDebuggable(packageName: String?): Boolean {
+        if (packageName.isNullOrBlank()) return false
+        // run-as exits 0 only when the app is debuggable; non-zero means not debuggable or not installed.
+        return exec("run-as", packageName, "true")
+    }
+
+    override fun isBackupAllowed(packageName: String?): Boolean {
+        if (packageName.isNullOrBlank()) return false
+        val output = execOutput("pm", "dump", packageName)
+        // pm dump shows "allowBackup=true" or "allowBackup=false" in the package info block
+        return output.lines().any { it.trim().equals("allowBackup=true", ignoreCase = true) }
+    }
+
+    override fun getAppDataDir(packageName: String?): String? {
+        if (packageName.isNullOrBlank()) return null
+        val output = execOutput("pm", "dump", packageName)
+        // Parse "dataDir=/data/data/com.example.app" from pm dump output
+        for (line in output.lines()) {
+            val trimmed = line.trim()
+            if (trimmed.startsWith("dataDir=")) {
+                val dir = trimmed.removePrefix("dataDir=").trim()
+                if (dir.isNotEmpty()) return dir
+            }
+        }
+        return null
+    }
 }
