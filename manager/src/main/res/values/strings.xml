@@ -1214,6 +1214,21 @@
     <!-- Samsung ADB dialog -->
     <string name="adb_dialog_popup_settings">Pop-up Settings</string>
 
+    <!-- Tile service: state subtitles (shown in Samsung OneUI wide tile text area and standard subtitle) -->
+    <string name="tile_subtitle_active">Active</string>
+    <string name="tile_subtitle_starting">Starting…</string>
+    <string name="tile_subtitle_stopping">Stopping…</string>
+    <string name="tile_subtitle_crashed">Crashed · Tap to restart</string>
+    <string name="tile_subtitle_tap_to_start">Tap to start</string>
+    <!-- Tile service: mode labels -->
+    <string name="tile_mode_root">Root</string>
+    <string name="tile_mode_wifi_adb">WiFi ADB</string>
+    <string name="tile_mode_adb">ADB</string>
+    <!-- Tile service: action labels (tap dialog and long-press options activity) -->
+    <string name="tile_action_start">Start Service</string>
+    <string name="tile_action_stop">Stop Service</string>
+    <string name="tile_action_restart">Restart Service</string>
+    <string name="tile_action_open_app">Open App</string>
     <!-- Tile service error -->
     <string name="tile_state_update_failed">Failed to update Shizuku state: %1$s</string>
 
