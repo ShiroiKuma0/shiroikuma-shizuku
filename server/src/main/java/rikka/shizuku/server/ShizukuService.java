@@ -56,6 +56,7 @@ import af.shizuku.server.IContinuityBridge;
 import af.shizuku.server.IOverlayManagerPlus;
 import af.shizuku.server.INetworkGovernorPlus;
 import af.shizuku.server.IActivityManagerPlus;
+import af.shizuku.server.IStatusBarGovernorPlus;
 import rikka.hidden.compat.ActivityManagerApis;
 import rikka.hidden.compat.DeviceIdleControllerApis;
 import rikka.hidden.compat.PackageManagerApis;
@@ -132,6 +133,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     private final OverlayManagerPlusImpl overlayManagerPlus = new OverlayManagerPlusImpl();
     private final NetworkGovernorPlusImpl networkGovernorPlus = new NetworkGovernorPlusImpl();
     private final ActivityManagerPlusImpl activityManagerPlus = new ActivityManagerPlusImpl();
+    private final StatusBarGovernorPlusImpl statusBarGovernorPlus = new StatusBarGovernorPlusImpl();
 
     private void grantRuntimePermissionRobust(String packageName, String permName, int userId) throws Throwable {
         Android17Compat.grantRuntimePermission(packageName, permName, userId);
@@ -2420,6 +2422,13 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         enforceCallingPermission("getActivityManagerPlus");
         if (!isFeatureEnabled("activity_manager_plus")) return null;
         return activityManagerPlus;
+    }
+
+    @Override
+    public IStatusBarGovernorPlus getStatusBarGovernorPlus() {
+        enforceCallingPermission("getStatusBarGovernorPlus");
+        if (!isFeatureEnabled("status_bar_governor_plus")) return null;
+        return statusBarGovernorPlus;
     }
 
     @Override

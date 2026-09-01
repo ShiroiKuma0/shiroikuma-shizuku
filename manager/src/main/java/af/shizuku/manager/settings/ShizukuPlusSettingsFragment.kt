@@ -376,6 +376,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             "window_manager_plus_enabled" to "window_manager_plus",
             "overlay_manager_plus_enabled" to "overlay_manager_plus",
             "network_governor_plus_enabled" to "network_governor_plus",
+            "status_bar_governor_plus_enabled" to "status_bar_governor_plus",
             "activity_manager_plus_enabled" to "activity_manager_plus",
             "shadow_binder_enabled" to "shadow_binder",
             "binder_firewall_enabled" to "binder_firewall",
@@ -665,6 +666,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         updatePreferenceDependency("native_window_crawler_enabled", aiCoreMasterEnabled, hideDisabled)
         updatePreferenceDependency("window_manager_plus_enabled", customApiEnabled, hideDisabled)
         updatePreferenceDependency("network_governor_plus_enabled", customApiEnabled, hideDisabled)
+        updatePreferenceDependency("status_bar_governor_plus_enabled", customApiEnabled, hideDisabled)
         updatePreferenceDependency("activity_manager_plus_enabled", customApiEnabled, hideDisabled)
 
         // These also depend on window_manager_plus_enabled
