@@ -9,6 +9,9 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
 import af.shizuku.manager.MainActivity
+// FORK FIX: upstream's 954064d3 uses R.string.tile_state_update_failed here without
+// importing R, so their own master does not compile. Drop if upstream fixes it.
+import af.shizuku.manager.R
 import af.shizuku.manager.utils.ShizukuStateMachine
 
 import androidx.work.WorkManager

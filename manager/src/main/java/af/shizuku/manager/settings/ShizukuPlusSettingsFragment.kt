@@ -78,6 +78,10 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         // Same reason, and the same screen can revoke it: Remove Device Owner sits two rows above
         // the tools it disables.
         if (isAdded) updateDeviceOwnerToolsAvailability()
+        // Upstream b892b43f: refresh the App Profiles summary when returning from
+        // AppProfilesActivity. Folded in here — a second onResume() override would
+        // not compile.
+        findPreference<Preference>("binder_firewall_app_profiles")?.let { updateAppProfilesSummary(it) }
     }
 
     // e.message is often null for keystore/cipher exceptions (#315's "Backup failed: null"), and
@@ -760,12 +764,6 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 updatePreferenceDependency("native_window_crawler_enabled", active, hideDisabled)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Refresh the App Profiles summary when returning from AppProfilesActivity.
-        findPreference<Preference>("binder_firewall_app_profiles")?.let { updateAppProfilesSummary(it) }
     }
 
     private fun updateTrustedNetworksSummary(pref: Preference) {
