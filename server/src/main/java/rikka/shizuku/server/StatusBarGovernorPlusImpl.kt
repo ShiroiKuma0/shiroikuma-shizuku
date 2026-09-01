@@ -36,4 +36,31 @@ class StatusBarGovernorPlusImpl : IStatusBarGovernorPlus.Stub() {
 
     override fun expandSettings(): Boolean =
         exec("cmd", "statusbar", "expand-settings")
+
+    override fun addTile(tileSpec: String?): Boolean {
+        if (tileSpec.isNullOrBlank()) return false
+        val current = getCurrentTiles()
+        val tiles = if (current.isBlank()) mutableListOf() else current.split(",").map { it.trim() }.toMutableList()
+        if (tiles.contains(tileSpec)) return true
+        tiles.add(tileSpec)
+        return exec("cmd", "statusbar", "set-tiles", tiles.joinToString(","))
+    }
+
+    override fun removeTile(tileSpec: String?): Boolean {
+        if (tileSpec.isNullOrBlank()) return false
+        val current = getCurrentTiles()
+        if (current.isBlank()) return true
+        val tiles = current.split(",").map { it.trim() }.filter { it != tileSpec }.toMutableList()
+        return exec("cmd", "statusbar", "set-tiles", tiles.joinToString(","))
+    }
+
+    override fun moveTileToPosition(tileSpec: String?, position: Int): Boolean {
+        if (tileSpec.isNullOrBlank()) return false
+        val current = getCurrentTiles()
+        val tiles = if (current.isBlank()) mutableListOf() else current.split(",").map { it.trim() }.toMutableList()
+        tiles.remove(tileSpec)
+        val clampedPos = position.coerceIn(0, tiles.size)
+        tiles.add(clampedPos, tileSpec)
+        return exec("cmd", "statusbar", "set-tiles", tiles.joinToString(","))
+    }
 }

@@ -57,6 +57,8 @@ import af.shizuku.server.IOverlayManagerPlus;
 import af.shizuku.server.INetworkGovernorPlus;
 import af.shizuku.server.IActivityManagerPlus;
 import af.shizuku.server.IStatusBarGovernorPlus;
+import af.shizuku.server.IPackageGovernorPlus;
+import af.shizuku.server.IDisplayTunerPlus;
 import rikka.hidden.compat.ActivityManagerApis;
 import rikka.hidden.compat.DeviceIdleControllerApis;
 import rikka.hidden.compat.PackageManagerApis;
@@ -134,6 +136,8 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     private final NetworkGovernorPlusImpl networkGovernorPlus = new NetworkGovernorPlusImpl();
     private final ActivityManagerPlusImpl activityManagerPlus = new ActivityManagerPlusImpl();
     private final StatusBarGovernorPlusImpl statusBarGovernorPlus = new StatusBarGovernorPlusImpl();
+    private final PackageGovernorPlusImpl packageGovernorPlus = new PackageGovernorPlusImpl();
+    private final DisplayTunerPlusImpl displayTunerPlus = new DisplayTunerPlusImpl();
 
     private void grantRuntimePermissionRobust(String packageName, String permName, int userId) throws Throwable {
         Android17Compat.grantRuntimePermission(packageName, permName, userId);
@@ -2429,6 +2433,20 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         enforceCallingPermission("getStatusBarGovernorPlus");
         if (!isFeatureEnabled("status_bar_governor_plus")) return null;
         return statusBarGovernorPlus;
+    }
+
+    @Override
+    public IPackageGovernorPlus getPackageGovernorPlus() {
+        enforceCallingPermission("getPackageGovernorPlus");
+        if (!isFeatureEnabled("package_governor_plus")) return null;
+        return packageGovernorPlus;
+    }
+
+    @Override
+    public IDisplayTunerPlus getDisplayTunerPlus() {
+        enforceCallingPermission("getDisplayTunerPlus");
+        if (!isFeatureEnabled("display_tuner_plus")) return null;
+        return displayTunerPlus;
     }
 
     @Override
