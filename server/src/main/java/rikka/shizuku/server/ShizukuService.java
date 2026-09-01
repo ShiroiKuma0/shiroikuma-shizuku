@@ -60,6 +60,7 @@ import af.shizuku.server.IStatusBarGovernorPlus;
 import af.shizuku.server.IPackageGovernorPlus;
 import af.shizuku.server.IDisplayTunerPlus;
 import af.shizuku.server.IAppInspector;
+import af.shizuku.server.IPrivilegedDataSource;
 import rikka.hidden.compat.ActivityManagerApis;
 import rikka.hidden.compat.DeviceIdleControllerApis;
 import rikka.hidden.compat.PackageManagerApis;
@@ -140,6 +141,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     private final PackageGovernorPlusImpl packageGovernorPlus = new PackageGovernorPlusImpl();
     private final DisplayTunerPlusImpl displayTunerPlus = new DisplayTunerPlusImpl();
     private final AppInspectorImpl appInspector = new AppInspectorImpl();
+    private final PrivilegedDataSourceImpl privilegedDataSource = new PrivilegedDataSourceImpl();
 
     private void grantRuntimePermissionRobust(String packageName, String permName, int userId) throws Throwable {
         Android17Compat.grantRuntimePermission(packageName, permName, userId);
@@ -2455,6 +2457,12 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     public IAppInspector getAppInspector() {
         enforceCallingPermission("getAppInspector");
         return appInspector;
+    }
+
+    @Override
+    public IPrivilegedDataSource getPrivilegedDataSource() {
+        enforceCallingPermission("getPrivilegedDataSource");
+        return privilegedDataSource;
     }
 
     @Override
