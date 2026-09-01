@@ -8,6 +8,155 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2385+2026-08-31.23-18.gb892b43f+001
+
+Rebased onto upstream `13.6.0.r2385` — seventeen commits in one evening, 817 insertions against 74
+deletions in 23 files. Fifteen of those 23 carry a fork diff, and six of the eighty-seven replayed
+commits needed a hand reconciliation. Two of the reconciliations only surfaced at compile time.
+
+**Upstream came for the icon this time, and the answer was no.** `6d96148a` rewrites
+`drawable/ic_monochrome.xml` — the themed-icon and notification-shade layer — from a bare "+" into a
+stroked hexagon ring with the plus badge on its shoulder, so One UI themed icons read as the Shizuku+
+hexagon. In this fork that file is 白い熊's traced mark drawn as a single-tint stroke, so upstream's
+version is their identity replacing ours. **Ours is kept.** This is the icon trap CLAUDE.md records,
+in its easy form: upstream redrew their own art, so it conflicted loudly instead of sliding through
+on a rename. The `<foreground>` is still bare, no `_base` variants exist, and no layer-list was
+reintroduced.
+
+**Upstream's tip did not compile — twice, in different ways.** `28c52efb` fixes the `open class`
+break this fork patched around last cycle, so that fork fix is now retired and upstream's file is
+taken verbatim. But `954064d3` introduced a new one: `ShizukuTileService` now calls
+`R.string.tile_state_update_failed` with no `import af.shizuku.manager.R`. That import is added here
+as a fork fix, marked in the source so it can be dropped when upstream corrects it.
+
+**The messiest part of this sync was invisible to git.** Upstream spent eight commits extracting
+hardcoded English into `strings.xml` — and those lines are precisely the ones this fork had rewritten
+from `Toast.makeText(…).show()` to `ShiroikumaToast.show(…)`. Eighteen conflicts, one shape. The
+merge takes upstream's string resource every time and keeps the house wrapper, which is strictly
+better than either side alone: the toasts are now both localizable and house-styled.
+
+The same refactor moved this fork's de-branding out of Kotlin and into the resource values. Where our
+commits had hardcoded "白い熊 雫" into a dialog message, upstream extracted that message to a string;
+the resolution takes the resource and de-brands the **value**, so eight strings that were previously
+untranslatable now are. Note the de-branding is surgical: "the original Shizuku server" in the
+stock-conflict strings means *stock Shizuku* and deliberately keeps that name.
+
+### Two clashes only the compiler caught
+
+- **Two `onResume()` overrides.** Upstream's `b892b43f` added one to refresh the App Profiles summary;
+  this fork already had one refreshing the Device Owner section. They sit 690 lines apart, so git
+  merged both in without a murmur and Kotlin rejected the file. Upstream's body is folded into ours.
+- **A nullable context.** Upstream's extracted line reads `context?.getString(…)`, which
+  `Toast.makeText` accepts as a platform type but `ShiroikumaToast.show` does not — its message
+  parameter is a non-null `CharSequence`. Switched to the fragment's own `getString`.
+
+### Also taken from upstream
+
+- **Trusted Networks finally has a UI** (`5a9e29b3`). The rule shipped last cycle read a settings key
+  that nothing could write, so the feature was dormant for everyone. There is now an SSID dialog
+  under the Binder Firewall toggle, with an "Add current network" button reading the SSID from
+  `NetworkCapabilities` on API 29+ — no location permission.
+- **Per-app firewall profiles** (`b892b43f`) — a new `AppProfilesActivity` listing every installed app
+  with a tap-to-cycle chip (Default → Block → Allow). It also fixes `restoreDefaults()`, which was a
+  no-op that left the firewall stuck in whatever the last matching profile set, and starts
+  `AutomationService` from `BootCompleteReceiver` when rules exist.
+- **The 2-second usage poll is gated off** (`8bf2dbe2`). `startForegroundAppMonitor()` polled
+  `UsageStatsManager` every two seconds regardless; it now runs only when app profiles actually exist,
+  so the network-only path costs nothing.
+- **A diagnostic for a dead automation service** (`7e1740bb`) — rules configured but the service
+  stopped is otherwise silent, and the firewall simply never toggles. Tapping the banner restarts it.
+- **Swift Backup's Compat Hub entry was wrong** (`6897709d`, `b92af50e`). It uses libsu with a
+  PATH-resolved `su` and has no custom su-path preference key in its bytecode at all, so the
+  "Settings > Storage > Custom shell" hint pointed at a setting that does not exist. It is now marked
+  Shizuku-native, and for such apps the Copy & Open / Magic Setup buttons are hidden rather than shown
+  permanently greyed out.
+- **Storage Bridge admits its ADB-mode limit** (`9f0b07be`) — `run-as` reaches only debuggable apps,
+  so production app data stays inaccessible. Said plainly in the summary now.
+
+### Reconciliation worth recording
+
+The `dhizuku_not_owner` diagnostic branch conflicted because upstream added a new
+`automation_service_stopped` branch immediately beside it. **Both are kept**: this fork's replacement
+of that branch stands — upstream builds the setup command with the `pkg/.Receiver` shorthand, which
+expands against the applicationId and names a class that does not exist, and getting that wrong costs
+a factory reset — while upstream's new branch is taken and house-toasted like its neighbours.
+
+## 13.6.0.r2368+2026-08-31.06-54.g571ece3f+001
+
+Rebased onto upstream `13.6.0.r2368` — twenty-one commits landed in a single day, 1187 insertions
+against 422 deletions in 37 files. Twenty-two of those 37 carry a fork diff, and seven of the
+eighty-seven replayed commits needed a hand reconciliation rather than a clean replay.
+
+**Upstream's tip does not compile, and this build carries the fix.** `4aa88f6e` introduced
+`GrayableIconSwitchPreference` — a `SwitchPreferenceCompat` subclass that dims a switch's icon to
+38% when the toggle is off — and made `PlusFeaturePreference` extend it, while leaving the new class
+`final` (Kotlin's default). Nothing in the fork touches that file; the break is upstream's own, and
+`open` is the minimal change that matches what their commit message says it intended. It is marked
+as a fork fix in the source so it can be dropped the moment upstream corrects it.
+
+**The change that matters most here runs inside the privileged server.** `0c65a9eb` fixes two things
+that were silently corrupting shell-client behaviour. The `id`/`whoami` mocking fired for *every*
+caller whenever SU Bridge was enabled, so terminal apps were handed `uid=0(root)` instead of the
+real shell uid — it is now gated on root mocking, like `getenforce` already was. And the `service
+call` exception handler was swallowing every `ServiceManager` lookup error and returning a fake
+success `Parcel`, so those commands quietly produced garbage; it now blocks only when
+`isBinderCallBlocked()` actually matches. Both sit directly under `rish` in Termux.
+
+The same commit repairs the storage proxy: `createPipe()` sets `O_CLOEXEC`, so the child shell could
+never reach the fd through `/proc/self/fd/<n>` and the fallback had never worked — a copier thread
+replaces it and closes the write end on exit so the reader sees a clean EOF. The `Android/data`
+fallback now starts at SDK 33 rather than 36 (the directory was restricted at Android 13, not 16),
+and an ADB-mode server can read `/data/data` for debuggable apps via `run-as`.
+
+### Also taken from upstream
+
+- **Automation is real now** (`19ffdbe0`). Until this batch the rules were scaffolding — hardcoded
+  demo SSIDs and package names with the logic commented out, which is why `f65fdab7` stopped the
+  service auto-starting in the first place. Trusted Wi-Fi networks and per-app profiles are now read
+  from settings and actually drive the binder firewall, with the SSID taken from
+  `NetworkCapabilities.getTransportInfo()` on API 29+ so no location permission is needed. The
+  service still stays silent until a rule exists.
+- **Settings tell the truth about which mode you are in** (`6a93e993`). With the server on uid 2000,
+  the four root-only categories are disabled and relabelled "(root mode only)" instead of appearing
+  available, and Samsung System UID Escalation is disabled unless the server is uid 0.
+- **Magic Setup works in ADB mode** (`8df18044`, `c1c0fc9e`, `c5c84d76`). It had been disabled for
+  every ADB user even though four apps are configurable through `settings put global`, and the
+  self-test blamed a stopped service for what is really SELinux denying uid 2000 writes to
+  `/data/local/tmp` on Android 16+. `am force-stop` now runs before an app's `shared_prefs` are
+  edited, so a running app cannot flush its in-memory copy over the change.
+- **Our own launcher mark stops appearing as a settings glyph** (`1fba77da`). Upstream used
+  `ic_monochrome` as the icon for the black-night-theme and icon-style rows; in this fork that
+  drawable *is* the traced mark, so those two rows were showing the app's own icon. They now use a
+  crescent moon and a settings glyph.
+- **The authorized-app count no longer flashes zero on resume** (`02f548bd`, `c35f1c6c`).
+  `getPackages()` swallows IPC exceptions and returns an empty list, which read as a genuine zero
+  whenever a resume-triggered load outran the reconnect. Suppressed only when the previous count was
+  non-zero, so a fresh install still shows a real 0.
+- **`ShizukuLiveService` can no longer crash the process** (`53846f61`) when `POST_NOTIFICATIONS` is
+  denied — its foreground promotion is wrapped and falls back to `stopSelf()`, matching what
+  `WatchdogService` already did.
+- **Fuller accent palettes** (`571ece3f`) — each accent now ships a complete M3 secondary/tertiary
+  set instead of four primary roles, plus Amber, Rose and Slate. All of it still sits *under*
+  `ThemeOverlay.Shiroikuma`, which is applied last, so the house black-and-yellow is unchanged.
+
+### Reconciliations worth recording
+
+- **The shell-consent flag stayed gone.** The replay walks through the commit that added
+  `KEY_SHELL_CONSENT_GRANTED` and the commit that removed it, and both conflicted in the same two
+  files. The end state is the correct one: no global flag, `KEY_RISH_TOKEN_AUTH` in its place.
+- **Upstream's expanded app database was taken whole and re-de-branded.** `c1c0fc9e` corrected the
+  Root Explorer package (`com.speedsoftware.explorer` was wrong; it is `…rootexplorer`), added
+  RamExe, Prevent, ES File Explorer and OAndBackupX, and filled in missing navigation hints. That is
+  strictly better data than the fork's older copy, so the merge took upstream's list and re-applied
+  the 白い熊 雫 naming to it rather than keeping ours.
+- **The automation notification strings are upstream's again.** The fork's versions existed only to
+  strip "Shizuku+" from them; upstream's replacements carry no brand at all and describe the engine
+  rather than just network watching.
+- **Two files lost fork edits that upstream made redundant.** `RootCompatibilityActivity` and
+  `ServiceDoctorActivity` had `Sentry.captureException` imports the fork kept for conflict-freedom;
+  upstream deleted those call sites outright, so the imports went with them. The house toast wrapper
+  was re-applied on top of upstream's rewritten logic in both.
+
 ## 13.6.0.r2347+2026-08-28.22-32.g39bdbdf1+002
 
 Rebased onto upstream `13.6.0.r2347` — twenty-nine commits across three days, 827 insertions against
