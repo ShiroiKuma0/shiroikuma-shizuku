@@ -9,6 +9,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
 import af.shizuku.manager.MainActivity
+import af.shizuku.manager.R
 import af.shizuku.manager.utils.ShizukuStateMachine
 
 import androidx.work.WorkManager
