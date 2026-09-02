@@ -94,6 +94,9 @@ class ShizukuTileService : TileService() {
         updateTile()
         if (Shell.isAppGrantedRoot() == true) {
             Shell.cmd(Starter.internalCommand).submit {
+                if (!it.isSuccess && ShizukuStateMachine.get() == ShizukuStateMachine.State.STARTING) {
+                    ShizukuStateMachine.set(ShizukuStateMachine.State.STOPPED)
+                }
                 ShizukuStateMachine.update()
                 updateTile()
             }
