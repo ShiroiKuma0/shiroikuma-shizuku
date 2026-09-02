@@ -455,4 +455,63 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
             ?: return null
         return pipe("cat", validPath)
     }
+
+    // ── App Freeze / Unfreeze ─────────────────────────────────────────────────
+
+    override fun freezeApp(packageName: String?): Boolean {
+        if (packageName.isNullOrBlank()) return false
+        return execExit("pm", "disable-user", "--user", "0", packageName) == 0
+    }
+
+    override fun unfreezeApp(packageName: String?): Boolean {
+        if (packageName.isNullOrBlank()) return false
+        return execExit("pm", "enable", "--user", "0", packageName) == 0
+    }
+
+    override fun isAppFrozen(packageName: String?): Boolean {
+        if (packageName.isNullOrBlank()) return false
+        val dump = exec("pm", "dump", packageName)
+        // "enabled=3" means COMPONENT_ENABLED_STATE_DISABLED_USER
+        return dump.lines().any { line ->
+            val t = line.trim()
+            t.startsWith("enabled=") && (t.contains("=3") || t.contains("=2"))
+        }
+    }
+
+    // ── SMS Restore ───────────────────────────────────────────────────────────
+
+    override fun insertSmsMessages(messages: List<Bundle>?): Int {
+        if (messages.isNullOrEmpty()) return 0
+        var count = 0
+        for (msg in messages) {
+            val address = msg.getString("address") ?: continue
+            val body    = msg.getString("body") ?: continue
+            val date    = msg.getLong("date", System.currentTimeMillis())
+            val type    = msg.getInt("type", 1)
+            val read    = msg.getInt("read", 1)
+            val result = execExit(
+                "content", "insert",
+                "--uri", "content://sms",
+                "--bind", "address:s:$address",
+                "--bind", "body:s:$body",
+                "--bind", "date:l:$date",
+                "--bind", "type:i:$type",
+                "--bind", "read:i:$read"
+            )
+            if (result == 0) count++
+        }
+        return count
+    }
+
+    // ── Permission Management ─────────────────────────────────────────────────
+
+    override fun revokeRuntimePermission(packageName: String?, permission: String?): Boolean {
+        if (packageName.isNullOrBlank() || permission.isNullOrBlank()) return false
+        return execExit("pm", "revoke", packageName, permission) == 0
+    }
+
+    override fun grantRuntimePermission(packageName: String?, permission: String?): Boolean {
+        if (packageName.isNullOrBlank() || permission.isNullOrBlank()) return false
+        return execExit("pm", "grant", packageName, permission) == 0
+    }
 }

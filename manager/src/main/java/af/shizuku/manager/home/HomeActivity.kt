@@ -263,11 +263,11 @@ open class HomeActivity : AppActivity(), MavericksView {
                 // manual stop in the same session does not trigger an unwanted re-start.
                 if (status.isRunning) autoRestartAttempted = true
 
-                // Auto-reconnect: when the service is not running, the last launch was ADB, a live
-                // TLS port is already resolved by mDNS, and WRITE_SECURE_SETTINGS is granted —
-                // trigger AdbStartWorker once per session. Covers the phantom-process-kill-then-
-                // reopen scenario where the watchdog is off but wireless debug is still active.
+                // Auto-reconnect: only when the user has explicitly enabled it in Settings.
+                // Gated on isAutoReconnectMdnsEnabled() (default OFF) so a fresh install
+                // never silently attempts ADB without user consent.
                 if (!status.isRunning && !autoRestartAttempted &&
+                    ShizukuSettings.isAutoReconnectMdnsEnabled() &&
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
                     ShizukuSettings.getLastLaunchMode() == ShizukuSettings.LaunchMethod.ADB &&
                     checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED) {

@@ -1250,6 +1250,8 @@ public class ShizukuSettings {
 
     public static boolean isAutoReconnectMdnsEnabled() {
         SharedPreferences p = getPreferences();
-        return p == null || p.getBoolean(Keys.KEY_AUTO_RECONNECT_MDNS, true);
+        // Default OFF: auto-reconnect is opt-in, not opt-out. A null prefs object
+        // (prefs not yet initialized) is treated as disabled, not enabled.
+        return p != null && p.getBoolean(Keys.KEY_AUTO_RECONNECT_MDNS, false);
     }
 }
