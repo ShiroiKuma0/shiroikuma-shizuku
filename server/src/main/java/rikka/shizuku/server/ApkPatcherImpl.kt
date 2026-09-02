@@ -11,8 +11,8 @@ class ApkPatcherImpl : IApkPatcher.Stub() {
         private const val TMP_DIR = "/data/local/tmp/splus_td"
     }
 
-    // pkg → path of saved original APK
-    private val sessions = ConcurrentHashMap<String, String>()
+    // pkg → list of saved original APK paths (base first, then splits)
+    private val sessions = ConcurrentHashMap<String, List<String>>()
 
     private fun exec(vararg args: String): String = try {
         val proc = Runtime.getRuntime().exec(args)
@@ -57,59 +57,105 @@ class ApkPatcherImpl : IApkPatcher.Stub() {
         proc.waitFor() == 0
     } catch (_: Exception) { false }
 
-    private fun findBaseApk(packageName: String): String? {
+    private fun findAllApks(packageName: String): List<String> {
         val out = exec("pm", "path", packageName)
         return out.lines()
-            .firstOrNull { it.startsWith("package:") && !it.contains("split_") }
-            ?.removePrefix("package:")?.trim()
-            ?: out.lines().firstOrNull { it.startsWith("package:") }
-                ?.removePrefix("package:")?.trim()
+            .filter { it.startsWith("package:") }
+            .map { it.removePrefix("package:").trim() }
+    }
+
+    /**
+     * Install a list of APK files atomically via a pm install session.
+     * Works for both single APKs and split APK sets.
+     * All APKs must be signed with the same certificate.
+     */
+    private fun installViaSession(apkPaths: List<String>, grantPerms: Boolean = true): Boolean {
+        if (apkPaths.isEmpty()) return false
+
+        val sessionArgs = buildList {
+            add("pm"); add("install-create")
+            if (grantPerms) add("-g")
+        }
+        val sessionOut = exec(*sessionArgs.toTypedArray())
+        val sessionId = Regex("\\[(\\d+)]").find(sessionOut)?.groupValues?.get(1)?.toIntOrNull()
+            ?: return false
+
+        for (path in apkPaths) {
+            // Derive the canonical split name from the filename (strip our temp prefix)
+            val fileName = File(path).name
+            val splitName = when {
+                fileName.contains("_orig_") -> fileName.substringAfter("_orig_")
+                fileName.contains("_dbg_")  -> fileName.substringAfter("_dbg_")
+                else                        -> fileName
+            }
+            if (execCode("pm", "install-write", sessionId.toString(), splitName, path) != 0) {
+                execCode("pm", "install-abandon", sessionId.toString())
+                return false
+            }
+        }
+        return execCode("pm", "install-commit", sessionId.toString()) == 0
     }
 
     override fun prepareTempDebug(packageName: String?): Boolean {
         if (packageName.isNullOrBlank()) return false
-        if (sessions.containsKey(packageName)) return true  // already patched
+        if (sessions.containsKey(packageName)) return true
 
-        val baseApk = findBaseApk(packageName) ?: return false
+        val apkPaths = findAllApks(packageName)
+        if (apkPaths.isEmpty()) return false
+
         File(TMP_DIR).mkdirs()
 
-        val origPath = "$TMP_DIR/${packageName}_orig.apk"
+        // Save all original APKs to temp dir
+        val origPaths = mutableListOf<String>()
+        for (path in apkPaths) {
+            val fileName = File(path).name  // base.apk, split_config.arm64_v8a.apk, etc.
+            val dest = "$TMP_DIR/${packageName}_orig_$fileName"
+            if (execCode("cp", path, dest) != 0) {
+                origPaths.forEach { File(it).delete() }
+                return false
+            }
+            origPaths.add(dest)
+        }
 
-        // Save original
-        if (execCode("cp", baseApk, origPath) != 0) return false
-
-        // Read, patch manifest, re-sign
-        val origBytes = File(origPath).readBytes()
-        val patched = try {
-            val manifestPatched = ApkBinaryXmlPatcher.patch(origBytes)
-            ApkSigner.sign(manifestPatched)
+        // Patch base APK manifest; sign ALL APKs with the same ephemeral key.
+        // Android requires all APKs in a session to share a certificate, so signing
+        // must happen before uninstall, and all with the same ApkSigner instance.
+        val patchedPaths = mutableListOf<String>()
+        try {
+            for (origPath in origPaths) {
+                val origBytes = File(origPath).readBytes()
+                val fileName = File(origPath).name
+                val isBase = fileName.endsWith("_orig_base.apk") || !fileName.contains("split_")
+                val toSign = if (isBase) ApkBinaryXmlPatcher.patch(origBytes) else origBytes
+                val signed = ApkSigner.sign(toSign)
+                val patchedPath = "$TMP_DIR/${packageName}_dbg_${fileName.substringAfter("_orig_")}"
+                File(patchedPath).writeBytes(signed)
+                patchedPaths.add(patchedPath)
+            }
         } catch (_: Exception) {
-            File(origPath).delete()
+            origPaths.forEach { File(it).delete() }
+            patchedPaths.forEach { File(it).delete() }
             return false
         }
 
-        val patchedPath = "$TMP_DIR/${packageName}_debug.apk"
-        File(patchedPath).writeBytes(patched)
-
-        // pm uninstall -k (keep data)
+        // pm uninstall -k preserves all app data
         if (execCode("pm", "uninstall", "--user", "0", "-k", packageName) != 0) {
-            File(origPath).delete()
-            File(patchedPath).delete()
+            origPaths.forEach { File(it).delete() }
+            patchedPaths.forEach { File(it).delete() }
             return false
         }
 
-        // pm install (fresh install, any signature accepted after -k uninstall)
-        val installResult = execCode("pm", "install", "-g", patchedPath)
-        File(patchedPath).delete()
+        val installed = installViaSession(patchedPaths)
+        patchedPaths.forEach { File(it).delete() }
 
-        if (installResult != 0) {
-            // Try to reinstall original so data isn't stranded
-            execCode("pm", "install", origPath)
-            File(origPath).delete()
+        if (!installed) {
+            // Attempt recovery by reinstalling the originals
+            installViaSession(origPaths)
+            origPaths.forEach { File(it).delete() }
             return false
         }
 
-        sessions[packageName] = origPath
+        sessions[packageName] = origPaths
         return true
     }
 
@@ -127,19 +173,23 @@ class ApkPatcherImpl : IApkPatcher.Stub() {
 
     override fun restoreOriginal(packageName: String?): Boolean {
         if (packageName.isNullOrBlank()) return false
-        val origPath = sessions[packageName] ?: return false
+        val origPaths = sessions[packageName] ?: return false
 
         val ok = execCode("pm", "uninstall", "--user", "0", "-k", packageName) == 0 &&
-                 execCode("pm", "install", origPath) == 0
+                 installViaSession(origPaths)
 
         sessions.remove(packageName)
-        File(origPath).delete()
+        origPaths.forEach { File(it).delete() }
         return ok
     }
 
     override fun streamOriginalApk(packageName: String?): ParcelFileDescriptor? {
         if (packageName.isNullOrBlank()) return null
-        val origPath = sessions[packageName] ?: return null
+        // Stream the base APK (prefer explicit base.apk, fall back to first)
+        val origPath = sessions[packageName]
+            ?.firstOrNull { it.endsWith("_orig_base.apk") }
+            ?: sessions[packageName]?.firstOrNull()
+            ?: return null
         return pipe("cat", origPath)
     }
 
@@ -152,9 +202,11 @@ class ApkPatcherImpl : IApkPatcher.Stub() {
         for (pkg in sessions.keys.toList()) {
             restoreOriginal(pkg)
         }
-        // Clean any orphaned files from a previous crash
+        // Remove any orphaned temp files from a previous server crash
+        val tracked = sessions.values.flatten().toSet()
         File(TMP_DIR).listFiles()?.forEach { f ->
-            if (f.name.endsWith("_orig.apk") && !sessions.values.contains(f.absolutePath)) {
+            if ((f.name.contains("_orig_") || f.name.contains("_dbg_")) &&
+                !tracked.contains(f.absolutePath)) {
                 f.delete()
             }
         }

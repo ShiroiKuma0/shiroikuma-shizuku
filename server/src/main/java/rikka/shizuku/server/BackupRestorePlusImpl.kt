@@ -190,7 +190,9 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
 
     override fun createInstallSession(packageName: String?): Int {
         // pm install-create returns: "Success: created install session [<id>]"
-        val output = exec("pm", "install-create", "-g", "--multi-package")
+        // Note: --multi-package is for installing multiple packages atomically, NOT for
+        // split APKs of a single package. Split APKs use a plain session without that flag.
+        val output = exec("pm", "install-create", "-g")
         val match = Regex("\\[(\\d+)]").find(output)
         return match?.groupValues?.get(1)?.toIntOrNull() ?: -1
     }
@@ -357,5 +359,100 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
             if (execExit("settings", "put", ns, key, value) == 0) count++
         }
         return count
+    }
+
+    // ── OBB Data Backup / Restore ─────────────────────────────────────────────
+
+    override fun backupObbData(packageName: String?): ParcelFileDescriptor? {
+        if (packageName.isNullOrBlank()) return null
+        val dir = listOf(
+            "/sdcard/Android/obb/$packageName",
+            "/storage/emulated/0/Android/obb/$packageName"
+        ).firstOrNull { File(it).exists() } ?: return null
+        return pipe("tar", "-czf", "-", "-C", dir, ".")
+    }
+
+    override fun restoreObbData(packageName: String?, tarStream: ParcelFileDescriptor?): Boolean {
+        if (packageName.isNullOrBlank() || tarStream == null) return false
+        val dir = "/sdcard/Android/obb/$packageName"
+        File(dir).mkdirs()
+        return try {
+            val proc = ProcessBuilder("tar", "-xzf", "-", "-C", dir).start()
+            Thread {
+                try {
+                    ParcelFileDescriptor.AutoCloseInputStream(tarStream).use { src ->
+                        proc.outputStream.use { dst -> src.copyTo(dst) }
+                    }
+                } catch (_: Exception) {
+                    proc.outputStream.runCatching { close() }
+                }
+            }.also { it.isDaemon = true }.start()
+            proc.waitFor() == 0
+        } catch (_: Exception) { false }
+    }
+
+    // ── Detailed Package Metadata ─────────────────────────────────────────────
+
+    override fun getPackageMetadata(packageName: String?): Bundle {
+        val b = Bundle()
+        if (packageName.isNullOrBlank()) return b
+
+        val dump = exec("pm", "dump", packageName)
+        if (dump.isBlank()) return b
+
+        for (line in dump.lines()) {
+            val t = line.trim()
+            when {
+                t.startsWith("userId=")           -> b.putInt("uid", t.removePrefix("userId=").trim().toIntOrNull() ?: -1)
+                t.startsWith("versionName=")       -> b.putString("versionName", t.removePrefix("versionName=").trim())
+                t.startsWith("dataDir=")           -> b.putString("dataDir", t.removePrefix("dataDir=").trim())
+                t.startsWith("nativeLibraryDir=")  -> b.putString("nativeLibDir", t.removePrefix("nativeLibraryDir=").trim())
+                t.startsWith("firstInstallTime=")  -> b.putString("firstInstallTime", t.removePrefix("firstInstallTime=").trim())
+                t.startsWith("lastUpdateTime=")    -> b.putString("lastUpdateTime", t.removePrefix("lastUpdateTime=").trim())
+                t.startsWith("versionCode=") || t.contains("versionCode=") -> {
+                    // "versionCode=1234 minSdk=21 targetSdk=33"
+                    Regex("versionCode=(\\d+)").find(t)?.groupValues?.get(1)?.toLongOrNull()?.let { b.putLong("versionCode", it) }
+                    Regex("targetSdk=(\\d+)").find(t)?.groupValues?.get(1)?.toIntOrNull()?.let { b.putInt("targetSdk", it) }
+                    Regex("minSdk=(\\d+)").find(t)?.groupValues?.get(1)?.toIntOrNull()?.let { b.putInt("minSdk", it) }
+                }
+                t.startsWith("pkgFlags=") || t.startsWith("flags=") -> {
+                    b.putBoolean("isDebuggable", t.contains("DEBUGGABLE"))
+                    b.putBoolean("allowBackup", t.contains("ALLOW_BACKUP"))
+                    b.putBoolean("isSystem", t.contains("SYSTEM"))
+                }
+            }
+        }
+        return b
+    }
+
+    // ── Split APK Streaming ───────────────────────────────────────────────────
+
+    override fun listApkSplits(packageName: String?): List<Bundle> {
+        if (packageName.isNullOrBlank()) return emptyList()
+        val output = exec("pm", "path", packageName)
+        return output.lines()
+            .filter { it.startsWith("package:") }
+            .mapNotNull { line ->
+                val path = line.removePrefix("package:").trim()
+                val file = File(path)
+                if (!file.exists()) return@mapNotNull null
+                Bundle().apply {
+                    putString("fileName", file.name)
+                    putString("path", path)
+                    putLong("size", file.length())
+                }
+            }
+    }
+
+    override fun streamApkSplit(packageName: String?, fileName: String?): ParcelFileDescriptor? {
+        if (packageName.isNullOrBlank() || fileName.isNullOrBlank()) return null
+        // Validate: fileName must belong to this package's APK set
+        val output = exec("pm", "path", packageName)
+        val validPath = output.lines()
+            .filter { it.startsWith("package:") }
+            .map { it.removePrefix("package:").trim() }
+            .firstOrNull { File(it).name == fileName }
+            ?: return null
+        return pipe("cat", validPath)
     }
 }
