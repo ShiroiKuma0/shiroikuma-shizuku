@@ -158,6 +158,7 @@ class ShizukuCompanionViewHolder(
                         if (Shizuku.pingBinder()) {
                             try {
                                 val process = Shizuku.newProcess(arrayOf("sh", "-c", installCmd), null, null)
+                                    ?: throw IllegalStateException("Shizuku.newProcess returned null")
                                 try {
                                     process.inputStream.bufferedReader().readText().also { process.waitFor() }
                                 } finally {

@@ -749,7 +749,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                             reply.writeNoException();
                             reply.writeTypedObject(info.applicationInfo, 1);
                             return true;
-                        } else if (code == TRANSACTION_getPackageUid) {
+                        } else if (TRANSACTION_getPackageUid != -1 && code == TRANSACTION_getPackageUid) {
                             reply.writeNoException();
                             reply.writeInt(10000); // Mock UID
                             return true;
@@ -771,15 +771,20 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     }
 
                     if (shouldHide) {
-                        // Only intercept known methods to prevent Type Confusion crashes
-                        if (code == TRANSACTION_getPackageInfo || code == TRANSACTION_getApplicationInfo || code == TRANSACTION_getPackageUid) {
+                        // Guard: only intercept codes resolved at runtime; -1 means reflection
+                        // failed, and matching -1 could intercept unrelated binder calls (#444).
+                        boolean matchPackageInfo = TRANSACTION_getPackageInfo != -1 && code == TRANSACTION_getPackageInfo;
+                        boolean matchApplicationInfo = TRANSACTION_getApplicationInfo != -1 && code == TRANSACTION_getApplicationInfo;
+                        boolean matchPackageUid = TRANSACTION_getPackageUid != -1 && code == TRANSACTION_getPackageUid;
+                        if (matchPackageInfo || matchApplicationInfo || matchPackageUid) {
                             LOGGER.i("Shadow: Hiding package %s from IPackageManager call (code %d)", packageName, code);
                             reply.writeNoException();
-                            
-                            if (code == TRANSACTION_getPackageInfo || code == TRANSACTION_getApplicationInfo) { 
-                                reply.writeTypedObject(null, 0); // null ApplicationInfo/PackageInfo
+                            if (matchPackageUid) {
+                                // Android returns -1 for "package not found" from getPackageUid();
+                                // returning 0 (root UID) or anything else breaks callers (#444).
+                                reply.writeInt(-1);
                             } else {
-                                reply.writeInt(0); // 0 UID
+                                reply.writeTypedObject(null, 0); // null ApplicationInfo/PackageInfo
                             }
                             return true;
                         }
