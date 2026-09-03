@@ -8,6 +8,131 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2397+2026-09-02.14-54.g37d086d4+002
+
+Rebased onto upstream `13.6.0.r2397` — twelve commits over two days, 2805 insertions against 67
+deletions in 29 files, and the largest single expansion of the privileged surface this fork has
+absorbed. Eighty-nine replayed commits, five content conflicts, and a submodule that had to move
+first: nothing in the parent would compile until it did.
+
+**The api submodule carried nine of the twelve.** Seven new AIDL interfaces — `IStatusBarGovernorPlus`,
+`IPackageGovernorPlus`, `IDisplayTunerPlus`, `IAppInspector`, `IPrivilegedDataSource`,
+`IBackupRestorePlus`, `IApkPatcher` — plus three methods added to `IStorageProxy` and about 1145
+lines of client wrappers in `ShizukuPlusAPI.java`. Every one of the new server implementations
+implements one of those interfaces, so the parent rebase was meaningless on its own.
+
+### Two things that would have shipped broken
+
+**A duplicate AIDL transaction id that git merged in silently.** This fork moved
+`shouldShowRequestPermissionRationale()` off id 16 long ago, because its wire code
+(`FIRST_CALL_TRANSACTION + 16` = 17) is the same code `Shizuku.java` sends as the hand-written v13
+attach. It was parked on 122. Upstream has now claimed **122 through 128** for the seven new
+`IShizukuService` getters — and because upstream appends at the end of the interface while our edit
+sits in the middle, both sides merged **cleanly**, with no conflict marker anywhere, into an
+interface declaring id 122 twice. Nothing flags that until `aidl` runs. Ours is now parked at **500**,
+far above the block upstream is still appending to, with the reasoning written into the file.
+
+**Upstream's tip does not compile.** `ShizukuPlusAPI.ApkPatcher.getService()` calls
+`getIShizukuServiceOrThrow()`, a method that exists nowhere in the tree — every one of its fourteen
+sibling wrappers in the same file uses `requirePlusService()`. Fixed here to match the siblings,
+including the null guard that helper needs, and marked so it can be dropped when upstream corrects
+it. This is the third sync in a row where upstream's master did not build.
+
+The good news on that front: the missing `R` import this fork patched around last cycle **was** fixed
+upstream, in `5379bbe0`. That fork fix is retired and `ShizukuTileService`'s imports are upstream's
+again.
+
+### Upstream fixed a bug we had already fixed — better
+
+`752afb81` breaks out of a stuck `STARTING` state after a failed launch, which is the same bug this
+fork fixed on 2026-07-31 in `c5d730f9`. **Ours is kept**, because it is the stronger of the two:
+upstream adds a 90-second timeout to `update()`, whereas this fork splits the two meanings apart —
+`update()` stays the passive refresh with that same 90-second backstop, and `settle()` resolves the
+state the *moment* an attempt ends rather than making the user wait out the deadline.
+
+Their version did not merge away quietly, though. Upstream's own `STARTING_TIMEOUT_MS` and
+`startingTimestamp` fields auto-merged in alongside ours, leaving the constant **declared twice** in
+one object — another clean merge that Kotlin rejects. Both upstream fields were removed; the
+timestamp had no reader left at all.
+
+### The QS tile, taken whole and then made ours
+
+`81ef87e1` rewrites the tile: the subtitle now shows mode and state together for the Samsung OneUI
+8.5 wide layout, a tap while running opens a Stop/Restart/Open dialog on API 34+, a tap while
+transitioning says so instead of doing nothing, and a long-press opens a new `TileOptionsActivity`.
+Upstream's structure is taken entire. Four fork properties are carried onto it:
+
+- **The tile label is no longer a fork diff at all.** It used to be a hardcoded `"白い熊 雫: Active"`
+  that this fork patched in on every sync. Upstream now resolves it through `R.string.app_name` —
+  which *is* our `白い熊 雫` resValue — so their line is strictly better de-branding than ours was,
+  and the file loses that permanent conflict surface.
+- **Both new dialogs are house-styled.** They are raised as plain `android.app.AlertDialog` straight
+  from a `TileService` and an `Activity`, and `ShiroikumaDialogs.installGlobalStyling` only reaches
+  `DialogFragment`s. In this theme an unstyled dialog is a black fill on a black ground with no
+  border — **invisible**, not merely plain — which is exactly the failure the standing border rule
+  exists to prevent.
+- **The new transitioning toast goes through `ShiroikumaToast`**, like every other toast in the file.
+- **`TileOptionsActivity.startShizuku()` settles on failure.** It called `update()` unconditionally,
+  and `update()` preserves `STARTING`, so a root shell exiting non-zero would have left the tile and
+  the home card mid-transition with the start button — the very control needed to retry — disabled.
+
+### Auto-reconnect is now off by default
+
+`a6aa9edc` added a cold-open auto-enqueue of `AdbStartWorker` when the service is dead but wireless
+debugging is still live. `37d086d4`, a day later, gated that on the auto-reconnect toggle and flipped
+the toggle's default from **on to off**. A fresh install therefore no longer attempts an ADB
+reconnection without being asked; an existing install keeps whatever is stored.
+
+### The new privileged tier
+
+Four interfaces add roughly seventy methods that let an authorised client act on *other* apps without
+root: read their logcat by pid, dump their heap, walk `/proc/<pid>/fd` for open databases and
+sockets, tar their private data directory through `run-as`, back up and restore app data via
+`bu`/`bmgr`, stream APK splits and OBB data, freeze and unfreeze packages, grant and revoke runtime
+permissions silently, install and uninstall silently, and insert rows into the SMS provider.
+`IApkPatcher` goes further still — a pure-JVM Android binary-XML patcher and an ephemeral RSA-2048
+V1+V2 signer that flips an installed app's `debuggable` flag, re-signs it and reinstalls it so its
+data can be read.
+
+Three notes on that, none of them changed here:
+
+- `status_bar_governor_plus` and `package_governor_plus` are gated by feature flags that **default
+  on**; `display_tuner_plus` defaults off as experimental.
+- `AppInspector`, `PrivilegedDataSource`, `BackupRestorePlus` and `ApkPatcher` have **no toggle at
+  all** — only `enforceCallingPermission`, so any app authorised for Shizuku has the full set.
+- `ApkPatcher.cleanupAllTempDebug()` is never called from anywhere, despite its commit message
+  saying it runs at startup, and its session map is in-memory only. An interrupted patch session
+  leaves the target app installed under a throwaway key with no automatic route back.
+
+### Also in this sync
+
+- **Root-compat hardening** (`a6aa9edc`): `RootCompatHelper` fast-fails on Android 16+ ADB mode
+  before attempting a `/data/local/tmp` write, avoiding a multi-second SELinux stall; an API 36
+  warning banner links straight to export-path setup; Service Doctor gains check 8b for a missing
+  exported path with a one-tap fix.
+- **Wireless ADB UX**: live port and stale cached port are now separated, so a live port goes
+  straight to `StarterActivity` instead of opening a dialog that auto-dismisses seconds later.
+- **Split-APK install fixed** (`93bc9e82`): `createInstallSession` was passing `--multi-package`,
+  the wrong flag for split sessions. Apps with config splits no longer fail.
+
+### The fork layer, re-verified
+
+The no-phone-home contract is whole. The entire twelve-commit delta was grepped for new outbound
+paths and has none — the only URL-shaped hit is the Android XML namespace constant inside the binary
+XML patcher. Sentry stays plugin-less and DSN-empty, `RemoteDbSyncWorker` stays neutered, VirusTotal
+and Pithus still answer "disabled", `isAutoUpdateEnabled()` still defaults false, `support_email` is
+still blank and `.github/` is still absent. `UpdateChecker` remains the only thing in the tree that
+can open a connection, and it still points at this fork's releases.
+
+Icons were checked despite zero conflicts, as the standing rule requires: no `_base` or `_alt`
+variants, `<foreground>` still a bare `@mipmap/ic_launcher_foreground` with nothing composited over
+it, `<monochrome>` still our traced mark. Upstream touched no icon asset this round. The app id,
+namespace, single-ABI filter, signing config, both wire-protocol strings and both custom permissions
+are unchanged, and `ComponentNameContractTest` passes.
+
+`13.6.0.r2397+2026-09-02.14-54.g37d086d4+001` is the same rebase without the four tile fixes above;
+`+002` is the build to install.
+
 ## 13.6.0.r2385+2026-08-31.23-18.gb892b43f+001
 
 Rebased onto upstream `13.6.0.r2385` — seventeen commits in one evening, 817 insertions against 74
