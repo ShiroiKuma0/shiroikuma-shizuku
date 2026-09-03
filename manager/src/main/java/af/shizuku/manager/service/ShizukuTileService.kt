@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.work.WorkManager
+import af.shizuku.manager.shiroikuma.ShiroikumaDialogs
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import com.topjohnwu.superuser.Shell
 
@@ -188,6 +189,11 @@ class ShizukuTileService : TileService() {
                 }
             }
             .create()
+        // Raised straight from the tile, so the DialogFragment hook in
+        // ShiroikumaDialogs.installGlobalStyling never sees it: style it here or it comes up as a
+        // black fill with no border, which in this theme is an invisible dialog rather than a
+        // plain one.
+        dialog.setOnShowListener { ShiroikumaDialogs.style(dialog) }
         showDialog(dialog)
     }
 }
