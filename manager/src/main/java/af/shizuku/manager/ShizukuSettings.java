@@ -588,6 +588,11 @@ public class ShizukuSettings {
         return p == null || p.getBoolean(Keys.KEY_SHOW_LEARN_MORE_HOME, true);
     }
 
+    public static boolean showBackupHome() {
+        SharedPreferences p = getPreferences();
+        return p == null || p.getBoolean("show_backup_home", true);
+    }
+
     public static boolean showActivityLogHome() {
         SharedPreferences p = getPreferences();
         return p == null || p.getBoolean(Keys.KEY_SHOW_ACTIVITY_LOG_HOME, true);

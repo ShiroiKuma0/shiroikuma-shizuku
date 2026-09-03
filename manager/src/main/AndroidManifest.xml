@@ -209,6 +209,11 @@
             android:label="@string/home_app_management_title" />
 
         <activity
+            android:name=".backup.AppBackupActivity"
+            android:exported="false"
+            android:label="@string/home_backup_title" />
+
+        <activity
             android:name=".settings.RootCompatibilityActivity"
             android:exported="false"
             android:label="@string/su_bridge_title" />

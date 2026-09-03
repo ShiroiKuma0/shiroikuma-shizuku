@@ -262,7 +262,7 @@
     </style>
     <style name="ShapeAppearance.Modern.Corner.ExtraLarge" parent="ShapeAppearance.Material3.Corner.ExtraLarge">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">28dp</item>
+        <item name="cornerSize">32dp</item>
     </style>
     <style name="ThemeOverlay.Shape" parent=""/>
 

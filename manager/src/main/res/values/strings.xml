@@ -1254,4 +1254,17 @@
     <string name="settings_display_tuner_plus_summary">Override display resolution and DPI — the same as adb shell wm size/density — so apps and automation can adjust screen layout without requiring ADB access themselves.</string>
     <string name="help_display_tuner_plus_title">Display Tuner</string>
     <string name="help_display_tuner_plus_detail">Provides privileged display configuration via the wm shell tool: override resolution (wm size) and density (wm density) on the fly, read current and physical values, and reset overrides to device defaults. Useful for fixing app layout issues, forcing a specific aspect ratio for screen recording, desktop mode tweaks, and accessibility scaling — historically a root-only capability now available through the ADB shell process.</string>
+
+    <!-- App Backup feature -->
+    <string name="home_backup_title">App Backup</string>
+    <string name="home_backup_summary">Backup and restore app data without root</string>
+    <string name="backup_activity_title">App Backup</string>
+    <string name="backup_action_backup">Backup</string>
+    <string name="backup_action_freeze">Freeze</string>
+    <string name="backup_service_required">Shizuku service is not running</string>
+    <string name="backup_in_progress">Backup in progress…</string>
+    <string name="backup_app_complete">Backed up %1$s → %2$s</string>
+    <string name="backup_app_failed">Backup failed: %1$s</string>
+    <string name="backup_freeze_success">App frozen</string>
+    <string name="backup_unfreeze_success">App unfrozen</string>
 </resources>

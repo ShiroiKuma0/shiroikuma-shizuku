@@ -14,6 +14,9 @@ import timber.log.Timber
 
 abstract class AppBarActivity : AppActivity() {
 
+    /** Axis for window enter/exit transitions. Z = forward/back (root→detail). X = lateral (sibling screens). */
+    protected open val transitionAxis: Int = MaterialSharedAxis.Z
+
     protected val rootView: ViewGroup by unsafeLazy {
         findViewById<View>(R.id.coordinator_root) as? ViewGroup
             ?: throw IllegalStateException("rootView not found - make sure layout contains coordinator_root")
@@ -28,7 +31,7 @@ abstract class AppBarActivity : AppActivity() {
         // recreateWithoutTransition() call from any AppBarActivity subclass gets a black
         // screen stuck behind these MaterialSharedAxis transitions instead.
         if (!suppressTransitionOnCreate) {
-            val axis = MaterialSharedAxis.X
+            val axis = transitionAxis
             window.enterTransition = MaterialSharedAxis(axis, true)
             window.exitTransition = MaterialSharedAxis(axis, false)
             window.reenterTransition = MaterialSharedAxis(axis, false)

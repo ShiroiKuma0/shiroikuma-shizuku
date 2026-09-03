@@ -34,9 +34,10 @@ class HomeAdapter(
         const val ID_AUTOMATION = 8L
         const val ID_COMPANION = 9L
         const val ID_START_VIA_STOCK = 10L
+        const val ID_BACKUP = 11L
 
         private val DEFAULT_ORDER = listOf(
-            ID_TERMINAL, ID_START_ROOT, ID_START_WADB, ID_START_ADB, ID_AUTOMATION, ID_LEARN_MORE, ID_COMPANION
+            ID_TERMINAL, ID_START_ROOT, ID_START_WADB, ID_START_ADB, ID_AUTOMATION, ID_BACKUP, ID_LEARN_MORE, ID_COMPANION
         )
     }
 
@@ -221,6 +222,8 @@ class HomeAdapter(
                     addItem(StartAdbViewHolder.CREATOR, null, id)
                 ID_AUTOMATION -> if (isEditMode || ShizukuSettings.showAutomationHome())
                     addItem(AutomationViewHolder.CREATOR, null, id)
+                ID_BACKUP -> if (isEditMode || ShizukuSettings.showBackupHome())
+                    addItem(AppBackupViewHolder.CREATOR, status, id)
                 ID_LEARN_MORE -> if (isEditMode || ShizukuSettings.showLearnMoreHome())
                     addItem(LearnMoreViewHolder.CREATOR, null, id)
                 ID_COMPANION -> {
@@ -262,17 +265,26 @@ class HomeAdapter(
         val view = holder.itemView
         view.alpha = 0f
         view.translationY = 24f
+        view.scaleX = 0.92f
+        view.scaleY = 0.92f
         val animator = view.animate()
         if (animator != null) {
+            val interp = android.view.animation.AnimationUtils.loadInterpolator(
+                view.context, com.google.android.material.R.interpolator.m3_emphasized_decelerate
+            )
             animator.alpha(1f)
                 .translationY(0f)
+                .scaleX(1f)
+                .scaleY(1f)
                 .setDuration(af.shizuku.manager.ShizukuSettings.scaledAnimationDuration(400))
                 .setStartDelay(af.shizuku.manager.ShizukuSettings.scaledAnimationDuration(position * 50L))
-                .setInterpolator(android.view.animation.PathInterpolator(0.2f, 0f, 0f, 1f))
+                .setInterpolator(interp)
                 .start()
         } else {
             view.alpha = 1f
             view.translationY = 0f
+            view.scaleX = 1f
+            view.scaleY = 1f
         }
     }
 
