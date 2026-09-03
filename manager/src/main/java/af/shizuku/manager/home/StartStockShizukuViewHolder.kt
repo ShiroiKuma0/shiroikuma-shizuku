@@ -12,6 +12,7 @@ import af.shizuku.manager.R
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeStartRootBinding
 import af.shizuku.manager.ktx.themeColor
+import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import af.shizuku.manager.utils.StockShizukuCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
@@ -36,6 +37,7 @@ class StartStockShizukuViewHolder(
     private inline val restart get() = binding.button2
 
     init {
+        containerBinding.root.applySpringTouch()
         val listener = View.OnClickListener { v: View -> onStartClicked(v) }
         start.setOnClickListener(listener)
         restart.visibility = View.GONE

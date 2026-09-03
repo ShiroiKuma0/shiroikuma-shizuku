@@ -65,9 +65,13 @@ class ScriptingFragment : Fragment() {
 
         binding.list.adapter = adapter
 
+        var addMenuItem: MenuItem? = null
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_scripting, menu)
+                addMenuItem = menu.findItem(R.id.action_add_snippet)
+                // Start hidden; will be shown once the first snippet exists.
+                addMenuItem?.isVisible = false
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -86,6 +90,7 @@ class ScriptingFragment : Fragment() {
                     val isEmpty = snippets.isEmpty()
                     emptyStateView.visibility = if (isEmpty) View.VISIBLE else View.GONE
                     binding.list.visibility = if (isEmpty) View.GONE else View.VISIBLE
+                    addMenuItem?.isVisible = !isEmpty
                 }
             }
         }

@@ -9,6 +9,7 @@ import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.ktx.themeColor
 import af.shizuku.manager.utils.CustomTabsHelper
 import af.shizuku.manager.utils.IconStyleHelper
+import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 
@@ -23,6 +24,7 @@ class AdbPermissionLimitedViewHolder(private val binding: HomeExtraStepRequiredB
     }
 
     init {
+        itemView.applySpringTouch()
         binding.button1.setOnClickListener { v: View -> CustomTabsHelper.launchUrlOrCopy(v.context, Helps.ADB_PERMISSION.get()) }
     }
 

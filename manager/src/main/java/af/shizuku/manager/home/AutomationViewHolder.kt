@@ -21,6 +21,7 @@ import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.ktx.toHtml
 import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.IconStyleHelper
+import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import rikka.core.util.ClipboardUtils
 import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
@@ -48,6 +49,7 @@ class AutomationViewHolder(
     private val originalIcon = binding.icon.drawable
 
     init {
+        containerBinding.root.applySpringTouch()
         containerBinding.root.setOnLongClickListener { HomeEditMode.enter(); true }
         containerBinding.dragHandle.apply {
             setOnTouchListener { _, event ->
