@@ -11,6 +11,7 @@ import af.shizuku.manager.databinding.HomeAppBackupItemBinding
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.ktx.startWithSceneTransition
 import af.shizuku.manager.model.ServiceStatus
+import af.shizuku.manager.utils.IconStyleHelper
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
@@ -31,12 +32,15 @@ class AppBackupViewHolder(private val binding: HomeAppBackupItemBinding, root: V
         root.applySpringTouch()
     }
 
+    private val originalIcon = binding.icon.drawable
+
     private inline val title get() = binding.text1
     private inline val summary get() = binding.text2
     private inline val iconView get() = binding.icon
 
     override fun onBind() {
         val context = itemView.context
+        IconStyleHelper.applyToCardIcon(iconView, originalIcon, "home_app_backup")
         if (!data.isRunning) {
             itemView.isEnabled = false
             title.setText(R.string.home_backup_title)
