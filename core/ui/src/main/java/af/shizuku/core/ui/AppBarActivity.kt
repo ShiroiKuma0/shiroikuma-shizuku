@@ -1,5 +1,6 @@
 package af.shizuku.core.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -65,6 +66,15 @@ abstract class AppBarActivity : AppActivity() {
                     )
                     v.setPadding(bars.left, bars.top, bars.right, 0)
                     insets
+                }
+
+                // When blur is enabled the window already has setBackgroundBlurRadius applied
+                // (AppActivity.onCreate). The AppBar's opaque colorBackground blocks it. On API
+                // 31+ make it semi-transparent so the frosted-glass effect is visible (#449).
+                val prefs = createDeviceProtectedStorageContext()
+                    .getSharedPreferences("settings", android.content.Context.MODE_PRIVATE)
+                if (prefs.getBoolean("blur_ui_enabled", false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    container.background?.mutate()?.alpha = 230 // ~90% opacity
                 }
             } else {
                 Timber.tag("AppBarActivity").w("Toolbar or container not found in layout.")
