@@ -1614,22 +1614,29 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     }
                 }
             } else if (baseCmd.equals("settings") && cmd.length >= 5 && cmd[1].equals("put")) {
+                // Do NOT short-circuit here with an early return. On Samsung Android 16 (and
+                // other OEMs that tighten secure-settings access), callCompat() can complete
+                // without throwing while the system silently rejects the write — so returning
+                // true(success) before the real shell command runs caused every settings put
+                // from apps like Essential to appear to succeed but do nothing (#452).
+                // Keep the fast-path call as a best-effort pre-write for performance, but always
+                // fall through to super.newProcessInternal(cmd) which is the authoritative path.
                 String namespace = cmd[2];
                 String key = cmd[3];
                 String value = cmd[4];
                 int userId = UserHandleCompat.getUserId(callingUid);
-                LOGGER.i("Plus Optimization: settings put " + namespace + " " + key + " user=" + userId);
+                LOGGER.i("Plus Optimization: settings put %s %s user=%d (best-effort pre-write, native follows)", namespace, key, userId);
                 try {
                     android.content.IContentProvider provider = ActivityManagerApis.getContentProviderExternal("settings", userId, null, "com.android.shell");
                     if (provider != null) {
                         android.os.Bundle extras = new android.os.Bundle();
                         extras.putString("value", value);
                         rikka.shizuku.server.api.IContentProviderUtils.callCompat(provider, null, "settings", "PUT_" + namespace, key, extras);
-                        return newProcessInternal(new String[]{"true"}, env, dir);
                     }
                 } catch (Throwable tr) {
-                    LOGGER.e(tr, "Plus Optimization: settings put failed");
+                    LOGGER.e(tr, "Plus Optimization: settings put pre-write failed (native will retry)");
                 }
+                // Fall through to super.newProcessInternal() for authoritative execution.
             } else if (baseCmd.equals("pm") && cmd.length >= 2 && cmd[1].equals("install")) {
                 LOGGER.i("Plus Optimization: pm install");
                 // For now, let it fall through to sh -c pm install which is already functional
