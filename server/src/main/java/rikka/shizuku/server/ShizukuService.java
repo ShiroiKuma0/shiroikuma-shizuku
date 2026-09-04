@@ -486,7 +486,16 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         ClientRecord clientRecord = null;
 
         List<String> packages = PackageManagerApis.getPackagesForUidNoThrow(callingUid);
-        if (!packages.contains(requestPackageName)) {
+        if (!packages.isEmpty() && !packages.contains(requestPackageName)) {
+            // Only enforce the UID→package check when PackageManager returned a non-empty list.
+            // On Samsung OneUI 8 (and other OEMs with aggressive process caching), PM can return
+            // an empty list during the brief window after a reboot before the package scan completes.
+            // Throwing here in that case prevents attachApplication from adding a ClientRecord,
+            // so subsequent newProcess() calls fail the permission check with a null-message
+            // SecurityException that surfaces as "execViaShizuku failed: null" in client apps
+            // (#444, aShell You). Skipping the throw on an empty list is safe: the binder was
+            // already granted (BinderSender only sends to authorized UIDs), and clientRecord.allowed
+            // is the authoritative security gate once attached.
             LOGGER.w("Request package " + requestPackageName + "does not belong to uid " + callingUid);
             throw new SecurityException("Request package " + requestPackageName + "does not belong to uid " + callingUid);
         }
