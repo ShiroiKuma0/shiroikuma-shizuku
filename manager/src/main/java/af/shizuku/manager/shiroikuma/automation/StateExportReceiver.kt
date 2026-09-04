@@ -9,8 +9,14 @@ import af.shizuku.manager.shiroikuma.ShiroikumaBackup
 /**
  * The 保存復元 automation entry point — the wire contract 白い熊 自由作業盤 drives.
  *
- * Three actions, all token-gated, all on this one **exported** receiver (no `android:permission` —
- * the caller cannot hold one, so the token is the gate):
+ * Three actions on this one **exported** receiver, gated by [AutomationAuth.refuse] — the master
+ * switch, plus the token **only when 白い熊 has asked for one** (contract v2). It carries no
+ * `android:permission` because the caller cannot hold one, and that is deliberate rather than
+ * merely unavoidable: this receiver only ever *writes where it was told to* and reports what it
+ * did. Everything that moves data through a caller-supplied descriptor lives behind
+ * [AutomationProvider], which is told who is calling.
+ *
+ * The three actions:
  *
  * - `EXPORT_STATE` — validate, then hand off to [StateExportService] and return **immediately**.
  *   The receiver never runs the export itself: `goAsync()` does not extend the broadcast window
@@ -36,12 +42,11 @@ class StateExportReceiver : BroadcastReceiver() {
                 // Without a reply channel there is nobody to tell about a refusal either.
                 if (replyAction == null || replyPackage == null || replyId == null) return
 
-                if (!AutomationAuth.enabled(app)) {
-                    reply(app, replyAction, replyPackage, replyId, "ERROR:automation disabled")
-                    return
-                }
-                if (!AutomationAuth.isTokenValid(app, token)) {
-                    reply(app, replyAction, replyPackage, replyId, "ERROR:bad token")
+                // Both checks in ONE place, so "disabled" and "bad token" cannot drift apart.
+                // A token sent to this app while it is not asking for one is IGNORED, never an
+                // error: tokens outlive the setting they were pasted for.
+                AutomationAuth.refuse(app, token)?.let {
+                    reply(app, replyAction, replyPackage, replyId, it)
                     return
                 }
 
@@ -75,12 +80,11 @@ class StateExportReceiver : BroadcastReceiver() {
                 val replyPackage = intent.getStringExtra("reply_package") ?: return
                 val replyId = intent.getStringExtra("reply_id") ?: return
 
-                if (!AutomationAuth.enabled(app)) {
-                    reply(app, replyAction, replyPackage, replyId, "ERROR:automation disabled")
-                    return
-                }
-                if (!AutomationAuth.isTokenValid(app, token)) {
-                    reply(app, replyAction, replyPackage, replyId, "ERROR:bad token")
+                // Both checks in ONE place, so "disabled" and "bad token" cannot drift apart.
+                // A token sent to this app while it is not asking for one is IGNORED, never an
+                // error: tokens outlive the setting they were pasted for.
+                AutomationAuth.refuse(app, token)?.let {
+                    reply(app, replyAction, replyPackage, replyId, it)
                     return
                 }
 
@@ -94,8 +98,7 @@ class StateExportReceiver : BroadcastReceiver() {
             "$pkg.action.CANCEL_EXPORT" -> {
                 // Silent on every refusal: a cancel has no reply channel of its own, and one that
                 // arrives when nothing is running is a no-op, not an error.
-                if (!AutomationAuth.enabled(app)) return
-                if (!AutomationAuth.isTokenValid(app, token)) return
+                if (AutomationAuth.refuse(app, token) != null) return
                 StateExportService.requestCancel()
             }
         }
