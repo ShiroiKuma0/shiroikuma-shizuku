@@ -136,6 +136,7 @@ class ShizukuCompanionViewHolder(
                             }
                             true
                         } catch (e: Exception) {
+                            Timber.tag("ShizukuCompanion").e(e, "compat.apk asset extraction failed")
                             false
                         }
                     }
@@ -187,15 +188,37 @@ class ShizukuCompanionViewHolder(
                         // ignore
                     }
                     withContext(Dispatchers.Main) {
-                        val messageRes = when {
-                            success -> R.string.compat_hub_install_success
+                        when {
+                            success ->
+                                Toast.makeText(v.context, R.string.compat_hub_install_success, Toast.LENGTH_SHORT).show()
                             installOutput.contains("INSTALL_FAILED_INSUFFICIENT_STORAGE") ->
-                                R.string.compat_hub_install_fail_storage
+                                Toast.makeText(v.context, R.string.compat_hub_install_fail_storage, Toast.LENGTH_SHORT).show()
                             installOutput.contains("INSTALL_FAILED_NO_MATCHING_ABIS") ->
-                                R.string.compat_hub_install_fail_abi
-                            else -> R.string.compat_hub_install_fail
+                                Toast.makeText(v.context, R.string.compat_hub_install_fail_abi, Toast.LENGTH_SHORT).show()
+                            installOutput.contains("INSTALL_FAILED_USER_RESTRICTED") ||
+                            installOutput.contains("INSTALL_FAILED_VERIFICATION_FAILURE") ||
+                            installOutput.contains("INSTALL_FAILED_BLOCKED") ||
+                            installOutput.contains("INSTALL_FAILED_POLICY_ERROR") ->
+                                Toast.makeText(v.context, R.string.compat_hub_install_fail_restricted, Toast.LENGTH_LONG).show()
+                            else -> {
+                                // Extract the most useful part of the error for the toast so users can
+                                // self-diagnose without needing to capture logcat (#446).
+                                val errorSnippet = installOutput
+                                    .lines()
+                                    .firstOrNull { it.contains("INSTALL_FAILED") || it.contains("Failure") }
+                                    ?.trim()
+                                    ?.take(80)
+                                if (errorSnippet != null) {
+                                    Toast.makeText(
+                                        v.context,
+                                        v.context.getString(R.string.compat_hub_install_fail_detail, errorSnippet),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } else {
+                                    Toast.makeText(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         }
-                        Toast.makeText(v.context, messageRes, Toast.LENGTH_SHORT).show()
                         homeModel.reload()
                     }
                 }
