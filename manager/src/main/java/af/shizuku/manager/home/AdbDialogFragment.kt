@@ -113,6 +113,24 @@ class AdbDialogFragment : DialogFragment() {
             binding.wifiWarningLayout.isVisible = false
         }
 
+        val isAutoPairEnabled = android.provider.Settings.Secure.getString(
+            context.contentResolver,
+            android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )?.contains("AdbPairingAccessibilityService") == true
+
+        if (isAutoPairEnabled) {
+            binding.autoPairStatusText.isVisible = true
+            binding.btnPairDevice.isVisible = false
+        } else {
+            binding.btnPairDevice.isVisible = true
+            binding.autoPairStatusText.isVisible = false
+        }
+
+        binding.btnPairDevice.setOnClickListener {
+            dismiss()
+            AdbPairDialogFragment().show(parentFragmentManager, null)
+        }
+
         // Active loopback probe: checks local TCP port (5555, lastPort, etc.)
         // without waiting for mDNS, allowing instantaneous connection on 5G/cellular.
         binding.probeStatusText.isVisible = true

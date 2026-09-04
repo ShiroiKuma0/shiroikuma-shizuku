@@ -69,6 +69,25 @@
             android:textColor="?android:textColorSecondary"
             android:visibility="gone" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pair_device"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/dialog_adb_pair_device"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/auto_pair_status_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?textAppearanceLabelMedium"
+            android:textColor="?colorPrimary"
+            android:text="@string/dialog_adb_autopair_enabled"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
