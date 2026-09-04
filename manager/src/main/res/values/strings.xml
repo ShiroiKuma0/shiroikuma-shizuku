@@ -1276,4 +1276,8 @@
     <string name="backup_unfreeze_success">App unfrozen</string>
     <string name="dialog_adb_pair_device">Pair this device now</string>
     <string name="dialog_adb_autopair_enabled">✓ Auto-Pair is active — pairing will be confirmed automatically</string>
+
+    <!-- Mode-contextual settings (#433) -->
+    <string name="settings_mode_indicator_adb">Running in ADB mode — root-only options are hidden</string>
+    <string name="settings_mode_indicator_root">Running in root mode — ADB-only options are hidden</string>
 </resources>
