@@ -99,6 +99,23 @@
          The manager itself uses the permission in both flavors: -->
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
+    <!-- ===== 保存復元 automation: the two callers we must be able to SEE ======================
+         `setPackage()` on our reply broadcast fails SILENTLY on Android 11+ against a package we
+         cannot see: the export runs, writes correctly, and is never heard of. This element was
+         entirely ABSENT from this manifest until contract v2 (2026-09-04) — the same fault
+         shiroikuma-gauguin was caught with. It has been masked here by QUERY_ALL_PACKAGES, which
+         this app already holds to enumerate installed apps, so our replies did in fact arrive; the
+         element is declared anyway because the visibility of our own two callers must not rest on
+         a broad, Play-policy-restricted permission that exists for an unrelated feature and could
+         be dropped from it.
+         BOTH callers, always: 応用管理 drives the restore, 自由作業盤 drives the 保存復元 batch.
+         An app listing only 応用管理 answers the restore caller and is inaudible to the one that
+         has been calling it all along. -->
+    <queries>
+        <package android:name="shiroikuma.oyokanri" />
+        <package android:name="shiroikuma.jiyusagyoban" />
+    </queries>
+
     <application
         android:name=".ShizukuApplication"
         android:allowBackup="true"
@@ -677,6 +694,41 @@
             android:name="af.shizuku.manager.shiroikuma.automation.StateExportService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <!-- ===== 保存復元 v2: the data door ====================================================
+             A ContentProvider rather than a second broadcast action, because a broadcast cannot
+             tell you WHO sent it — and with the token now opt-in, "no idea who is asking" would
+             mean any app on the phone could harvest every sister app's data, since the caller
+             supplies the descriptor it is written into. AutomationCallers checks an exact package
+             name (never a prefix), the uid the kernel reports, and a pinned signing certificate.
+             No android:permission: it would have to be `normal` (any app may hold it) or
+             `signature` (impossible — every app in this family has its own keystore, 42 of them),
+             and neither buys anything the caller check does not. -->
+        <provider
+            android:name="af.shizuku.manager.shiroikuma.automation.AutomationProvider"
+            android:authorities="${applicationId}.automation"
+            android:exported="true" />
+
+        <service
+            android:name="af.shizuku.manager.shiroikuma.automation.AutomationDataService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Automation data export/import. Streams this app's own settings
+                    archive into, or out of, a file descriptor supplied by 白い熊 応用管理 so the
+                    app can be backed up with its data and restored onto a wiped phone. It runs
+                    only for the duration of one export or import, started by an identified sister
+                    app, and stops itself the moment the descriptor is closed." />
+        </service>
+
+        <!-- Capability discovery: read with MATCH_UNINSTALLED_PACKAGES | MATCH_DISABLED_COMPONENTS
+             rather than a query intent, because 白い熊 freezes apps aggressively and a frozen app
+             cannot be asked anything. An app WITHOUT these is simply not offered for data backup
+             or restore — implementing nothing claims nothing on your behalf. -->
+        <meta-data android:name="shiroikuma.automation.contract" android:value="2" />
+        <meta-data android:name="shiroikuma.automation.format" android:value="1" />
+        <meta-data android:name="shiroikuma.automation.min_format" android:value="1" />
 
     </application>
 
