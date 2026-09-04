@@ -8,6 +8,79 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2397+2026-09-02.14-54.g37d086d4+004
+
+**保存復元 automation, contract v2.** The sister-app backup contract this fork answers has been
+rewritten around a case v1 could not serve: 白い熊 応用管理 restoring apps *and their data* onto a
+wiped phone, where nothing has been configured and nobody has pasted anything.
+
+### The gate opens by default
+
+`automation_enabled` now defaults **on**, and a new 「Use authorization token?」 switch defaults
+**off**. A pasted 48-character secret cannot survive a wipe, so a gate that only works once the
+phone is already set up is no gate for setting the phone up. Both checks now resolve through a
+single `AutomationAuth.refuse()` that every entry point calls, because two checks written out at
+each entry point is how "automation disabled" and "bad token" drift apart.
+
+**A token sent to this app while it is not asking for one is ignored, never refused.** Tokens live
+in task arguments that outlive the setting they were pasted for, and refusing one would turn "a
+switch was turned off" into "half the batch mysteriously fails".
+
+The token row is now hidden unless the token is actually being asked for — a secret sitting under an
+off switch only invites pasting it somewhere it will do nothing. All three rows stay inside the
+existing Export/Import section, where backup lives.
+
+### A data door that knows who is knocking
+
+New exported `AutomationProvider` at `shiroikuma.shizuku.automation` — `describe`, `export`,
+`import`, `cancel`. A `ContentProvider` rather than another broadcast action, because **a broadcast
+cannot tell you who sent it**: with the token now optional, and the caller supplying the file
+descriptor an export is written into, "no idea who is asking" would mean any app on the phone could
+harvest this app's data.
+
+So the caller is checked three ways, each because the one before it is not enough: an **exact
+package name** (never a prefix — any sideloaded app may call itself `shiroikuma.evil` and pass a
+prefix test), the **uid the kernel reports** (a package may declare an attribution it does not own),
+and a **pinned signing certificate** (whichever caller package is absent from the device is a name
+anyone can take, and a clean phone is precisely such a device).
+
+`import` exists **only** here and never gets a broadcast action: the automation receiver is exported
+with no permission, so an import there would let any app on the phone wipe this one. The payload
+moves through a caller-supplied `ParcelFileDescriptor`, duplicated before it leaves the binder
+transaction and closed in a `finally` — a backup is not a stable directory while it is being
+written, and a file dropped into one would sit unencrypted and unverified inside an otherwise
+encrypted archive.
+
+### Updating this app does not drop the service or your grants
+
+Worth stating plainly, because it is the question this app actually raises: **installing a new
+version does not break the apps that depend on Shizuku.** Measured on the device rather than
+assumed —
+
+- the privileged server runs as **shell (uid 2000) with PPID 1**, reparented to init, so the package
+  replace — which kills processes belonging to the *installed package's* uid — cannot take it as
+  collateral;
+- the grant table lives at `/data/user_de/0/com.android.shell/shizuku.json`, owned by shell and
+  deliberately outside the manager's private data directory, so a replace cannot touch it;
+- clients hold a binder to the **server**, not to the manager.
+
+The one real consequence is the documented one: the installed APK path carries a random segment that
+changes on every install, so `rish` re-extracts its dex on first use afterwards.
+
+### Fixed
+
+- **`<queries>` was missing entirely.** Without it, `setPackage()` on a reply broadcast fails
+  silently on Android 11+ and an export runs, writes correctly and is never heard of. It was masked
+  here only because this app holds `QUERY_ALL_PACKAGES` for its authorization UI — one permission
+  cleanup away from breaking. Both callers are now named explicitly.
+- **Progress broadcasts are never sent without a target package.** Since API 26 an implicit
+  broadcast reaches no manifest-declared receiver at all, so a progress line with no `setPackage` is
+  not weak progress — it is none, silently, while the export completes and reports success.
+- **`startForeground` is guarded.** It can be refused outright for a service started from the
+  background, which a provider call always is; unguarded, the descriptor leaked and the caller waited
+  for an answer that would never come. A refused start now closes the descriptor, drops the job and
+  answers with the real reason instead of a job id for work that will never run.
+
 ## 13.6.0.r2397+2026-09-02.14-54.g37d086d4+002
 
 Rebased onto upstream `13.6.0.r2397` — twelve commits over two days, 2805 insertions against 67
