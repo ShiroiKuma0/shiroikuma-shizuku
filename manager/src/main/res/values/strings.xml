@@ -1274,4 +1274,6 @@
     <string name="backup_app_failed">Backup failed: %1$s</string>
     <string name="backup_freeze_success">App frozen</string>
     <string name="backup_unfreeze_success">App unfrozen</string>
+    <string name="dialog_adb_pair_device">Pair this device now</string>
+    <string name="dialog_adb_autopair_enabled">✓ Auto-Pair is active — pairing will be confirmed automatically</string>
 </resources>
