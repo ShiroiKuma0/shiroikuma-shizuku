@@ -110,31 +110,54 @@ class ShiroikumaUiFragment : BaseSettingsFragment() {
         // The automation controls belong INSIDE this Export/Import section, directly below the
         // existing rows — this is a backup feature, so it lives where backup lives, and every
         // sister app looks the same. Not a section of its own.
+        //
+        // Three rows, in contract-v2 order: the master switch (ON), the token question (OFF), and
+        // the token itself — which is shown ONLY when the question is answered yes. A 48-character
+        // secret sitting under an off switch invites 白い熊 to paste it somewhere it will do
+        // nothing.
         screen.addPreference(SwitchPreferenceCompat(ctx).apply {
             layoutResource = R.layout.preference_item_shizuku
             isIconSpaceReserved = false
             title = "Automation export"
-            summary = "Let sister-app tasks trigger this app's export through the token-gated intent"
+            summary = "Let sister apps trigger this app's export, and back its data up, without " +
+                "opening it. Turn off to close this app to automation entirely."
             isChecked = AutomationAuth.enabled(ctx)
             setOnPreferenceChangeListener { _, newValue ->
                 AutomationAuth.setEnabled(ctx, newValue as Boolean)
                 true
             }
         })
-        screen.addPreference(
-            AutomationTokenPreference(ctx, onRegenerate = { AutomationAuth.regenerate(ctx); rebuild() }).apply {
-                title = "Automation token"
-                summary = AutomationAuth.abbreviated(ctx) + "  —  tap to copy"
-                setOnPreferenceClickListener {
-                    val clipboard = ctx.getSystemService(android.content.ClipboardManager::class.java)
-                    clipboard?.setPrimaryClip(
-                        android.content.ClipData.newPlainText("token", AutomationAuth.token(ctx))
-                    )
-                    af.shizuku.manager.shiroikuma.ShiroikumaToast.show(ctx, "Token copied", android.widget.Toast.LENGTH_SHORT)
-                    true
-                }
+        screen.addPreference(SwitchPreferenceCompat(ctx).apply {
+            layoutResource = R.layout.preference_item_shizuku
+            isIconSpaceReserved = false
+            title = "Use authorization token?"
+            summary = "Off: any sister app may drive the automation. On: a caller must also " +
+                "present the token below. The data door checks the caller's package, uid and " +
+                "signing certificate either way."
+            isChecked = AutomationAuth.requireToken(ctx)
+            setOnPreferenceChangeListener { _, newValue ->
+                AutomationAuth.setRequireToken(ctx, newValue as Boolean)
+                // Redraw so the token row appears or disappears with the answer.
+                rebuild()
+                true
             }
-        )
+        })
+        if (AutomationAuth.requireToken(ctx)) {
+            screen.addPreference(
+                AutomationTokenPreference(ctx, onRegenerate = { AutomationAuth.regenerate(ctx); rebuild() }).apply {
+                    title = "Automation token"
+                    summary = AutomationAuth.abbreviated(ctx) + "  —  tap to copy"
+                    setOnPreferenceClickListener {
+                        val clipboard = ctx.getSystemService(android.content.ClipboardManager::class.java)
+                        clipboard?.setPrimaryClip(
+                            android.content.ClipData.newPlainText("token", AutomationAuth.token(ctx))
+                        )
+                        af.shizuku.manager.shiroikuma.ShiroikumaToast.show(ctx, "Token copied", android.widget.Toast.LENGTH_SHORT)
+                        true
+                    }
+                }
+            )
+        }
 
         // ===== 2. Colours ====================================================================
         screen.addPreference(ShiroikumaCategory(ctx).apply { title = "色 — Colours" })
