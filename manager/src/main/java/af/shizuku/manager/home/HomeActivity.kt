@@ -106,6 +106,27 @@ open class HomeActivity : AppActivity(), MavericksView {
     // quickly enough (which would create a WorkManager queue pile-up).
     private var autoRestartAttempted = false
 
+    // Compose state at class level so onResume() and appearanceChangeListener can update it
+    // without being in onCreate()'s closure scope.
+    private var isOneHanded by mutableStateOf(ShizukuSettings.isOneHandedModeEnabled())
+
+    // Strong reference required — SharedPreferences holds listeners weakly, so an inline lambda
+    // would be eligible for GC immediately after registerOnSharedPreferenceChangeListener returns.
+    private val appearanceChangeListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        when (key) {
+            ShizukuSettings.Keys.KEY_ICON_STYLE,
+            ShizukuSettings.Keys.KEY_ICON_COLOR_MODE,
+            ShizukuSettings.Keys.KEY_SHAPE_STYLE,
+            ShizukuSettings.Keys.KEY_EXPRESSIVE_SHAPES -> adapter.notifyDataSetChanged()
+            ShizukuSettings.Keys.KEY_SHOW_TERMINAL_HOME,
+            ShizukuSettings.Keys.KEY_SHOW_AUTOMATION_HOME,
+            ShizukuSettings.Keys.KEY_SHOW_LEARN_MORE_HOME,
+            ShizukuSettings.Keys.KEY_SHOW_ACTIVITY_LOG_HOME,
+            ShizukuSettings.Keys.KEY_SHOW_START_ADB_HOME -> adapter.updateData()
+            ShizukuSettings.Keys.KEY_ONE_HANDED_MODE -> isOneHanded = ShizukuSettings.isOneHandedModeEnabled()
+        }
+    }
+
     private val stateListener: (ShizukuStateMachine.State) -> Unit = { state ->
         when (state) {
             ShizukuStateMachine.State.RUNNING -> {
@@ -204,6 +225,7 @@ open class HomeActivity : AppActivity(), MavericksView {
             ) {
                 HomeScreen(
                 isEditMode = isEditMode,
+                isOneHanded = isOneHanded,
                 showEmptyState = showEmptyState,
                 onStopClick = {
                     if (ShizukuStateMachine.isRunning()) {
@@ -227,6 +249,7 @@ open class HomeActivity : AppActivity(), MavericksView {
                         .setPositiveButton(android.R.string.ok, null)
                         .show()
                 },
+                onDoneClick = { HomeEditMode.exit() },
                 onRestoreHomeCards = { adapter.restoreAllCards() },
                 recyclerViewProvider = { ctx, paddingValues ->
                     val density = ctx.resources.displayMetrics.density
@@ -558,6 +581,7 @@ open class HomeActivity : AppActivity(), MavericksView {
         }
 
         ShizukuStateMachine.addListener(stateListener)
+        ShizukuSettings.getPreferences()?.registerOnSharedPreferenceChangeListener(appearanceChangeListener)
 
         // Handle cold-start launch from the ADB pairing success notification.
         // onNewIntent() is only called when the activity already exists; when the app
@@ -586,9 +610,15 @@ open class HomeActivity : AppActivity(), MavericksView {
 
     override fun onResume() {
         super.onResume()
-        // Force refresh status on resume
+        // Sync one-handed mode compose state in case it changed while in settings.
+        isOneHanded = ShizukuSettings.isOneHandedModeEnabled()
+        // Synchronously rebind all visible cards so appearance-setting changes (icon style, shape
+        // style, etc.) are visible immediately when returning from SettingsActivity. The async
+        // checkServerStatus() / homeModel.reload() path updates service-status content but involves
+        // a Loading → Success state cycle that completes AFTER the first frame is painted, so
+        // without this call the user would see the stale style for one navigation round-trip.
+        adapter.notifyDataSetChanged()
         checkServerStatus()
-        // Also reload apps list
         appsModel.load()
     }
 
@@ -618,6 +648,7 @@ open class HomeActivity : AppActivity(), MavericksView {
         HomeEditMode.startDragCallback = null
         HomeEditMode.removeCardCallback = null
         ShizukuStateMachine.removeListener(stateListener)
+        ShizukuSettings.getPreferences()?.unregisterOnSharedPreferenceChangeListener(appearanceChangeListener)
         super.onDestroy()
     }
 

@@ -42,6 +42,11 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
     protected var batteryOptimizationContinuation: CancellableContinuation<Boolean>? = null
     private val activeDialogs = mutableListOf<android.app.Dialog>()
 
+    // Drawables captured from preference XML before any icon styling is applied. Re-applying
+    // from originals (not from already-styled drawables) avoids stacked tints when the user
+    // changes icon style while staying on the settings page.
+    private val originalIcons = HashMap<String, android.graphics.drawable.Drawable?>()
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.setStorageDeviceProtected()
         preferenceManager.sharedPreferencesName = ShizukuSettings.NAME
@@ -55,8 +60,46 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         onCreateSettingsPreferences(savedInstanceState, rootKey)
 
         preferenceScreen?.let {
+            captureOriginalIcons(it)
             IconStyleHelper.applyToTree(requireContext(), it)
             fixDeprecatedListPreferenceSummaries(it)
+        }
+    }
+
+    private fun captureOriginalIcons(group: androidx.preference.PreferenceGroup) {
+        for (i in 0 until group.preferenceCount) {
+            val pref = group.getPreference(i)
+            if (pref is androidx.preference.PreferenceGroup) captureOriginalIcons(pref)
+            pref.key?.let { key ->
+                originalIcons[key] = pref.icon?.constantState?.newDrawable()
+            }
+        }
+    }
+
+    /**
+     * Re-applies the current icon style to all preferences from their original (unstyled)
+     * drawables. Safe to call any number of times — always starts from the original, so
+     * repeated calls don't stack tints or wrap LayerDrawables in more LayerDrawables.
+     */
+    fun refreshIconStyles() {
+        val screen = preferenceScreen ?: return
+        val ctx = context ?: return
+        val style = IconStyleHelper.current()
+        val colorMode = IconStyleHelper.currentColorMode()
+        reapplyIconStyles(ctx, screen, style, colorMode)
+    }
+
+    private fun reapplyIconStyles(
+        ctx: Context,
+        group: androidx.preference.PreferenceGroup,
+        style: IconStyleHelper.Style,
+        colorMode: IconStyleHelper.ColorMode
+    ) {
+        for (i in 0 until group.preferenceCount) {
+            val pref = group.getPreference(i)
+            if (pref is androidx.preference.PreferenceGroup) reapplyIconStyles(ctx, pref, style, colorMode)
+            val original = pref.key?.let { originalIcons[it] } ?: continue
+            pref.icon = IconStyleHelper.stylize(ctx, original.mutate(), style, colorMode, pref.key)
         }
     }
 

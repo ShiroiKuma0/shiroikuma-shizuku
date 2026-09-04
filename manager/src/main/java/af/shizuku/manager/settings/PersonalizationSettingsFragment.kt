@@ -128,27 +128,33 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
         shapeStylePreference = requireNotNull(findPreference(KEY_SHAPE_STYLE))
         animationIntensityPreference = requireNotNull(findPreference(KEY_ANIMATION_INTENSITY))
 
-        // Only meaningful for the Two-Tone icon style - recreate() (triggered by iconStylePreference's
-        // own listener below) recalculates this fresh from the persisted value on every style change.
+        // Only meaningful for the Two-Tone icon style — updated dynamically below so the
+        // color-mode row appears/disappears without requiring a fragment recreate.
         iconColorModePreference.isVisible = iconStylePreference.value == "twotone"
 
         expressiveShapesPreference.setOnPreferenceChangeListener { _, _ ->
             applyTheme(requiresRecreate = false)
+            refreshIconStyles()
             true
         }
 
         shapeStylePreference.setOnPreferenceChangeListener { _, _ ->
             applyTheme(requiresRecreate = false)
+            refreshIconStyles()
             true
         }
 
-        iconStylePreference.setOnPreferenceChangeListener { _, _ ->
+        iconStylePreference.setOnPreferenceChangeListener { _, newValue ->
+            // Show/hide the color-mode sub-option immediately rather than on next recreate.
+            iconColorModePreference.isVisible = newValue == "twotone"
             applyTheme(requiresRecreate = false)
+            refreshIconStyles()
             true
         }
 
         iconColorModePreference.setOnPreferenceChangeListener { _, _ ->
             applyTheme(requiresRecreate = false)
+            refreshIconStyles()
             true
         }
 

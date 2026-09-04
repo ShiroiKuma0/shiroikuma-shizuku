@@ -212,7 +212,7 @@ class HomeAdapter(
             val isHidden = id.toString() in hidden
             if (isHidden && !isEditMode) return@forEach
             when (id) {
-                ID_TERMINAL -> if (isEditMode || (adbPermission && ShizukuSettings.showTerminalHome()))
+                ID_TERMINAL -> if (isEditMode || ShizukuSettings.showTerminalHome())
                     addItem(TerminalViewHolder.CREATOR, status, id)
                 ID_START_ROOT -> if (isEditMode || (isPrimaryUser && (EnvironmentUtils.isRooted() || ShizukuSettings.isSamsungSystemUidEscalationEnabled())))
                     addItem(StartRootViewHolder.CREATOR, rootRestart, id)

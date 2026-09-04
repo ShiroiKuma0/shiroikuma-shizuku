@@ -23,33 +23,46 @@ import androidx.compose.runtime.getValue
 import af.shizuku.core.ui.compose.Button
 import af.shizuku.core.ui.compose.ButtonSize
 import af.shizuku.manager.ShizukuSettings
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.IntOffset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     isEditMode: Boolean,
+    isOneHanded: Boolean,
     showEmptyState: Boolean,
     onStopClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onHelpClick: () -> Unit,
+    onDoneClick: () -> Unit,
     onRestoreHomeCards: () -> Unit,
     recyclerViewProvider: (Context, PaddingValues) -> RecyclerView
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { 
+                title = {
                     Text(
-                        if (isEditMode) stringResource(R.string.home_edit_mode_hint) 
+                        if (isEditMode) stringResource(R.string.home_edit_mode_title)
                         else stringResource(R.string.app_name)
-                    ) 
+                    )
                 },
                 actions = {
-                    if (!isEditMode) {
+                    if (isEditMode) {
+                        TextButton(onClick = onDoneClick) {
+                            Text(
+                                text = stringResource(R.string.home_edit_mode_done),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    } else {
                         IconButton(onClick = onStopClick) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_close_24),
@@ -81,21 +94,22 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
-        // Samsung OneUI one-handed mode: scale content to 75% and anchor to bottom-center,
-        // matching Samsung's actual one-handed mode behavior instead of just adding top padding.
-        // animateFloatAsState provides a smooth spring-physics transition when toggling the mode.
-        val isOneHanded = ShizukuSettings.isOneHandedModeEnabled()
-        val scale by animateFloatAsState(
-            targetValue = if (isOneHanded) 0.75f else 1f,
-            animationSpec = if (!ShizukuSettings.isExpressiveAnimationsEnabled()) {
-                snap()
-            } else {
+        // Samsung One UI one-handed mode: translate the entire content downward so the action
+        // zone stays in the comfortable thumb area without scaling (scaling shrinks side
+        // margins, which the user explicitly doesn't want). Spring animation gives the same
+        // "snap to lower half" feel as Samsung Settings. Full-width content + vertical shift
+        // only = thumb-reachable without forcing the user to reposition their hand.
+        val screenHeightDp = LocalConfiguration.current.screenHeightDp
+        val oneHandedOffset by animateDpAsState(
+            targetValue = if (isOneHanded) (screenHeightDp * 0.38f).dp else 0.dp,
+            animationSpec = if (ShizukuSettings.isExpressiveAnimationsEnabled())
                 spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMedium * ShizukuSettings.getAnimationDurationScale()
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMedium
                 )
-            },
-            label = "oneHandedScale"
+            else
+                snap(),
+            label = "oneHandedOffset"
         )
         val adjustedPadding = PaddingValues(
             top = innerPadding.calculateTopPadding(),
@@ -105,27 +119,23 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        // Pivot at bottom-center (Samsung OneUI style)
-                        transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 1f)
-                    )
+                    .offset { IntOffset(0, oneHandedOffset.roundToPx()) }
             ) {
-            if (showEmptyState) {
-                Box(modifier = Modifier.padding(adjustedPadding)) {
-                    HomeEmptyState(onRestoreHomeCards)
+                if (showEmptyState) {
+                    Box(modifier = Modifier.padding(adjustedPadding)) {
+                        HomeEmptyState(onRestoreHomeCards)
+                    }
+                } else {
+                    AndroidView(
+                        factory = { context ->
+                            recyclerViewProvider(context, adjustedPadding).also { rv ->
+                                (rv.parent as? android.view.ViewGroup)?.removeView(rv)
+                            }
+                        },
+                        update = { view -> recyclerViewProvider(view.context, adjustedPadding) },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
-            } else {
-                AndroidView(
-                    factory = { context ->
-                        recyclerViewProvider(context, adjustedPadding).also { rv ->
-                            (rv.parent as? android.view.ViewGroup)?.removeView(rv)
-                        }
-                    },
-                    update = { view -> recyclerViewProvider(view.context, adjustedPadding) },
-                    modifier = Modifier.fillMaxSize()
-                )
             }
         }
     }
