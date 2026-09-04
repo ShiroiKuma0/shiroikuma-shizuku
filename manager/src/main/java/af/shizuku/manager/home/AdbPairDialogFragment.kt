@@ -103,7 +103,11 @@ class AdbPairDialogFragment : DialogFragment() {
                 binding.pairingCode.isVisible = false
                 binding.progress.isVisible = true
                 binding.status.isVisible = true
-                binding.status.text = getString(R.string.adb_pairing_searching)
+                if (!af.shizuku.manager.utils.NetworkStateHelper.isWirelessAdbSupportedNetwork(requireContext())) {
+                    binding.status.text = getString(R.string.dialog_adb_wifi_disconnected_warning) + "\n\n" + getString(R.string.dialog_adb_hotspot_tip)
+                } else {
+                    binding.status.text = getString(R.string.adb_pairing_searching)
+                }
                 portEditText?.setText(portValue.toString())
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).isVisible = false
                 dialog.getButton(AlertDialog.BUTTON_NEUTRAL).isVisible = true

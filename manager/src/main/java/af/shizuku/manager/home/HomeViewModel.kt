@@ -53,6 +53,15 @@ class HomeViewModel(
             setState { copy(discoveredAdbPort = port) }
         }
         adbMdns = AdbMdns(appContext, AdbMdns.TLS_CONNECT, observer).also { it.start() }
+
+        // Probe loopback ports (5555, lastPort) in the background so 5G/cellular sessions
+        // without Wi-Fi are immediately marked ready without waiting for mDNS discovery.
+        viewModelScope.launch(Dispatchers.IO) {
+            val loopbackPort = af.shizuku.manager.adb.AdbPortProber.findActiveLoopbackPort(appContext)
+            if (loopbackPort in 1..65535) {
+                setState { copy(discoveredAdbPort = loopbackPort) }
+            }
+        }
     }
 
     override fun onCleared() {
