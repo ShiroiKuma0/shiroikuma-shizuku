@@ -46,6 +46,35 @@ object ShiroikumaBackup {
     fun categoryById(id: String): ShiroikumaUiPrefs.Category? =
         ShiroikumaUiPrefs.Category.entries.firstOrNull { it.id == id }
 
+    /**
+     * Which categories an archive actually **carries**, read from its entry names.
+     *
+     * The data door imports this set rather than everything we know about: asking for a category
+     * the archive lacks is how a restore ends up reporting success over nothing. Read from the
+     * entries rather than `manifest.json`'s `categories` field on purpose — the entries are what
+     * [import] will actually find, so the two can never disagree.
+     */
+    fun categoriesIn(bytes: ByteArray): Set<ShiroikumaUiPrefs.Category> {
+        val found = mutableSetOf<ShiroikumaUiPrefs.Category>()
+        runCatching {
+            ZipInputStream(bytes.inputStream().buffered()).use { zip ->
+                while (true) {
+                    val entry: ZipEntry = zip.nextEntry ?: break
+                    val name = entry.name
+                    when {
+                        name.startsWith(FONTS_DIR) && !entry.isDirectory ->
+                            found.add(ShiroikumaUiPrefs.Category.FONTS_FILES)
+
+                        name.endsWith(".json") && name != MANIFEST ->
+                            categoryById(name.removeSuffix(".json"))?.let { found.add(it) }
+                    }
+                    zip.closeEntry()
+                }
+            }
+        }
+        return found
+    }
+
     data class Result(val lines: List<String>, val errors: List<String>) {
         val ok: Boolean get() = errors.isEmpty()
     }
