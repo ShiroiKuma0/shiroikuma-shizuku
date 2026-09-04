@@ -207,8 +207,11 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
 
         blurUiPreference = requireNotNull(findPreference(KEY_BLUR_UI))
         blurUiPreference.isChecked = ShizukuSettings.isBlurUiEnabled()
+        blurUiPreference.isVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         blurUiPreference.setOnPreferenceChangeListener { _, _ ->
-            applyTheme(requiresRecreate = false)
+            // window.setBackgroundBlurRadius is set in onCreate; a recreate is needed for it to take
+            // effect. The AppBar translucency also needs onPostCreate to re-run (#449).
+            applyTheme(requiresRecreate = true)
             true
         }
 
