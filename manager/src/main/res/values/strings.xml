@@ -765,6 +765,11 @@
     <string name="wadb_notification_retry">Waiting to retry</string>
     <string name="wadb_error_title">Error while starting on boot</string>
     <string name="wadb_error_notify_dev">Tap to notify the developer.</string>
+    <string name="wadb_error_cannot_connect">Could not reach ADB service — check Wireless Debugging is enabled</string>
+    <string name="wadb_error_discovery_timeout">ADB discovery timed out — ensure Wi-Fi is connected and try again</string>
+    <string name="wadb_error_ssl_mismatch">SSL/TLS error — revoke ADB keys in Developer Options and re-pair</string>
+    <string name="wadb_error_not_authorized">Wireless debugging authorization required</string>
+    <string name="wadb_error_generic_short">ADB connection failed</string>
     <string name="wadb_permission_error_notification_title">Permission Error</string>
     <string name="wadb_permission_error_notification_content">Shizuku needs WRITE_SECURE_SETTINGS to start on boot. Tap to learn how to grant it.</string>
     <string name="wadb_notification_channel">ADB auto-start service</string>
