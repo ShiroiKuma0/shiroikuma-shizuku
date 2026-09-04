@@ -39,6 +39,7 @@ import af.shizuku.manager.receiver.ShizukuReceiverStarter.WorkerState
 import af.shizuku.manager.receiver.ShizukuReceiverStarter.updateNotification
 import af.shizuku.manager.settings.BugReportDialogActivity
 import af.shizuku.manager.starter.Starter
+import af.shizuku.manager.adb.AdbPortProber
 import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.ShizukuStateMachine
 
@@ -61,6 +62,32 @@ class AdbStartWorker(context: Context, params: WorkerParameters) : CoroutineWork
 
             Settings.Global.putInt(cr, Settings.Global.ADB_ENABLED, 1)
             Settings.Global.putLong(cr, "adb_allowed_connection_time", 0L)
+
+            // Fast path: if TCP mode is on and we have WRITE_SECURE_SETTINGS, write adb_tcp_port
+            // directly to Settings.Global so adbd binds it on startup — no Wireless Debugging or
+            // Wi-Fi required. This is the same mechanism other ADB-over-TCP forks use; the permission
+            // is already held by the shell process that granted Shizuku in the first place.
+            val hasWriteSecure = applicationContext.checkSelfPermission(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+            if (ShizukuSettings.getTcpMode() && hasWriteSecure) {
+                val desiredPort = ShizukuSettings.getTcpPort()
+                if (desiredPort in 1..65535) {
+                    Settings.Global.putInt(cr, "adb_tcp_port", desiredPort)
+                    // Brief pause for adbd to pick up the new setting before probing.
+                    delay(600L)
+                    if (AdbPortProber.isPortOpen(desiredPort, 600)) {
+                        AdbStarter.startAdb(applicationContext, desiredPort)
+                        Starter.waitForBinder()
+                        ActivityLogManager.log("Shizuku", applicationContext.packageName,
+                            "Service started via direct TCP port $desiredPort (no Wi-Fi required)")
+                        val nm = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                        nm.cancel(ShizukuReceiverStarter.NOTIFICATION_ID)
+                        return Result.success()
+                    }
+                }
+            }
 
             val tcpPort = EnvironmentUtils.getAdbTcpPort()
             if (tcpPort > 0 && !ShizukuSettings.getTcpMode()) {
