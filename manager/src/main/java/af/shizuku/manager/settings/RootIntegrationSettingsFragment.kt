@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceGroup
 import androidx.preference.TwoStatePreference
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,7 @@ import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.ShizukuSettings.Keys.KEY_COMPANION_FALLBACK
 import af.shizuku.manager.service.AdbProxyService
+import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.StockShizukuCompat
 import moe.shizuku.server.IShizukuService
 import rikka.shizuku.Shizuku
@@ -190,24 +192,65 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
         applyModeConstraints()
     }
 
-    // Gray out categories that require root when running in ADB/shell mode (uid 2000).
-    // Only applied when the server is actually running — if uid == -1 (not attached), leave
-    // everything enabled so the user can still configure settings before starting Shizuku.
+    override fun onResume() {
+        super.onResume()
+        applyModeConstraints()
+    }
+
+    /**
+     * Show/hide and enable/disable preferences based on the current connection mode (#433).
+     *
+     * ADB mode (uid 2000): root-only categories (SU Bridge, rootless bridges, mocking/simulation,
+     *   bootloader integration) are grayed out -- they require a root shell to function.
+     *   The ADB connection category gets an explanatory summary.
+     *
+     * Root mode: ADB connection tools (adb_proxy, on_device_adb_tcp, force_start_wadb) are hidden
+     *   since they are meaningless when Shizuku is started by a root process directly.
+     *
+     * When the server is not running (uid == -1) no restrictions are applied so users can still
+     * browse and configure settings before starting Shizuku.
+     */
     private fun applyModeConstraints() {
         val uid = try { Shizuku.getUid() } catch (_: Exception) { -1 }
-        if (uid != 2000) return // root or not running — no restrictions to apply
 
-        val rootOnlyCategories = listOf(
-            "category_su_bridge",
-            "category_root_modules",
-            "category_ghost_bridge",
-            "category_unlocked_bootloader"
-        )
-        for (key in rootOnlyCategories) {
-            findPreference<PreferenceGroup>(key)?.apply {
-                isEnabled = false
-                // Append the mode hint to the category title so users understand why it's grayed.
-                title = "$title (root mode only)"
+        val isRootMode = EnvironmentUtils.isRooted() ||
+            ShizukuSettings.getLastLaunchMode() == ShizukuSettings.LaunchMethod.ROOT
+
+        when {
+            uid == 2000 -> {
+                // Running in ADB/shell mode -- gray out root-only categories
+                val rootOnlyCategories = listOf(
+                    "category_su_bridge",
+                    "category_root_modules",
+                    "category_ghost_bridge",
+                    "category_unlocked_bootloader"
+                )
+                for (key in rootOnlyCategories) {
+                    findPreference<PreferenceGroup>(key)?.apply {
+                        isEnabled = false
+                        // Append mode hint only once to avoid duplicating on repeated onResume()
+                        val suffix = " (root mode only)"
+                        if (!title.toString().endsWith(suffix)) {
+                            title = "$title$suffix"
+                        }
+                    }
+                }
+                // ADB connection category: keep visible but annotate with mode indicator
+                findPreference<PreferenceCategory>("category_adb_connection")?.apply {
+                    isVisible = true
+                    summary = getString(R.string.settings_mode_indicator_adb)
+                }
+            }
+            isRootMode && uid != -1 -> {
+                // Running in root mode -- hide ADB-specific connection tools (not applicable)
+                findPreference<PreferenceCategory>("category_adb_connection")?.isVisible = false
+            }
+            else -> {
+                // Server not running -- show everything, clear any stale indicator
+                findPreference<PreferenceCategory>("category_adb_connection")?.apply {
+                    isVisible = true
+                    summary = null
+                }
             }
         }
     }
