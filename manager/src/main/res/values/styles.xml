@@ -62,7 +62,7 @@
         <item name="android:backgroundTint">?colorTertiaryContainer</item>
     </style>
 
-    <style name="GrantPermissions" parent="Theme.Material3Expressive.Dark.Shizuku">
+    <style name="GrantPermissions" parent="Theme.Material3Expressive.Light.Shizuku">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:colorBackground">?colorBackgroundFloating</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
@@ -132,7 +132,7 @@
         <item name="android:layout_marginTop">2dp</item>
     </style>
 
-    <style name="Theme.App.DialogHost" parent="Theme.Material3Expressive.Dark.Shizuku">
+    <style name="Theme.App.DialogHost" parent="Theme.Material3Expressive.Light.Shizuku">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>

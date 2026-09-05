@@ -506,7 +506,7 @@
         <!-- Fake ADB Server -->
         <activity
             android:name=".adb.FakeAdbPairingActivity"
-            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.Alert"
+            android:theme="@style/Theme.App.DialogHost"
             android:excludeFromRecents="true"
             android:exported="false" />
 

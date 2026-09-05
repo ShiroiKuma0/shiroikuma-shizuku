@@ -92,6 +92,8 @@ open class HomeActivity : AppActivity(), MavericksView {
     // Show the "restart after update" prompt at most once per Activity instance so it doesn't
     // reappear on every state refresh while the user hasn't restarted yet.
     private var versionSkewSnackbarShown = false
+    // Same once-per-session guard for the Samsung Auto Blocker hint snackbar.
+    private var autoBlockerSnackbarShown = false
 
     // Tracks the service's running state across successive serviceStatus updates so the
     // "just started" celebratory animation below can detect a real transition. Must be a plain
@@ -358,10 +360,12 @@ open class HomeActivity : AppActivity(), MavericksView {
         }
         homeModel.checkBatteryOptimization()
 
-        // Samsung Auto Blocker check for One UI 7/8+
+        // Samsung Auto Blocker hint — show at most once per session to avoid repeating on
+        // every status refresh while the service stays stopped.
         if (EnvironmentUtils.isSamsung() && EnvironmentUtils.getOneUiVersion() >= 6) {
             homeModel.onEach(HomeState::serviceStatus) {
-                if (it is Success && it.invoke().isRunning == false) {
+                if (!autoBlockerSnackbarShown && it is Success && it.invoke().isRunning == false) {
+                    autoBlockerSnackbarShown = true
                     SnackbarHelper.show(
                         this,
                         findViewById(android.R.id.content) ?: window.decorView,

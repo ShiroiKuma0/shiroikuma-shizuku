@@ -1,9 +1,11 @@
 package af.shizuku.manager.home
 
+import android.view.animation.OvershootInterpolator
 import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
 import androidx.recyclerview.widget.RecyclerView
 import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 
 object HomeEditMode {
@@ -37,8 +39,26 @@ object HomeEditMode {
      *  the overlay icons don't sit on top of card title/summary text. */
     fun applyOverlay(binding: HomeItemContainerBinding) {
         io.sentry.Sentry.addBreadcrumb("HomeEditMode: applyOverlay() isActive=$isActive")
+        val wasVisible = binding.removeBtn.isVisible
         binding.removeBtn.isVisible = isActive
         binding.dragHandle.isVisible = isActive
+
+        // Spring-in animation when controls first appear (edit mode just entered).
+        if (isActive && !wasVisible) {
+            val dur = ShizukuSettings.scaledAnimationDuration(240)
+            val interp = OvershootInterpolator(1.8f)
+            listOf(binding.dragHandle, binding.removeBtn).forEachIndexed { i, view ->
+                view.scaleX = 0.5f
+                view.scaleY = 0.5f
+                view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(dur)
+                    .setStartDelay(ShizukuSettings.scaledAnimationDuration(i * 40L))
+                    .setInterpolator(interp)
+                    .start()
+            }
+        }
 
         val isHidden = binding.root.tag as? Boolean ?: false
 
