@@ -270,7 +270,7 @@ class HomeAdapter(
         val animator = view.animate()
         if (animator != null) {
             val interp = android.view.animation.AnimationUtils.loadInterpolator(
-                view.context, com.google.android.material.R.interpolator.m3_emphasized_decelerate
+                view.context, android.R.interpolator.fast_out_slow_in
             )
             animator.alpha(1f)
                 .translationY(0f)

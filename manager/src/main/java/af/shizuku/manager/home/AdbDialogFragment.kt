@@ -101,7 +101,7 @@ class AdbDialogFragment : DialogFragment() {
                     context.startActivity(intent)
                 } catch (_: Exception) {
                     try {
-                        context.startActivity(Intent(Settings.ACTION_TETHER_SETTINGS).apply {
+                        context.startActivity(Intent("android.settings.TETHER_SETTINGS").apply {
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         })
                     } catch (_: Exception) {
