@@ -140,7 +140,6 @@ fun HomeScreen(
         }
     }
 }
-}
 
 @Composable
 fun AnimatedGradientBackground(content: @Composable () -> Unit) {
