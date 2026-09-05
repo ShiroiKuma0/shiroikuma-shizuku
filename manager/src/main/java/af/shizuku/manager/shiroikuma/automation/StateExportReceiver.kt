@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
+import timber.log.Timber
 import af.shizuku.manager.shiroikuma.ShiroikumaBackup
 
 /**
@@ -72,7 +73,33 @@ class StateExportReceiver : BroadcastReceiver() {
                     putExtra("reply_package", replyPackage)
                     putExtra("reply_id", replyId)
                 }
-                ContextCompat.startForegroundService(app, svc)
+                // ⛔ A broadcast IS a background start on API 31+. Without a foreground-start
+                // allowance this throws ForegroundServiceStartNotAllowedException, and an exception
+                // escaping onReceive takes the whole process down — in the app that 保存中核 uses to
+                // thaw and refreeze the roster it is backing up, so the blast radius is not just our
+                // own export.
+                //
+                // The allowance comes from recent interaction, so this NEVER fails while anyone is
+                // watching: open the app, run a backup, it works. Run it cold from the unattended
+                // batch — or onto a clean phone, the case this contract exists for — and it throws.
+                //
+                // The reply in the catch matters as much as the catch. Swallowing the exception
+                // silently converts a crash into a no-export the caller can only see as a timeout,
+                // indistinguishable from an app that never implemented the contract; the ERROR: line
+                // is what 保存中核 renders into its failure dialog, and what collapses the window in
+                // which a thawed app stays thawed from the caller's full timeout to right now.
+                //
+                // NOT goAsync(): it does not extend the ~10 s window, and for a long export it
+                // produces a truncated archive underneath a success reply.
+                try {
+                    ContextCompat.startForegroundService(app, svc)
+                } catch (e: Exception) {
+                    Timber.tag("StateExportReceiver").w(e, "export service start refused")
+                    reply(
+                        app, replyAction, replyPackage, replyId,
+                        "ERROR:${e.message ?: e.javaClass.simpleName}"
+                    )
+                }
             }
 
             "$pkg.action.LIST_CATEGORIES" -> {
