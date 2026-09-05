@@ -8,6 +8,109 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2431+2026-09-05.12-28.g604a394a+005
+
+Rebased onto upstream `604a394a` (`13.6.0.r2431`, 34 new commits). Three things in this release: the
+sync itself, the **complete removal of the Sentry SDK**, and three home-screen regressions the sync
+brought with it.
+
+### Removed — the Sentry SDK is no longer in the build at all
+
+Until now the SDK was still *linked*, just unarmed: DSN hardwired empty, `initializeSentryEarly()`
+returning before `SentryAndroid.init()`, so upstream's call sites were inert no-ops with no
+transport. That was a deliberate trade — it kept ~48 call sites in files this fork never otherwise
+touches, so they could not conflict on rebase.
+
+**It was the wrong trade, and a scanner said so.** A tracker scanner reads the **linked library**,
+not whether it was ever initialised, so 白い熊 雫 reported *"1 tracker detected — Sentry, crash
+reporting"*. An app whose headline claim is that it phones home to nobody cannot ship a library
+whose only purpose is to phone home. The dependency and every call site are gone together.
+
+Removed with them, because each existed **only** to serve Sentry:
+
+- `SelectiveScreenshotEventProcessor` — attached screenshots to Sentry events.
+- `ForegroundActivityTracker` — existed solely to tell that processor what was on screen.
+- `SentryEventDeduper` — rate-limited events against the upstream author's quota.
+- `ShizukuSettings.isSentryLimitReached` / `setSentryLimitReached`, and
+  `getLastSeenVersion` / `setLastSeenVersion`, which only ever reset that quota flag.
+- The home card's **"Crash Reporting Offline"** button, its layout row, and its four strings in
+  every locale — a control reporting the state of a service that no longer exists.
+- `AdbStarter.isExpectedAdbError`, which only decided which ADB errors were worth billing to Sentry.
+- `UpdateChecker`'s transaction/span tracing, unwound back to a plain retry loop.
+
+The `api` submodule keeps `addSentryEventListener` / `dispatchSentryEvent`. That is a
+transport-neutral JSON channel from the privileged server to the client, with no Sentry dependency
+of its own; the manager simply no longer subscribes to it. Renaming it would fork the api further
+for no gain.
+
+**Verified on the built artifact**, not just in source: zero `io/sentry` references and no
+`sentry`-named resources anywhere in the dex, and the APK is **268 KB smaller**.
+
+One consequence worth knowing: a release build now plants **no Timber tree at all** — the Sentry
+tree was the only one release ever planted. Every `Timber.*` call in a release build goes nowhere,
+so on-device diagnostics must use `Log.e`.
+
+### Fixed — three home-screen regressions from the sync
+
+**The app name floated across the list, then the header grew while scrolling.** Upstream's large
+collapsing title had never actually collapsed in this app, because an `AndroidView` does not
+participate in Compose's `nestedScroll`. `604a394a` addressed that by driving
+`scrollBehavior.state.heightOffset` straight from `RecyclerView.onScrolled` — symmetrically, on
+every delta. Material's own `exitUntilCollapsed` connection refuses to expand while the list is
+scrolled and re-expands only once the content is back at the top; the hand-rolled listener has none
+of that gating, so **any downward drag anywhere in the list grew the title back to full height and
+pushed the cards down the screen**. Combined with upstream's transparent container (`96dec02f`,
+edge-to-edge/frosted glass), the expanded title also had nothing behind it and scrolled visibly
+across the cards.
+
+Rather than re-gate a title that changes height while you are reading, the mechanism is gone:
+`LargeTopAppBar` is now a plain `TopAppBar` with **no scroll behaviour**, no `nestedScroll`
+modifier, and upstream's scroll listener deleted. The name sits top-left, one row, always — and the
+list gets back the vertical space the expanded bar was taking. The container is opaque, which on
+this theme is the same black as the page.
+
+**Cards dropped to half width.** Upstream's `e405d30c` restores a responsive grid — two columns at
+`screenWidthDp >= 600` or in landscape — which every foldable and tablet clears, the unfolded
+Mate XT included. The cards sat side by side at half width and the reading order stopped matching
+the order they had been arranged in. `spanCount` is now fixed at **1**; a card here is a full-width
+row of prose, not a tile.
+
+**Every flick of the list buzzed and made the cards shrink.** `applySpringTouch` fired the haptic
+*and* the scale-down on `ACTION_DOWN`, with no way of knowing whether the gesture would become a tap
+or a scroll — and `8f40dfee` had just added it to four more cards, so the whole list did it. The
+`ACTION_CANCEL` that arrives when the RecyclerView starts intercepting is far too late to undo
+either. The press is now **deferred by one tap timeout and armed only if the finger stays within
+touch slop**: a scroll produces nothing at all, a real press still gets its haptic and scale, and a
+tap quicker than the timeout gets the haptic on release so fast taps do not go silent.
+
+### Upstream — what `r2397` → `r2431` brings
+
+- **App Backup** — a new home card and screen backing an app up with its data through the
+  `IApkPatcher` temp-debug pipeline, with an inline freeze toggle. Its card was given a fresh id
+  here: upstream claimed `11L`, which this fork had already spent on the boot-setup card, with
+  `12L` on the rish card — both persisted in saved card orders.
+- **Wireless ADB without Wi-Fi** — `AdbPortProber` probes loopback so wADB starts on 5G/cellular,
+  `adb_tcp_port` is persisted to `Settings.Global` for a rootless reconnect after reboot, and a
+  fast path skips the 15-second mDNS discovery. Categorised ADB error notifications and a 1.5 s
+  post-reboot grace delay come with it.
+- **Compat Hub install fixed on Android 11+** — `compat.apk` is now piped to the shell's stdin
+  instead of copied through `/sdcard/Android/data/<pkg>/`, which scoped storage blocks for shell
+  uid 2000. Install failures now name the real `INSTALL_FAILED_*` token.
+- **Three privileged-server fixes** — `newProcess()` null returns handled explicitly (MediaTek
+  MT6833 and others), shadow-binder `getPackageUid()` returning `-1` rather than `0` for hidden
+  packages with the transaction-code intercepts guarded against the reflection-failure sentinel,
+  and the `settings put` fast path no longer short-circuiting the authoritative native command.
+- Mode-aware settings that hide what the current connection mode cannot use, a scripting FAB,
+  frosted-glass AppBar, and DayNight-correct themes throughout.
+
+### Documented
+
+`CLAUDE.md` records that the Mate XT has held **Device Owner** since 2026-08-27 — a line still
+described it as the phone without one — and notes that EMUI's `dumpsys device_policy` does not
+print the delegation map the razr shows, so delegation state must be read from the app's own
+`status` call. The no-phone-home section now carries the standing rule that the Sentry dependency
+stays out, with the grep to re-verify it after every sync.
+
 ## 13.6.0.r2397+2026-09-02.14-54.g37d086d4+006
 
 ### Fixed — the automation receiver could take the whole app down
