@@ -8,6 +8,58 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2397+2026-09-02.14-54.g37d086d4+006
+
+### Fixed — the automation receiver could take the whole app down
+
+The automation path could take the whole app down at **three** separate points, and the first fix
+only closed one of them. A broadcast is a background start on API 31+, so without a foreground-start
+allowance both `startForegroundService()` and the service's own `startForeground()` throw
+`ForegroundServiceStartNotAllowedException` — and an exception escaping `onReceive` kills the
+process.
+
+**This never fails while anyone is watching**, which is why it survived the v2 rollout: the allowance
+comes from recent interaction, so opening the app and running a backup by hand always works. It
+throws when the app is cold and the batch runs unattended — or onto a clean phone, which is the
+exact case the contract was rewritten to serve.
+
+It matters more here than in the sister apps carrying the same shape. 保存中核 thaws a frozen app
+before backing it up and refreezes it afterwards, and it does that **through this app**; 白い熊 keeps
+roughly 270 packages frozen. A crash in this app's export path is therefore a crash in the component
+the batch relies on to reach much of its roster.
+
+### Three failure points, four guarded calls — not just the obvious one
+
+1. **The receiver's `startForegroundService`** — the one that crashes the process outright.
+2. **The service's own `startForeground`**, which was called as the *first* statement of
+   `onStartCommand`, **before** the reply extras were read. A refusal there had nothing to answer
+   with, so it died silently — the fix for site 1 does not help, because the receiver's call already
+   succeeded. Extras are now read first, then the promotion is guarded, and **only then** is the
+   "export already running" flag claimed. That last ordering is load-bearing: guard the promotion
+   *after* the claim and a refusal leaves the flag stuck set, so every later request answers
+   `ERROR:export already running` until the process is killed — a one-off refusal turned into a
+   permanent one.
+3. **The data door's service**, where closing the descriptor is not sufficient: the provider has
+   already answered `OK:<job_id>`, so a caller would wait on a job that no longer exists. A refused
+   start there answers `ERROR:cannot start data service` instead of handing back a job id.
+
+The fix catches the refusal **and replies** `ERROR:<reason>`. Catching alone would convert a crash
+into a silent no-export that the caller can only observe as a timeout — indistinguishable from an app
+that never implemented the contract — and would leave a thawed app thawed for that whole timeout
+rather than for the moment it takes to report the failure. `goAsync()` is deliberately not used: it
+does not extend the broadcast window, and for a long export it produces a truncated archive
+underneath a success reply.
+
+All four foreground starts in the automation package were audited rather than counted from the bug
+report: the receiver's `startForegroundService`, the export service's `startForeground`, and both of
+the data door's. All four are guarded and all four answer with a reason.
+
+**Scope, stated plainly: this makes the cold-phone failure diagnosable, not fixed.** The system still
+refuses the foreground start when the app has no recent-interaction allowance. What changes is that
+the app now reports why instead of dying — the export does not run, and the caller is told so
+immediately rather than inferring it from a timeout.
+
+
 ## 13.6.0.r2397+2026-09-02.14-54.g37d086d4+004
 
 **保存復元 automation, contract v2.** The sister-app backup contract this fork answers has been
