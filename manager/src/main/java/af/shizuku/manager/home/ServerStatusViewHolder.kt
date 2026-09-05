@@ -33,6 +33,8 @@ class ServerStatusViewHolder(private val binding: HomeServerStatusBinding, root:
         }
     }
 
+    private var prevBgColor: Int? = null
+
     init {
         cardView.applySpringTouch()
     }
@@ -146,12 +148,34 @@ class ServerStatusViewHolder(private val binding: HomeServerStatusBinding, root:
             )
         )
 
-        cardView.setCardBackgroundColor(bgColor)
+        // Animate background color transition when service state changes (running ↔ stopped)
+        val prevBg = prevBgColor
+        prevBgColor = bgColor
+        if (prevBg != null && prevBg != bgColor) {
+            android.animation.ValueAnimator.ofArgb(prevBg, bgColor).apply {
+                duration = af.shizuku.manager.ShizukuSettings.scaledAnimationDuration(450)
+                interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+                addUpdateListener { cardView.setCardBackgroundColor(it.animatedValue as Int) }
+            }.start()
+        } else {
+            cardView.setCardBackgroundColor(bgColor)
+        }
+
+        // Status-aware stroke — echoes the live indicator dot to add visual depth to the hero card
+        val strokeDp = if (ok || state == af.shizuku.manager.utils.ShizukuStateMachine.State.STARTING) 1.5f else 0f
+        cardView.strokeWidth = (strokeDp * context.resources.displayMetrics.density + 0.5f).toInt()
+        cardView.strokeColor = when {
+            ok -> ContextCompat.getColor(context, R.color.status_ok)
+            state == af.shizuku.manager.utils.ShizukuStateMachine.State.STARTING -> ContextCompat.getColor(context, R.color.status_starting)
+            else -> android.graphics.Color.TRANSPARENT
+        }
 
         textView.setTextColor(textColor)
         summaryView.setTextColor(textColor)
         logChip.setTextColor(textColor)
+        logChip.chipIconTint = android.content.res.ColorStateList.valueOf(textColor)
         diagnosticsChip.setTextColor(textColor)
+        diagnosticsChip.chipIconTint = android.content.res.ColorStateList.valueOf(textColor)
 
         // Clean, harmonized status icon tint (pill background matches container, icon uses on-container text tint)
         af.shizuku.manager.utils.IconStyleHelper.applyToStatusCardIcon(iconView, pillColor = bgColor, tintColor = textColor)

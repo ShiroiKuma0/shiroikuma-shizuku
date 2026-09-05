@@ -61,22 +61,46 @@ object HomeEditMode {
         }
 
         val isHidden = binding.root.tag as? Boolean ?: false
+        val ctx = binding.root.context
+        val density = binding.root.resources.displayMetrics.density
+
+        fun attrColor(attr: Int): Int {
+            val tv = android.util.TypedValue()
+            ctx.theme.resolveAttribute(attr, tv, true)
+            return tv.data
+        }
+
+        // Build a rounded-rectangle background using M3 container colors so the button chip
+        // always reads as part of the theme, not a raw error/primary splash on any card color.
+        fun containerChip(bgColor: Int): android.graphics.drawable.GradientDrawable =
+            android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 16f * density
+                setColor(bgColor)
+            }
 
         if (isActive && isHidden) {
             binding.cardContent.alpha = 0.45f
-            binding.dragHandle.alpha = 0.35f // Fade drag handle even more
+            binding.dragHandle.alpha = 0.35f
             binding.removeBtn.setImageResource(R.drawable.ic_add_24)
-            val primaryTint = android.util.TypedValue()
-            binding.root.context.theme.resolveAttribute(R.attr.colorPrimary, primaryTint, true)
-            binding.removeBtn.imageTintList = android.content.res.ColorStateList.valueOf(primaryTint.data)
+            val bg = attrColor(com.google.android.material.R.attr.colorPrimaryContainer)
+            val fg = attrColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
+            binding.removeBtn.background = containerChip(bg)
+            binding.removeBtn.imageTintList = android.content.res.ColorStateList.valueOf(fg)
         } else {
             binding.cardContent.alpha = 1.0f
-            binding.dragHandle.alpha = 0.85f // Restore original drag handle alpha
+            binding.dragHandle.alpha = 0.85f
             binding.removeBtn.setImageResource(R.drawable.ic_close_24)
-            val errorTint = android.util.TypedValue()
-            binding.root.context.theme.resolveAttribute(android.R.attr.colorError, errorTint, true)
-            binding.removeBtn.imageTintList = android.content.res.ColorStateList.valueOf(errorTint.data)
+            val bg = attrColor(com.google.android.material.R.attr.colorErrorContainer)
+            val fg = attrColor(com.google.android.material.R.attr.colorOnErrorContainer)
+            binding.removeBtn.background = containerChip(bg)
+            binding.removeBtn.imageTintList = android.content.res.ColorStateList.valueOf(fg)
         }
+
+        // Drag handle: explicit on-surface-variant tint so it reads clearly against any card bg
+        binding.dragHandle.imageTintList = android.content.res.ColorStateList.valueOf(
+            attrColor(com.google.android.material.R.attr.colorOnSurfaceVariant)
+        )
 
         val res = binding.cardContent.resources
         val base = res.getDimensionPixelSize(R.dimen.card_content_padding)
