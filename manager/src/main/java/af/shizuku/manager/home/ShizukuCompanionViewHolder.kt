@@ -117,30 +117,22 @@ class ShizukuCompanionViewHolder(
                 // Shizuku, already occupies moe.shizuku.privileged.api with a different cert.
                 Toast.makeText(v.context, R.string.compat_hub_install_signature_conflict, Toast.LENGTH_LONG).show()
             } else {
-                // Must be on external storage, not the app's private cache/files dir: `pm install`
-                // runs via a shell process spawned by Shizuku.newProcess (UID 2000) or root, neither
-                // of which can read /data/user/0/<pkg>/... due to per-app UID sandboxing on internal
-                // storage. getExternalFilesDir is readable by shell/root and is the same location
-                // UpdateManager/UpdateInstaller already use successfully for APK installs.
-                val dir = v.context.getExternalFilesDir(null) ?: v.context.cacheDir ?: v.context.filesDir ?: return@setOnClickListener
-                val tmpApk = java.io.File(dir, "compat.apk")
-
                 setBusy(v.context, R.string.compat_hub_installing)
                 scope.launch {
-                    val extracted = withContext(Dispatchers.IO) {
+                    // Read APK bytes from assets into memory — avoids writing to any app-owned
+                    // storage path before invoking the privileged process. On Android 11+, scoped
+                    // storage blocks shell (UID 2000) from reading /sdcard/Android/data/<pkg>/,
+                    // and internal cacheDir is sandboxed from shell too, so the old cp-then-install
+                    // approach silently failed with "Permission denied" on these paths (#446).
+                    val apkBytes = withContext(Dispatchers.IO) {
                         try {
-                            v.context.assets.open("compat.apk").use { input ->
-                                tmpApk.outputStream().use { output ->
-                                    input.copyTo(output)
-                                }
-                            }
-                            true
+                            v.context.assets.open("compat.apk").use { it.readBytes() }
                         } catch (e: Exception) {
-                            Timber.tag("ShizukuCompanion").e(e, "compat.apk asset extraction failed")
-                            false
+                            Timber.tag("ShizukuCompanion").e(e, "compat.apk asset read failed")
+                            null
                         }
                     }
-                    if (!extracted) {
+                    if (apkBytes == null) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT).show()
                             homeModel.reload()
@@ -148,19 +140,19 @@ class ShizukuCompanionViewHolder(
                         return@launch
                     }
 
-                    val tmpPath = "/data/local/tmp/compat.apk"
-                    // Wired straight to a Boolean previously (#412 "compat hub not installing" had
-                    // zero diagnostic output) - pm install's actual stderr (e.g.
-                    // INSTALL_FAILED_UPDATE_INCOMPATIBLE from a signing-cert mismatch if something
-                    // else already occupies moe.shizuku.privileged.api) is now logged so a failure
-                    // is self-diagnosing from logcat/Sentry instead of a bare "failed" toast.
-                    val installCmd = "cp '${tmpApk.absolutePath}' '$tmpPath' && chmod 644 '$tmpPath' && pm install -r '$tmpPath' 2>&1; echo EXIT:$?; rm -f '$tmpPath'"
                     val installOutput = withContext(Dispatchers.IO) {
                         if (Shizuku.pingBinder()) {
+                            // Pipe APK bytes directly to the shell's stdin — cat writes to
+                            // /data/local/tmp (world-accessible by shell UID 2000) without
+                            // ever touching app-private storage the privileged process can't read.
+                            // cat finishes when we close stdin, then && runs pm install; no
+                            // concurrent stdout/stdin needed so no deadlock risk.
+                            val installScript = "cat > /data/local/tmp/compat.apk && chmod 644 /data/local/tmp/compat.apk && pm install -r /data/local/tmp/compat.apk 2>&1; echo EXIT:\$?; rm -f /data/local/tmp/compat.apk"
                             try {
-                                val process = Shizuku.newProcess(arrayOf("sh", "-c", installCmd), null, null)
+                                val process = Shizuku.newProcess(arrayOf("sh", "-c", installScript), null, null)
                                     ?: throw IllegalStateException("Shizuku.newProcess returned null")
                                 try {
+                                    process.outputStream.use { it.write(apkBytes) }
                                     process.inputStream.bufferedReader().readText().also { process.waitFor() }
                                 } finally {
                                     try { process.destroy() } catch (_: Exception) {}
@@ -169,10 +161,15 @@ class ShizukuCompanionViewHolder(
                                 e.message ?: "unknown error"
                             }
                         } else if (MigrationHelper.isRootAvailable()) {
+                            // Root can read internal storage — extract there and install directly.
+                            val tmpApk = java.io.File(v.context.cacheDir, "compat.apk")
                             try {
-                                Shell.cmd(installCmd).exec().out.joinToString("\n")
+                                tmpApk.writeBytes(apkBytes)
+                                Shell.cmd("pm install -r '${tmpApk.absolutePath}' 2>&1; echo EXIT:\$?").exec().out.joinToString("\n")
                             } catch (e: Exception) {
                                 e.message ?: "unknown error"
+                            } finally {
+                                try { tmpApk.delete() } catch (_: Exception) {}
                             }
                         } else {
                             "no privileged access available"
@@ -181,11 +178,6 @@ class ShizukuCompanionViewHolder(
                     val success = installOutput.contains("EXIT:0")
                     if (!success) {
                         Timber.tag("ShizukuCompanion").e("compat hub install failed: %s", installOutput.take(1000))
-                    }
-                    try {
-                        tmpApk.delete()
-                    } catch (e: Exception) {
-                        // ignore
                     }
                     withContext(Dispatchers.Main) {
                         when {
@@ -201,8 +193,6 @@ class ShizukuCompanionViewHolder(
                             installOutput.contains("INSTALL_FAILED_POLICY_ERROR") ->
                                 Toast.makeText(v.context, R.string.compat_hub_install_fail_restricted, Toast.LENGTH_LONG).show()
                             else -> {
-                                // Extract the most useful part of the error for the toast so users can
-                                // self-diagnose without needing to capture logcat (#446).
                                 val errorSnippet = installOutput
                                     .lines()
                                     .firstOrNull { it.contains("INSTALL_FAILED") || it.contains("Failure") }
