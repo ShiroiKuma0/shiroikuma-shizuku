@@ -141,14 +141,6 @@
              doesn't apply to, so both are safe to declare together. -->
         <meta-data android:name="com.samsung.android.keepalive.density" android:value="true" />
         <meta-data android:name="com.samsung.android.multidisplay.keep_process_alive" android:value="true" />
-        <!-- Fork: crash reporting is OFF. The DSN is empty (hardwired in manager/build.gradle)
-             and auto-init stays false, so the Sentry SDK is never armed and never opens a
-             connection. Upstream's screenshot / view-hierarchy / traces switches are removed
-             outright — with no DSN they are moot, and leaving them would misrepresent what this
-             build does. This app sends nothing anywhere. See CLAUDE.md, "No phone-home". -->
-        <meta-data android:name="io.sentry.dsn" android:value="" />
-        <meta-data android:name="io.sentry.auto-init" android:value="false" />
-
         <!-- Main launcher activity -->
         <activity
             android:name=".MainActivity"

@@ -27,13 +27,6 @@ android {
         ndk {
             abiFilters "arm64-v8a"
         }
-        // Fork: HARDWIRED EMPTY, not read from a property. An empty DSN makes
-        // ShizukuApplication.initializeSentryEarly() return before SentryAndroid.init(), so the
-        // SDK is never armed and has no transport — every Sentry.captureException /
-        // addBreadcrumb call site across the app becomes a no-op that performs no I/O.
-        // This fork sends nothing anywhere. See CLAUDE.md, "No phone-home".
-        buildConfigField "String", "SENTRY_DSN", "\"\""
-        manifestPlaceholders = [sentryDsn: '']
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         multiDexKeepProguard file("multidex-keep.pro")
@@ -513,11 +506,6 @@ dependencies {
 
     implementation libs.appiconloader
 
-    implementation libs.sentry.android.core
-    implementation libs.sentry.android.fragment
-    implementation libs.sentry.android.timber
-    implementation libs.sentry.android.okhttp
-
     testImplementation libs.kotestJunit5
     testImplementation libs.mockk
     testImplementation libs.robolectric
@@ -539,9 +527,9 @@ android {
     }
 }
 
-// Fork: upstream's `sentry { … }` configuration block is REMOVED along with the plugin. It
-// pointed at the upstream author's Sentry org (af-developments/shizukuplus) and, whenever a
-// SENTRY_AUTH_TOKEN was present, uploaded this build's ProGuard mapping and native debug
+// Fork: the Sentry SDK is not a dependency here at all, and upstream's `sentry { … }` block is
+// removed along with the plugin. It pointed at the upstream author's Sentry org
+// (af-developments/shizukuplus) and uploaded this build's ProGuard mapping and native debug
 // symbols there. This fork sends nothing anywhere. See CLAUDE.md, "No phone-home".
 
 // ---------------------------------------------------------------------------------------------

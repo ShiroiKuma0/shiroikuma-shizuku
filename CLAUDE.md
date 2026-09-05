@@ -151,7 +151,7 @@ regression, not a feature — and re-check this whole table after every rebase.
 
 | Upstream path | What it did | State here |
 | --- | --- | --- |
-| Sentry SDK | crashes, breadcrumbs, ANRs → the upstream author's Sentry account | DSN hardwired `""` in `manager/build.gradle`; `initializeSentryEarly()` returns before `SentryAndroid.init()`; manifest DSN empty, auto-init false |
+| Sentry SDK | crashes, breadcrumbs, ANRs → the upstream author's Sentry account | **the dependency itself is gone** (2026-09-05) — no `io.sentry.*` artifact in `manager/build.gradle` or `libs.versions.toml`, every call site deleted, `initializeSentryEarly()` deleted, no `io.sentry.*` manifest meta-data, no `SENTRY_DSN` build field |
 | Sentry Gradle plugin | ProGuard mappings + native debug symbols → sentry.io at build time | plugin removed from `settings.gradle` and `manager/build.gradle`; upstream's `sentry { … }` block deleted |
 | `RemoteDbSyncWorker` | 24-hourly `WorkManager` fetch of `app-context-db.json` from upstream's repo | not scheduled (`ShizukuApplication`); the worker itself now *cancels* the work and its `doWork` is a no-op |
 | "Update app database" | pulled `apps.json` from upstream's repo | removed; the row reports it is disabled |
@@ -164,10 +164,34 @@ regression, not a feature — and re-check this whole table after every rebase.
 The **only** outbound request the app can make is the update check, and only when 白い熊 taps
 "Check for updates" — it reads our own releases and sends nothing about the device.
 
-Note the Sentry SDK is still a *dependency*: ~14 upstream files call `Sentry.captureException` /
-`addBreadcrumb` / `startTransaction`, and with the SDK unarmed those are inert no-ops with no
-transport. Keeping them avoids permanent rebase conflicts in files we otherwise never touch. If you
-ever remove the dependency, every one of those call sites has to go with it.
+### ⛔ The Sentry SDK is no longer a dependency — keep it that way
+
+Until 2026-09-05 the SDK was still *linked* (unarmed, DSN empty) so that upstream's ~48
+`Sentry.captureException` / `addBreadcrumb` / `startTransaction` call sites could stay put and never
+conflict on rebase. 白い熊 rejected that: a tracker scanner reads the **linked library**, not whether
+it is armed, so 白い熊 雫 reported "1 tracker detected — Sentry". The dependency and every call site
+were removed together.
+
+Gone with it, because each existed only to serve Sentry: `SelectiveScreenshotEventProcessor`,
+`ForegroundActivityTracker`, `SentryEventDeduper`, `ShizukuSettings.isSentryLimitReached` /
+`setSentryLimitReached` / `getLastSeenVersion` / `setLastSeenVersion`, the home card's
+"Crash Reporting Offline" button and its four strings in every locale, `AdbStarter.isExpectedAdbError`
+(it only decided what reached Sentry), and `UpdateChecker`'s transaction/span tracing.
+
+**A rebase will keep trying to bring these back** — upstream develops them actively. When a
+conflict restores a `Sentry.` call, delete it rather than re-adding the import; when one restores
+`implementation libs.sentry.*`, drop the line. Re-verify with:
+
+```bash
+grep -rn -i sentry --include=*.kt --include=*.java --include=*.gradle --include=*.toml \
+  manager/src server/src database/src *.gradle gradle/
+```
+
+Only fork comments explaining the removal should come back.
+
+The `api` submodule still carries `Shizuku.addSentryEventListener` / `dispatchSentryEvent` — that is
+a transport-neutral JSON channel from server to client with no Sentry dependency of its own, and the
+manager simply no longer subscribes to it. Renaming it would fork the api further for no gain.
 
 ## Two strings that deliberately keep upstream's name
 
@@ -355,7 +379,8 @@ Two independent reasons a log line can be a silent no-op here, both of which cos
 build-and-test round trip:
 
 - **Timber is unarmed in release.** `ShizukuApplication` plants `Timber.DebugTree()` only when
-  `BuildConfig.DEBUG`; release plants just the Sentry tree, and this fork keeps Sentry DSN-less.
+  `BuildConfig.DEBUG`; a release build plants **no tree at all** now that the Sentry tree is gone,
+  so every `Timber.*` call in release goes nowhere.
 - **EMUI drops everything below error level.** The Mate XT's logcat buffer holds only `E/` and `F/`
   lines — measured 7282 and 37, with zero `V`/`D`/`I`/`W`. `Log.i` is invisible.
 
@@ -662,8 +687,11 @@ it does, what it breaks, and how to undo it*, in that order.
 Motorola razr 40 ultra and lends it to sister apps — delegated scopes plus the `policy/` provider.
 Verified end to end from the 応用管理 side: `dumpsys device_policy` shows
 `mDelegationMap → shiroikuma.oyokanri[size=3]`, and a permission locked from that app reads back
-`granted=false, flags=[…POLICY_FIXED…]`. See the section above. The Mate XT has **no** Device Owner
-(its only device admin is `shiroikuma.jiyusagyoban`), so this is testable on the razr only.
+`granted=false, flags=[…POLICY_FIXED…]`. See the section above. **Since 2026-08-27 the Mate XT
+(`GRL-L29`) holds Device Owner too** — same admin component, `isOrganizationOwnedDevice=true`,
+`provisioningState: 3` — so device-policy features are testable on **both** phones; neither is the
+inert one any more. Note EMUI's `dumpsys device_policy` does **not** print the delegation map the
+razr shows, so read delegation state from 雫's own `status` call rather than from that dump.
 
 **Shell access reworked** (2026-08-16, first built at `13.6.0.r2277…+011`, first published on the
 `r2279` base): upstream's `c7c9f6c8` closed a spoofable fast path, the fork's wider
