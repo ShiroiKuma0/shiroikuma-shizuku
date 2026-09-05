@@ -14,8 +14,6 @@ import android.provider.Settings
 import timber.log.Timber
 import androidx.core.app.NotificationCompat
 import com.topjohnwu.superuser.Shell
-import io.sentry.Sentry
-import io.sentry.Breadcrumb
 import af.shizuku.manager.R
 import af.shizuku.manager.AppConstants
 import af.shizuku.manager.ShizukuSettings
@@ -130,12 +128,7 @@ object ShizukuReceiverStarter {
     }
 
     private fun rootStart(context: Context) {
-        Sentry.addBreadcrumb(Breadcrumb("Background Root start initiated").apply { category = "shizuku.starter" })
         if (!Shell.getShell().isRoot) {
-            Sentry.addBreadcrumb(Breadcrumb("Background Root start failed - no root").apply {
-                category = "shizuku.starter"
-                level = io.sentry.SentryLevel.WARNING
-            })
             //NotificationHelper.notify(context, AppConstants.NOTIFICATION_ID_STATUS, AppConstants.NOTIFICATION_CHANNEL_STATUS, R.string.notification_service_start_no_root)
             Shell.getCachedShell()?.close()
             return
@@ -149,18 +142,10 @@ object ShizukuReceiverStarter {
                 // left in STARTING, which update() preserves indefinitely while the binder is dead —
                 // so the watchdog (which only reacts to CRASHED) never retries and the UI shows a
                 // perpetual "Starting…".
-                Sentry.addBreadcrumb(Breadcrumb("Background Root start failed: starter exited ${result.code}").apply {
-                    category = "shizuku.starter"
-                    level = io.sentry.SentryLevel.ERROR
-                })
                 Timber.tag(AppConstants.TAG).e("Root starter exited with code ${result.code}")
                 recoverFromFailedStart()
             }
         } catch (e: Exception) {
-            Sentry.addBreadcrumb(Breadcrumb("Background Root start failed: ${e.message}").apply {
-                category = "shizuku.starter"
-                level = io.sentry.SentryLevel.ERROR
-            })
             Timber.tag(AppConstants.TAG).e(e, "Failed to start Shizuku with root")
             recoverFromFailedStart()
         }

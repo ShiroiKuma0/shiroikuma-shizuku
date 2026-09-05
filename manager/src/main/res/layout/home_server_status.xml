@@ -185,16 +185,6 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_sentry_offline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/sentry_offline_notice_button"
-            android:visibility="gone"
-            android:textColor="?colorError"
-            tools:visibility="visible" />
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

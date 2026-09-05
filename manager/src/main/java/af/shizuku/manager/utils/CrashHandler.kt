@@ -64,12 +64,12 @@ class CrashHandler(private val context: Context, private val defaultHandler: Thr
         try {
             saveCrashReport(thread, throwable)
         } catch (e: Exception) {
-            // Use android.util.Log, NOT Timber — Timber routes ERROR-level logs to Sentry,
-            // which would create a spurious FileNotFoundException event instead of the real crash.
+            // Use android.util.Log, NOT Timber — this runs while the process is already
+            // unwinding, so it must not re-enter the logging trees Timber dispatches to.
             android.util.Log.w("CrashHandler", "Failed to save crash report: ${e.message}")
         }
 
-        // Call default handler (usually Sentry or Android system)
+        // Call default handler (the Android system's)
         defaultHandler?.uncaughtException(thread, throwable)
     }
 

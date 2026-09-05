@@ -2,7 +2,6 @@ package af.shizuku.manager.update
 
 import android.util.Xml
 import timber.log.Timber
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import java.io.IOException
@@ -67,45 +66,29 @@ object UpdateChecker {
      *   3. If all three fail → NetworkError
      */
     suspend fun checkForUpdate(channel: String = "stable"): CheckResult = withContext(Dispatchers.IO) {
-        val transaction = Sentry.startTransaction("UpdateCheck", "check_for_update")
-        Sentry.getSpan()?.setTag("channel", channel)
-
-        try {
-            for (attempt in 0 until 2) {
-                if (attempt > 0) delay(RETRY_DELAY_MS)
-                val span = transaction.startChild("github_api", "attempt_$attempt")
-                try {
-                    val result = checkViaApi(channel)
-                    span.finish(io.sentry.SpanStatus.OK)
-                    return@withContext result
-                } catch (e: Exception) {
-                    span.throwable = e
-                    span.finish(io.sentry.SpanStatus.INTERNAL_ERROR)
-                    if (e.isNetworkError()) {
-                        Timber.tag(TAG).w("Update check attempt ${attempt + 1} failed (network): ${e.message}")
-                    } else {
-                        Sentry.captureException(e)
-                        return@withContext CheckResult.NetworkError
-                    }
+        for (attempt in 0 until 2) {
+            if (attempt > 0) delay(RETRY_DELAY_MS)
+            try {
+                return@withContext checkViaApi(channel)
+            } catch (e: Exception) {
+                if (e.isNetworkError()) {
+                    Timber.tag(TAG).w("Update check attempt ${attempt + 1} failed (network): ${e.message}")
+                } else {
+                    Timber.tag(TAG).e(e, "Update check failed")
+                    return@withContext CheckResult.NetworkError
                 }
             }
-
-            Timber.tag(TAG).w("API unreachable after 2 attempts, trying Atom feed fallback")
-            val fallbackSpan = transaction.startChild("atom_feed", "fallback")
-            try {
-                val fallback = checkViaAtomFeed()
-                fallbackSpan.finish(io.sentry.SpanStatus.OK)
-                if (fallback != null) return@withContext CheckResult.UpdateAvailable(fallback)
-            } catch (e: Exception) {
-                fallbackSpan.throwable = e
-                fallbackSpan.finish(io.sentry.SpanStatus.INTERNAL_ERROR)
-                Timber.tag(TAG).w(e, "Atom feed fallback also failed")
-            }
-
-            CheckResult.NetworkError
-        } finally {
-            transaction.finish()
         }
+
+        Timber.tag(TAG).w("API unreachable after 2 attempts, trying Atom feed fallback")
+        try {
+            val fallback = checkViaAtomFeed()
+            if (fallback != null) return@withContext CheckResult.UpdateAvailable(fallback)
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Atom feed fallback also failed")
+        }
+
+        CheckResult.NetworkError
     }
 
     private fun checkViaApi(channel: String): CheckResult {

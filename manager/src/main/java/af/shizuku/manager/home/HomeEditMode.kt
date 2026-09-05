@@ -19,7 +19,6 @@ object HomeEditMode {
     fun enter() {
         if (!isActive) {
             isActive = true
-            io.sentry.Sentry.addBreadcrumb("HomeEditMode: enter()")
             onChanged?.invoke()
         }
     }
@@ -38,7 +37,6 @@ object HomeEditMode {
     /** Toggle drag handle / remove button visibility AND reserve end-padding so
      *  the overlay icons don't sit on top of card title/summary text. */
     fun applyOverlay(binding: HomeItemContainerBinding) {
-        io.sentry.Sentry.addBreadcrumb("HomeEditMode: applyOverlay() isActive=$isActive")
         val wasVisible = binding.removeBtn.isVisible
         binding.removeBtn.isVisible = isActive
         binding.dragHandle.isVisible = isActive

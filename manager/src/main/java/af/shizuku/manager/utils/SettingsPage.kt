@@ -232,7 +232,7 @@ sealed class SettingsPage(
         }.onFailure { e ->
             // ActivityNotFoundException is expected on devices that don't have this settings page
             // (e.g. SECURITY_ADVANCED_SETTINGS on non-Samsung, or TV devices). Use w() not e()
-            // so it doesn't get reported to Sentry as a crash.
+            // so it doesn't surface as a crash.
             Timber.tag("SettingsUtils").w("Failed to start Settings activity (${e.javaClass.simpleName}): ${e.message}")
         }
     }

@@ -142,7 +142,6 @@ public class ShizukuSettings {
         public static final String KEY_PITHUS_API_KEY = "pithus_api_key";
 
         public static final String KEY_EXPRESSIVE_SHAPES = "expressive_shapes";
-        public static final String KEY_SENTRY_LIMIT_REACHED = "sentry_limit_reached";
         public static final String KEY_EXPRESSIVE_ANIMATIONS = "expressive_animations";
         public static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
         public static final String KEY_ICON_STYLE = "icon_style";
@@ -167,13 +166,11 @@ public class ShizukuSettings {
         public static final String KEY_LAST_UPDATE_CHECK = "last_update_check_time";
         public static final String KEY_LAST_CHECK_FAILED = "last_check_failed";
         public static final String KEY_UPDATE_CHANNEL = "update_channel"; // "stable" or "dev"
-        public static final String KEY_LAST_SEEN_VERSION = "last_seen_version";
         public static final String KEY_LAST_SEEN_CHANGELOG_VERSION = "last_seen_changelog_version";
         public static final String KEY_SERVER_STARTED_BUILD = "server_started_build";
         public static final String KEY_LAST_SETTLED_STATE = "last_settled_shizuku_state";
-        // The app build whose skew prompt has already been answered. Its own key rather than
-        // KEY_LAST_SEEN_VERSION, which ShizukuApplication.onCreate advances on every update long
-        // before the home screen runs — reusing it would mean the prompt could never fire.
+        // The app build whose skew prompt has already been answered — its own key, so the
+        // prompt's "have I handled this version?" never collides with another feature's.
         public static final String KEY_SKEW_PROMPTED_VERSION = "skew_prompted_version";
 
         // Companion Mode (Shizuku+ additions)
@@ -196,16 +193,7 @@ public class ShizukuSettings {
 
     private static SharedPreferences sPreferences;
 
-    public static int getLastSeenVersion() {
-        return getPreferences().getInt(Keys.KEY_LAST_SEEN_VERSION, -1);
-    }
-
-    public static void setLastSeenVersion(int versionCode) {
-        getPreferences().edit().putInt(Keys.KEY_LAST_SEEN_VERSION, versionCode).apply();
-    }
-
-    /** Separate from {@link #getLastSeenVersion()} (which gates the Sentry-quota reset) so the
-     *  changelog dialog and the quota reset can each track "have I handled this version?" independently. */
+    /** The version the changelog dialog has already been shown for. */
     public static int getLastSeenChangelogVersion() {
         return getPreferences().getInt(Keys.KEY_LAST_SEEN_CHANGELOG_VERSION, -1);
     }
@@ -246,14 +234,6 @@ public class ShizukuSettings {
 
     public static void setSkewPromptedVersion(int versionCode) {
         getPreferences().edit().putInt(Keys.KEY_SKEW_PROMPTED_VERSION, versionCode).apply();
-    }
-
-    public static boolean isSentryLimitReached() {
-        return getPreferences().getBoolean(Keys.KEY_SENTRY_LIMIT_REACHED, false);
-    }
-
-    public static void setSentryLimitReached(boolean reached) {
-        getPreferences().edit().putBoolean(Keys.KEY_SENTRY_LIMIT_REACHED, reached).apply();
     }
 
     // Only the ADB pairing tutorial flow used to request POST_NOTIFICATIONS, so users who

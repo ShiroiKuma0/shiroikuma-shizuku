@@ -8,9 +8,7 @@ import android.provider.Settings
 import timber.log.Timber
 import android.widget.Toast
 import java.io.EOFException
-import java.net.ConnectException
 import java.net.SocketException
-import java.net.SocketTimeoutException
 import javax.net.ssl.SSLException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +22,6 @@ import af.shizuku.manager.adb.PreferenceAdbKeyStore
 import af.shizuku.manager.starter.Starter
 import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.ShizukuStateMachine
-import io.sentry.Sentry
 import android.app.Activity
 import android.content.ContextWrapper
 import android.view.ContextThemeWrapper
@@ -44,12 +41,6 @@ object AdbStarter {
         }
         return null
     }
-
-    /** Returns true for transient connection errors that are not bugs and should not go to Sentry. */
-    private fun Throwable.isExpectedAdbError(includeIllegalState: Boolean = false) =
-        this is EOFException || this is SocketException || this is SocketTimeoutException ||
-        this is ConnectException || this is SSLException ||
-        this is AdbKeyException || (includeIllegalState && this is IllegalStateException)
 
     suspend fun startAdb(context: Context, port: Int, log: ((String) -> Unit)? = null) {
         if (port !in 1..65535) {
@@ -134,9 +125,6 @@ object AdbStarter {
                     }
                 }
             }
-            if (e !is CancellationException && !e.isExpectedAdbError()) {
-                Sentry.captureException(e)
-            }
             throw e
         } finally {
             if (ShizukuSettings.getAutoDisableUsbDebugging() && context.checkSelfPermission(WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED)
@@ -165,9 +153,6 @@ object AdbStarter {
                 }
             }
         }.onFailure {
-            if (it !is CancellationException && !it.isExpectedAdbError(includeIllegalState = true)) {
-                Sentry.captureException(it)
-            }
             if (EnvironmentUtils.getAdbTcpPort() > 0) {
                 // The stop failed, so STOPPING is over — resolve it rather than leaving it standing.
                 ShizukuStateMachine.settle()

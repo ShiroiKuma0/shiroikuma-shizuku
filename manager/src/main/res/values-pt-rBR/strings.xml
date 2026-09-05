@@ -547,11 +547,6 @@
     <string name="su_bridge_device_identity_spoofed">Falsificado: %s</string>
     <string name="su_bridge_device_identity_none">Nenhuma (dispositivo real exibido)</string>
 
-    <!-- Sentry Offline Notice -->
-    <string name="sentry_offline_notice_title">Relatório de Falhas Offline</string>
-    <string name="sentry_offline_notice_summary">O relatório automático de falhas via Sentry está atualmente desativado devido a limites de cota (redefinição em 1º de maio). Por favor, reporte quaisquer falhas manualmente.</string>
-    <string name="sentry_offline_notice_button">Saiba Mais</string>
-    <string name="sentry_offline_notice_learn_more">O Sentry está atualmente offline. Se o aplicativo travar ou se comportar de forma inesperada, gere um relatório manualmente e publique-o no nosso rastreador de Issues do GitHub. Isso nos ajuda a corrigir bugs mesmo enquanto nossos sistemas automatizados estão pausados.</string>
 
     <string name="manual_report_title">Relatório Manual de Falha</string>
     <string name="manual_report_summary">Gerar um relatório detalhado com registros para nos ajudar a depurar problemas manualmente.</string>

@@ -16,8 +16,6 @@ import af.shizuku.manager.ShizukuApplication
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.BuildConfig
 import rikka.shizuku.Shizuku
-import io.sentry.Sentry
-import io.sentry.Breadcrumb
 
 object ShizukuStateMachine {
 
@@ -65,9 +63,6 @@ object ShizukuStateMachine {
     init {
         Shizuku.addBinderReceivedListenerSticky(
             Shizuku.OnBinderReceivedListener {
-                Sentry.addBreadcrumb(Breadcrumb("Binder received - service is now RUNNING").apply {
-                    category = "shizuku.service"
-                })
                 // Read BEFORE the transition: this is the one place that can tell "our start
                 // produced a server" from "a server was already there". A NEW binder arriving while
                 // a start of ours is in flight is that proof — a restart that failed over a live
@@ -82,10 +77,6 @@ object ShizukuStateMachine {
         )
         Shizuku.addBinderDeadListener(
             Shizuku.OnBinderDeadListener {
-                Sentry.addBreadcrumb(Breadcrumb("Binder dead - service connection lost").apply {
-                    category = "shizuku.service"
-                    level = io.sentry.SentryLevel.WARNING
-                })
                 setDead()
             }
         )
@@ -188,13 +179,10 @@ object ShizukuStateMachine {
     fun settle(): State = evaluate(keepTransient = false)
 
     private fun evaluate(keepTransient: Boolean): State {
-        val span = Sentry.getSpan()?.startChild("ipc.shizuku", "pingBinder")
         val isAlive = try {
             Shizuku.pingBinder()
         } catch (e: Exception) {
             false
-        } finally {
-            span?.finish()
         }
 
         val currentState = get()

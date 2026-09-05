@@ -25,9 +25,6 @@ import af.shizuku.manager.adb.AdbPairingClient
 import af.shizuku.manager.home.HomeActivity
 import af.shizuku.manager.utils.EnvironmentUtils
 import java.net.ConnectException
-import io.sentry.Sentry
-import io.sentry.Breadcrumb
-import io.sentry.SentryLevel
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AdbPairingAccessibilityService : AccessibilityService() {
@@ -40,9 +37,6 @@ class AdbPairingAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
 
-        Sentry.addBreadcrumb(Breadcrumb("ADB Pairing Accessibility Service connected").apply {
-            category = "adb.pairing"
-        })
 
         val isSamsung = EnvironmentUtils.isSamsung()
         val isTv = EnvironmentUtils.isTelevision()
@@ -74,9 +68,6 @@ class AdbPairingAccessibilityService : AccessibilityService() {
             delay(60_000)
             if (port == null || password == null) {
                 Timber.tag("AdbAccessibility").w("Pairing discovery timed out")
-                Sentry.addBreadcrumb(Breadcrumb("Pairing discovery timed out").apply {
-                    level = SentryLevel.WARNING
-                })
                 ShiroikumaToast.show(this@AdbPairingAccessibilityService, getString(R.string.toast_pairing_timeout), Toast.LENGTH_LONG)
                 disableSelf()
             }
@@ -95,10 +86,6 @@ class AdbPairingAccessibilityService : AccessibilityService() {
             val className = event.className?.toString() ?: ""
             if (className.contains("AlertDialog") || className.contains("Dialog")) {
                 Timber.tag("AdbAccessibility").d("Samsung Dialog detected: $text")
-                Sentry.addBreadcrumb(Breadcrumb("Samsung Dialog detected").apply {
-                    category = "adb.pairing"
-                    setData("text", text.toString())
-                })
             }
         }
 
@@ -108,9 +95,6 @@ class AdbPairingAccessibilityService : AccessibilityService() {
         // Standard IP:Port check
         ipPortRegex.find(text)?.groupValues?.get(1)?.toIntOrNull()?.let {
             port = it
-            Sentry.addBreadcrumb(Breadcrumb("Pairing port found via standard regex").apply {
-                category = "adb.pairing"
-            })
         }
 
         // Samsung specific: sometimes the port is in a different view or has specific labels
@@ -118,17 +102,11 @@ class AdbPairingAccessibilityService : AccessibilityService() {
             val portMatch = Regex("""\d{5}""").find(text)
             portMatch?.value?.toIntOrNull()?.let {
                 port = it
-                Sentry.addBreadcrumb(Breadcrumb("Pairing port found via Samsung fallback").apply {
-                    category = "adb.pairing"
-                })
             }
         }
 
         passwordRegex.find(text)?.value?.let {
             password = it
-            Sentry.addBreadcrumb(Breadcrumb("Pairing password found").apply {
-                category = "adb.pairing"
-            })
         }
 
         // Recursive search for children if text is empty on parent (Samsung UI optimization)
@@ -151,7 +129,6 @@ class AdbPairingAccessibilityService : AccessibilityService() {
                     AdbKey(PreferenceAdbKeyStore(ShizukuSettings.getPreferences()), "shizuku+")
                 } catch (e: Throwable) {
                     Timber.tag("AdbAccessibility").e(e, "Failed to load AdbKey")
-                    Sentry.captureException(e)
                     toastMsg = getString(R.string.adb_error_key_store)
                     return@launch
                 }
@@ -164,13 +141,9 @@ class AdbPairingAccessibilityService : AccessibilityService() {
                         is ConnectException -> toastMsg = getString(R.string.cannot_connect_port)
                         is AdbInvalidPairingCodeException -> toastMsg = getString(R.string.paring_code_is_wrong)
                         is AdbKeyException -> toastMsg = getString(R.string.adb_error_key_store)
-                        else -> Sentry.captureException(it)
                     }
                 }.onSuccess {
                     if (it) {
-                        Sentry.addBreadcrumb(Breadcrumb("Pairing client succeeded").apply {
-                            category = "adb.pairing"
-                        })
                         toastMsg = "${getString(R.string.notification_adb_pairing_succeed_title)}. ${getString(R.string.notification_adb_pairing_succeed_text)}"
 
                         val intent = Intent(this@AdbPairingAccessibilityService, MainActivity::class.java).apply {
@@ -178,10 +151,6 @@ class AdbPairingAccessibilityService : AccessibilityService() {
                         }
                         startActivity(intent)
                     } else {
-                        Sentry.addBreadcrumb(Breadcrumb("Pairing client returned false").apply {
-                            category = "adb.pairing"
-                            level = SentryLevel.WARNING
-                        })
                     }
                 }
                 withContext(Dispatchers.Main) {
