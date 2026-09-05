@@ -369,9 +369,9 @@ open class HomeActivity : AppActivity(), MavericksView {
                     SnackbarHelper.show(
                         this,
                         findViewById(android.R.id.content) ?: window.decorView,
-                        msg = "Samsung Auto Blocker may block ADB on One UI 7/8. Check Security settings.",
+                        msg = getString(R.string.snackbar_samsung_auto_blocker),
                         duration = Snackbar.LENGTH_LONG,
-                        actionText = "Check",
+                        actionText = getString(R.string.snackbar_action_check),
                         action = {
                             SettingsPage.Samsung.AutoBlocker.launch(this)
                         }

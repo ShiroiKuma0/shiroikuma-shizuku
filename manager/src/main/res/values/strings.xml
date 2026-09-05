@@ -140,6 +140,8 @@
     <string name="dialog_adb_pairing_accessibility_permission">On Android 14, installing/updating Shizuku with the Package Installer revokes the %1$s permission, which is required to enable the accessibility service for pairing.\n\nTo grant it, run the following ADB command:\n\n%2$s\n\nAfter running the command, you may continue with the pairing process.\n\nNote: you can bypass this by installing/updating Shizuku with ADB.</string>
 
     <!-- Service Doctor -->
+    <string name="snackbar_samsung_auto_blocker">Samsung Auto Blocker may block ADB on One UI 7/8. Check Security settings.</string>
+    <string name="snackbar_action_check">Check</string>
     <string name="doctor_check_samsung_autoblocker">Samsung Auto Blocker</string>
     <string name="doctor_check_samsung_battery_protection">Samsung Battery Protection</string>
     <string name="doctor_check_secondary_user">Secondary User / Secure Folder</string>
