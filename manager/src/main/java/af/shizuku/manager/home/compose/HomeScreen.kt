@@ -26,7 +26,6 @@ import af.shizuku.manager.ShizukuSettings
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.IntOffset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +118,9 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset { IntOffset(0, oneHandedOffset.roundToPx()) }
+                    // padding shifts layout position (and touch targets) correctly;
+                    // offset {} is draw-only for AndroidView and causes touch misalignment.
+                    .padding(top = oneHandedOffset)
             ) {
                 if (showEmptyState) {
                     Box(modifier = Modifier.padding(adjustedPadding)) {
@@ -130,6 +131,14 @@ fun HomeScreen(
                         factory = { context ->
                             recyclerViewProvider(context, adjustedPadding).also { rv ->
                                 (rv.parent as? android.view.ViewGroup)?.removeView(rv)
+                                // RecyclerView doesn't participate in Compose's nestedScroll,
+                                // so drive TopAppBar collapse directly from scroll callbacks.
+                                rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                                        scrollBehavior.state.heightOffset -= dy
+                                        scrollBehavior.state.contentOffset -= dy
+                                    }
+                                })
                             }
                         },
                         update = { view -> recyclerViewProvider(view.context, adjustedPadding) },

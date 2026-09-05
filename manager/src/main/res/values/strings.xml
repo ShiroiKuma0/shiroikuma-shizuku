@@ -1275,6 +1275,7 @@
     <string name="backup_activity_title">App Backup</string>
     <string name="backup_action_backup">Backup</string>
     <string name="backup_action_freeze">Freeze</string>
+    <string name="backup_action_unfreeze">Unfreeze</string>
     <string name="backup_service_required">Shizuku service is not running</string>
     <string name="backup_in_progress">Backup in progress…</string>
     <string name="backup_app_complete">Backed up %1$s → %2$s</string>

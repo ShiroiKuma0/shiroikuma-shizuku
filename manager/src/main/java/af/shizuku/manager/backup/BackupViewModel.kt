@@ -1,6 +1,7 @@
 package af.shizuku.manager.backup
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,13 +16,15 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-class BackupViewModel : ViewModel() {
+class BackupViewModel(app: Application) : AndroidViewModel(app) {
 
     data class AppEntry(
         val packageName: String,
+        val label: String,
         val versionName: String,
         val isSystem: Boolean,
-        val allowBackup: Boolean
+        val allowBackup: Boolean,
+        val isFrozen: Boolean = false
     )
 
     sealed class UiState {
@@ -55,18 +58,28 @@ class BackupViewModel : ViewModel() {
                 return@launch
             }
             try {
+                val pm = getApplication<Application>().packageManager
                 val bundles = ShizukuPlusAPI.BackupRestorePlus.listInstalledPackages(includeSystem)
                 val entries = bundles
                     .mapNotNull { b ->
                         val pkg = b.getString("packageName") ?: return@mapNotNull null
+                        val label = try {
+                            val info = pm.getApplicationInfo(pkg, 0)
+                            pm.getApplicationLabel(info).toString()
+                        } catch (e: Exception) { pkg }
+                        val isFrozen = try {
+                            ShizukuPlusAPI.BackupRestorePlus.isAppFrozen(pkg)
+                        } catch (e: Exception) { false }
                         AppEntry(
                             packageName = pkg,
+                            label = label,
                             versionName = b.getString("versionName") ?: "",
                             isSystem = b.getBoolean("isSystem"),
-                            allowBackup = b.getBoolean("allowBackup")
+                            allowBackup = b.getBoolean("allowBackup"),
+                            isFrozen = isFrozen
                         )
                     }
-                    .sortedBy { it.packageName }
+                    .sortedBy { it.label.lowercase() }
                 _state.value = UiState.Loaded(entries)
             } catch (e: Exception) {
                 Timber.e(e, "loadApps failed")
@@ -80,18 +93,27 @@ class BackupViewModel : ViewModel() {
         if (pkg in _busyPackages.value) return
         viewModelScope.launch(Dispatchers.IO) {
             _busyPackages.value = _busyPackages.value + pkg
+            var prepared = false
             try {
                 val pkgDir = File(outputDir, pkg).also { it.mkdirs() }
 
                 ShizukuPlusAPI.BackupRestorePlus.forceStop(pkg)
 
-                val prepared = ShizukuPlusAPI.ApkPatcher.prepareTempDebug(pkg)
-                if (!prepared) {
-                    _events.emit(BackupEvent.Failure("Could not enable debug mode for $pkg. App may have a split APK or integrity check that blocks reinstall."))
-                    return@launch
+                // prepareTempDebug is best-effort; Shizuku's privileged API can stream data
+                // without debug mode on most paths, so a failure here is not fatal.
+                prepared = try {
+                    ShizukuPlusAPI.ApkPatcher.prepareTempDebug(pkg)
+                } catch (e: Exception) {
+                    Timber.w(e, "prepareTempDebug skipped for $pkg, attempting direct backup")
+                    false
                 }
 
-                val dataPfd = ShizukuPlusAPI.ApkPatcher.streamDataDir(pkg)
+                var backedUpSomething = false
+
+                val dataPfd = try { ShizukuPlusAPI.ApkPatcher.streamDataDir(pkg) } catch (e: Exception) {
+                    Timber.w(e, "streamDataDir failed for $pkg")
+                    null
+                }
                 if (dataPfd != null) {
                     val dataFile = File(pkgDir, "data.tar.gz")
                     dataPfd.use { pfd ->
@@ -99,9 +121,13 @@ class BackupViewModel : ViewModel() {
                             FileOutputStream(dataFile).use { input.copyTo(it) }
                         }
                     }
+                    backedUpSomething = true
                 }
 
-                val extPfd = ShizukuPlusAPI.BackupRestorePlus.backupExternalData(pkg)
+                val extPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupExternalData(pkg) } catch (e: Exception) {
+                    Timber.w(e, "backupExternalData failed for $pkg")
+                    null
+                }
                 if (extPfd != null) {
                     val extFile = File(pkgDir, "external.tar.gz")
                     extPfd.use { pfd ->
@@ -109,18 +135,23 @@ class BackupViewModel : ViewModel() {
                             FileOutputStream(extFile).use { input.copyTo(it) }
                         }
                     }
+                    backedUpSomething = true
                 }
 
-                ShizukuPlusAPI.ApkPatcher.restoreOriginal(pkg)
-                _events.emit(BackupEvent.BackupComplete(pkg, pkgDir.absolutePath))
+                if (backedUpSomething) {
+                    _events.emit(BackupEvent.BackupComplete(pkg, pkgDir.absolutePath))
+                } else {
+                    _events.emit(BackupEvent.Failure("No data could be read for $pkg. The app may block backup access."))
+                }
             } catch (e: Exception) {
                 Timber.e(e, "Backup failed for $pkg")
-                // Best-effort restore so the app isn't left in temp-debug state.
-                try { ShizukuPlusAPI.ApkPatcher.restoreOriginal(pkg) } catch (ex: Exception) {
-                    Timber.w(ex, "restoreOriginal also failed for $pkg")
-                }
                 _events.emit(BackupEvent.Failure("Backup failed for $pkg: ${e.message}"))
             } finally {
+                if (prepared) {
+                    try { ShizukuPlusAPI.ApkPatcher.restoreOriginal(pkg) } catch (ex: Exception) {
+                        Timber.w(ex, "restoreOriginal failed for $pkg")
+                    }
+                }
                 _busyPackages.value = _busyPackages.value - pkg
             }
         }
@@ -130,13 +161,19 @@ class BackupViewModel : ViewModel() {
         val pkg = entry.packageName
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val wasFrozen = ShizukuPlusAPI.BackupRestorePlus.isAppFrozen(pkg)
-                val nowFrozen = if (wasFrozen) {
+                val nowFrozen = if (entry.isFrozen) {
                     ShizukuPlusAPI.BackupRestorePlus.unfreezeApp(pkg)
                     false
                 } else {
                     ShizukuPlusAPI.BackupRestorePlus.freezeApp(pkg)
                     true
+                }
+                // Update the frozen state directly in the loaded list.
+                val current = _state.value
+                if (current is UiState.Loaded) {
+                    _state.value = UiState.Loaded(
+                        current.apps.map { if (it.packageName == pkg) it.copy(isFrozen = nowFrozen) else it }
+                    )
                 }
                 _events.emit(BackupEvent.FreezeChanged(pkg, nowFrozen))
             } catch (e: Exception) {
