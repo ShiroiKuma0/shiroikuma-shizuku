@@ -182,7 +182,7 @@ class ServerStatusViewHolder(private val binding: HomeServerStatusBinding, root:
         val (iconPillColor, iconOnPillColor) = when {
             ok -> {
                 com.google.android.material.color.MaterialColors.getColor(
-                    context, com.google.android.material.R.attr.colorPrimary, android.graphics.Color.TRANSPARENT
+                    context, R.attr.colorPrimary, android.graphics.Color.TRANSPARENT
                 ) to com.google.android.material.color.MaterialColors.getColor(
                     context, com.google.android.material.R.attr.colorOnPrimary, android.graphics.Color.WHITE
                 )
@@ -192,7 +192,7 @@ class ServerStatusViewHolder(private val binding: HomeServerStatusBinding, root:
             }
             else -> {
                 com.google.android.material.color.MaterialColors.getColor(
-                    context, com.google.android.material.R.attr.colorError, android.graphics.Color.RED
+                    context, R.attr.colorError, android.graphics.Color.RED
                 ) to com.google.android.material.color.MaterialColors.getColor(
                     context, com.google.android.material.R.attr.colorOnError, android.graphics.Color.WHITE
                 )
