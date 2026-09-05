@@ -38,14 +38,33 @@ class StateExportService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // MUST be within 5 s of the service starting or the system kills us.
-        startForeground(NOTIF_ID, buildNotification())
-
+        // ⛔ EXTRAS FIRST, THEN GO FOREGROUND. The order matters and it is not stylistic.
+        //
+        // startForeground() can be REFUSED — ForegroundServiceStartNotAllowedException on API 31+
+        // for a service started from the background, which is what a broadcast-driven export always
+        // is. Promoting before the reply extras have been read means a refusal has nothing to answer
+        // with: the service dies, the caller hears nothing, and the failure is indistinguishable
+        // from an app that never implemented the contract.
+        //
+        // Reading three extras costs microseconds, so this still lands well inside the 5-second
+        // deadline the promotion itself has to meet.
         val i = intent ?: run { stopSelf(); return START_NOT_STICKY }
         val replyAction = i.getStringExtra("reply_action")
         val replyPackage = i.getStringExtra("reply_package")
         val replyId = i.getStringExtra("reply_id")
         if (replyAction == null || replyPackage == null || replyId == null) {
+            finish(); return START_NOT_STICKY
+        }
+
+        try {
+            startForeground(NOTIF_ID, buildNotification())
+        } catch (e: Exception) {
+            // `running` has not been claimed yet, so there is nothing to release here — the next
+            // request is free to try again rather than meeting "export already running" forever.
+            StateExportReceiver.reply(
+                this, replyAction, replyPackage, replyId,
+                "ERROR:${e.message ?: e.javaClass.simpleName}"
+            )
             finish(); return START_NOT_STICKY
         }
 
