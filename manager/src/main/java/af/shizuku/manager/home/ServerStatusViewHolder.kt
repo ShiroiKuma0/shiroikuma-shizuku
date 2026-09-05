@@ -177,8 +177,28 @@ class ServerStatusViewHolder(private val binding: HomeServerStatusBinding, root:
         diagnosticsChip.setTextColor(textColor)
         diagnosticsChip.chipIconTint = android.content.res.ColorStateList.valueOf(textColor)
 
-        // Clean, harmonized status icon tint (pill background matches container, icon uses on-container text tint)
-        af.shizuku.manager.utils.IconStyleHelper.applyToStatusCardIcon(iconView, pillColor = bgColor, tintColor = textColor)
+        // Icon pill uses vivid semantic role colors so it stands out against the card's lighter
+        // container background — matching pill-to-card was invisible in users' issue screenshots.
+        val (iconPillColor, iconOnPillColor) = when {
+            ok -> {
+                com.google.android.material.color.MaterialColors.getColor(
+                    context, com.google.android.material.R.attr.colorPrimary, android.graphics.Color.TRANSPARENT
+                ) to com.google.android.material.color.MaterialColors.getColor(
+                    context, com.google.android.material.R.attr.colorOnPrimary, android.graphics.Color.WHITE
+                )
+            }
+            state == af.shizuku.manager.utils.ShizukuStateMachine.State.STARTING -> {
+                ContextCompat.getColor(context, R.color.status_starting) to android.graphics.Color.WHITE
+            }
+            else -> {
+                com.google.android.material.color.MaterialColors.getColor(
+                    context, com.google.android.material.R.attr.colorError, android.graphics.Color.RED
+                ) to com.google.android.material.color.MaterialColors.getColor(
+                    context, com.google.android.material.R.attr.colorOnError, android.graphics.Color.WHITE
+                )
+            }
+        }
+        af.shizuku.manager.utils.IconStyleHelper.applyToStatusCardIcon(iconView, pillColor = iconPillColor, tintColor = iconOnPillColor)
 
         val isRoot = status.uid == 0
         val apiVersion = status.apiVersion
