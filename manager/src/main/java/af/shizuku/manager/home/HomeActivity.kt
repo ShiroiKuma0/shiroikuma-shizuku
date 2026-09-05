@@ -442,12 +442,12 @@ open class HomeActivity : AppActivity(), MavericksView {
         // Check for updates on app startup (if enabled)
         checkForUpdates()
 
-        // Responsive grid for large screens and DeX (#76) - single column on phones preserves
-        // the original Shizuku look, 2 columns kicks in on tablets/landscape/DeX where a single
-        // column of cards leaves most of the width empty.
-        val spanCount = if (resources.configuration.screenWidthDp >= 600 ||
-            resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-        ) 2 else 1
+        // Fork: ALWAYS one column (白い熊, 2026-09-05). Upstream's responsive grid (#76) goes to
+        // two columns at screenWidthDp >= 600 or in landscape, which the unfolded Mate XT and
+        // every foldable/tablet hits — the cards then sit at half width, side by side, and the
+        // reading order stops matching the order they were arranged in. A card here is a
+        // full-width row of prose, not a tile. Do not restore the responsive span count.
+        val spanCount = 1
         val layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, spanCount)
         layoutManager.spanSizeLookup = object : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
             // The status card (position 0) always takes the full width for visibility.

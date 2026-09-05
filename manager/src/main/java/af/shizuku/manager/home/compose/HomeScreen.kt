@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -15,7 +14,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.*
@@ -48,12 +46,22 @@ fun HomeScreen(
     onRestoreHomeCards: () -> Unit,
     recyclerViewProvider: (Context, PaddingValues) -> RecyclerView
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-
+    // ⛔ Fork: a FIXED header — not LargeTopAppBar, and no scroll behaviour (白い熊, 2026-09-05).
+    //
+    // Upstream's large collapsing title had never actually collapsed here, because an AndroidView
+    // does not participate in Compose's nestedScroll. r2431's `604a394a` "fixed" that by driving
+    // scrollBehavior.state.heightOffset straight from RecyclerView.onScrolled — symmetrically, on
+    // every delta. The real exitUntilCollapsed connection deliberately refuses to expand while the
+    // list is scrolled ("don't intercept if scrolling down"), and re-expands only once the content
+    // is back at the top; the hand-rolled listener has none of that, so any downward drag anywhere
+    // in the list grew the title back to full height and shoved the cards down the screen.
+    //
+    // A two-height title that animates while you read is what was objected to, so it is gone
+    // rather than re-gated: the name sits top-left, one row, always. Restoring the large variant
+    // means restoring the gating with it.
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = {
                     Text(
                         if (isEditMode) stringResource(R.string.home_edit_mode_title)
@@ -104,14 +112,17 @@ fun HomeScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = Color.Transparent,
+                // Fork: the container is OPAQUE. Upstream leaves it transparent so its gradient
+                // shows through, which let the cards scroll visibly under the title. On this theme
+                // the bar colour equals the page colour anyway, so an opaque ground costs nothing
+                // and keeps the header a header.
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
                     scrolledContainerColor = if (ShizukuSettings.isBlurUiEnabled())
                         MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
                     else
                         MaterialTheme.colorScheme.surfaceContainer
-                ),
-                scrollBehavior = scrollBehavior
+                )
             )
         }
     ) { innerPadding ->
@@ -153,14 +164,6 @@ fun HomeScreen(
                         factory = { context ->
                             recyclerViewProvider(context, adjustedPadding).also { rv ->
                                 (rv.parent as? android.view.ViewGroup)?.removeView(rv)
-                                // RecyclerView doesn't participate in Compose's nestedScroll,
-                                // so drive TopAppBar collapse directly from scroll callbacks.
-                                rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                                        scrollBehavior.state.heightOffset -= dy
-                                        scrollBehavior.state.contentOffset -= dy
-                                    }
-                                })
                             }
                         },
                         update = { view -> recyclerViewProvider(view.context, adjustedPadding) },
