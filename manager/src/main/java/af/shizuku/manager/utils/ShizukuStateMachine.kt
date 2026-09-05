@@ -16,9 +16,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
-import timber.log.Timber
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicReference
 
 object ShizukuStateMachine {
     enum class State { STARTING, RUNNING, STOPPING, STOPPED, CRASHED }
@@ -66,9 +63,6 @@ object ShizukuStateMachine {
     init {
         Shizuku.addBinderReceivedListenerSticky(
             Shizuku.OnBinderReceivedListener {
-                Sentry.addBreadcrumb(Breadcrumb("Binder received - service is now RUNNING").apply {
-                    category = "shizuku.service"
-                })
                 // Read BEFORE the transition: this is the one place that can tell "our start
                 // produced a server" from "a server was already there". A NEW binder arriving while
                 // a start of ours is in flight is that proof — a restart that failed over a live
@@ -83,12 +77,6 @@ object ShizukuStateMachine {
         )
         Shizuku.addBinderDeadListener(
             Shizuku.OnBinderDeadListener {
-                Sentry.addBreadcrumb(
-                    Breadcrumb("Binder dead - service connection lost").apply {
-                        category = "shizuku.service"
-                        level = io.sentry.SentryLevel.WARNING
-                    },
-                )
                 setDead()
             },
         )
@@ -234,15 +222,11 @@ object ShizukuStateMachine {
     fun settle(): State = evaluate(keepTransient = false)
 
     private fun evaluate(keepTransient: Boolean): State {
-        val span = Sentry.getSpan()?.startChild("ipc.shizuku", "pingBinder")
-        val isAlive =
-            try {
-                Shizuku.pingBinder()
-            } catch (_: Exception) {
-                false
-            } finally {
-                span?.finish()
-            }
+        val isAlive = try {
+            Shizuku.pingBinder()
+        } catch (_: Exception) {
+            false
+        }
 
         val currentState = get()
         val state = when {

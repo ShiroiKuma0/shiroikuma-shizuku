@@ -134,19 +134,7 @@ class ViewModel(
 
     val output = _output as LiveData<Resource<StringBuilder>>
 
-    private val handler =
-        CoroutineExceptionHandler { _, throwable ->
-            if (throwable !is CancellationException) {
-                io.sentry.Sentry.captureException(throwable)
-            }
-            // Reset STARTING → STOPPED before update() so a failed start doesn't
-            // leave the state machine stuck (update() preserves STARTING when binder is dead).
-            if (ShizukuStateMachine.get() == ShizukuStateMachine.State.STARTING) {
-                ShizukuStateMachine.set(ShizukuStateMachine.State.STOPPED)
-            }
-            ShizukuStateMachine.update()
-            log(error = throwable)
-        }
+    private val handler = CoroutineExceptionHandler { _, throwable ->
         // The start is over and it failed — settle, not update: update() preserves STARTING, which
         // would leave the home card's start button disabled behind this screen's error dialog.
         ShizukuStateMachine.settle()
