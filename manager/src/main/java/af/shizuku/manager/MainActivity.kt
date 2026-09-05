@@ -5,8 +5,6 @@ import android.widget.Toast
 import timber.log.Timber
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import io.sentry.Breadcrumb
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,34 +22,28 @@ class MainActivity : HomeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             Timber.d("Calling super.onCreate")
-            Sentry.addBreadcrumb(Breadcrumb("Calling super.onCreate"))
             super.onCreate(savedInstanceState)
 
-            // Check for previous crashes and offer to report — only for developers if Sentry is disabled.
-            // Take manual reporting out of the general purpose UI for end users.
+            // Check for previous crashes and offer to report. Crash reporting is entirely
+            // manual in this fork — nothing is sent anywhere — so this is gated only on the
+            // developer switch, which keeps it out of the general-purpose UI.
             if (af.shizuku.manager.utils.CrashHandler.getLastCrashReport(this) != null) {
-                if (ShizukuSettings.isVectorEnabled() && BuildConfig.SENTRY_DSN.isEmpty()) {
+                if (ShizukuSettings.isVectorEnabled()) {
                     showCrashReportDialog()
                 }
             }
 
             Timber.d("Checking onboarding status")
-            Sentry.addBreadcrumb(Breadcrumb("Checking onboarding status"))
 
             // Auto-restore settings if a force-update backup exists
             checkAndRestoreBackup()
 
-            // Show what's new after an update. Separate from the Sentry-quota-reset version
-            // tracking in ShizukuApplication.onCreate() — that one bumps its own flag before any
-            // Activity runs, so this needs its own last-seen key or it would never see an advance.
+            // Show what's new after an update, off its own last-seen key.
             checkAndShowChangelog()
 
             Timber.d("MainActivity onCreate complete")
-            Sentry.addBreadcrumb(Breadcrumb("MainActivity onCreate complete"))
         } catch (e: Exception) {
             Timber.e(e, "Crash in MainActivity.onCreate")
-            Sentry.addBreadcrumb(Breadcrumb("MainActivity crash: ${e.message}"))
-            Sentry.captureException(e)
             throw e
         }
     }
@@ -66,7 +58,6 @@ class MainActivity : HomeActivity() {
             af.shizuku.manager.automation.AICoreAccessibilityHealer.reenableIfNeeded(this)
         } catch (e: Exception) {
             Timber.e(e, "Error in onStart")
-            Sentry.captureException(e)
             throw e
         }
     }
@@ -133,7 +124,7 @@ class MainActivity : HomeActivity() {
     }
 
     private fun showCrashReportDialog() {
-        // Sentry already captured the original crash; this dialog lets users share a
+        // The crash file on disk is the only record; this dialog lets it be shared as a
         // human-readable report. It is optional — if the themed context is unavailable
         // (e.g. theme mismatch on old ROM) we silently clear the crash file and move on.
         try {
@@ -150,7 +141,6 @@ class MainActivity : HomeActivity() {
                 .showHouse()
         } catch (e: Exception) {
             Timber.e(e, "showCrashReportDialog failed — clearing crash file silently")
-            Sentry.captureException(e)
             af.shizuku.manager.utils.CrashHandler.clearLastCrash(this)
         }
     }

@@ -14,9 +14,9 @@ pluginManagement {
         id "dev.rikka.tools.autoresconfig" version "1.2.2"
         id "dev.rikka.tools.materialthemebuilder" version "1.5.1"
         id "dev.rikka.tools.refine" version "4.4.0"
-        // Fork: the Sentry Gradle plugin is NOT applied. Besides bytecode instrumentation it
-        // uploads ProGuard mappings and native debug symbols to sentry.io at build time. This
-        // fork sends nothing anywhere. See CLAUDE.md, "No phone-home".
+        // Fork: the Sentry Gradle plugin is NOT applied, and the SDK is not a dependency.
+        // Besides bytecode instrumentation the plugin uploads ProGuard mappings and native debug
+        // symbols to sentry.io at build time. See CLAUDE.md, "No phone-home".
         id "com.diffplug.spotless" version "6.25.0"
         id "com.mikepenz.aboutlibraries.plugin" version "11.6.3"
     }
