@@ -16,7 +16,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 authorized sister apps, and the house look driven through every screen. Installs as
 `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2397+2026-09-02.14-54.g37d086d4+006`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2431+2026-09-05.12-28.g604a394a+005`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -29,8 +29,8 @@ kind**. Removed outright:
 
 | Upstream behaviour | Here |
 | --- | --- |
-| **Sentry crash reporting** — every crash, breadcrumb trail and ANR sent to the upstream author's Sentry account | Gone. The Gradle plugin is not applied, the DSN is hardwired empty, and `SentryAndroid.init()` is never reached, so the SDK is never armed and has no transport. |
-| **Sentry build-time uploads** — ProGuard mappings and native debug symbols pushed to sentry.io | Gone with the plugin. |
+| **Sentry crash reporting** — every crash, breadcrumb trail and ANR sent to the upstream author's Sentry account | Gone, **library and all**. The SDK is not a dependency of this build: no `io.sentry` artifact, every call site deleted, and no `io.sentry.*` manifest entry. A tracker scan of the APK finds nothing, because there is nothing to find — an unarmed SDK would still have been a linked tracker. |
+| **Sentry build-time uploads** — ProGuard mappings and native debug symbols pushed to sentry.io | Gone with the plugin, which is not applied. |
 | **24-hourly remote database sync** — a `WorkManager` job fetching `app-context-db.json` from the upstream repo on a timer | Gone. The worker now *cancels* itself instead of scheduling. |
 | **"Update app database"** — pulled `apps.json` from the upstream repo | Gone. The bundled database is used as shipped. |
 | **VirusTotal lookup** — SHA-256 of every APK you install, plus your API key, sent to VirusTotal | Gone. No connection, no key read. |
