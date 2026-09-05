@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -15,13 +14,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.*
 import androidx.compose.runtime.getValue
@@ -34,7 +29,6 @@ import af.shizuku.manager.ShizukuSettings
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.CircleShape
@@ -57,56 +51,26 @@ fun HomeScreen(
     onRestoreHomeCards: () -> Unit,
     recyclerViewProvider: (Context, PaddingValues) -> RecyclerView
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-
-    // Snap the app bar fully open or fully closed when the user lifts their finger,
-    // preventing both title texts from being partially visible at the same time.
-    val isScrollIdle = remember { mutableStateOf(true) }
-    LaunchedEffect(isScrollIdle.value) {
-        if (isScrollIdle.value) {
-            val state = scrollBehavior.state
-            val fraction = state.collapsedFraction
-            if (fraction > 0.001f && fraction < 0.999f) {
-                val target = if (fraction >= 0.5f) state.heightOffsetLimit else 0f
-                Animatable(state.heightOffset).animateTo(
-                    target,
-                    spring(stiffness = Spring.StiffnessMediumLow)
-                ) { state.heightOffset = value }
-            }
-        }
-    }
-
+    // ⛔ Fork: a FIXED header — not LargeTopAppBar, and no scroll behaviour (白い熊, 2026-09-05).
+    //
+    // Upstream's large collapsing title had never actually collapsed here, because an AndroidView
+    // does not participate in Compose's nestedScroll. r2431's `604a394a` "fixed" that by driving
+    // scrollBehavior.state.heightOffset straight from RecyclerView.onScrolled — symmetrically, on
+    // every delta. The real exitUntilCollapsed connection deliberately refuses to expand while the
+    // list is scrolled ("don't intercept if scrolling down"), and re-expands only once the content
+    // is back at the top; the hand-rolled listener has none of that, so any downward drag anywhere
+    // in the list grew the title back to full height and shoved the cards down the screen.
+    //
+    // A two-height title that animates while you read is what was objected to, so it is gone
+    // rather than re-gated: the name sits top-left, one row, always. Restoring the large variant
+    // means restoring the gating with it.
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = {
-                    val fraction = scrollBehavior.state.collapsedFraction
-                    val currentFontSize = lerp(
-                        start = if (isOneUi) 32.sp else 28.sp,
-                        stop = 20.sp,
-                        fraction = fraction
-                    )
-                    val currentFontWeight = if (isOneUi) {
-                        if (fraction > 0.65f) FontWeight.Bold else FontWeight.ExtraBold
-                    } else {
-                        if (fraction > 0.65f) FontWeight.SemiBold else FontWeight.Normal
-                    }
-                    val currentLetterSpacing = if (isOneUi) {
-                        lerp((-0.5).sp, (-0.2).sp, fraction)
-                    } else {
-                        0.sp
-                    }
                     Text(
-                        text = if (isEditMode) stringResource(R.string.home_edit_mode_title)
-                        else stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = currentFontWeight,
-                            fontSize = currentFontSize,
-                            letterSpacing = currentLetterSpacing
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        if (isEditMode) stringResource(R.string.home_edit_mode_title)
+                        else stringResource(R.string.app_name)
                     )
                 },
                 actions = {
@@ -153,14 +117,17 @@ fun HomeScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = Color.Transparent,
+                // Fork: the container is OPAQUE. Upstream leaves it transparent so its gradient
+                // shows through, which let the cards scroll visibly under the title. On this theme
+                // the bar colour equals the page colour anyway, so an opaque ground costs nothing
+                // and keeps the header a header.
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
                     scrolledContainerColor = if (ShizukuSettings.isBlurUiEnabled())
                         MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
                     else
                         MaterialTheme.colorScheme.surfaceContainer
-                ),
-                scrollBehavior = scrollBehavior
+                )
             )
         }
     ) { innerPadding ->
@@ -187,13 +154,12 @@ fun HomeScreen(
         )
         AnimatedGradientBackground {
             if (isOneHanded && oneHandedOffset > 16.dp) {
-                val handleAlpha = (1f - (scrollBehavior.state.collapsedFraction * 2.5f)).coerceIn(0f, 1f)
+                // Fork: the header is fixed, so there is no collapsedFraction to fade the pill by.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(oneHandedOffset + innerPadding.calculateTopPadding())
-                        .padding(top = innerPadding.calculateTopPadding() + 8.dp)
-                        .graphicsLayer { alpha = handleAlpha },
+                        .padding(top = innerPadding.calculateTopPadding() + 8.dp),
                     contentAlignment = Alignment.TopCenter
                 ) {
                     Box(
@@ -219,28 +185,6 @@ fun HomeScreen(
                         factory = { context ->
                             recyclerViewProvider(context, adjustedPadding).also { rv ->
                                 (rv.parent as? android.view.ViewGroup)?.removeView(rv)
-                                // RecyclerView doesn't participate in Compose's nestedScroll,
-                                // so drive TopAppBar collapse directly from scroll callbacks.
-                                rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                                        val state = scrollBehavior.state
-                                        val limit = state.heightOffsetLimit
-                                        when {
-                                            // Scrolling down: collapse, but don't go below limit.
-                                            dy > 0 -> state.heightOffset =
-                                                (state.heightOffset - dy).coerceAtLeast(limit)
-                                            // Scrolling up: only expand if we're at the very top
-                                            // (exitUntilCollapsed semantics — don't re-expand mid-list).
-                                            dy < 0 && !recyclerView.canScrollVertically(-1) ->
-                                                state.heightOffset =
-                                                    (state.heightOffset - dy).coerceAtMost(0f)
-                                        }
-                                        state.contentOffset -= dy
-                                    }
-                                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                                        isScrollIdle.value = (newState == RecyclerView.SCROLL_STATE_IDLE)
-                                    }
-                                })
                             }
                         },
                         update = { view -> recyclerViewProvider(view.context, adjustedPadding) },
