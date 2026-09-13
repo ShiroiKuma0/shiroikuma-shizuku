@@ -389,7 +389,7 @@
     <string name="settings_reset_adb_keys_success">Chaves ADB apagadas</string>
     <string name="settings_reset_adb_keys_error">Falha ao redefinir as chaves ADB</string>
 
-    <!--Recursos do Shizuku+-->
+    <!--Recursos do 白い熊 雫-->
     <string name="settings_shizuku_plus_features">Recursos do 白い熊 雫</string>
     <string name="settings_dhizuku_mode">Modo Dhizuku</string>
     <string name="settings_dhizuku_mode_summary">Delegar privilégios de Proprietário do Dispositivo (DevicePolicyManager) a aplicativos que suportam o Dhizuku.</string>
@@ -448,7 +448,6 @@ Execute este comando no PC (a depuração USB deve estar ativada):
     <string name="diagnostics_disable_confirm">Desativar</string>
     <string name="diagnostics_action_required">Ação necessária</string>
     <string name="diagnostics_disable_button">Desativar diagnósticos</string>
-    <string name="help_general_plus_summary"><![CDATA[<b>Como o 白い熊 雫 funciona com outros aplicativos</b><br><br>O 白い熊 雫 oferece <i>recursos exclusivos Plus</i> (Ponte de Armazenamento, Ponte de IA, Ponte de Personalização) acessíveis por este aplicativo e por qualquer aplicativo de terceiros que use explicitamente a API do 白い熊 雫 (af.shizuku.plus.api).<br><br><b>Importante:</b> O 白い熊 雫 é totalmente compatível com a API original do 白い熊 雫. Aplicativos existentes que usam o 白い熊 雫 padrão (como SD Maid SE e SwiftBackup) descobrirão e funcionarão automaticamente com o 白い熊 雫 sem qualquer atualização do desenvolvedor.<br><br><b>Usando junto com o 白い熊 雫 padrão:</b> Apenas um serviço pode ser executado por vez. O cartão de Complemento na tela inicial facilita a troca caso você ainda tenha o 白い熊 雫 padrão instalado, mas é recomendado desinstalar o 白い熊 雫 padrão e usar apenas o 白い熊 雫.]]></string>
 
     <!--Textos de ajuda detalhados-->
     <string name="help_dhizuku_title">Sobre o Modo Dhizuku</string>
@@ -667,7 +666,7 @@ Execute este comando no PC (a depuração USB deve estar ativada):
     <string name="stock_shizuku_conflict_dialog_title">Servidor incompatível em execução</string>
     <string name="stock_shizuku_conflict_dialog_message">O servidor original do Shizuku está sendo executado em segundo plano. Devido às restrições de segurança do Android, o 白い熊 雫 não pode se comunicar com o servidor original nem encerrá-lo.
 
-Reinicie completamente o dispositivo para encerrar o servidor original e, em seguida, inicie o Shizuku+ usando ADB ou Root.</string>
+Reinicie completamente o dispositivo para encerrar o servidor original e, em seguida, inicie o 白い熊 雫 usando ADB ou Root.</string>
     <string name="stock_shizuku_restarting_via_root">Reiniciando via Root…</string>
     <string name="backup_plain_exported">Backup sem criptografia exportado. Mantenha este arquivo privado — ele não é criptografado.</string>
     <string name="backup_exported_success">Backup exportado com sucesso</string>
@@ -814,7 +813,7 @@ Reinicie completamente o dispositivo para encerrar o servidor original e, em seg
     <string name="settings_accent_slate_applied">Ardósia da Meia-Noite aplicada</string>
     <string name="settings_accent_default_applied">Azul Padrão (Predefinido)</string>
     <string name="fake_adb_pairing_title">Permitir conexão ADB falsa?</string>
-    <string name="fake_adb_pairing_message">Um aplicativo está tentando se conectar ao Shizuku+ pelo servidor ADB Local Falso.
+    <string name="fake_adb_pairing_message">Um aplicativo está tentando se conectar ao 白い熊 雫 pelo servidor ADB Local Falso.
 
 Impressão digital da chave RSA:
 %1$s</string>

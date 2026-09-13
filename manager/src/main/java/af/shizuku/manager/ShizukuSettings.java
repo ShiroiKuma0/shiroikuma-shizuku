@@ -194,10 +194,6 @@ public class ShizukuSettings {
         public static final String KEY_STEALTH_MODE = "stealth_mode";
         public static final String KEY_DEVICE_HARDENING_ENABLED = "device_hardening_enabled";
 
-        // Automation Engine (Shizuku+ additions)
-        public static final String KEY_AUTOMATION_TRUSTED_NETWORKS = "automation_trusted_networks";
-        public static final String KEY_AUTOMATION_APP_PROFILES = "automation_app_profiles";
-
         // "<token fingerprint>:<epoch millis>" of the last shell request that authenticated with a
         // valid auth token — i.e. the last time rish actually ran without a consent prompt. The
         // home screen's rish card reads it; the fingerprint is what stops a regenerated token from
@@ -1444,9 +1440,17 @@ public class ShizukuSettings {
         return p != null && p.getBoolean(Keys.KEY_AUTO_RECONNECT_MDNS, false);
     }
 
+    /**
+     * FORK: default OFF (upstream: on). When on, every RUNNING transition runs
+     * {@code DeviceOptimizer.applyFixes}: it Doze-whitelists this app and known terminal apps,
+     * {@code pm grant}s itself WRITE_SECURE_SETTINGS, sets SYSTEM_ALERT_WINDOW / GET_USAGE_STATS /
+     * SCHEDULE_EXACT_ALARM appops on itself and copies the starter binary to /data/local/tmp — a
+     * silent self-grant at every start. Like the auto-update poll, that is 白い熊's to switch on,
+     * not the default. The switch stays in Settings → Startup Behavior.
+     */
     public static boolean isDeviceHardeningEnabled() {
         SharedPreferences p = getPreferences();
-        return p == null || p.getBoolean(Keys.KEY_DEVICE_HARDENING_ENABLED, true);
+        return p != null && p.getBoolean(Keys.KEY_DEVICE_HARDENING_ENABLED, false);
     }
 
     public static void setDeviceHardeningEnabled(boolean enabled) {

@@ -74,10 +74,10 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         // Same reason, and the same screen can revoke it: Remove Device Owner sits two rows above
         // the tools it disables.
         if (isAdded) updateDeviceOwnerToolsAvailability()
-        // Upstream b892b43f: refresh the App Profiles summary when returning from
-        // AppProfilesActivity. Folded in here — a second onResume() override would
-        // not compile.
-        findPreference<Preference>("binder_firewall_app_profiles")?.let { updateAppProfilesSummary(it) }
+        // Upstream #461: re-apply the Backup & Restore category visibility, so a toggle made in
+        // Advanced settings takes effect on the way back without recreating the fragment. Folded
+        // in here — a second onResume() override would not compile.
+        applyBackupCategoryVisibility()
     }
 
     // e.message is often null for keystore/cipher exceptions (#315's "Backup failed: null"), and
@@ -790,13 +790,6 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 updatePreferenceDependency("native_window_crawler_enabled", active, hideDisabled)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Re-apply backup category visibility in case the user toggled it in Advanced settings
-        // and navigated back to Feature Hub without recreating the fragment.
-        applyBackupCategoryVisibility()
     }
 
     /**

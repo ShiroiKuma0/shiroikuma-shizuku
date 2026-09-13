@@ -2612,7 +2612,17 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             // others. Each attempt needs its own catch: on Android 12 and below the failure arrives
             // as a RuntimeException thrown by the client's provider and propagated back across the
             // binder, so a null check alone would let the first bad container abort the rest.
-            List<Bundle> attempts = new ArrayList<>(3);
+            List<Bundle> attempts = new ArrayList<>(4);
+            // Upstream's r2525 answer to the same problem (b13f5de5 / 66929d1b): a raw IBinder under
+            // the plain "binder" key, which needs no container class at all. Every provider built
+            // from api ba37f70 or later reads it before any container. It goes FIRST and ALONE —
+            // alone because on Android 12 and below a bundle is unparcelled whole, so pairing it
+            // with a container the client lacks would poison the raw key too; first because a client
+            // that takes it bails out of every later attempt at the "already a living binder" guard,
+            // and an older provider simply finds nothing in this bundle and waits for the next.
+            Bundle raw = new Bundle();
+            raw.putBinder("binder", binder);
+            attempts.add(raw);
             if (MANAGER_APPLICATION_ID.equals(packageName)) {
                 Bundle plus = new Bundle();
                 plus.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));

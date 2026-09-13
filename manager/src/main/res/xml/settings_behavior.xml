@@ -29,7 +29,7 @@
             android:key="device_hardening_enabled"
             android:title="@string/settings_device_hardening"
             android:summary="@string/settings_device_hardening_summary"
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:icon="@drawable/ic_shield_24" />
 
     </af.shizuku.manager.settings.CollapsiblePreferenceCategory>

@@ -2,13 +2,7 @@ package af.shizuku.manager.database
 
 import android.content.Context
 import android.content.pm.PackageManager
-import com.google.android.gms.tasks.Tasks
-import com.google.android.play.core.integrity.IntegrityManagerFactory
-import com.google.android.play.core.integrity.IntegrityTokenRequest
 import java.io.File
-import java.util.UUID
-import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
@@ -379,11 +373,13 @@ object RootCompatHelper {
             // Best-effort: tell GMS to treat its verdict cache as expired immediately.
             // Key names are not published; unknown keys are silently ignored.
             attemptGservicesTtlOverride()
-            // Wait briefly for GMS to finish starting up after force-stop, then trigger
-            // a Play Integrity request. If GMS re-runs DroidGuard on cold start (which it
-            // typically does), this caches a fresh "clean" result before Wallet launches.
-            delay(800)
-            if (context != null) attemptPlayIntegrityWarmup(context)
+            // FORK: upstream waits 800 ms here and then requests a Play Integrity token through
+            // com.google.android.play:integrity as a "warm-up", so GMS re-runs DroidGuard before
+            // Wallet launches. That is an outbound attestation request to Google from this app, and
+            // the library it needs is a linked Google Play dependency — both out under the
+            // no-phone-home rule (the same reason the unarmed Sentry SDK went). The remaining steps
+            // — force-stops, TTL override, pm clear Wallet, NFC routing — are unchanged; the
+            // verdict simply refreshes on GMS's own schedule instead.
             // Clear Wallet's own data so it calls Play Integrity with a fresh nonce
             // and cannot replay a cached stale result. Re-assert NFC routing as safeguard.
             // Confirmed via ADB: pm clear on Wallet succeeds as shell uid 2000, and does NOT
@@ -498,32 +494,6 @@ object RootCompatHelper {
         } catch (_: Exception) {}
     }
 
-    /**
-     * Requests a Play Integrity token from GMS. Even if the request fails (ShizukuPlus is
-     * a sideloaded app, so app-integrity won't pass), calling this forces GMS to re-run
-     * DroidGuard against the current device state. With su binaries already removed,
-     * the resulting device-integrity verdict should be "clean" and gets cached to disk —
-     * overwriting the old "compromised" verdict before Wallet launches.
-     *
-     * Blocking — must be called from [Dispatchers.IO].
-     */
-    private fun attemptPlayIntegrityWarmup(context: Context): Boolean {
-        return try {
-            val manager = IntegrityManagerFactory.create(context)
-            val request = IntegrityTokenRequest.builder()
-                .setNonce(UUID.randomUUID().toString())
-                .build()
-            Tasks.await(manager.requestIntegrityToken(request), 5, TimeUnit.SECONDS)
-            Timber.i("refreshGoogleWalletAttestation: Play Integrity warmup call succeeded")
-            true
-        } catch (e: Exception) {
-            // Expected if GMS is still starting up after force-stop, or on a device
-            // where the Play Integrity API is not available. Either way, not an error —
-            // the force-stop + fresh nonce path (pm clear Wallet) still applies.
-            Timber.i("refreshGoogleWalletAttestation: Play Integrity warmup: ${e.javaClass.simpleName}")
-            false
-        }
-    }
 
     /** Writes [bytes] to [path] via a privileged `cat`, then chmods it. Streams over stdin so no
      *  cross-UID file read is needed (works in ADB mode, not just root). */

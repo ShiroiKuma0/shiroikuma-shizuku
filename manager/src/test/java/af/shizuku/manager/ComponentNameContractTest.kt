@@ -67,6 +67,28 @@ class ComponentNameContractTest : FunSpec({
         }
     }
 
+    // ---- provider proxy -------------------------------------------------------------------
+    // Shizuku API v11+ clients fetch the binder with ContentResolver.call() on the stock authority,
+    // which the Compat Hub owns and forwards to OUR manager provider. That target authority is
+    // `<applicationId>.shizuku` and, like the forwarders above, has to be a string literal in
+    // :compat. Wrong, it forwards every modern stock-API client into nothing — silently.
+
+    test("the compat provider proxy forwards to our manager's authority") {
+        val proxy = File(repoRoot, "compat/src/main/java/moe/shizuku/privileged/api/ShizukuProviderProxy.java")
+        check(proxy.isFile) { "ShizukuProviderProxy.java not found at ${proxy.path} — has the proxy moved?" }
+        val match = Regex("""REAL_AUTHORITY\s*=\s*"([^"]+)"""").find(proxy.readText())
+        withClue("ShizukuProviderProxy no longer declares REAL_AUTHORITY as a string literal.") {
+            match shouldNotBe null
+        }
+        withClue(
+            "ShizukuProviderProxy forwards to '${match!!.groupValues[1]}', but this app's manager " +
+                "provider authority is '${BuildConfig.APPLICATION_ID}.shizuku' (ShizukuManagerProvider, " +
+                "declared as \${applicationId}.shizuku in the manifest)."
+        ) {
+            match.groupValues[1] shouldBe "${BuildConfig.APPLICATION_ID}.shizuku"
+        }
+    }
+
     test("compat forwarders address classes that still exist") {
         references().forEach { ref ->
             // Resolved on the filesystem rather than with Class.forName: these types extend Android

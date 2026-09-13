@@ -169,6 +169,9 @@ class ServerStatusViewHolder(
         // Outline: hidden when user disables it. Style toggles between Material (theme roles) and
         // Status (semantic green/amber/red). Starting state always uses amber regardless of style.
         if (af.shizuku.manager.ShizukuSettings.isShowStatusCardOutlineEnabled()) {
+            // Fork: the house applier re-strokes every MaterialCardView on layout; this tag tells
+            // it to leave this card's state colour alone (ShiroikumaViewTheme.markColorOwned).
+            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.markColorOwned(cardView)
             val strokeDp = 2f
             cardView.strokeWidth = (strokeDp * context.resources.displayMetrics.density + 0.5f).toInt()
             val useStatusColors = af.shizuku.manager.ShizukuSettings.getStatusCardOutlineStyle() == "status"
@@ -191,6 +194,8 @@ class ServerStatusViewHolder(
                     )
             }
         } else {
+            // Outline off: hand the stroke back to the house applier (major-tier border).
+            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.clearColorOwned(cardView)
             cardView.strokeWidth = 0
         }
 

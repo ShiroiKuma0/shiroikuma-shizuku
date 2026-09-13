@@ -169,7 +169,7 @@
     <string name="doctor_status_samsung_sleeping_apps">Review required (Check Sleeping Apps)</string>
     <string name="doctor_status_su_bridge_path_set">exported path set</string>
     <string name="doctor_status_su_bridge_no_path">Exported path not configured</string>
-    <string name="doctor_tip_oneui8_max_restrictions">One UI 8+: \'Maximum Restrictions\' in Auto Blocker disables ADB. Turn it off to use Shizuku.</string>
+    <string name="doctor_tip_oneui8_max_restrictions">One UI 8+: \'Maximum Restrictions\' in Auto Blocker disables ADB. Turn it off to use 白い熊 雫.</string>
     <string name="doctor_tip_su_bridge_a16">Android 16+ restricts /data/local/tmp writes from the ADB shell. Open the Root Compat Hub and tap \"Export\" to set a SU Bridge path that works on your device.</string>
     <string name="doctor_tip_samsung_autoblocker"><b>Samsung Auto Blocker</b>: Ensure it is turned <b>OFF</b> or that \'Maximum Restrictions\' is disabled. It silently blocks ADB commands on One UI 7/8+.</string>
     <string name="doctor_tip_oneui_connectivity"><b>One UI 7/8 Connectivity</b>: If Wireless Pairing fails, try using <b>Split Screen mode</b> with 白い熊 雫 and Developer Options open simultaneously.</string>
@@ -369,7 +369,7 @@
     <string name="settings_watchdog">Watchdog</string>
     <string name="settings_watchdog_summary">Automatically restart 白い熊 雫 after a crash or unexpected stop. Cannot reconnect when the underlying network disconnects (e.g. USB cable unplugged while using RNDIS/USB ADB).</string>
     <string name="settings_device_hardening">Device Hardening &amp; Keepalive</string>
-    <string name="settings_device_hardening_summary">Exempt Shizuku and terminal clients from Doze, auto-grant WRITE_SECURE_SETTINGS, and sync starter binaries</string>
+    <string name="settings_device_hardening_summary">Exempt 白い熊 雫 and terminal clients from Doze, auto-grant WRITE_SECURE_SETTINGS, and sync starter binaries</string>
     <string name="doctor_check_device_hardening">Device Hardening &amp; Doze Exemption</string>
     <string name="device_hardening_applied">Device hardening &amp; Doze optimizations applied</string>
     <string name="settings_tcp_mode">TCP mode</string>
@@ -678,7 +678,7 @@
     <string name="doctor_tip_xiaomi">Xiaomi/HyperOS: Enable "USB Debugging (Security Settings)" in Developer Options.</string>
     <string name="doctor_check_xiaomi_autostart">Xiaomi/HyperOS Autostart</string>
     <string name="doctor_status_xiaomi_autostart_unknown">Grant Autostart to keep service alive</string>
-    <string name="doctor_tip_xiaomi_battery"><b>HyperOS Battery</b>: Open Battery settings and set Shizuku+ to <b>No restrictions</b>. HyperOS kills background processes at its Doze interval (~30 min) unless this is set.</string>
+    <string name="doctor_tip_xiaomi_battery"><b>HyperOS Battery</b>: Open Battery settings and set 白い熊 雫 to <b>No restrictions</b>. HyperOS kills background processes at its Doze interval (~30 min) unless this is set.</string>
     <string name="doctor_check_oppo_permission">ColorOS/OxygenOS Permission Monitoring</string>
     <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus: Disable "Permission Monitoring" in Developer Options to prevent background service kills.</string>
     <string name="doctor_check_oppo_battery">ColorOS/OxygenOS Auto-Launch</string>
@@ -707,8 +707,8 @@
       NO_SHIZUKU:  Shizuku wasn\'t running; only unprivileged Wallet stop was possible.
     -->
     <string name="doctor_fix_wallet_success">Done. Running as root — the Play Integrity verdict files were deleted directly from GMS. Open Google Wallet; it should work immediately.</string>
-    <string name="doctor_fix_wallet_success_adb_mode">Done. Shizuku is running in ADB shell mode, so the Play Integrity verdict file on disk can\'t be deleted (only root can touch GMS\'s data directory).\n\nWhat was done instead:\n• DroidGuard process killed (clears in-memory verdict)\n• GMS stopped\n• Play Integrity TTL override attempted (prompts GMS to re-attest immediately)\n• Fresh attestation warmup requested (triggers DroidGuard re-evaluation with clean device)\n• Wallet data cleared (forces a new integrity request with a fresh nonce)\n• NFC payment routing re-confirmed\n\nTry opening Wallet now — it should recover immediately. If still blocked, tap \"Clear Play Services Data\" below for guaranteed immediate recovery (you\'ll need to sign back into Google afterward).</string>
-    <string name="doctor_fix_wallet_success_no_shizuku">Done. Shizuku wasn\'t running, so only Wallet itself could be stopped — GMS\'s cached Play Integrity verdict is still intact.\n\nWallet should recover on its own within ~1 hour as the verdict expires naturally. For immediate recovery, tap \"Clear Play Services Data\" below (you\'ll need to sign back into Google afterward).\n\nTo avoid this next time, make sure Shizuku is running before disabling root features — it enables a more thorough cleanup.</string>
+    <string name="doctor_fix_wallet_success_adb_mode">Done. 白い熊 雫 is running in ADB shell mode, so the Play Integrity verdict file on disk can\'t be deleted (only root can touch GMS\'s data directory).\n\nWhat was done instead:\n• DroidGuard process killed (clears in-memory verdict)\n• GMS stopped\n• Play Integrity TTL override attempted (prompts GMS to re-attest immediately)\n• Wallet data cleared (forces a new integrity request with a fresh nonce)\n• NFC payment routing re-confirmed\n\nTry opening Wallet now — it should recover immediately. If still blocked, tap \"Clear Play Services Data\" below for guaranteed immediate recovery (you\'ll need to sign back into Google afterward).</string>
+    <string name="doctor_fix_wallet_success_no_shizuku">Done. 白い熊 雫 wasn\'t running, so only Wallet itself could be stopped — GMS\'s cached Play Integrity verdict is still intact.\n\nWallet should recover on its own within ~1 hour as the verdict expires naturally. For immediate recovery, tap \"Clear Play Services Data\" below (you\'ll need to sign back into Google afterward).\n\nTo avoid this next time, make sure Shizuku is running before disabling root features — it enables a more thorough cleanup.</string>
     <string name="doctor_fix_wallet_failed">Unable to delete root binaries automatically. You can copy the ADB command below to remove them manually via terminal.</string>
     <string name="doctor_action_clear_gms_cache">Clear Play Services Data</string>
     <string name="doctor_action_open_wallet">Open Google Wallet</string>
@@ -717,7 +717,7 @@
     <string name="su_bridge_cleanup_tmp">Remove Bridge from /data/local/tmp</string>
     <string name="su_bridge_deploy_to_tmp">Deploy Bridge to /data/local/tmp</string>
     <string name="su_bridge_cleanup_success">Removed SU Bridge from /data/local/tmp. Google Wallet security restored.</string>
-    <string name="su_bridge_cleanup_failed">Failed to remove SU Bridge from /data/local/tmp. Make sure Shizuku is running.</string>
+    <string name="su_bridge_cleanup_failed">Failed to remove SU Bridge from /data/local/tmp. Make sure 白い熊 雫 is running.</string>
     <string name="su_bridge_deploy_success">SU Bridge deployed to /data/local/tmp.</string>
     <string name="su_bridge_warning_wallet_title">Google Wallet Notice</string>
     <string name="su_bridge_warning_wallet_message">Deploying \'su\' to /data/local/tmp or enabling Magisk Mocking triggers Android root detection in Google Play Services, which disables Google Wallet contactless payments. You can remove it at any time to restore Wallet.</string>
@@ -977,7 +977,7 @@
 
     <!-- Empty State Views -->
     <string name="empty_state_title_service_starting">Starting…</string>
-    <string name="empty_state_description_service_starting">Waiting for Shizuku+ to finish starting. This usually takes a moment.</string>
+    <string name="empty_state_description_service_starting">Waiting for 白い熊 雫 to finish starting. This usually takes a moment.</string>
     <string name="empty_state_title_no_results">No results found</string>
     <string name="empty_state_description_no_results">No apps match your current filter or search criteria.</string>
     <string name="empty_state_title_no_apps">No apps yet</string>
@@ -1339,7 +1339,7 @@
     <string name="tile_action_open_app">Open App</string>
     <!-- Tile service error -->
     <string name="tile_state_update_failed">Failed to update 白い熊 雫 state: %1$s</string>
-    <string name="tile_open_app_required">Open Shizuku to start or pair Wireless Debugging</string>
+    <string name="tile_open_app_required">Open 白い熊 雫 to start or pair Wireless Debugging</string>
 
     <!-- App Profiles automation activity -->
     <string name="app_profiles_title">App Profiles</string>

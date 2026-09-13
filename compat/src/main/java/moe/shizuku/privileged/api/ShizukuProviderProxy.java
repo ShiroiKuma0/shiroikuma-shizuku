@@ -14,11 +14,17 @@ import android.os.Bundle;
  * legacy broadcast path (REQUEST_BINDER) can connect — v11+ apps silently fail.
  *
  * Forwards all call() invocations to the real ShizukuManagerProvider in the
- * Shizuku+ manager at authority "af.shizuku.plus.api.shizuku".
+ * 白い熊 雫 manager at authority "shiroikuma.shizuku.shizuku".
+ *
+ * FORK: the authority is {@code <applicationId>.shizuku} and this module cannot read the
+ * manager's BuildConfig, so it is spelled out here — upstream spells out its own app id in the
+ * same place. {@code ComponentNameContractTest} in {@code :manager} reads this literal back and
+ * fails the build if it stops matching {@code APP_ID}; a wrong authority here forwards every
+ * modern stock-API client into nothing, with no error anywhere.
  */
 public class ShizukuProviderProxy extends ContentProvider {
 
-    private static final String REAL_AUTHORITY = "af.shizuku.plus.api.shizuku";
+    private static final String REAL_AUTHORITY = "shiroikuma.shizuku.shizuku";
 
     @Override
     public boolean onCreate() {
