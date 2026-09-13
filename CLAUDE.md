@@ -160,6 +160,8 @@ regression, not a feature — and re-check this whole table after every rebase.
 | `HomeActivity.checkForUpdates()` | polled the releases API on every app start | `isAutoUpdateEnabled()` now defaults **false** (upstream: true) |
 | "Email support" button | device / OS / version report → the upstream author's address | button removed; `support_email` blanked |
 | `.github/workflows/` | `app.yml` injected a Sentry DSN and uploaded debug symbols, triggered on pushes to `master` | whole `.github/` directory removed (also FUNDING.yml and the issue templates) |
+| Play Integrity "warm-up" (`r2531`, `1811de8f`) | the Wallet-recovery fix in `RootCompatHelper` linked `com.google.android.play:integrity` and called `requestIntegrityToken()` — an attestation request to Google | **dependency gone** (2026-09-13): no `play-integrity` in `libs.versions.toml` or `database/build.gradle`, no ProGuard keep, `attemptPlayIntegrityWarmup` deleted; the rest of the Wallet fix (force-stops, TTL override, `pm clear` Wallet, NFC routing) is kept |
+| "Device Hardening & Keepalive" (`r2500`, `fd85a60b`) | on every RUNNING transition: Doze-whitelists this app and Termux/aShell, `pm grant`s itself `WRITE_SECURE_SETTINGS`, sets three appops on itself, copies the starter to `/data/local/tmp` — **default ON** upstream | switch kept, `isDeviceHardeningEnabled()` **defaults false** (a silent self-grant at every start is 白い熊's to switch on, like the update poll) |
 
 The **only** outbound request the app can make is the update check, and only when 白い熊 taps
 "Check for updates" — it reads our own releases and sends nothing about the device.
@@ -271,6 +273,14 @@ artifacts: **`rikka.shizuku.BinderContainer` is ours alone** — it exists only 
 `api/provider`, no released AAR has it — yet it is tried before the `moe` container that every
 client does have. The server logged a successful send while the client held no binder at all
 (measured 2026-08-04, canary `shiroikuma.mise`).
+
+Since the `r2554` sync the first attempt is a bundle holding **only** a raw `IBinder` under the plain
+`"binder"` key — upstream's own answer to the same bug (`b13f5de5` / `66929d1b`), read before any
+container by every provider built from api `ba37f70` on. It goes alone because on Android 12 and
+below a bundle is unparcelled whole, so pairing it with a container the client lacks would poison
+the raw key too; an older provider finds nothing in it and is served by the container attempts that
+follow. Upstream instead sends one bundle (`moe` + raw for third parties, all four for the manager)
+and trusts a non-null reply — the loop here stays, and the raw bundle is simply attempt zero.
 
 The redundant calls are free: a client that already took a container bails at the "already a living
 binder" guard. **Keep `LOGGER.i("send binder to user app …")` as a single line after the loop** —
@@ -420,6 +430,16 @@ that a source file exists for the named class. Rename `RequestPermissionActivity
 `BinderRequestReceiver` and the **build** fails, instead of the Compat Hub silently failing on a
 device. The same test asserts the two identifiers stay distinct, so the shorthand forms can never
 start working by accident.
+
+The third literal is an **authority**, not a class: `compat/…/ShizukuProviderProxy.java`
+(upstream `r2437`, `1a428b33`) owns the stock authority `moe.shizuku.privileged.api.shizuku` that
+every API v11+ stock client calls `ContentResolver.call()` on, and forwards to our manager provider
+at `REAL_AUTHORITY` — which must read `shiroikuma.shizuku.shizuku`, not upstream's
+`af.shizuku.plus.api.shizuku`. Wrong, it forwards every modern stock client into nothing, with no
+error anywhere; before this proxy existed the hub served only the legacy broadcast path, so this is
+what makes SD Maid SE, Swift Backup and Obtainium connect through the hub at all. The same test
+reads the literal back and asserts it equals `"${BuildConfig.APPLICATION_ID}.shizuku"`. **Every
+rebase will restore upstream's value** — the Step 4 app-id grep and this test both catch it.
 
 Run it with `./gradlew :manager:testShizukuplusDebugUnitTest`.
 
