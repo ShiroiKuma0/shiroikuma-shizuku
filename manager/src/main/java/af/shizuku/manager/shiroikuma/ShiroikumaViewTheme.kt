@@ -53,6 +53,11 @@ object ShiroikumaViewTheme {
         view.setTag(COLOR_OWNED_TAG, true)
     }
 
+    /** Undoes [markColorOwned] — for a holder that only owns the colour in some states. */
+    fun clearColorOwned(view: View) {
+        view.setTag(COLOR_OWNED_TAG, null)
+    }
+
     fun applyToTree(root: View?, tintBackground: Boolean = true) {
         if (root == null) return
         val ctx = root.context
@@ -79,9 +84,15 @@ object ShiroikumaViewTheme {
             when (v) {
                 is MaterialCardView -> {
                     v.setCardBackgroundColor(cardFill)
-                    v.strokeColor = border
-                    v.strokeWidth =
-                        (p.getInt(ctx, p.KEY_CARD_BORDER) * ctx.resources.displayMetrics.density).toInt()
+                    // A colour-owned card keeps the stroke its holder set — the status card's
+                    // state outline (yellow running / red stopped, upstream r2477+), which under
+                    // this scheme is the house look with meaning added. Every other card gets the
+                    // major-tier border.
+                    if (v.getTag(COLOR_OWNED_TAG) != true) {
+                        v.strokeColor = border
+                        v.strokeWidth =
+                            (p.getInt(ctx, p.KEY_CARD_BORDER) * ctx.resources.displayMetrics.density).toInt()
+                    }
                     v.radius = p.getInt(ctx, p.KEY_CARD_RADIUS) * ctx.resources.displayMetrics.density
                 }
 

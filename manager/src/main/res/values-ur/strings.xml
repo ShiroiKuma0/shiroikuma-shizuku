@@ -7,7 +7,7 @@
 
     <!-- To translators: you can leave your here -->
     <string name="translation_contributors">HAMO</string>
-    <string name="translation_url">https://github.com/thejaustin/ShizukuPlus</string>
+    <string name="translation_url">https://github.com/ShiroiKuma0/shiroikuma-shizuku</string>
 
     <!-- UI Settings - Expressive -->
     <string name="settings_expressive_title">ایکسپریسیو ڈیزائن (M3E)</string>
@@ -143,10 +143,10 @@
     <string name="doctor_tip_secure_folder"><![CDATA[<b>Secure Folder Detected</b>: Shizuku Main User (Owner) میں بہترین کام کرتا ہے۔ Secure Folder یا Work Profile کے اندر چلانے کی صورت میں پہلے Main User سے server شروع کرنا ضروری ہو سکتا ہے۔]]></string>
     <string name="doctor_tip_phantom_process"><![CDATA[<b>Phantom Process Killer</b>: Android 12-15+ بہت زیادہ کمانڈز چلنے پر Shizuku کو بند کر سکتا ہے۔ <b>Fix</b> بٹن اس حد کو غیر فعال کرنے کی کوشش کرتا ہے۔]]></string>
     <string name="doctor_tip_samsung_optimization"><![CDATA[<b>Samsung Auto-Optimization</b>: Device Care میں <b>Auto Restart</b> کو غیر فعال کریں تاکہ Shizuku رات کے وقت بند نہ ہو۔]]></string>
-    <string name="doctor_tip_samsung_sleeping"><![CDATA[<b>Samsung Sleeping Apps</b>: Fix پر ٹیپ کرنے سے <b>\'Never sleeping ایپس\'</b> کی فہرست براہِ راست کھلتی ہے۔ <b>+</b> بٹن دبائیں اور Shizuku+ شامل کریں تاکہ Samsung بیک گراؤنڈ سروس کو منجمد نہ کرے۔]]></string>
+    <string name="doctor_tip_samsung_sleeping"><![CDATA[<b>Samsung Sleeping Apps</b>: Fix پر ٹیپ کرنے سے <b>\'Never sleeping ایپس\'</b> کی فہرست براہِ راست کھلتی ہے۔ <b>+</b> بٹن دبائیں اور 白い熊 雫 شامل کریں تاکہ Samsung بیک گراؤنڈ سروس کو منجمد نہ کرے۔]]></string>
     <string name="doctor_tip_s22_ultra_exynos"><![CDATA[<b>S22 Ultra (Exynos)</b>: اگر سروس کا ردِعمل سست ہو تو Device Care > Memory میں <b>\'RAM Plus\'</b> غیر فعال کرنے کی کوشش کریں۔]]></string>
     <string name="doctor_tip_s22_ultra_snapdragon"><![CDATA[<b>S22 Ultra (Snapdragon)</b>: زیادہ سے زیادہ کمانڈ throughput کے لیے Quick Settings میں <b>\'Enhanced Processing\'</b> فعال رکھیں۔]]></string>
-    <string name="doctor_system_well_configured">آپ کا سسٹم Shizuku+ کے لیے درست طور پر ترتیب دیا ہوا معلوم ہوتا ہے۔</string>
+    <string name="doctor_system_well_configured">آپ کا سسٹم 白い熊 雫 کے لیے درست طور پر ترتیب دیا ہوا معلوم ہوتا ہے۔</string>
 
     <!-- Root Compatibility -->
     <string name="su_bridge_other_detected_apps">دیگر دریافت شدہ Root ایپس</string>
@@ -258,7 +258,7 @@
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[یہ بہت ممکن ہے کہ آپ کے ڈیوائس کے مینوفیکچرر نے ADB کی اجازت محدود کی ہو۔<p>آپ کے سسٹم کے لیے حل <b><a href="%1$s">اس دستاویز</a></b> میں موجود ہو سکتا ہے۔]]></string>
     <string name="app_management_item_summary_requires_root">* Shizuku کا root کے ساتھ چلنا ضروری ہے</string>
     <string name="app_management_item_summary_partial_root">⚠ جزوی معاونت — کچھ functions کے لیے اب بھی Shizuku کا root کے ساتھ چلنا ضروری ہے</string>
-    <string name="app_management_item_summary_requires_plus">* Shizuku+ Enhanced API درکار ہے</string>
+    <string name="app_management_item_summary_requires_plus">* 白い熊 雫 Enhanced API درکار ہے</string>
     <string name="app_management_item_context">اس ایپ کے بارے میں: %s</string>
     <string name="app_management_enhancements">Enhancements</string>
     <string name="app_management_enhancements_desc">کارکردگی اور مطابقت بہتر بنانے کے لیے اس ایپ کے لیے Plus فیچرز فعال کریں۔</string>
@@ -280,7 +280,7 @@
     <string name="terminal_export_files">فائلیں ایکسپورٹ کریں</string>
     <string name="terminal_tutorial_2">فائلوں کو اپنی نجی files directory میں کاپی کرنے کے لیے terminal ایپ استعمال کریں۔</string>
     <string name="terminal_tutorial_2_description">مشورہ: اگر آپ کی terminal ایپ کی home directory (~) نجی files directory میں ہے تو فائلیں وہاں رکھنے سے %1$s کو path لکھے بغیر چلایا جا سکے گا۔\n\nورنہ اپنی terminal ایپ کی %3$s configuration file میں %2$s کے لیے alias بنا سکتے ہیں۔</string>
-    <string name="terminal_tutorial_3">Shell کھولیں یا Shizuku+ کمانڈ چلائیں:</string>
+    <string name="terminal_tutorial_3">Shell کھولیں یا 白い熊 雫 کمانڈ چلائیں:</string>
     <string name="rish_description"><![CDATA[%1$s کے ساتھ آپ کسی بھی terminal ایپ میں shell کمانڈز چلا سکتے ہیں۔<p>اسے استعمال کرنے کا طریقہ جاننے کے لیے ٹیپ کریں۔]]></string>
 
     <!-- Settings — swipe customisation -->
@@ -301,14 +301,14 @@
     <string name="settings_lp_hide_from_list">فہرست سے چھپائیں</string>
 
     <!-- Onboarding -->
-    <string name="onboarding_welcome_title">Shizuku+ میں خوش آمدید</string>
+    <string name="onboarding_welcome_title">白い熊 雫 میں خوش آمدید</string>
     <string name="onboarding_welcome_desc">طاقتور ایپ مینجمنٹ فیچرز کے ساتھ بہتر Shizuku۔ Swipe gestures، quick actions اور حسبِ ضرورت تجربہ — سب ایک جگہ۔</string>
     <string name="onboarding_swipe_title">ڈیفالٹ Gestures</string>
     <string name="onboarding_swipe_desc">ڈیفالٹ طور پر app management list میں دائیں swipe سے ایپ کھلتی ہے اور بائیں swipe سے اس کا system ترتیبات page کھلتا ہے۔</string>
     <string name="onboarding_gestures_title">حسبِ ضرورت Gestures</string>
     <string name="onboarding_gestures_desc">Settings میں swipe actions کو مکمل طور پر حسبِ ضرورت بنا سکتے ہیں۔ Open ایپ، ایپ Info، Toggle Permission یا Hide from List میں سے انتخاب کریں۔</string>
     <string name="onboarding_longpress_title">تجربہ حسبِ ضرورت بنائیں</string>
-    <string name="onboarding_longpress_desc">منتخب کریں کہ کسی ایپ کو دیر تک دبانے پر کون سی کارروائیاں دکھائی جائیں، یا Dhizuku Mode جیسی Shizuku+ exclusive فیچرز فعال کریں۔</string>
+    <string name="onboarding_longpress_desc">منتخب کریں کہ کسی ایپ کو دیر تک دبانے پر کون سی کارروائیاں دکھائی جائیں، یا Dhizuku Mode جیسی 白い熊 雫 exclusive فیچرز فعال کریں۔</string>
     <string name="onboarding_next">اگلا</string>
     <string name="onboarding_skip">چھوڑیں</string>
     <string name="onboarding_get_started">شروع کریں</string>
@@ -386,18 +386,18 @@
     <string name="settings_reset_adb_keys_success">ADB keys صاف ہو گئیں</string>
     <string name="settings_reset_adb_keys_error">ADB keys ری سیٹ کرنے میں ناکامی</string>
 
-    <!-- Shizuku+ Features -->
-    <string name="settings_shizuku_plus_features">Shizuku+ Features</string>
+    <!-- 白い熊 雫 Features -->
+    <string name="settings_shizuku_plus_features">白い熊 雫 Features</string>
     <string name="settings_dhizuku_mode">Dhizuku Mode</string>
     <string name="settings_dhizuku_mode_summary">Dhizuku کو سپورٹ کرنے والی ایپس کو Device Owner (DevicePolicyManager) privileges دیں۔</string>
-    <string name="dhizuku_device_owner_label">Shizuku+ (Dhizuku Mode)</string>
+    <string name="dhizuku_device_owner_label">白い熊 雫 (Dhizuku Mode)</string>
     <string name="dhizuku_device_owner_desc">مجاز ایپس کے ساتھ Device Owner privileges شیئر کرنے کے لیے Dhizuku Mode کے لیے ضروری ہے۔</string>
     <string name="dhizuku_device_owner_enabled">Dhizuku Device Owner فعال ہے</string>
     <string name="dhizuku_device_owner_disabled">Dhizuku Device Owner غیر فعال ہے</string>
-    <string name="settings_enhanced_api">Shizuku+ Enhanced API</string>
-    <string name="settings_enhanced_api_summary">power users کے لیے advanced system interfaces فعال کریں۔ تمام exclusive Shizuku+ فیچرز کے لیے ضروری ہے۔</string>
+    <string name="settings_enhanced_api">白い熊 雫 Enhanced API</string>
+    <string name="settings_enhanced_api_summary">power users کے لیے advanced system interfaces فعال کریں۔ تمام exclusive 白い熊 雫 فیچرز کے لیے ضروری ہے۔</string>
     <string name="settings_themed_icon">Themed app icon</string>
-    <string name="settings_themed_icon_summary">جب launcher themed icons سپورٹ کرے تو Shizuku+ آئیکن کا Material You tinted ورژن استعمال کریں۔</string>
+    <string name="settings_themed_icon_summary">جب launcher themed icons سپورٹ کرے تو 白い熊 雫 آئیکن کا Material You tinted ورژن استعمال کریں۔</string>
     <string name="settings_themed_icon_open_settings">آئیکن کی ترتیبات کھولیں</string>
     <string name="settings_shell_interceptor">Shell Accelerator</string>
     <string name="settings_shell_interceptor_summary">native APIs کے ذریعے shell کمانڈز تیز کریں۔ MacroDroid اور Tasker tasks کی کارکردگی بہتر ہوتی ہے۔</string>
@@ -440,7 +440,7 @@
     <string name="diagnostics_disable_confirm">غیر فعال کریں</string>
     <string name="diagnostics_action_required">کارروائی درکار ہے</string>
     <string name="diagnostics_disable_button">Diagnostics غیر فعال کریں</string>
-    <string name="help_general_plus_summary"><![CDATA[<b>Shizuku+ دوسری ایپس کے ساتھ کیسے کام کرتا ہے</b><br><br>Shizuku+ اس app اور Shizuku+ API (af.shizuku.plus.api) کو واضح طور پر target کرنے والی third-party ایپس کے ذریعے <i>exclusive Plus فیچرز</i> (Storage Bridge، AI Bridge، Theming Bridge) فراہم کرتا ہے۔<br><br><b>اہم:</b> Shizuku+ اصل Shizuku API کے ساتھ مکمل backwards compatible ہے۔ موجودہ ایپس جو stock Shizuku استعمال کرتی ہیں (جیسے SD Maid SE اور SwiftBackup) بغیر developer update کے Shizuku+ کو خودکار طور پر discover اور استعمال کر لیں گی۔<br><br><b>Stock Shizuku کے ساتھ استعمال:</b> ایک وقت میں صرف ایک service چل سکتی ہے۔ اگر stock Shizuku انسٹال ہے تو home screen کا Companion card switching آسان بناتا ہے، تاہم stock Shizuku uninstall کر کے صرف Shizuku+ استعمال کرنے کی سفارش کی جاتی ہے۔]]></string>
+    <string name="help_general_plus_summary"><![CDATA[<b>白い熊 雫 دوسری ایپس کے ساتھ کیسے کام کرتا ہے</b><br><br>白い熊 雫 اس app اور 白い熊 雫 API (shiroikuma.shizuku) کو واضح طور پر target کرنے والی third-party ایپس کے ذریعے <i>exclusive Plus فیچرز</i> (Storage Bridge، AI Bridge، Theming Bridge) فراہم کرتا ہے۔<br><br><b>اہم:</b> 白い熊 雫 اصل Shizuku API کے ساتھ مکمل backwards compatible ہے۔ موجودہ ایپس جو stock Shizuku استعمال کرتی ہیں (جیسے SD Maid SE اور SwiftBackup) بغیر developer update کے 白い熊 雫 کو خودکار طور پر discover اور استعمال کر لیں گی۔<br><br><b>Stock Shizuku کے ساتھ استعمال:</b> ایک وقت میں صرف ایک service چل سکتی ہے۔ اگر stock Shizuku انسٹال ہے تو home screen کا Companion card switching آسان بناتا ہے، تاہم stock Shizuku uninstall کر کے صرف 白い熊 雫 استعمال کرنے کی سفارش کی جاتی ہے۔]]></string>
 
     <!-- Detailed Help Strings -->
     <string name="help_dhizuku_title">Dhizuku Mode کے بارے میں</string>
@@ -452,7 +452,7 @@
     <string name="help_storage_proxy_title">Storage Bridge کے بارے میں</string>
     <string name="help_storage_proxy_detail">Storage Bridge /data/data/ (app data) اور /data/app/ (APK files) جیسی restricted filesystem paths تک authenticated، high-speed access فراہم کرتا ہے۔ اس سے Neo Backup جیسے backup tools مکمل root access کے بغیر کام کر سکتے ہیں، جبکہ Shizuku کے اجازت model کے ذریعے سیکیورٹی برقرار رہتی ہے۔</string>
     <string name="help_continuity_bridge_title">Multi-Device Continuity کے بارے میں</string>
-    <string name="help_continuity_bridge_detail">Continuity Bridge ایک ہی نیٹ ورک پر موجود Shizuku+ ڈیوائسز کو tasks hand off کرنے اور clipboard/app state synchronize کرنے کی اجازت دیتا ہے۔ یہ Android 17 Handoff APIs استعمال کرتا ہے (جہاں ممکن ہو backported) تاکہ فون اور tablet کے درمیان automation tasks کی ہموار منتقلی ممکن ہو۔</string>
+    <string name="help_continuity_bridge_detail">Continuity Bridge ایک ہی نیٹ ورک پر موجود 白い熊 雫 ڈیوائسز کو tasks hand off کرنے اور clipboard/app state synchronize کرنے کی اجازت دیتا ہے۔ یہ Android 17 Handoff APIs استعمال کرتا ہے (جہاں ممکن ہو backported) تاکہ فون اور tablet کے درمیان automation tasks کی ہموار منتقلی ممکن ہو۔</string>
     <string name="help_ai_core_plus_title">Intelligence Bridge کے بارے میں</string>
     <string name="help_ai_core_plus_detail">Intelligence Bridge AI assistants کو screen content اور NPU scheduling تک privileged access دیتا ہے۔ یہ "Circle to Search" اور local LLMs کے لیے screen-aware context جیسی فیچرز کو high-performance, window-aware frame capture کے ذریعے فعال کرتا ہے۔</string>
     <string name="help_window_manager_plus_title">Window Tuner کے بارے میں</string>
@@ -503,7 +503,7 @@
     <string name="settings_experimental_root_experimental">Experimental Root Compatibility</string>
     <string name="settings_spoof_device_experimental">Spoof Device Identity</string>
     <string name="settings_open_source_licenses">Open source licenses</string>
-    <string name="settings_open_source_licenses_summary">Shizuku+ میں استعمال ہونے والی open source libraries</string>
+    <string name="settings_open_source_licenses_summary">白い熊 雫 میں استعمال ہونے والی open source libraries</string>
     <string name="settings_experimental_warning_title">Experimental Feature</string>
     <string name="settings_experimental_warning_message">یہ فیچر تجرباتی ہے اور system instability یا crashes کا سبب بن سکتا ہے۔ کیا آپ واقعی اسے فعال کرنا چاہتے ہیں؟</string>
     <string name="settings_spoof_target">Target Device</string>
@@ -520,9 +520,9 @@
     <string name="settings_fake_su">SU Bridge (su wrapper)</string>
     <string name="settings_fake_su_summary">legacy root ایپس کے لیے Shizuku-backed \'su\' binary فراہم کریں جو custom paths سپورٹ کرتی ہیں۔</string>
     <string name="settings_root_integration_hub">Root Integration Hub</string>
-    <string name="settings_root_integration_hub_summary">Shizuku+ privileges کے ساتھ root ایپس کو کام کرنے کے لیے configure اور manage کریں۔</string>
+    <string name="settings_root_integration_hub_summary">白い熊 雫 privileges کے ساتھ root ایپس کو کام کرنے کے لیے configure اور manage کریں۔</string>
     <string name="settings_root_compatibility_hub">Root Compatibility Hub</string>
-    <string name="settings_root_compatibility_hub_summary">Shizuku+ privileges کے ساتھ root ایپس کو کام کرنے کے لیے configure اور manage کریں۔</string>
+    <string name="settings_root_compatibility_hub_summary">白い熊 雫 privileges کے ساتھ root ایپس کو کام کرنے کے لیے configure اور manage کریں۔</string>
     <string name="su_bridge_title">SU Bridge</string>
     <string name="su_bridge_description">ایسی ایپس کو root access فراہم کریں جو Shizuku سپورٹ نہیں کرتیں، ایک custom \'su\' binary بنا کر۔</string>
     <string name="su_bridge_suggested_apps">Suggested Apps</string>
@@ -532,10 +532,10 @@
     <string name="su_bridge_setup_all">سب کا Setup</string>
     <string name="su_bridge_setup_all_success">تمام compatible ایپس کے لیے automatic setup کی کوشش کی گئی۔</string>
     <string name="su_bridge_magic_setup">Magic Setup</string>
-    <string name="su_bridge_magic_setup_success">Magic Setup مکمل! Shizuku+ نے %s کو آپ کے لیے configure کر دیا ہے۔</string>
+    <string name="su_bridge_magic_setup_success">Magic Setup مکمل! 白い熊 雫 نے %s کو آپ کے لیے configure کر دیا ہے۔</string>
     <string name="su_bridge_magic_setup_fail">Magic Setup ناکام۔ براہِ کرم manual copy path استعمال کریں۔</string>
     <string name="su_bridge_magic_setup_all">Magic Setup All</string>
-    <string name="su_bridge_magic_setup_all_summary">Shizuku+ نے %d ایپس آپ کے لیے configure کر دیں!</string>
+    <string name="su_bridge_magic_setup_all_summary">白い熊 雫 نے %d ایپس آپ کے لیے configure کر دیں!</string>
     <string name="su_bridge_magic_setup_all_no_apps">Automation کے لیے کوئی supported root ایپس نہیں ملیں۔</string>
     <string name="su_bridge_copy_open">Path کاپی کریں اور کھولیں</string>
     <string name="su_bridge_no_export">SU path مقرر نہیں ہے۔ پہلے Home screen سے Shizuku files ایکسپورٹ کریں۔</string>
@@ -547,7 +547,7 @@
     <string name="su_bridge_step_1">1. Home screen سے Shizuku files ایکسپورٹ کریں۔</string>
     <string name="su_bridge_step_2">2. اپنی root app میں ترتیبات کے اندر "SU Path" یا "Binary Path" تلاش کریں۔</string>
     <string name="su_bridge_step_3">3. اسے exported \'su\' file کے path پر تبدیل کریں۔</string>
-    <string name="su_bridge_step_4">4. custom path ترتیب نہ رکھنے والی ایپس کے لیے Shizuku+ ترتیبات میں "SU Bridge" فعال کریں۔ یہ بہت سی legacy su calls کو خودکار طور پر redirect کرتا ہے۔</string>
+    <string name="su_bridge_step_4">4. custom path ترتیب نہ رکھنے والی ایپس کے لیے 白い熊 雫 ترتیبات میں "SU Bridge" فعال کریں۔ یہ بہت سی legacy su calls کو خودکار طور پر redirect کرتا ہے۔</string>
     <string name="su_bridge_app_instruction">Settings &gt; %s میں path مقرر کریں</string>
     <string name="su_bridge_path_label">Exported su path</string>
     <string name="su_bridge_su_path_label">Exported su path</string>
@@ -567,11 +567,6 @@
     <string name="su_bridge_device_identity_spoofed">Spoofed: %s</string>
     <string name="su_bridge_device_identity_none">کوئی نہیں (حقیقی ڈیوائس دکھائی جا رہی ہے)</string>
 
-    <!-- Sentry Offline Notice -->
-    <string name="sentry_offline_notice_title">Crash Reporting آف لائن</string>
-    <string name="sentry_offline_notice_summary">Sentry کے ذریعے automatic crash reporting quota limits کی وجہ سے فی الحال غیر فعال ہے (1 مئی کو ری سیٹ ہوگا)۔ براہِ کرم crashes دستی طور پر رپورٹ کریں۔</string>
-    <string name="sentry_offline_notice_button">مزید جانیں</string>
-    <string name="sentry_offline_notice_learn_more">Sentry فی الحال آف لائن ہے۔ اگر ایپ crash کرے یا غیر متوقع رویہ دکھائے تو دستی طور پر report تیار کریں اور اسے ہمارے GitHub Issues tracker پر پوسٹ کریں۔ اس سے automated systems کے رکنے کے باوجود bugs ٹھیک کرنے میں مدد ملتی ہے۔</string>
     <string name="manual_report_title">Manual Crash Report</string>
     <string name="manual_report_summary">logs کے ساتھ تفصیلی report بنائیں تاکہ ہم مسائل کی دستی debugging کر سکیں۔</string>
     <string name="manual_report_button_generate">بنائیں اور کاپی کریں</string>
@@ -587,7 +582,7 @@
     <string name="manual_report_copied_dialog_title">Report کاپی ہو گئی</string>
     <string name="manual_report_copied_dialog_message">Report آپ کے clipboard پر کاپی ہو گئی ہے۔ کیا آپ ابھی GitHub Issues کھولنا چاہتے ہیں یا report کو file کے طور پر شیئر کرنا چاہتے ہیں؟</string>
     <string name="manual_report_copied_dialog_share">File شیئر کریں</string>
-    <string name="crash_detected_dialog_message">Shizuku+ نے آپ کے پچھلے session میں crash کا پتہ لگایا ہے۔ کیا آپ اسے ٹھیک کرنے میں مدد کے لیے report بنانا چاہتے ہیں؟</string>
+    <string name="crash_detected_dialog_message">白い熊 雫 نے آپ کے پچھلے session میں crash کا پتہ لگایا ہے۔ کیا آپ اسے ٹھیک کرنے میں مدد کے لیے report بنانا چاہتے ہیں؟</string>
     <string name="crash_detected_dialog_short_message">Report کاپی ہو گئی ہے۔ اسے paste کرنے کے لیے GitHub کھولیں، یا report کو file کے طور پر شیئر کریں؟</string>
     <string name="crash_detected_dialog_ignore">نظر انداز کریں</string>
     <string name="shortcut_open_terminal">Terminal کھولیں</string>
@@ -621,8 +616,8 @@
     <string name="doctor_status_optimized">Optimized (سروس بند ہو سکتی ہے)</string>
     <string name="doctor_tip_xiaomi">Xiaomi/HyperOS: Developer Options میں "USB Debugging (Security Settings)" فعال کریں۔</string>
     <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus: background service کے بند ہونے سے بچانے کے لیے Developer Options میں "Permission Monitoring" غیر فعال کریں۔</string>
-    <string name="doctor_tip_tcl_background">TCL: Settings میں Shizuku+ کو "Auto-start" اور "High background power consumption" allowlists میں شامل کریں۔</string>
-    <string name="doctor_tip_battery">Shizuku+ کے لیے battery optimization غیر فعال کریں تاکہ یہ بیک گراؤنڈ میں بند نہ ہو۔</string>
+    <string name="doctor_tip_tcl_background">TCL: Settings میں 白い熊 雫 کو "Auto-start" اور "High background power consumption" allowlists میں شامل کریں۔</string>
+    <string name="doctor_tip_battery">白い熊 雫 کے لیے battery optimization غیر فعال کریں تاکہ یہ بیک گراؤنڈ میں بند نہ ہو۔</string>
     <string name="doctor_tip_adb">ری بوٹ کے بعد non-root mode میں Shizuku شروع کرنے کے لیے Wireless debugging فعال ہونا ضروری ہے۔</string>
     <string name="doctor_button_fix">درست کریں</string>
 
@@ -631,7 +626,7 @@
     <string name="snackbar_battery_optimization_home">start on boot/watchdog درست طور پر کام کرنے کے لیے battery optimization غیر فعال ہونا ضروری ہے۔</string>
     <string name="snackbar_battery_optimization_settings">یہ فیچر استعمال کرنے کے لیے براہِ کرم battery optimization غیر فعال کریں۔</string>
     <string name="snackbar_action_fix">درست کریں</string>
-    <string name="snackbar_server_version_skew">Shizuku+ اپ ڈیٹ ہو گیا ہے، لیکن چلنے والی service ابھی پرانے ورژن پر ہے۔ connected ایپس کے کام جاری رکھنے کے لیے اسے دوبارہ شروع کریں۔</string>
+    <string name="snackbar_server_version_skew">白い熊 雫 اپ ڈیٹ ہو گیا ہے، لیکن چلنے والی service ابھی پرانے ورژن پر ہے۔ connected ایپس کے کام جاری رکھنے کے لیے اسے دوبارہ شروع کریں۔</string>
     <string name="snackbar_action_restart">دوبارہ شروع کریں</string>
 
     <!-- Toast -->
@@ -644,10 +639,10 @@
     <string name="lp_action_unfreeze_app">ایپ Unfreeze کریں (Enable)</string>
     <string name="su_path_preset_applied">SU path preset لاگو ہو گیا: %1$s</string>
     <string name="stock_shizuku_conflict_title">غیر مطابقت رکھنے والا Server دریافت ہوا</string>
-    <string name="stock_shizuku_conflict_description">اصل Shizuku server بیک گراؤنڈ میں چل رہا ہے۔ یہ Shizuku+ کے ساتھ incompatible ہے اور اسے شروع ہونے سے روکتا ہے۔</string>
+    <string name="stock_shizuku_conflict_description">اصل Shizuku server بیک گراؤنڈ میں چل رہا ہے۔ یہ 白い熊 雫 کے ساتھ incompatible ہے اور اسے شروع ہونے سے روکتا ہے۔</string>
     <string name="stock_shizuku_conflict_fix_button">Conflict درست کریں</string>
     <string name="stock_shizuku_conflict_dialog_title">غیر مطابقت رکھنے والا Server چل رہا ہے</string>
-    <string name="stock_shizuku_conflict_dialog_message">اصل Shizuku server اس وقت بیک گراؤنڈ میں چل رہا ہے۔ Android security constraints کی وجہ سے Shizuku+ اس سے بات چیت یا اسے ختم نہیں کر سکتا۔\n\nاصل server ختم کرنے کے لیے اپنی ڈیوائس کو مکمل طور پر restart کریں، پھر ADB یا Root سے Shizuku+ شروع کریں۔</string>
+    <string name="stock_shizuku_conflict_dialog_message">اصل Shizuku server اس وقت بیک گراؤنڈ میں چل رہا ہے۔ Android security constraints کی وجہ سے 白い熊 雫 اس سے بات چیت یا اسے ختم نہیں کر سکتا۔\n\nاصل server ختم کرنے کے لیے اپنی ڈیوائس کو مکمل طور پر restart کریں، پھر ADB یا Root سے 白い熊 雫 شروع کریں۔</string>
     <string name="stock_shizuku_restarting_via_root">Root کے ذریعے دوبارہ شروع ہو رہا ہے…</string>
     <string name="backup_plain_exported">Plain backup ایکسپورٹ ہو گیا۔ اس file کو نجی رکھیں — یہ encrypted نہیں ہے۔</string>
     <string name="backup_exported_success">Backup کامیابی سے ایکسپورٹ ہو گیا</string>
@@ -742,8 +737,8 @@
     <!-- Misc -->
     <string name="dialog_cannot_open_browser_title">Browser شروع نہیں ہو سکا</string>
     <string name="toast_copied_to_clipboard">Clipboard پر کاپی ہو گیا</string>
-    <string name="accessibility_service_label">Shizuku+ Pairing Helper</string>
-    <string name="accessibility_service_description">ایسی ڈیوائسز (مثلاً TVs اور Samsung One UI phones) کے لیے pairing support فراہم کرتا ہے جہاں notifications یا split screen آسانی سے استعمال نہیں کیے جا سکتے۔\n\nShizuku+ کو wireless debugging pairing screen سے pairing code نکالنے کے قابل بناتا ہے۔ pairing code ملنے کے بعد یہ خود کو غیر فعال کر دے گا۔</string>
+    <string name="accessibility_service_label">白い熊 雫 Pairing Helper</string>
+    <string name="accessibility_service_description">ایسی ڈیوائسز (مثلاً TVs اور Samsung One UI phones) کے لیے pairing support فراہم کرتا ہے جہاں notifications یا split screen آسانی سے استعمال نہیں کیے جا سکتے۔\n\n白い熊 雫 کو wireless debugging pairing screen سے pairing code نکالنے کے قابل بناتا ہے۔ pairing code ملنے کے بعد یہ خود کو غیر فعال کر دے گا۔</string>
 
     <!-- Messages for legacy -->
     <string name="dialog_legacy_not_support_title">%1$s جدید Shizuku کو سپورٹ نہیں کرتا</string>
@@ -790,7 +785,7 @@
     <string name="settings_accent_slate_applied">Midnight Slate لاگو ہو گیا</string>
     <string name="settings_accent_default_applied">Standard Blue (Default)</string>
     <string name="fake_adb_pairing_title">Fake ADB connection کی اجازت دیں؟</string>
-    <string name="fake_adb_pairing_message">ایک app Fake Local ADB server کے ذریعے Shizuku+ سے منسلک ہونے کی کوشش کر رہی ہے۔\n\nRSA key fingerprint:\n%1$s</string>
+    <string name="fake_adb_pairing_message">ایک app Fake Local ADB server کے ذریعے 白い熊 雫 سے منسلک ہونے کی کوشش کر رہی ہے۔\n\nRSA key fingerprint:\n%1$s</string>
     <string name="fake_adb_pairing_allow">اجازت دیں</string>
     <string name="fake_adb_pairing_deny">انکار کریں</string>
     <string name="settings_category_advanced">Advanced</string>
@@ -862,7 +857,7 @@
     <string name="empty_state_description_no_home_cards">آپ نے home screen کے تمام cards چھپا دیے ہیں۔ انہیں بحال کرنے کے لیے Settings پر جائیں۔</string>
     <string name="empty_state_action_restore_home_cards">Cards بحال کریں</string>
     <string name="empty_state_title_no_plus_features">تمام فیچرز غیر فعال ہیں</string>
-    <string name="empty_state_description_no_plus_features">آپ نے تمام Shizuku+ فیچرز غیر فعال کیے ہیں۔ انہیں یہاں دیکھنے کے لیے فیچرز فعال کریں۔</string>
+    <string name="empty_state_description_no_plus_features">آپ نے تمام 白い熊 雫 فیچرز غیر فعال کیے ہیں۔ انہیں یہاں دیکھنے کے لیے فیچرز فعال کریں۔</string>
     <string name="empty_state_title_activity_log_empty">کوئی سرگرمی ریکارڈ نہیں ہوئی</string>
     <string name="empty_state_description_activity_log_empty">Activity logging فعال ہونے پر Shizuku API calls اور events یہاں نظر آئیں گے۔</string>
     <string name="empty_state_title_hidden_apps">کوئی hidden ایپس نہیں</string>
@@ -899,10 +894,10 @@
     <string name="update_notification_channel">Update Notifications</string>
     <string name="update_notification_channel_description">ایپ update downloads اور installations کی notifications</string>
     <string name="update_downloading_title">Update ڈاؤن لوڈ ہو رہی ہے</string>
-    <string name="update_downloading_description">Shizuku+ %1$s ڈاؤن لوڈ ہو رہا ہے…</string>
+    <string name="update_downloading_description">白い熊 雫 %1$s ڈاؤن لوڈ ہو رہا ہے…</string>
     <string name="update_downloading_progress">%1$s ڈاؤن لوڈ ہو رہا ہے - %2$d%%</string>
     <string name="update_ready_title">Update انسٹال کرنے کے لیے تیار ہے</string>
-    <string name="update_ready_description">Shizuku+ %1$s انسٹال کرنے کے لیے تیار ہے</string>
+    <string name="update_ready_description">白い熊 雫 %1$s انسٹال کرنے کے لیے تیار ہے</string>
     <string name="update_install_now">ابھی انسٹال کریں</string>
     <string name="update_download_failed_title">ڈاؤن لوڈ ناکام</string>
     <string name="update_download_failed_message">Update ڈاؤن لوڈ نہیں ہو سکی۔ دوبارہ کوشش کریں۔</string>
@@ -912,8 +907,8 @@
 
     <!-- Migration Dialog -->
     <string name="migration_dialog_title">اہم: دوبارہ انسٹال کرنا ضروری ہے</string>
-    <string name="migration_dialog_message"><![CDATA[Shizuku+ نے اپنا package ID moe.shizuku.privileged.api سے af.shizuku.plus.api میں تبدیل کر لیا ہے۔ آپ کے پرانے اور موجودہ ورژن الگ ایپس سمجھے جاتے ہیں، اس لیے direct update ممکن نہیں تھا۔\n\nآپ پرانے version سے ترتیبات migrate کر سکتے ہیں اور پھر اسے uninstall کریں۔]]></string>
-    <string name="migration_dialog_message_root"><![CDATA[Shizuku+ نے اپنا package ID moe.shizuku.privileged.api سے af.shizuku.plus.api میں تبدیل کر لیا ہے۔ آپ کے پرانے اور موجودہ ورژن الگ ایپس سمجھے جاتے ہیں، اس لیے direct update ممکن نہیں تھا۔\n\nRoot access دستیاب ہے — پرانے ورژن سے ترتیبات کاپی کرنے کے لیے Migrate Settings پر ٹیپ کریں، پھر اسے uninstall کریں۔]]></string>
+    <string name="migration_dialog_message"><![CDATA[白い熊 雫 نے اپنا package ID moe.shizuku.privileged.api سے shiroikuma.shizuku میں تبدیل کر لیا ہے۔ آپ کے پرانے اور موجودہ ورژن الگ ایپس سمجھے جاتے ہیں، اس لیے direct update ممکن نہیں تھا۔\n\nآپ پرانے version سے ترتیبات migrate کر سکتے ہیں اور پھر اسے uninstall کریں۔]]></string>
+    <string name="migration_dialog_message_root"><![CDATA[白い熊 雫 نے اپنا package ID moe.shizuku.privileged.api سے shiroikuma.shizuku میں تبدیل کر لیا ہے۔ آپ کے پرانے اور موجودہ ورژن الگ ایپس سمجھے جاتے ہیں، اس لیے direct update ممکن نہیں تھا۔\n\nRoot access دستیاب ہے — پرانے ورژن سے ترتیبات کاپی کرنے کے لیے Migrate Settings پر ٹیپ کریں، پھر اسے uninstall کریں۔]]></string>
     <string name="migration_migrate_settings">Settings منتقل کریں</string>
     <string name="migration_uninstall_old">پرانا ورژن Uninstall کریں</string>
     <string name="migration_dismiss">نظر انداز کریں</string>
@@ -949,7 +944,7 @@
     <!-- Settings backup/restore -->
     <string name="settings_backup_category">Backup اور Restore</string>
     <string name="settings_export_title">Settings ایکسپورٹ کریں</string>
-    <string name="settings_export_summary">تمام Shizuku+ ترتیبات کو JSON file میں محفوظ کریں</string>
+    <string name="settings_export_summary">تمام 白い熊 雫 ترتیبات کو JSON file میں محفوظ کریں</string>
     <string name="settings_import_title">Settings امپورٹ کریں</string>
     <string name="settings_import_summary">پہلے ایکسپورٹ کی گئی JSON file سے ترتیبات بحال کریں</string>
     <string name="settings_export_success">Settings کامیابی سے ایکسپورٹ ہو گئیں</string>
@@ -968,7 +963,7 @@
 
     <!-- AICore+ -->
     <string name="aicore_plus_label">AICore+ Automation Bridge</string>
-    <string name="aicore_plus_description">Shizuku+ AICore+ فیچرز کے لیے ضروری ہے۔ AI-driven automation کے لیے privileged UI hierarchy dumping اور physical input simulation فراہم کرتا ہے۔ Passwords یا ذاتی data کو observe نہیں کرتا۔</string>
+    <string name="aicore_plus_description">白い熊 雫 AICore+ فیچرز کے لیے ضروری ہے۔ AI-driven automation کے لیے privileged UI hierarchy dumping اور physical input simulation فراہم کرتا ہے۔ Passwords یا ذاتی data کو observe نہیں کرتا۔</string>
 
     <!-- Common action labels -->
     <string name="action_clear_all">سب صاف کریں</string>
@@ -991,7 +986,7 @@
 
     <!-- Dhizuku Device Owner Setup -->
     <string name="dhizuku_setup_title">Device Owner سیٹ اپ کریں</string>
-    <string name="dhizuku_setup_message">Dhizuku Mode کے لیے Shizuku+ کو Device Owner کے طور پر سیٹ کرنا ضروری ہے۔ USB debugging فعال رکھتے ہوئے ADB کے ذریعے یہ کمانڈ ایک بار چلائیں:\n\n%1$s\n\nکمانڈ چلانے کے بعد Shizuku دوبارہ شروع کریں۔</string>
+    <string name="dhizuku_setup_message">Dhizuku Mode کے لیے 白い熊 雫 کو Device Owner کے طور پر سیٹ کرنا ضروری ہے۔ USB debugging فعال رکھتے ہوئے ADB کے ذریعے یہ کمانڈ ایک بار چلائیں:\n\n%1$s\n\nکمانڈ چلانے کے بعد Shizuku دوبارہ شروع کریں۔</string>
     <string name="dhizuku_setup_copy">کمانڈ کاپی کریں</string>
     <string name="dhizuku_setup_copied">کمانڈ clipboard پر کاپی ہو گئی</string>
     <string name="dhizuku_status_active">Device Owner: فعال</string>
@@ -999,17 +994,17 @@
 
     <!-- Clear Device Owner (Issue #237) -->
     <string name="settings_clear_device_owner">Device Owner ہٹائیں</string>
-    <string name="settings_clear_device_owner_summary">Shizuku+ کو Device Owner status سے آزاد کریں۔ uninstall یا downgrade سے پہلے ضروری ہے۔</string>
+    <string name="settings_clear_device_owner_summary">白い熊 雫 کو Device Owner status سے آزاد کریں۔ uninstall یا downgrade سے پہلے ضروری ہے۔</string>
     <string name="dhizuku_clear_owner_title">Device Owner ہٹائیں؟</string>
-    <string name="dhizuku_clear_owner_message">اس سے Shizuku+ بطور Device Owner ہٹ جائے گا۔ Dhizuku Mode غیر فعال ہو جائے گا اور delegated Device Owner privileges پر منحصر ایپس رسائی کھو دیں گی۔\n\nآپ setup dialog میں دکھائی گئی ADB کمانڈ چلا کر کسی بھی وقت Device Owner دوبارہ فعال کر سکتے ہیں۔</string>
+    <string name="dhizuku_clear_owner_message">اس سے 白い熊 雫 بطور Device Owner ہٹ جائے گا۔ Dhizuku Mode غیر فعال ہو جائے گا اور delegated Device Owner privileges پر منحصر ایپس رسائی کھو دیں گی۔\n\nآپ setup dialog میں دکھائی گئی ADB کمانڈ چلا کر کسی بھی وقت Device Owner دوبارہ فعال کر سکتے ہیں۔</string>
     <string name="dhizuku_clear_owner_confirm">ہٹائیں</string>
-    <string name="dhizuku_clear_owner_success">Device Owner status ہٹا دیا گیا۔ اب آپ Shizuku+ کو uninstall یا downgrade کر سکتے ہیں۔</string>
+    <string name="dhizuku_clear_owner_success">Device Owner status ہٹا دیا گیا۔ اب آپ 白い熊 雫 کو uninstall یا downgrade کر سکتے ہیں۔</string>
     <string name="dhizuku_clear_owner_failure">Device Owner status ہٹانے میں ناکامی۔ ممکن ہے service پہلے چلانا ضروری ہو۔</string>
 
     <!-- Pairing fallback (Issue #204) -->
     <string name="toast_pair_notifications_required">Notifications blocked ہیں — manual pairing استعمال ہو رہی ہے۔ Developer Options → Wireless debugging → Pair device with pairing code پر جائیں، اپنا code حاصل کریں اور یہاں درج کریں۔</string>
     <string name="dialog_notif_permission_title">Notifications درکار ہیں</string>
-    <string name="dialog_notif_permission_message">Pairing code ایک notification کے ذریعے دیا جاتا ہے۔ ADB pairing مکمل کرنے کے لیے Shizuku+ کو notifications پوسٹ کرنے کی اجازت دیں۔</string>
+    <string name="dialog_notif_permission_message">Pairing code ایک notification کے ذریعے دیا جاتا ہے۔ ADB pairing مکمل کرنے کے لیے 白い熊 雫 کو notifications پوسٹ کرنے کی اجازت دیں۔</string>
     <string name="dialog_notif_permission_allow">Notifications کی اجازت دیں</string>
     <string name="dialog_notif_permission_manual">Manually Pair کریں</string>
     <string name="dialog_notif_permission_open_settings">Settings کھولیں</string>
@@ -1026,7 +1021,7 @@
     <string name="settings_shadow_binder">Shadow Binder</string>
     <string name="settings_shadow_binder_summary">Device information یا app state چھپانے کے لیے system service calls کو intercept اور mock کریں</string>
     <string name="settings_shadow_binder_hidden_packages">Hidden Packages</string>
-    <string name="settings_shadow_binder_hidden_packages_summary">دوسری ایپس سے چھپانے کے لیے package names کی comma-separated فہرست۔ اگر OG Shizuku اور Shizuku+ دونوں انسٹال ہیں تو conflicts روکنے کے لیے دونوں (moe.shizuku.privileged.api, af.shizuku.manager) شامل کریں۔</string>
+    <string name="settings_shadow_binder_hidden_packages_summary">دوسری ایپس سے چھپانے کے لیے package names کی comma-separated فہرست۔ اگر OG Shizuku اور 白い熊 雫 دونوں انسٹال ہیں تو conflicts روکنے کے لیے دونوں (moe.shizuku.privileged.api, af.shizuku.manager) شامل کریں۔</string>
     <plurals name="settings_shadow_binder_hidden_packages_count">
         <item quantity="one">%d ایپ منتخب</item>
         <item quantity="other">%d ایپس منتخب</item>
@@ -1057,9 +1052,9 @@
     <string name="root_hub_global_config_desc">تمام ایپس یہ path استعمال کریں گی۔ Auto Setup supported ایپس کو خودکار طور پر configure کرنے کی کوشش کرے گا۔</string>
     <string name="root_hub_setup_all">سب کا Setup</string>
     <string name="root_hub_setup_all_success">تمام compatible ایپس کے لیے auto setup کی کوشش کی گئی۔</string>
-    <string name="root_hub_magic_setup_all_summary">Shizuku+ نے %d ایپس آپ کے لیے configure کر دیں!</string>
+    <string name="root_hub_magic_setup_all_summary">白い熊 雫 نے %d ایپس آپ کے لیے configure کر دیں!</string>
     <string name="root_hub_magic_setup_all_no_apps">کوئی root app نہیں ملی جو automated setup سپورٹ کرتی ہو۔</string>
-    <string name="root_hub_magic_setup_success">Magic Setup مکمل! Shizuku+ نے %s آپ کے لیے configure کر دیا ہے۔</string>
+    <string name="root_hub_magic_setup_success">Magic Setup مکمل! 白い熊 雫 نے %s آپ کے لیے configure کر دیا ہے۔</string>
     <string name="root_hub_magic_setup_fail">Magic Setup ناکام۔ براہِ کرم path manually کاپی کرنے کی کوشش کریں۔</string>
     <string name="root_hub_path_copied">SU path clipboard پر کاپی ہو گیا</string>
     <string name="root_hub_no_export">SU path مقرر نہیں۔ پہلے home screen سے Shizuku files ایکسپورٹ کریں۔</string>
@@ -1094,7 +1089,7 @@
     <string name="scripting_title">Scripting</string>
     <string name="scripting_summary">Privileged shell snippets محفوظ، شیئر اور چلائیں</string>
     <string name="scripting_empty_title">ابھی کوئی snippets نہیں</string>
-    <string name="scripting_empty_description">Shizuku+ کے ذریعے کسی بھی وقت چلانے کے لیے privileged shell snippet محفوظ کریں۔</string>
+    <string name="scripting_empty_description">白い熊 雫 کے ذریعے کسی بھی وقت چلانے کے لیے privileged shell snippet محفوظ کریں۔</string>
     <string name="scripting_add">Snippet شامل کریں</string>
     <string name="scripting_edit">Snippet ایڈٹ کریں</string>
     <string name="scripting_run">چلائیں</string>
@@ -1113,16 +1108,16 @@
     <string name="scripting_auto_run_badge_desc">Service start پر خودکار چلتا ہے</string>
 
     <!-- Tasker/Locale automation plugin (#6) -->
-    <string name="automation_plugin_action_label">Shizuku+ Service</string>
+    <string name="automation_plugin_action_label">白い熊 雫 Service</string>
     <string name="automation_plugin_action_edit_title">Action منتخب کریں</string>
-    <string name="automation_plugin_action_start">Shizuku+ service شروع کریں</string>
-    <string name="automation_plugin_action_stop">Shizuku+ service روکیں</string>
-    <string name="automation_plugin_blurb_start">Shizuku+ service شروع کریں</string>
-    <string name="automation_plugin_blurb_stop">Shizuku+ service روکیں</string>
-    <string name="automation_plugin_condition_label">Shizuku+ Service Running</string>
-    <string name="automation_plugin_condition_title">Shizuku+ service چل رہا ہے</string>
-    <string name="automation_plugin_condition_description">یہ condition اس وقت پوری ہوتی ہے جب Shizuku+ service چل رہی ہو۔</string>
-    <string name="automation_plugin_condition_blurb">Shizuku+ service چل رہی ہے</string>
+    <string name="automation_plugin_action_start">白い熊 雫 service شروع کریں</string>
+    <string name="automation_plugin_action_stop">白い熊 雫 service روکیں</string>
+    <string name="automation_plugin_blurb_start">白い熊 雫 service شروع کریں</string>
+    <string name="automation_plugin_blurb_stop">白い熊 雫 service روکیں</string>
+    <string name="automation_plugin_condition_label">白い熊 雫 Service Running</string>
+    <string name="automation_plugin_condition_title">白い熊 雫 service چل رہا ہے</string>
+    <string name="automation_plugin_condition_description">یہ condition اس وقت پوری ہوتی ہے جب 白い熊 雫 service چل رہی ہو۔</string>
+    <string name="automation_plugin_condition_blurb">白い熊 雫 service چل رہی ہے</string>
 
     <!-- Network Firewall automation trusted networks -->
     <string name="cd_navigate_back">پیچھے</string>
@@ -1145,7 +1140,7 @@
     <string name="binder_firewall_trusted_networks_already_added">"%s" پہلے ہی فہرست میں ہے</string>
 
     <!-- Biometric lock -->
-    <string name="biometric_prompt_title">Shizuku+ Unlock کریں</string>
+    <string name="biometric_prompt_title">白い熊 雫 Unlock کریں</string>
     <string name="biometric_prompt_subtitle">حساس ترتیبات تک رسائی کے لیے authenticate کریں</string>
 
     <!-- Stealth mode -->

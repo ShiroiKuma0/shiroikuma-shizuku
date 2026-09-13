@@ -161,10 +161,6 @@
     public static <fields>;
 }
 
-# Play Integrity SDK: factory and request classes accessed reflectively at runtime by the GMS
-# Play Core runtime. Without this rule R8 strips them and requestIntegrityToken() fails with
-# ClassNotFoundException on the first call after installation.
--keep class com.google.android.play.core.integrity.** { *; }
 
 # BackupAgent: instantiated by the Android backup framework by class name; must not be renamed.
 -keep class af.shizuku.manager.ShizukuBackupAgent { *; }
