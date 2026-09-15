@@ -8,6 +8,217 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.6.0.r2592+2026-09-15.17-46.gb0ea544c+002
+
+Two upstream syncs since the last published build (`r2431+005`): `r2554` (`87da810e`, **123
+commits** — built and tested as `r2554+002`, never published) and `r2592` (`b0ea544c`, **38
+commits**). The `r2592` window is bug fixes only; the `r2554` window is the largest sync since the
+fork began and carried two fork-rule patches. Both are described here, newest first — everything
+below reaches users for the first time in this release.
+
+### Upstream `r2554` → `r2592` — the start path, the watchdog, the automation engine
+
+- **Only one server per boot.** `ShizukuReceiverStarter.start()` now also stands down while the
+  state is `STARTING`, so a second boot broadcast cannot fork a second server while the first is
+  still coming up; and `BootCompleteReceiver` no longer tries to start on `LOCKED_BOOT_COMPLETED` —
+  credential-encrypted prefs are unreadable in Direct Boot, so that start either failed or ran on
+  stale defaults — leaving it to `BOOT_COMPLETED` after the first unlock (#504). Complementary to
+  this fork's `SingleInstanceLock`: that makes a second server *lose*; this stops it being
+  *attempted*.
+- **The watchdog keeps its setting.** `WatchdogService.onDestroy()` cleared the watchdog preference
+  unconditionally, so a transient foreground-start rejection (a background restriction, the FGS
+  time limit) silently disabled it for good and it never re-armed after the next boot. It now clears
+  only on the notification's own "Turn off".
+- **Feature Hub crash and boot `ClassCastException` (#499).** `automation_trusted_networks` was
+  once stored as a `Set<String>` and is now a comma-separated string; both `ShizukuSettings` readers
+  self-heal the old form, and the fragment-level migration reads the right prefs file (`settings`,
+  not `<pkg>_preferences`) so it actually fixes something.
+- **Automation engine:** app profiles count as "configured" everywhere, not only on the boot path;
+  the duplicate `NetworkFirewallRule` registration — every network event toggled the firewall
+  twice — is gone; the foreground-app monitor starts for auto-hide-only users; every start site goes
+  through `startIfNeeded()`; API 34 guard on `FOREGROUND_SERVICE_TYPE_SPECIAL_USE`.
+- **Upstream's settings backup** read and wrote credential-encrypted storage while the settings
+  live in device-protected storage — its export was empty and its import wrote where nothing reads.
+  Now `ShizukuSettings.getPreferences()` on both sides. (This fork's category ZIP is a separate
+  mechanism and was never affected.)
+- Hygiene: every `exec()` in the server Plus impls gets `waitFor()` and `destroy()`, streams go
+  under `.use{}`, `!!` gives way to explicit guards; four fire-and-forget threads are daemon;
+  `MaterialCheckBox` in the snippet dialog resists OEM tinting; `%1$s` → `^1` in the bug-report
+  strings (en, pt-BR, uk, ur); a `res/raw/keep.xml` keeps manifest-only drawables from the resource
+  shrinker (#497).
+
+### Icon — a colour literal for Samsung
+
+Samsung OneUI 8.5 re-processes a monochrome (themed-icon) layer whenever it references an
+`@android:color` resource, which corrupted upstream's icon there (#492); upstream switched to a
+`#FFFFFFFF` literal. This fork's monochrome layer is its own traced mark, but it used the same
+reference — the literal is adopted, the art is unchanged.
+
+### Not taken, and why
+
+- The black-night `surfaceContainer*` tones upstream added to `AppTheme` (#496) sit on the branch
+  that runs only when no `AppThemeOverride` provider is installed. The 白い熊 雫 UI page always
+  installs one, so the change is inert here and simply comes along.
+- `.github/workflows/app.yml` (release tagging via the REST API) stays deleted with the rest of
+  upstream's CI; the Sentry `beforeSend` comment renumbering restores nothing, because the block it
+  numbers is gone.
+
+---
+
+**What follows is the `r2554` sync (`r2431` → `r2554`).** It was built and tested as `r2554+002`
+but never published: three things — the sync itself, two fork-rule patches it needed (the Compat
+Hub proxy, and a new Google dependency cut), and the binder-delivery and `onTransact` conflicts,
+resolved to this fork's shape.
+
+### Fixed — the Compat Hub now serves modern stock-API clients, and it points at us
+
+Upstream `1a428b33` added `ShizukuProviderProxy` to the Compat Hub: a `ContentProvider` on the stock
+authority `moe.shizuku.privileged.api.shizuku`, which is what **every app built against Shizuku API
+v11 or later** calls `ContentResolver.call()` on to fetch the binder. Until now the hub only served
+the legacy broadcast path, so SD Maid SE, Swift Backup, Obtainium and the rest silently failed to
+connect through it.
+
+The proxy forwards to the manager's provider by a **string literal spelling upstream's own app id**
+(`af.shizuku.plus.api.shizuku`). Here it reads `shiroikuma.shizuku.shizuku` — the `:compat` module
+cannot read `:manager`'s `BuildConfig`, so it cannot be derived — and `ComponentNameContractTest`
+now reads that literal back and fails the build if it stops matching `APP_ID`. A wrong authority
+forwards every modern stock client into nothing, with no error anywhere; the unit test is the only
+thing that would ever say so. Verified in the built artefact: the bundled `compat.apk` carries
+`content://shiroikuma.shizuku.shizuku`.
+
+Upstream's hub detection also moved from a `versionName.contains("compat")` check to a signing-cert
+comparison — which works here, because the hub is built from `:compat` with this fork's key.
+
+### Removed — Play Integrity never comes in
+
+Upstream's Google Wallet recovery (`1c413e03` … `1811de8f`) grew a "warm-up" step: it linked
+`com.google.android.play:integrity` into `:database` and called `requestIntegrityToken()` so GMS
+would re-run DroidGuard before Wallet launches. That is an outbound **attestation request to
+Google** from this app, and the library it needs is a linked Google Play dependency — both out
+under the no-phone-home rule, for exactly the reason the unarmed Sentry SDK went: a scanner reads
+what is linked.
+
+The dependency, its ProGuard keep and `attemptPlayIntegrityWarmup` are gone. The rest of the fix is
+kept unchanged — the DroidGuard/GMS force-stops, the TTL override, `pm clear` on Wallet, the NFC
+routing re-assert — and the ADB-mode success message no longer lists a step that does not run. The
+verdict simply refreshes on GMS's own schedule. **Verified on the built artefact:** zero
+`play/core/integrity` and zero `io/sentry` references in the dex.
+
+The same fix purges `/data/local/tmp/{su,rish,plus,rish_shizuku.dex}` on every RUNNING transition
+while the SU bridge is off. This fork's `rish` setup lives in Termux's `$PREFIX/bin`, not there, so
+it is unaffected — checked before taking the change.
+
+### Changed — "Device Hardening & Keepalive" ships switched off
+
+Upstream `fd85a60b` adds a switch, **on by default**, that runs `DeviceOptimizer.applyFixes` on
+every RUNNING transition: Doze-whitelists this app and known terminal apps, `pm grant`s itself
+`WRITE_SECURE_SETTINGS`, sets `SYSTEM_ALERT_WINDOW` / `GET_USAGE_STATS` / `SCHEDULE_EXACT_ALARM`
+appops on itself, and copies the starter binary to `/data/local/tmp`. A silent self-grant at every
+start is a thing to switch on deliberately, like the auto-update poll — so `isDeviceHardeningEnabled()`
+defaults **false** here. The switch is where upstream put it, Settings → Startup Behavior.
+
+### Kept — binder delivery, and the api's `onTransact`, resolved to this fork's shape
+
+**Binder delivery.** Upstream rewrote `sendBinderToUserApp`'s payload four times this round
+(`b13f5de5`, `843e28ae`, `af0a3c69`, `66929d1b`) and landed on: third-party apps get one bundle
+holding the `moe` container plus a **raw `IBinder` under the plain `"binder"` key**; only the
+manager gets the `af`/`rikka` containers too. That is upstream's answer to the same bug this fork
+fixed on 2026-08-04 (one container per call, never trust a non-null reply). The loop here stays,
+and the raw-binder bundle becomes **attempt zero** — sent alone, because on Android 12 and below a
+bundle is unparcelled whole and a container the client lacks would poison the raw key too; first,
+because a client on the new api provider takes it and bails out of every later attempt at the
+"already a living binder" guard, while an older provider finds nothing in it and is served by the
+containers that follow.
+
+**The api submodule.** Our fork of `ShizukuPlus-API` is rebased onto upstream's `dd2b3b1`. Upstream
+`9608f71` / `09ff9fd` handle "shifted" transaction codes 4, 8 and 18 by `dataAvail()` heuristics —
+code 8 is `newProcess` if the parcel has data, else `getSELinuxContext`. Those are the very cases
+this fork removed on 2026-09-02, because each raw case shadowed the live AIDL method one slot along
+(wire code is id + 1); with the shadowing cases gone, the generated stub serves 8 and 18 correctly
+with no guessing. The heuristics are not taken. Taken from upstream: the `FailedProcess` stub (an
+exec failure returns a dead process instead of a null binder that crashes the client), the
+`checkSelfPermission` fallback for a caller with no client record, the Android 14 consent-race retry
+in `requireClient` (#387), and the consumer ProGuard keep rules for every `BinderContainer`.
+
+**Grant table.** Upstream `757047e7` stops pruning the authorization table when the package
+enumeration comes back **empty**, and re-checks a uid live before dropping its entry — the cause
+of authorizations vanishing for tile and background clients (#488). Taken; it sits beside this
+fork's `shiroikuma-shizuku.json` rename without touching it.
+
+### Look — the status card shows its state; everything else keeps the house border
+
+Upstream removed the green stroke from the status card (#473) and then brought it back as a
+2 dp **state outline** — `colorPrimary` running, `colorError` stopped, amber starting — with a
+style switch and an off toggle (#479). Under this scheme `colorPrimary` *is* yellow, so the result
+is **yellow running / red stopped**: the house look with meaning added. The card is marked
+colour-owned, and `ShiroikumaViewTheme` now leaves a colour-owned `MaterialCardView`'s stroke to its
+holder while still setting the fill and radius; every other card keeps the major-tier yellow border.
+Switching the outline off hands the stroke back to the house applier.
+
+**The home header stays fixed and opaque.** Upstream `7248e4f9` / `074a4b9c` re-did the collapsing
+title with exactly the gating this fork said was missing — clamped offset, re-expand only at the
+top, snap on release, a 32 sp → 20 sp lerp. It is not taken: a title that changes height while you
+read was the objection, not the missing gating. The one-handed pill no longer fades by a
+`collapsedFraction` that does not exist here.
+
+Upstream's other look changes come in as they are: the edit-mode **eye toggle** replaces the X
+(hollow dark chips, inset so the rounded corners no longer clip them, and the eye no longer exits
+edit mode), the **M3 Expressive settings pass** (search overlay, staggered entrance animations,
+native scrollbar back, 16 dp symmetric item padding, AMOLED search), a **Rounded Edges** toggle,
+"modern" shape and "two-tone" icons as the new defaults, and 26 repaired vector icons. The 白い熊 雫
+UI page is `markSkipped` and untouched by any of it.
+
+### De-branded — what this round's strings churn needed
+
+Upstream renamed 23 user-visible strings "Shizuku" → "Shizuku+" (`05ae9d51`) and added "(+)"
+permission labels shown in Android's own Settings (`96318a00`). Every one reads 白い熊 雫 here, as
+do the new Service Doctor strings, the new **Urdu** locale, and the Ukrainian and Brazilian
+Portuguese updates. `af.shizuku.plus.api` in prose reads `shiroikuma.shizuku`; `translation_url`
+points at this fork; the four `sentry_offline_notice_*` strings the new locales carried back are
+gone, and a duplicated `help_general_plus_summary` in pt-BR with them.
+
+### Upstream — what `r2431` → `r2554` brings
+
+- **exec → Binder IPC across every Plus bridge** (~20 commits): package, activity, display,
+  window, status-bar, backup, overlay and network governors now call the framework directly, with
+  exec kept as fallback — motivated by Samsung One UI 8, where SELinux blocks exec from the server.
+  Real bugs fell out of it: `clearAppCache` ran `pm trim-caches 4096G` and wiped **every** app's
+  cache; several `Process.myUid()` → `Binder.getCallingUid()` user-id fixes; `sendSms` was
+  broadcasting an incoming-SMS event instead of sending.
+- **The `MASTER_CLEAR` / `wipe_data` / `sm format` guard is unconditional** — it used to run only
+  with experimental root on. `kill` / `pkill` / `ifconfig` / `iptables` interceptors and
+  `pm disable` / `svc wifi` are promoted out of the root gate.
+- **Automation Engine goes live** (#435): a trusted-SSID Binder Firewall rule and a per-app
+  ShadowBinder auto-hide rule, opt-in — the foreground service starts only once something is
+  configured.
+- **Auth token parsing made lenient** in every receiver: `auth` / `token` / `auth_token` extras, an
+  `auth:` prefix, quotes, and a raw plaintext token on OEMs without a KeyStore. The double-`auth:`
+  bug that broke every encrypted token is fixed. `BinderRequestReceiver.kt` stays byte-identical to
+  upstream; this fork's `rish` card generates its own command and is unaffected.
+- **Service Doctor**: OEM battery deep-links (HyperOS, ColorOS/OxygenOS, TCL), a Local Network
+  Permission check for Android 16/17 (the root cause of #317), and a Background Limits check that
+  actually calls `isBackgroundRestricted()`.
+- **QS tile**: checks background-start eligibility before enqueueing the ADB worker, a 15 s
+  watchdog so it never sticks in STARTING, `PendingIntent` collapse on Android 14+; its dialogs are
+  now `MaterialAlertDialogBuilder` — still styled by `ShiroikumaDialogs`, or they would be
+  invisible here.
+- **Authorized-apps screen** waits out the STARTING window instead of finishing (#471), swipe
+  toggle-permission runs off the main thread, DiffUtil replaces `notifyDataSetChanged`.
+- Auto-update install streams the APK through `Shizuku.newProcess()` stdin (shell cannot read
+  scoped storage), a forced update no longer wipes the settings backup, `UpdateManager` leaks
+  fixed. The update target is still this fork's releases, and the startup poll stays off.
+- Dhizuku v1/v2 AIDL descriptors, a `${applicationId}.dhizuku_server.provider` authority
+  (Obtainium's Dhizuku mode), rootless `restoreTarDirectory` via `run-as`, `OverlayManagerPlus`
+  resilient across API 30–36, edge-to-edge always on for API 35+ (a transition crash on Android 16),
+  dead `adb_tcp_port` writes removed (#490), `FakeAdbClientHandler` null-payload NPEs fixed.
+
+### Documented
+
+`CLAUDE.md` gains the Play Integrity and Device Hardening rows in the no-phone-home table, the
+raw-binder attempt in the delivery section, and the compat proxy authority as the third guarded
+literal — every rebase will restore upstream's value, and both the app-id grep and the unit test
+now catch it.
+
 ## 13.6.0.r2431+2026-09-05.12-28.g604a394a+005
 
 Rebased onto upstream `604a394a` (`13.6.0.r2431`, 34 new commits). Three things in this release: the
