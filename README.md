@@ -16,7 +16,7 @@ shipped has been removed — with **major additions**: a full **白い熊 雫 UI
 authorized sister apps, and the house look driven through every screen. Installs as
 `shiroikuma.shizuku`.
 
-**📥 Latest release: [`13.6.0.r2431+2026-09-05.12-28.g604a394a+005`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
+**📥 Latest release: [`13.6.0.r2592+2026-09-15.17-46.gb0ea544c+002`](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases)
 
 </div>
 
@@ -39,6 +39,8 @@ kind**. Removed outright:
 | **"Email support"** — device, OS and version report to the upstream author's support address | Button removed. |
 | **Upstream CI** — workflows that injected a Sentry DSN and uploaded debug symbols | Removed. |
 | **Changelog fetch** — the "What's New" dialog pulled release notes from GitHub on every update | Gone. The changelog is built into the APK (see below). |
+| **Play Integrity "warm-up"** — the Wallet-recovery fix requested an attestation token from Google through a linked `com.google.android.play:integrity` | Gone, library and all. The rest of the Wallet fix stays. |
+| **"Device Hardening & Keepalive"** — a self-grant of `WRITE_SECURE_SETTINGS` and three appops on every service start, on by default | Off by default. The switch is still there. |
 
 What remains is exactly one outbound request, and only when **you tap "Check for updates"**: a read
 of this repository's own releases. Nothing about the device is sent.
@@ -174,7 +176,11 @@ side of the wire.
 Fixed here, together, because each fix alone leaves the server broken in a different way. Binder
 delivery is fixed too: the three `BinderContainer` classes now go out in separate calls, since
 `Bundle.getParcelable` unparcels *every* value and a client shipping only one of them could
-previously read none.
+previously read none — and a raw binder needing no container class at all goes out first.
+
+The Compat Hub — the stub that lets apps built against the **stock** Shizuku API find this app —
+forwards modern (v11+) clients through a provider whose target authority upstream spells as its own
+app id. Here it names ours, and a unit test fails the build if that ever drifts.
 
 ---
 
