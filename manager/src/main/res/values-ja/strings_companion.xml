@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">公式版 Shizuku を検出</string>
-    <string name="companion_conflict_description">公式版 Shizuku と Shizuku+ を同時にインストールしていると、権限の競合やアプリのクラッシュが発生する原因になります。Shizuku+ が正常に動作するように、公式版 Shizuku アプリをアンインストールまたは無効化してください。\n\n以下の手順で行うことができます:\n1. 設定 -> アプリ -> Shizuku -> 無効化/アンインストール\n2. 下のボタン（Shizuku+ サービスが実行中の場合）\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">公式版 Shizuku と 白い熊 雫 を同時にインストールしていると、権限の競合やアプリのクラッシュが発生する原因になります。白い熊 雫 が正常に動作するように、公式版 Shizuku アプリをアンインストールまたは無効化してください。\n\n以下の手順で行うことができます:\n1. 設定 -> アプリ -> Shizuku -> 無効化/アンインストール\n2. 下のボタン（白い熊 雫 サービスが実行中の場合）\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">公式版を無効化</string>
     <string name="companion_action_uninstall">公式版をアンインストール</string>
     <string name="companion_disable_success">公式版 Shizuku を正常に無効化しました。</string>
-    <string name="companion_disable_failure">公式版 Shizuku の無効化に失敗しました。Shizuku+ が実行中であることを確認するか、手動で ADB を使用してください。</string>
+    <string name="companion_disable_failure">公式版 Shizuku の無効化に失敗しました。白い熊 雫 が実行中であることを確認するか、手動で ADB を使用してください。</string>
     <string name="companion_action_disabling">無効化中…</string>
 
     <string name="compat_hub_installed_title">Compat Hub インストール済み</string>
-    <string name="compat_hub_installed_desc">サードパーティ製アプリ（SwiftBackup など）が Shizuku+ をシームレスに検出できるようになりました。</string>
+    <string name="compat_hub_installed_desc">サードパーティ製アプリ（SwiftBackup など）が 白い熊 雫 をシームレスに検出できるようになりました。</string>
     <string name="compat_hub_missing_title">Compat Hub が必要です</string>
-    <string name="compat_hub_missing_desc">公式版 Shizuku を明示的にチェックするサードパーティ製アプリは、Shizuku+ を検出できません。軽量な Compat Hub をインストールして、アプリが Shizuku+ を検出できるようにしてください。</string>
+    <string name="compat_hub_missing_desc">公式版 Shizuku を明示的にチェックするサードパーティ製アプリは、白い熊 雫 を検出できません。軽量な Compat Hub をインストールして、アプリが 白い熊 雫 を検出できるようにしてください。</string>
     <string name="compat_hub_install_btn">Compat Hub をインストール</string>
     <string name="compat_hub_installing">インストール中…</string>
     <string name="compat_hub_install_success">Compat Hub が正常にインストールされました！</string>
-    <string name="compat_hub_install_fail">インストールに失敗しました。Shizuku+ または Root がアクティブであることを確認してください。</string>
+    <string name="compat_hub_install_fail">インストールに失敗しました。白い熊 雫 または Root がアクティブであることを確認してください。</string>
     <string name="compat_hub_install_fail_detail">インストールに失敗しました: %1$s</string>
     <string name="compat_hub_install_fail_restricted">インストールできません: デバイスの制限（Samsung オートブロッカーなど）によってブロックされました。[設定] → [セキュリティ] → [オートブロッカー] で無効にしてから再試行してください。</string>
     <string name="compat_hub_install_signature_conflict">インストールできません: 互換性のない署名を持つ別のアプリ（公式版 Shizuku など）が moe.shizuku.privileged.api として既にインストールされています。先にアンインストールしてください。</string>

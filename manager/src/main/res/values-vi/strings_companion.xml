@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">Đã phát hiện Shizuku gốc</string>
-    <string name="companion_conflict_description">Cài đặt Shizuku gốc cùng lúc với Shizuku+ có thể gây xung đột quyền và lỗi dừng ứng dụng. Để đảm bảo Shizuku+ hoạt động bình thường, vui lòng gỡ cài đặt hoặc tắt ứng dụng Shizuku gốc.\n\nBạn có thể thực hiện việc này qua:\n1. Cài đặt -> Ứng dụng -> Shizuku -> Tắt/Gỡ cài đặt\n2. Các nút bên dưới (nếu dịch vụ Shizuku+ đang chạy)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">Cài đặt Shizuku gốc cùng lúc với 白い熊 雫 có thể gây xung đột quyền và lỗi dừng ứng dụng. Để đảm bảo 白い熊 雫 hoạt động bình thường, vui lòng gỡ cài đặt hoặc tắt ứng dụng Shizuku gốc.\n\nBạn có thể thực hiện việc này qua:\n1. Cài đặt -> Ứng dụng -> Shizuku -> Tắt/Gỡ cài đặt\n2. Các nút bên dưới (nếu dịch vụ 白い熊 雫 đang chạy)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">Tắt bản gốc</string>
     <string name="companion_action_uninstall">Gỡ cài đặt bản gốc</string>
     <string name="companion_disable_success">Đã tắt Shizuku gốc thành công.</string>
-    <string name="companion_disable_failure">Không thể tắt Shizuku gốc. Hãy đảm bảo Shizuku+ đang chạy hoặc sử dụng ADB thủ công.</string>
+    <string name="companion_disable_failure">Không thể tắt Shizuku gốc. Hãy đảm bảo 白い熊 雫 đang chạy hoặc sử dụng ADB thủ công.</string>
     <string name="companion_action_disabling">Đang tắt…</string>
 
     <string name="compat_hub_installed_title">Đã cài đặt Compat Hub</string>
-    <string name="compat_hub_installed_desc">Các ứng dụng bên thứ ba (như SwiftBackup) giờ đây sẽ phát hiện Shizuku+ một cách liền mạch.</string>
+    <string name="compat_hub_installed_desc">Các ứng dụng bên thứ ba (như SwiftBackup) giờ đây sẽ phát hiện 白い熊 雫 một cách liền mạch.</string>
     <string name="compat_hub_missing_title">Cần có Compat Hub</string>
-    <string name="compat_hub_missing_desc">Các ứng dụng bên thứ ba kiểm tra trực tiếp Shizuku gốc sẽ không phát hiện thấy Shizuku+. Hãy cài đặt Compat Hub gọn nhẹ để cho phép các ứng dụng phát hiện Shizuku+.</string>
+    <string name="compat_hub_missing_desc">Các ứng dụng bên thứ ba kiểm tra trực tiếp Shizuku gốc sẽ không phát hiện thấy 白い熊 雫. Hãy cài đặt Compat Hub gọn nhẹ để cho phép các ứng dụng phát hiện 白い熊 雫.</string>
     <string name="compat_hub_install_btn">Cài đặt Compat Hub</string>
     <string name="compat_hub_installing">Đang cài đặt…</string>
     <string name="compat_hub_install_success">Đã cài đặt Compat Hub thành công!</string>
-    <string name="compat_hub_install_fail">Cài đặt thất bại. Hãy đảm bảo Shizuku+ hoặc Root đang hoạt động.</string>
+    <string name="compat_hub_install_fail">Cài đặt thất bại. Hãy đảm bảo 白い熊 雫 hoặc Root đang hoạt động.</string>
     <string name="compat_hub_install_fail_detail">Cài đặt thất bại: %1$s</string>
     <string name="compat_hub_install_fail_restricted">Không thể cài đặt: bị chặn bởi giới hạn của thiết bị (ví dụ: Trình chặn tự động của Samsung). Hãy tắt Trình chặn tự động trong Cài đặt → Bảo mật → Trình chặn tự động và thử lại.</string>
     <string name="compat_hub_install_signature_conflict">Không thể cài đặt: một ứng dụng khác (ví dụ: Shizuku gốc) đã được cài đặt dưới tên moe.shizuku.privileged.api với chữ ký không tương thích. Vui lòng gỡ cài đặt ứng dụng đó trước.</string>

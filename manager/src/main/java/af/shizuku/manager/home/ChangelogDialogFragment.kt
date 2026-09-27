@@ -1,36 +1,18 @@
 package af.shizuku.manager.home
 
-import af.shizuku.manager.R
-import af.shizuku.manager.update.UpdateChecker
-import af.shizuku.manager.utils.CustomTabsHelper
-import af.shizuku.manager.utils.HapticUtils
+import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Spannable
 import android.text.method.LinkMovementMethod
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.HorizontalScrollView
-import android.widget.LinearLayout
+import android.text.style.ClickableSpan
+import android.view.MotionEvent
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
-import io.noties.markwon.AbstractMarkwonPlugin
+import androidx.fragment.app.DialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.noties.markwon.Markwon
-import io.noties.markwon.MarkwonConfiguration
-import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
+import af.shizuku.manager.R
 import timber.log.Timber
 
 /**
@@ -43,13 +25,24 @@ import timber.log.Timber
  * [af.shizuku.manager.shiroikuma.ShiroikumaChangelog] for why the tag never matched and why a
  * network source was the wrong shape for this fork in the first place.
  */
-class ChangelogDialogFragment : BottomSheetDialogFragment() {
-    data class ReleaseItem(
-        val tag: String,
-        val date: String,
-        val body: String,
-        val isNew: Boolean = false,
-    )
+class ChangelogDialogFragment : DialogFragment() {
+
+    // LinkMovementMethod consumes every touch event (including scroll gestures), which prevents the
+    // parent AlertDialog ScrollView from scrolling. This subclass only intercepts DOWN/UP events
+    // that land on a ClickableSpan — all other events fall through so the dialog can still scroll.
+    private object LinkOnlyMovementMethod : LinkMovementMethod() {
+        override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean {
+            val action = event.actionMasked
+            if (action != MotionEvent.ACTION_DOWN && action != MotionEvent.ACTION_UP) return false
+            val x = (event.x - widget.totalPaddingLeft + widget.scrollX).toInt()
+            val y = (event.y - widget.totalPaddingTop + widget.scrollY).toInt()
+            val layout = widget.layout ?: return false
+            val line = layout.getLineForVertical(y)
+            val offset = layout.getOffsetForHorizontal(line, x.toFloat())
+            return buffer.getSpans(offset, offset, ClickableSpan::class.java).isNotEmpty() &&
+                super.onTouchEvent(widget, buffer, event)
+        }
+    }
 
     companion object {
         const val TAG = "ChangelogDialogFragment"
@@ -64,11 +57,19 @@ class ChangelogDialogFragment : BottomSheetDialogFragment() {
                 }
             }
 
-        fun formatNotes(rawNotes: String): String =
-            rawNotes
-                .substringBefore("## 📦 Recent Releases")
+        /**
+         * GitHub release notes are Markdown meant for a web page. For a short dialog, drop the
+         * "Recent Releases" rollup table/links (useful on GitHub, noisy here) and strip trailing
+         * short git commit hashes (e.g. " (a95d0130)") from bullet lines — they appear in the
+         * auto-generated release body but add nothing for end users. The rest is rendered as real
+         * Markdown by Markwon so bold/italic/code/list formatting shows up instead of literal
+         * `**`/`_`/`` ` ``.
+         */
+        private val COMMIT_HASH_SUFFIX = Regex("""\s+\([0-9a-f]{7,8}\)$""", RegexOption.MULTILINE)
+
+        private fun formatForDialog(rawNotes: String): String =
+            rawNotes.substringBefore("## 📦 Recent Releases")
                 .replace(COMMIT_HASH_SUFFIX, "")
-                .let { stripConventionalPrefixes(it) }
                 .trim()
     }
 
@@ -77,8 +78,14 @@ class ChangelogDialogFragment : BottomSheetDialogFragment() {
         val versionName = arguments?.getString(ARG_VERSION_NAME) ?: ""
         val markwon = Markwon.create(requireContext())
 
-        val current = releases.firstOrNull()
-        val previous = releases.drop(1)
+        val message: CharSequence = try {
+            rawNotes?.let { formatForDialog(it) }?.takeIf { it.isNotBlank() }
+                ?.let { markwon.toMarkdown(it) }
+                ?: getString(R.string.changelog_fallback_message)
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to format release notes for dialog")
+            getString(R.string.changelog_fallback_message)
+        }
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.changelog_title)
@@ -96,109 +103,18 @@ class ChangelogDialogFragment : BottomSheetDialogFragment() {
                 } catch (e: Exception) {
                     Timber.w(e, "Failed to open release page for $versionName")
                 }
-                chipGroup.addView(chip)
             }
-        } else {
-            earlierSection.isVisible = false
+            .create()
+
+        // Bold/italic/headings/code/lists render from the Spanned message above with no extra
+        // work, but a tappable Markdown link needs a movement method on the message TextView -
+        // AlertDialog's default one has none, so set it once the view actually exists.
+        dialog.setOnShowListener {
+            dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
+                LinkOnlyMovementMethod
         }
 
-        // Tag selection implementation (used by Markwon link resolver)
-        selectAndDisplayTag = { targetTag ->
-            val cleanTarget = targetTag.removePrefix("v").trim()
-            val foundIndex =
-                releases.indexOfFirst {
-                    it.tag
-                        .removePrefix("v")
-                        .trim()
-                        .equals(cleanTarget, ignoreCase = true)
-                }
-            if (foundIndex >= 0) {
-                val targetRelease = releases[foundIndex]
-                val chipIndex = if (combinedNewRelease != null) foundIndex + 1 else foundIndex
-                if (chipIndex < chipGroup.childCount) {
-                    val targetChip = chipGroup.getChildAt(chipIndex) as? Chip
-                    targetChip?.isChecked = true
-                    targetChip?.let { earlierScroll?.smoothScrollTo(it.left, 0) }
-                }
-                HapticUtils.segmentTick(notesView)
-                displayRelease(targetRelease)
-            } else {
-                lifecycleScope.launch {
-                    try {
-                        val notes = UpdateChecker.fetchReleaseNotesForTag(targetTag)
-                        if (notes != null && isAdded && !isDetached) {
-                            val singleRelease = ReleaseItem(tag = targetTag, date = "", body = notes)
-                            HapticUtils.segmentTick(notesView)
-                            displayRelease(singleRelease)
-                        } else if (isAdded && !isDetached) {
-                            CustomTabsHelper.launchUrlOrCopy(
-                                requireContext(),
-                                "https://github.com/thejaustin/ShizukuPlus/releases/tag/$targetTag",
-                            )
-                        }
-                    } catch (e: Exception) {
-                        Timber.w(e, "Failed to load release for tag $targetTag")
-                    }
-                }
-            }
-        }
-
-        // Initial release display
-        if (combinedNewRelease != null) {
-            displayRelease(combinedNewRelease, isCombined = true)
-        } else if (releases.isNotEmpty()) {
-            displayRelease(releases.first())
-        } else {
-            versionText.text = tagName
-            notesView.setText(R.string.changelog_fallback_message)
-        }
-        notesView.movementMethod = LinkMovementMethod.getInstance()
-
-        // "View on GitHub" links to the currently selected release's page
-        btnGithub.setOnClickListener {
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/tag/$tagName")))
-            } catch (e: Exception) {
-                Timber.w(e, "Failed to open release page for $currentSelectedTag")
-            }
-        }
-
-        view.findViewById<MaterialButton>(R.id.btn_close).setOnClickListener {
-            dismissAllowingStateLoss()
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        val dlg = dialog as? BottomSheetDialog ?: return
-        val sheet = dlg.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) ?: return
-        val screenHeight = resources.displayMetrics.heightPixels
-        sheet.layoutParams = sheet.layoutParams.apply { height = (screenHeight * 0.82).toInt() }
-        BottomSheetBehavior.from(sheet).apply {
-            state = BottomSheetBehavior.STATE_EXPANDED
-            skipCollapsed = true
-        }
-    }
-
-    private fun parseReleases(json: String?): List<ReleaseItem> {
-        if (json == null) return emptyList()
-        return try {
-            val arr = JSONArray(json)
-            (0 until arr.length())
-                .map { i ->
-                    val obj = arr.getJSONObject(i)
-                    ReleaseItem(
-                        tag = obj.optString("tag", ""),
-                        date = obj.optString("date", ""),
-                        body = obj.optString("body", ""),
-                        isNew = obj.optBoolean("is_new", false),
-                    )
-                }.filter { it.tag.isNotBlank() }
-        } catch (e: Exception) {
-            Timber.w(e, "Failed to parse releases JSON")
-            emptyList()
-        }
+        return dialog
     }
 
     /**

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">تم اكتشاف نسخة Shizuku الأصلية</string>
-    <string name="companion_conflict_description">قد يؤدي تثبيت نسخة Shizuku الأصلية إلى جانب Shizuku+ إلى تعارض في الأذونات وأعطال في التطبيقات. لضمان عمل Shizuku+ بشكل صحيح، يرجى إلغاء تثبيت تطبيق Shizuku الأصلي أو تعطيله.\n\nيمكنك القيام بذلك عبر:\n1. الإعدادات -> التطبيقات -> Shizuku -> تعطيل/إلغاء التثبيت\n2. الأزرار أدناه (إذا كانت خدمة Shizuku+ قيد التشغيل)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">قد يؤدي تثبيت نسخة Shizuku الأصلية إلى جانب 白い熊 雫 إلى تعارض في الأذونات وأعطال في التطبيقات. لضمان عمل 白い熊 雫 بشكل صحيح، يرجى إلغاء تثبيت تطبيق Shizuku الأصلي أو تعطيله.\n\nيمكنك القيام بذلك عبر:\n1. الإعدادات -> التطبيقات -> Shizuku -> تعطيل/إلغاء التثبيت\n2. الأزرار أدناه (إذا كانت خدمة 白い熊 雫 قيد التشغيل)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">تعطيل النسخة الأصلية</string>
     <string name="companion_action_uninstall">إلغاء تثبيت النسخة الأصلية</string>
     <string name="companion_disable_success">تم تعطيل نسخة Shizuku الأصلية بنجاح.</string>
-    <string name="companion_disable_failure">فشل تعطيل نسخة Shizuku الأصلية. تأكد من تشغيل Shizuku+ أو استخدم ADB يدويًا.</string>
+    <string name="companion_disable_failure">فشل تعطيل نسخة Shizuku الأصلية. تأكد من تشغيل 白い熊 雫 أو استخدم ADB يدويًا.</string>
     <string name="companion_action_disabling">جارٍ التعطيل…</string>
 
     <string name="compat_hub_installed_title">تم تثبيت Compat Hub</string>
-    <string name="compat_hub_installed_desc">ستكتشف تطبيقات الطرف الثالث (مثل SwiftBackup) الآن Shizuku+ بسلاسة.</string>
+    <string name="compat_hub_installed_desc">ستكتشف تطبيقات الطرف الثالث (مثل SwiftBackup) الآن 白い熊 雫 بسلاسة.</string>
     <string name="compat_hub_missing_title">يلزم تثبيت Compat Hub</string>
-    <string name="compat_hub_missing_desc">لن تتمكن تطبيقات الطرف الثالث التي تبحث صراحةً عن نسخة Shizuku الأصلية من اكتشاف Shizuku+. ثبّت Compat Hub الخفيف للسماح للتطبيقات باكتشاف Shizuku+.</string>
+    <string name="compat_hub_missing_desc">لن تتمكن تطبيقات الطرف الثالث التي تبحث صراحةً عن نسخة Shizuku الأصلية من اكتشاف 白い熊 雫. ثبّت Compat Hub الخفيف للسماح للتطبيقات باكتشاف 白い熊 雫.</string>
     <string name="compat_hub_install_btn">تثبيت Compat Hub</string>
     <string name="compat_hub_installing">جارٍ التثبيت…</string>
     <string name="compat_hub_install_success">تم تثبيت Compat Hub بنجاح!</string>
-    <string name="compat_hub_install_fail">فشل التثبيت. تأكد من تشغيل Shizuku+ أو تفعيل Root.</string>
+    <string name="compat_hub_install_fail">فشل التثبيت. تأكد من تشغيل 白い熊 雫 أو تفعيل Root.</string>
     <string name="compat_hub_install_fail_detail">فشل التثبيت: %1$s</string>
     <string name="compat_hub_install_fail_restricted">تعذر التثبيت: تم الحظر بواسطة قيود الجهاز (مثل الحظر التلقائي من Samsung). عطّل الحظر التلقائي في الإعدادات ← الأمان ← الحظر التلقائي وحاول مجددًا.</string>
     <string name="compat_hub_install_signature_conflict">تعذر التثبيت: هناك تطبيق آخر (مثل نسخة Shizuku الأصلية) مثبت بالفعل كـ moe.shizuku.privileged.api بتوقيع غير متوافق. يرجى إلغاء تثبيته أولاً.</string>

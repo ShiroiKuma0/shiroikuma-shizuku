@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">ตรวจพบ Shizuku ดั้งเดิม</string>
-    <string name="companion_conflict_description">การติดตั้ง Shizuku ดั้งเดิมควบคู่ไปกับ Shizuku+ อาจทำให้เกิดข้อขัดแย้งของสิทธิ์และการหยุดทำงานของแอป เพื่อให้แน่ใจว่า Shizuku+ ทำงานได้อย่างถูกต้อง โปรดถอนการติดตั้งหรือปิดใช้งานแอป Shizuku ดั้งเดิม\n\nคุณสามารถทำได้โดย:\n1. การตั้งค่า -> แอป -> Shizuku -> ปิดใช้งาน/ถอนการติดตั้ง\n2. ปุ่มด้านล่าง (หากบริการ Shizuku+ กำลังทำงานอยู่)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">การติดตั้ง Shizuku ดั้งเดิมควบคู่ไปกับ 白い熊 雫 อาจทำให้เกิดข้อขัดแย้งของสิทธิ์และการหยุดทำงานของแอป เพื่อให้แน่ใจว่า 白い熊 雫 ทำงานได้อย่างถูกต้อง โปรดถอนการติดตั้งหรือปิดใช้งานแอป Shizuku ดั้งเดิม\n\nคุณสามารถทำได้โดย:\n1. การตั้งค่า -> แอป -> Shizuku -> ปิดใช้งาน/ถอนการติดตั้ง\n2. ปุ่มด้านล่าง (หากบริการ 白い熊 雫 กำลังทำงานอยู่)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">ปิดใช้งานเวอร์ชันดั้งเดิม</string>
     <string name="companion_action_uninstall">ถอนการติดตั้งเวอร์ชันดั้งเดิม</string>
     <string name="companion_disable_success">ปิดใช้งาน Shizuku ดั้งเดิมสำเร็จแล้ว</string>
-    <string name="companion_disable_failure">ไม่สามารถปิดใช้งาน Shizuku ดั้งเดิมได้ ตรวจสอบว่า Shizuku+ กำลังทำงานอยู่หรือใช้ ADB ด้วยตนเอง</string>
+    <string name="companion_disable_failure">ไม่สามารถปิดใช้งาน Shizuku ดั้งเดิมได้ ตรวจสอบว่า 白い熊 雫 กำลังทำงานอยู่หรือใช้ ADB ด้วยตนเอง</string>
     <string name="companion_action_disabling">กำลังปิดใช้งาน…</string>
 
     <string name="compat_hub_installed_title">ติดตั้ง Compat Hub แล้ว</string>
-    <string name="compat_hub_installed_desc">แอปของบุคคลที่สาม (เช่น SwiftBackup) จะตรวจพบ Shizuku+ ได้อย่างราบรื่นแล้วในขณะนี้</string>
+    <string name="compat_hub_installed_desc">แอปของบุคคลที่สาม (เช่น SwiftBackup) จะตรวจพบ 白い熊 雫 ได้อย่างราบรื่นแล้วในขณะนี้</string>
     <string name="compat_hub_missing_title">จำเป็นต้องมี Compat Hub</string>
-    <string name="compat_hub_missing_desc">แอปบุคคลที่สามที่ตรวจสอบหา Shizuku ดั้งเดิมโดยเฉพาะจะไม่พบ Shizuku+ โปรดติดตั้ง Compat Hub ขนาดเล็กเพื่อให้แอปตรวจพบ Shizuku+ ได้</string>
+    <string name="compat_hub_missing_desc">แอปบุคคลที่สามที่ตรวจสอบหา Shizuku ดั้งเดิมโดยเฉพาะจะไม่พบ 白い熊 雫 โปรดติดตั้ง Compat Hub ขนาดเล็กเพื่อให้แอปตรวจพบ 白い熊 雫 ได้</string>
     <string name="compat_hub_install_btn">ติดตั้ง Compat Hub</string>
     <string name="compat_hub_installing">กำลังติดตั้ง…</string>
     <string name="compat_hub_install_success">ติดตั้ง Compat Hub สำเร็จแล้ว!</string>
-    <string name="compat_hub_install_fail">การติดตั้งล้มเหลว โปรดตรวจสอบว่า Shizuku+ หรือ Root เปิดใช้งานอยู่</string>
+    <string name="compat_hub_install_fail">การติดตั้งล้มเหลว โปรดตรวจสอบว่า 白い熊 雫 หรือ Root เปิดใช้งานอยู่</string>
     <string name="compat_hub_install_fail_detail">การติดตั้งล้มเหลว: %1$s</string>
     <string name="compat_hub_install_fail_restricted">ไม่สามารถติดตั้งได้: ถูกบล็อกโดยข้อจำกัดของอุปกรณ์ (เช่น Samsung Auto Blocker) ให้ปิดใช้งาน Auto Blocker ใน การตั้งค่า → ความปลอดภัย → ตัวบล็อกอัตโนมัติ แล้วลองอีกครั้ง</string>
     <string name="compat_hub_install_signature_conflict">ไม่สามารถติดตั้งได้: มีแอปอื่น (เช่น Shizuku ดั้งเดิม) ติดตั้งในชื่อ moe.shizuku.privileged.api ไว้อยู่แล้วด้วยลายเซ็นที่ไม่เข้ากัน โปรดถอนการติดตั้งก่อน</string>

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">Виявлено оригінальний Shizuku</string>
-    <string name="companion_conflict_description">Наявність оригінального Shizuku поруч із Shizuku+ може спричинити конфлікти дозволів та збої програм. Щоб забезпечити правильну роботу Shizuku+, будь ласка, видаліть або вимкніть оригінальний Shizuku.\n\nЦе можна зробити через:\n1. Налаштування -> Програми -> Shizuku -> Вимкнути/Видалити\n2. Кнопки нижче (якщо служба Shizuku+ запущена)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">Наявність оригінального Shizuku поруч із 白い熊 雫 може спричинити конфлікти дозволів та збої програм. Щоб забезпечити правильну роботу 白い熊 雫, будь ласка, видаліть або вимкніть оригінальний Shizuku.\n\nЦе можна зробити через:\n1. Налаштування -> Програми -> Shizuku -> Вимкнути/Видалити\n2. Кнопки нижче (якщо служба 白い熊 雫 запущена)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">Вимкнути оригінальний</string>
     <string name="companion_action_uninstall">Видалити оригінальний</string>
     <string name="companion_disable_success">Оригінальний Shizuku успішно вимкнено.</string>
-    <string name="companion_disable_failure">Не вдалося вимкнути оригінальний Shizuku. Переконайтеся, що Shizuku+ запущено, або використайте ADB вручну.</string>
+    <string name="companion_disable_failure">Не вдалося вимкнути оригінальний Shizuku. Переконайтеся, що 白い熊 雫 запущено, або використайте ADB вручну.</string>
     <string name="companion_action_disabling">Вимкнення…</string>
 
     <string name="compat_hub_installed_title">Compat Hub встановлено</string>
-    <string name="compat_hub_installed_desc">Сторонні програми (наприклад, SwiftBackup) тепер автоматично виявлятимуть Shizuku+.</string>
+    <string name="compat_hub_installed_desc">Сторонні програми (наприклад, SwiftBackup) тепер автоматично виявлятимуть 白い熊 雫.</string>
     <string name="compat_hub_missing_title">Потрібен Compat Hub</string>
-    <string name="compat_hub_missing_desc">Сторонні програми, які явно перевіряють наявність оригінального Shizuku, не виявлятимуть Shizuku+. Встановіть легкий Compat Hub, щоб дозволити програмам виявляти Shizuku+.</string>
+    <string name="compat_hub_missing_desc">Сторонні програми, які явно перевіряють наявність оригінального Shizuku, не виявлятимуть 白い熊 雫. Встановіть легкий Compat Hub, щоб дозволити програмам виявляти 白い熊 雫.</string>
     <string name="compat_hub_install_btn">Встановити Compat Hub</string>
     <string name="compat_hub_installing">Встановлення…</string>
     <string name="compat_hub_install_success">Compat Hub успішно встановлено!</string>
-    <string name="compat_hub_install_fail">Помилка встановлення. Переконайтеся, що Shizuku+ або Root активний.</string>
+    <string name="compat_hub_install_fail">Помилка встановлення. Переконайтеся, що 白い熊 雫 або Root активний.</string>
     <string name="compat_hub_install_fail_detail">Помилка встановлення: %1$s</string>
     <string name="compat_hub_install_fail_restricted">Неможливо встановити: заблоковано обмеженням пристрою (напр., Samsung Auto Blocker). Вимкніть Auto Blocker у Налаштування → Безпека → Auto Blocker і повторіть спробу.</string>
     <string name="compat_hub_install_signature_conflict">Неможливо встановити: інша програма (напр., оригінальний Shizuku) вже встановлена як moe.shizuku.privileged.api з несумісним підписом. Спочатку видаліть її.</string>
