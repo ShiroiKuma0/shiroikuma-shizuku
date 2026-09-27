@@ -134,12 +134,3 @@ room-testing = { group = "androidx.room", name = "room-testing", version.ref = "
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test-core" }
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }
-android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-autoresconfig = { id = "dev.rikka.tools.autoresconfig", version = "1.2.2" }
-materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.5.1" }
-refine = { id = "dev.rikka.tools.refine", version = "4.4.0" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

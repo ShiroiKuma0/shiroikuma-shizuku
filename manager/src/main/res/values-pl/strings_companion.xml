@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">Wykryto oryginalnego Shizuku</string>
-    <string name="companion_conflict_description">Zainstalowanie oryginalnego Shizuku obok Shizuku+ może powodować konflikty uprawnień i awarie aplikacji. Aby zapewnić prawidłowe działanie Shizuku+, odinstaluj lub wyłącz oryginalną aplikację Shizuku.\n\nMożesz to zrobić poprzez:\n1. Ustawienia -> Aplikacje -> Shizuku -> Wyłącz/Odinstaluj\n2. Przyciski poniżej (jeśli usługa Shizuku+ jest uruchomiona)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">Zainstalowanie oryginalnego Shizuku obok 白い熊 雫 może powodować konflikty uprawnień i awarie aplikacji. Aby zapewnić prawidłowe działanie 白い熊 雫, odinstaluj lub wyłącz oryginalną aplikację Shizuku.\n\nMożesz to zrobić poprzez:\n1. Ustawienia -> Aplikacje -> Shizuku -> Wyłącz/Odinstaluj\n2. Przyciski poniżej (jeśli usługa 白い熊 雫 jest uruchomiona)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">Wyłącz oryginał</string>
     <string name="companion_action_uninstall">Odinstaluj oryginał</string>
     <string name="companion_disable_success">Oryginalny Shizuku został pomyślnie wyłączony.</string>
-    <string name="companion_disable_failure">Nie udało się wyłączyć oryginalnego Shizuku. Upewnij się, że Shizuku+ jest uruchomiony, lub użyj ADB ręcznie.</string>
+    <string name="companion_disable_failure">Nie udało się wyłączyć oryginalnego Shizuku. Upewnij się, że 白い熊 雫 jest uruchomiony, lub użyj ADB ręcznie.</string>
     <string name="companion_action_disabling">Wyłączanie…</string>
 
     <string name="compat_hub_installed_title">Zainstalowano Compat Hub</string>
-    <string name="compat_hub_installed_desc">Aplikacje innych firm (takie jak SwiftBackup) będą teraz bezproblemowo wykrywać Shizuku+.</string>
+    <string name="compat_hub_installed_desc">Aplikacje innych firm (takie jak SwiftBackup) będą teraz bezproblemowo wykrywać 白い熊 雫.</string>
     <string name="compat_hub_missing_title">Wymagany Compat Hub</string>
-    <string name="compat_hub_missing_desc">Aplikacje innych firm, które bezpośrednio sprawdzają obecność oryginalnego Shizuku, nie wykryją Shizuku+. Zainstaluj lekki Compat Hub, aby aplikacje mogły wykryć Shizuku+.</string>
+    <string name="compat_hub_missing_desc">Aplikacje innych firm, które bezpośrednio sprawdzają obecność oryginalnego Shizuku, nie wykryją 白い熊 雫. Zainstaluj lekki Compat Hub, aby aplikacje mogły wykryć 白い熊 雫.</string>
     <string name="compat_hub_install_btn">Zainstaluj Compat Hub</string>
     <string name="compat_hub_installing">Instalowanie…</string>
     <string name="compat_hub_install_success">Pomyślnie zainstalowano Compat Hub!</string>
-    <string name="compat_hub_install_fail">Nie udało się zainstalować. Upewnij się, że Shizuku+ lub dostęp do roota jest aktywny.</string>
+    <string name="compat_hub_install_fail">Nie udało się zainstalować. Upewnij się, że 白い熊 雫 lub dostęp do roota jest aktywny.</string>
     <string name="compat_hub_install_fail_detail">Instalacja nie powiodła się: %1$s</string>
     <string name="compat_hub_install_fail_restricted">Nie można zainstalować: zablokowano przez ograniczenia urządzenia (np. Samsung Auto Blocker). Wyłącz Auto Blocker w menu Ustawienia → Bezpieczeństwo → Auto Blocker i spróbuj ponownie.</string>
     <string name="compat_hub_install_signature_conflict">Nie można zainstalować: inna aplikacja (np. oryginalny Shizuku) jest już zainstalowana jako moe.shizuku.privileged.api z niezgodnym podpisem. Najpierw ją odinstaluj.</string>

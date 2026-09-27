@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">检测到原版 Shizuku</string>
-    <string name="companion_conflict_description">同时安装原版 Shizuku 与 Shizuku+ 可能导致权限冲突和应用崩溃。为确保 Shizuku+ 正常工作，请卸载或停用原版 Shizuku 应用。\n\n你可以通过以下方式操作：\n1. 设置 -> 应用 -> Shizuku -> 停用/卸载\n2. 下方按钮（若 Shizuku+ 服务正在运行）\n3. ADB：adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">同时安装原版 Shizuku 与 白い熊 雫 可能导致权限冲突和应用崩溃。为确保 白い熊 雫 正常工作，请卸载或停用原版 Shizuku 应用。\n\n你可以通过以下方式操作：\n1. 设置 -> 应用 -> Shizuku -> 停用/卸载\n2. 下方按钮（若 白い熊 雫 服务正在运行）\n3. ADB：adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">停用原版</string>
     <string name="companion_action_uninstall">卸载原版</string>
     <string name="companion_disable_success">已成功停用原版 Shizuku。</string>
-    <string name="companion_disable_failure">停用原版 Shizuku 失败。请确保 Shizuku+ 正在运行，或手动使用 ADB。</string>
+    <string name="companion_disable_failure">停用原版 Shizuku 失败。请确保 白い熊 雫 正在运行，或手动使用 ADB。</string>
     <string name="companion_action_disabling">正在停用…</string>
 
     <string name="compat_hub_installed_title">已安装兼容中心</string>
-    <string name="compat_hub_installed_desc">第三方应用（如 SwiftBackup）现在可以无缝检测到 Shizuku+。</string>
+    <string name="compat_hub_installed_desc">第三方应用（如 SwiftBackup）现在可以无缝检测到 白い熊 雫。</string>
     <string name="compat_hub_missing_title">需要兼容中心</string>
-    <string name="compat_hub_missing_desc">显式检查原版 Shizuku 的第三方应用将无法检测到 Shizuku+。请安装轻量的兼容中心，以便应用能检测到 Shizuku+。</string>
+    <string name="compat_hub_missing_desc">显式检查原版 Shizuku 的第三方应用将无法检测到 白い熊 雫。请安装轻量的兼容中心，以便应用能检测到 白い熊 雫。</string>
     <string name="compat_hub_install_btn">安装兼容中心</string>
     <string name="compat_hub_installing">正在安装…</string>
     <string name="compat_hub_install_success">兼容中心安装成功！</string>
-    <string name="compat_hub_install_fail">安装失败。请确保 Shizuku+ 或 Root 处于活动状态。</string>
+    <string name="compat_hub_install_fail">安装失败。请确保 白い熊 雫 或 Root 处于活动状态。</string>
     <string name="compat_hub_install_fail_detail">安装失败：%1$s</string>
     <string name="compat_hub_install_fail_restricted">无法安装：被设备限制阻止（例如三星自动拦截器）。请在「设置 → 安全 → 自动拦截器」中关闭后重试。</string>
     <string name="compat_hub_install_signature_conflict">无法安装：已有其他应用（例如原版 Shizuku）以 moe.shizuku.privileged.api 为包名安装，且签名不兼容。请先卸载它。</string>

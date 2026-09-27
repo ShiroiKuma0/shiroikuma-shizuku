@@ -1283,7 +1283,7 @@ PERIGO: Flashear uma carga incompatível RESULTARÁ em brick permanente ou bootl
     <string name="backup_error_key_invalidated_restore">o bloqueio de tela ou a biometria do seu dispositivo foram alterados desde a criação da chave de criptografia deste backup, o que o invalida permanentemente por design. Este backup não pode mais ser descriptografado.</string>
     <string name="backup_error_prefix_backup_failed">Falha no backup</string>
     <string name="backup_error_prefix_restore_failed">Falha na restauração</string>
-    <string name="backup_error_wrong_install">não foi possível descriptografar este backup. Provavelmente foi criado por uma instalação diferente do Shizuku+ — os backups são criptografados por instalação e não podem ser restaurados após reinstalar ou limpar os dados do aplicativo.</string>
+    <string name="backup_error_wrong_install">não foi possível descriptografar este backup. Provavelmente foi criado por uma instalação diferente do 白い熊 雫 — os backups são criptografados por instalação e não podem ser restaurados após reinstalar ou limpar os dados do aplicativo.</string>
     <string name="backup_freeze_success">Aplicativo congelado</string>
     <string name="backup_in_progress">Backup em andamento…</string>
     <string name="backup_menu_backup_all">Fazer backup de todos os apps</string>
@@ -1394,11 +1394,11 @@ PERIGO: Flashear uma carga incompatível RESULTARÁ em brick permanente ou bootl
 
     <!-- Empty state -->
     <string name="empty_state_title_service_starting">Iniciando…</string>
-    <string name="empty_state_description_service_starting">Aguardando o Shizuku+ terminar de iniciar. Isso geralmente leva um momento.</string>
+    <string name="empty_state_description_service_starting">Aguardando o 白い熊 雫 terminar de iniciar. Isso geralmente leva um momento.</string>
 
     <!-- Help dialogs -->
     <string name="help_stealth_mode_title">Modo stealth</string>
-    <string name="help_stealth_mode_detail">Intercepta consultas do PackageManager no nível do Binder e retorna "não instalado" para pacotes ShizukuPlus e Shizuku. Apps que usam o PM para detectar ferramentas root (apps bancários, verificações de DRM) não os encontrarão. Nota: isso apenas os oculta de consultas do PackageManager — o modo desenvolvedor e a depuração USB ainda são visíveis para apps que verificam as configurações do Android diretamente.</string>
+    <string name="help_stealth_mode_detail">Intercepta consultas do PackageManager no nível do Binder e retorna "não instalado" para pacotes 白い熊 雫 e Shizuku. Apps que usam o PM para detectar ferramentas root (apps bancários, verificações de DRM) não os encontrarão. Nota: isso apenas os oculta de consultas do PackageManager — o modo desenvolvedor e a depuração USB ainda são visíveis para apps que verificam as configurações do Android diretamente.</string>
     <string name="help_root_build_prop_title">Sobre o redirecionamento do build.prop</string>
     <string name="help_root_build_prop_detail">Este módulo copia automaticamente o build.prop original para um caminho gravável e redireciona todas as gravações para ele, permitindo que os usuários modifiquem com segurança os valores do sistema sem root.</string>
     <string name="help_root_iptables_title">Sobre a simulação de firewall</string>

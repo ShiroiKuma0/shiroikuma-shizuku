@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Shizuku+</string>
+    <string name="app_name">白い熊 雫</string>
     <string name="translation_contributors">thejaustin</string>
     <string name="translation_url">https://github.com/thejaustin/ShizukuPlus</string>
     <string name="settings_expressive_title">Виразний дизайн (M3E)</string>
@@ -99,10 +99,10 @@
     <string name="doctor_tip_secure_folder"><b>Виявлено Захищену папку</b>: Shizuku найкраще працює в основному профілі (Власник). Робота в Захищеній папці чи Робочому профілі може вимагати попереднього запуску сервера з основного профілю.</string>
     <string name="doctor_tip_phantom_process"><b>Вбивця фантомних процесів</b>: Android 12-15+ може завершити Shizuku, якщо виконується забагато команд. Кнопка «Виправити» намагається зняти це обмеження.</string>
     <string name="doctor_tip_samsung_optimization"><b>Автооптимізація Samsung</b>: вимкніть «Автоматичне перезавантаження» в Обслуговуванні пристрою, щоб запобігти закриттю Shizuku вночі.</string>
-    <string name="doctor_tip_samsung_sleeping"><b>Сплячі додатки Samsung</b>: переконайтеся, що Shizuku+ додано до списку «Додатки, що ніколи не сплять» у *Обслуговування пристрою > Батарея > Обмеження фонового використання*, щоб запобігти завершенню фонової служби.</string>
+    <string name="doctor_tip_samsung_sleeping"><b>Сплячі додатки Samsung</b>: переконайтеся, що 白い熊 雫 додано до списку «Додатки, що ніколи не сплять» у *Обслуговування пристрою > Батарея > Обмеження фонового використання*, щоб запобігти завершенню фонової служби.</string>
     <string name="doctor_tip_s22_ultra_exynos"><b>S22 Ultra (Exynos)</b>: якщо служба працює повільно, спробуйте вимкнути «RAM Plus» в Обслуговуванні пристрою > Пам\'ять.</string>
     <string name="doctor_tip_s22_ultra_snapdragon"><b>S22 Ultra (Snapdragon)</b>: переконайтеся, що в Швидких налаштуваннях увімкнено «Покращена обробка» для максимальної пропускної здатності команд.</string>
-    <string name="doctor_system_well_configured">Ваша система, схоже, добре налаштована для Shizuku+.</string>
+    <string name="doctor_system_well_configured">Ваша система, схоже, добре налаштована для 白い熊 雫.</string>
     <string name="su_bridge_other_detected_apps">Інші виявлені root-додатки</string>
     <string name="su_bridge_installed_root_app">Встановлений root-додаток</string>
     <string name="su_bridge_suggested_root_app">Рекомендований root-додаток</string>
@@ -191,7 +191,7 @@
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[Цілком імовірно, що виробник вашого пристрою обмежує дозвіл adb.<p>Можливе рішення для вашої системи описано в <b><a href=\"%1$s\">цьому документі</a></b>.]]></string>
     <string name="app_management_item_summary_requires_root">* потребує запуску Shizuku з root</string>
     <string name="app_management_item_summary_partial_root">⚠ Частково підтримується — деякі функції все ще потребують Shizuku з root</string>
-    <string name="app_management_item_summary_requires_plus">* потребує розширеного API Shizuku+</string>
+    <string name="app_management_item_summary_requires_plus">* потребує розширеного API 白い熊 雫</string>
     <string name="app_management_item_summary_shizuku_aware">Підтримує Shizuku: працює з Shizuku нативно</string>
     <string name="app_management_item_context">Про цей додаток: %s</string>
     <string name="app_management_enhancements">Покращення</string>
@@ -212,7 +212,7 @@
     <string name="terminal_export_files">Експортувати файли</string>
     <string name="terminal_tutorial_2">Використайте термінал-додаток, щоб скопіювати файли до його приватної теки файлів.</string>
     <string name="terminal_tutorial_2_description">Порада: якщо домашня тека вашого термінал-додатка (~) знаходиться в приватній теці файлів, розміщення файлів там дозволить запускати %1$s без написання шляху.\n\nІнакше можна створити псевдонім для %2$s у конфігураційному файлі %3$s вашого термінал-додатка.</string>
-    <string name="terminal_tutorial_3">Відкрийте оболонку або виконайте команду Shizuku+:</string>
+    <string name="terminal_tutorial_3">Відкрийте оболонку або виконайте команду 白い熊 雫:</string>
     <string name="rish_description"><![CDATA[За допомогою %1$s ви можете виконувати команди оболонки в будь-якому термінал-додатку.<p>Натисніть, щоб дізнатися більше про використання.]]></string>
     <string name="settings_swipe_right">Дія при свайпі вправо</string>
     <string name="settings_swipe_left">Дія при свайпі вліво</string>
@@ -227,14 +227,14 @@
     <string name="settings_lp_app_info">Про додаток</string>
     <string name="settings_lp_toggle_permission">Перемкнути дозвіл Shizuku</string>
     <string name="settings_lp_hide_from_list">Приховати зі списку</string>
-    <string name="onboarding_welcome_title">Ласкаво просимо до Shizuku+</string>
+    <string name="onboarding_welcome_title">Ласкаво просимо до 白い熊 雫</string>
     <string name="onboarding_welcome_desc">Розширений Shizuku з потужними функціями керування додатками. Жести свайпу, швидкі дії та налаштовуваний досвід — усе в одному місці.</string>
     <string name="onboarding_swipe_title">Стандартні жести</string>
     <string name="onboarding_swipe_desc">За замовчуванням у списку керування додатками свайп вправо відкриває додаток, а свайп вліво — сторінку його системних налаштувань.</string>
     <string name="onboarding_gestures_title">Власні жести</string>
     <string name="onboarding_gestures_desc">Ви можете повністю налаштувати ці дії свайпу в Налаштуваннях. Оберіть з-поміж: Відкрити додаток, Про додаток, Перемкнути дозвіл або Приховати зі списку.</string>
     <string name="onboarding_longpress_title">Налаштуйте досвід</string>
-    <string name="onboarding_longpress_desc">Оберіть, які дії з\'являються при довгому натисканні на додаток, або увімкніть ексклюзивні функції Shizuku+, як-от Режим Dhizuku.</string>
+    <string name="onboarding_longpress_desc">Оберіть, які дії з\'являються при довгому натисканні на додаток, або увімкніть ексклюзивні функції 白い熊 雫, як-от Режим Dhizuku.</string>
     <string name="onboarding_next">Далі</string>
     <string name="onboarding_skip">Пропустити</string>
     <string name="onboarding_get_started">Почати</string>
@@ -306,15 +306,15 @@
     <string name="settings_reset_adb_keys_summary">Видалити наявні ключі та сертифікати ADB. Корисно, якщо створення пари зависло або KeyStore пошкоджено.</string>
     <string name="settings_reset_adb_keys_success">Ключі ADB очищено</string>
     <string name="settings_reset_adb_keys_error">Не вдалося скинути ключі ADB</string>
-    <string name="settings_shizuku_plus_features">Функції Shizuku+</string>
+    <string name="settings_shizuku_plus_features">Функції 白い熊 雫</string>
     <string name="settings_dhizuku_mode">Режим Dhizuku</string>
     <string name="settings_dhizuku_mode_summary">Делегувати привілеї Власника пристрою (DevicePolicyManager) додаткам, які підтримують Dhizuku.</string>
-    <string name="dhizuku_device_owner_label">Shizuku+ (Режим Dhizuku)</string>
+    <string name="dhizuku_device_owner_label">白い熊 雫 (Режим Dhizuku)</string>
     <string name="dhizuku_device_owner_desc">Потрібно для того, щоб Режим Dhizuku міг ділитися привілеями Власника пристрою з авторизованими додатками.</string>
     <string name="dhizuku_device_owner_enabled">Власника пристрою Dhizuku ввімкнено</string>
     <string name="dhizuku_device_owner_disabled">Власника пристрою Dhizuku вимкнено</string>
-    <string name="settings_enhanced_api">Розширений API Shizuku+</string>
-    <string name="settings_enhanced_api_summary">Увімкнути розширені системні інтерфейси для досвідчених користувачів. Потрібно для всіх ексклюзивних функцій Shizuku+.</string>
+    <string name="settings_enhanced_api">Розширений API 白い熊 雫</string>
+    <string name="settings_enhanced_api_summary">Увімкнути розширені системні інтерфейси для досвідчених користувачів. Потрібно для всіх ексклюзивних функцій 白い熊 雫.</string>
     <string name="settings_shell_interceptor">Прискорювач оболонки</string>
     <string name="settings_shell_interceptor_summary">Прискорювати команди оболонки через нативні API. Покращує продуктивність завдань MacroDroid і Tasker.</string>
     <string name="settings_avf_manager">Менеджер віртуальних машин (AVF)</string>
@@ -337,7 +337,7 @@
     <string name="settings_plus_app_setup_title">Налаштування інтеграції</string>
     <string name="settings_plus_app_open">Відкрити додаток</string>
     <string name="settings_plus_learn_more">Дізнатися більше</string>
-    <string name="help_general_plus_summary">Shizuku+ розширює базову платформу Shizuku потужними системними мостами. Ці функції дозволяють стороннім інструментам автоматизації, як-от MacroDroid і Tasker, а також рушіям тем, як-от Hex Installer, виконувати привілейовані дії нативно й безпечно. Кожна функція покликана з\'єднати можливості, доступні лише через root, зі стандартним API Android, забезпечуючи високу продуктивність і глибоку системну інтеграцію для ваших улюблених додатків для досвідчених користувачів.</string>
+    <string name="help_general_plus_summary">白い熊 雫 розширює базову платформу Shizuku потужними системними мостами. Ці функції дозволяють стороннім інструментам автоматизації, як-от MacroDroid і Tasker, а також рушіям тем, як-от Hex Installer, виконувати привілейовані дії нативно й безпечно. Кожна функція покликана з\'єднати можливості, доступні лише через root, зі стандартним API Android, забезпечуючи високу продуктивність і глибоку системну інтеграцію для ваших улюблених додатків для досвідчених користувачів.</string>
     <string name="help_dhizuku_title">Про Режим Dhizuku</string>
     <string name="help_dhizuku_detail">Dhizuku дозволяє Shizuku ділитися своїми привілеями Власника пристрою (DevicePolicyManager) зі сторонніми додатками. Це важливо для таких додатків, як Dhizuku Manager, або певних інструментів кіоск-режиму, яким потрібно керувати системними політиками, не будучи єдиним Власником пристрою.</string>
     <string name="help_shell_interceptor_title">Про Прискорювач оболонки</string>
@@ -347,7 +347,7 @@
     <string name="help_storage_proxy_title">Про Міст сховища</string>
     <string name="help_storage_proxy_detail">Міст сховища надає автентифікований, швидкий доступ до обмежених шляхів файлової системи, як-от /data/data/ (дані додатків) і /data/app/ (файли APK). Це дозволяє інструментам резервного копіювання, як-от Neo Backup, працювати без повного root-доступу, зберігаючи безпеку завдяки моделі дозволів Shizuku.</string>
     <string name="help_continuity_bridge_title">Про Неперервність між пристроями</string>
-    <string name="help_continuity_bridge_detail">Міст неперервності дозволяє пристроям Shizuku+ в одній мережі передавати завдання та синхронізувати буфер обміну/стан додатків. Це використовує API передачі Android 17 (портовані, де можливо), щоб забезпечити безшовний перехід завдань автоматизації між вашим телефоном і планшетом.</string>
+    <string name="help_continuity_bridge_detail">Міст неперервності дозволяє пристроям 白い熊 雫 в одній мережі передавати завдання та синхронізувати буфер обміну/стан додатків. Це використовує API передачі Android 17 (портовані, де можливо), щоб забезпечити безшовний перехід завдань автоматизації між вашим телефоном і планшетом.</string>
     <string name="help_ai_core_plus_title">Про Міст інтелекту</string>
     <string name="help_ai_core_plus_detail">Міст інтелекту надає AI-асистентам привілейований доступ до вмісту екрана та планування NPU. Він забезпечує функції на кшталт «Обведи, щоб знайти» або контекст екрана для локальних LLM, надаючи високопродуктивне, обізнане про вікна захоплення кадрів, що обходить стандартні обмеження запису екрана Android.</string>
     <string name="help_window_manager_plus_title">Про Тюнер вікон</string>
@@ -396,7 +396,7 @@
     <string name="settings_experimental_root_experimental">Експериментальна сумісність з Root (Експериментально)</string>
     <string name="settings_spoof_device_experimental">Підміна ідентичності пристрою (Експериментально)</string>
     <string name="settings_open_source_licenses">Ліцензії відкритого коду</string>
-    <string name="settings_open_source_licenses_summary">Бібліотеки з відкритим кодом, які використовує Shizuku+</string>
+    <string name="settings_open_source_licenses_summary">Бібліотеки з відкритим кодом, які використовує 白い熊 雫</string>
     <string name="settings_experimental_warning_title">Експериментальна функція</string>
     <string name="settings_experimental_warning_message">Ця функція є експериментальною і може спричинити нестабільність системи чи збої. Ви впевнені, що хочете її ввімкнути?</string>
     <string name="settings_spoof_target">Цільовий пристрій</string>
@@ -411,9 +411,9 @@
     <string name="settings_fake_su">SU-міст (обгортка su)</string>
     <string name="settings_fake_su_summary">Надавати бінарний файл «su» на базі Shizuku для застарілих root-додатків, які підтримують власні шляхи.</string>
     <string name="settings_root_integration_hub">Хаб інтеграції Root</string>
-    <string name="settings_root_integration_hub_summary">Налаштуйте root-додатки для роботи з привілеями Shizuku+.</string>
+    <string name="settings_root_integration_hub_summary">Налаштуйте root-додатки для роботи з привілеями 白い熊 雫.</string>
     <string name="settings_root_compatibility_hub">Хаб сумісності Root</string>
-    <string name="settings_root_compatibility_hub_summary">Налаштуйте root-додатки для роботи з привілеями Shizuku+.</string>
+    <string name="settings_root_compatibility_hub_summary">Налаштуйте root-додатки для роботи з привілеями 白い熊 雫.</string>
     <string name="su_bridge_title">SU-міст</string>
     <string name="su_bridge_description">Надає root-доступ додаткам, які не підтримують Shizuku, створюючи спеціальний бінарний файл «su».</string>
     <string name="su_bridge_suggested_apps">Рекомендовані додатки</string>
@@ -425,10 +425,10 @@
     <string name="su_bridge_setup_all">Налаштувати всі</string>
     <string name="su_bridge_setup_all_success">Автоматичне налаштування виконано для всіх сумісних додатків.</string>
     <string name="su_bridge_magic_setup">Магічне налаштування</string>
-    <string name="su_bridge_magic_setup_success">Магічне налаштування завершено! Shizuku+ налаштував %s за вас.</string>
+    <string name="su_bridge_magic_setup_success">Магічне налаштування завершено! 白い熊 雫 налаштував %s за вас.</string>
     <string name="su_bridge_magic_setup_fail">Не вдалося виконати Магічне налаштування. Скопіюйте шлях вручну.</string>
     <string name="su_bridge_magic_setup_all">Магічне налаштування всіх</string>
-    <string name="su_bridge_magic_setup_all_summary">Shizuku+ налаштував %d додатків за вас!</string>
+    <string name="su_bridge_magic_setup_all_summary">白い熊 雫 налаштував %d додатків за вас!</string>
     <string name="su_bridge_magic_setup_all_no_apps">Не знайдено сумісних root-додатків для автоматизації.</string>
     <string name="su_bridge_copy_open">Копіювати шлях і відкрити</string>
     <string name="su_bridge_no_export">Шлях SU не встановлено. Спочатку експортуйте файли Shizuku з головного екрана.</string>
@@ -440,7 +440,7 @@
     <string name="su_bridge_step_1">1. Експортуйте файли Shizuku з головного екрана.</string>
     <string name="su_bridge_step_2">2. У вашому root-додатку знайдіть «Шлях SU» або «Шлях до бінарного файлу» в налаштуваннях.</string>
     <string name="su_bridge_step_3">3. Змініть його на шлях до експортованого файлу «su».</string>
-    <string name="su_bridge_step_4">4. Для додатків без налаштування власного шляху увімкніть «SU-міст» у налаштуваннях Shizuku+. Це автоматично перенаправляє багато застарілих викликів su.</string>
+    <string name="su_bridge_step_4">4. Для додатків без налаштування власного шляху увімкніть «SU-міст» у налаштуваннях 白い熊 雫. Це автоматично перенаправляє багато застарілих викликів su.</string>
     <string name="su_bridge_app_instruction">Встановіть шлях у Налаштуваннях > %s</string>
     <string name="su_bridge_path_label">Експортований шлях su</string>
     <string name="su_bridge_su_path_label">Експортований шлях su</string>
@@ -471,7 +471,7 @@
     <string name="manual_report_copied_dialog_title">Звіт скопійовано</string>
     <string name="manual_report_copied_dialog_message">Звіт скопійовано в буфер обміну. Хочете відкрити GitHub Issues зараз чи поділитися звітом як файлом?</string>
     <string name="manual_report_copied_dialog_share">Поділитися файлом</string>
-    <string name="crash_detected_dialog_message">Shizuku+ виявив збій попередньої сесії. Хочете сформувати звіт, щоб допомогти нам його виправити?</string>
+    <string name="crash_detected_dialog_message">白い熊 雫 виявив збій попередньої сесії. Хочете сформувати звіт, щоб допомогти нам його виправити?</string>
     <string name="crash_detected_dialog_short_message">Звіт скопійовано. Відкрити GitHub, щоб вставити його, чи поділитися звітом як файлом?</string>
     <string name="crash_detected_dialog_ignore">Ігнорувати</string>
     <string name="shortcut_open_terminal">Відкрити термінал</string>
@@ -507,8 +507,8 @@
     <string name="doctor_status_restricted_bg">Обмежене фонове виконання</string>
     <string name="doctor_tip_xiaomi">Xiaomi/HyperOS: увімкніть «Налагодження USB (Параметри безпеки)» у Параметрах розробника.</string>
     <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus: вимкніть «Моніторинг дозволів» у Параметрах розробника, щоб запобігти завершенню фонової служби.</string>
-    <string name="doctor_tip_tcl_background">TCL: переконайтеся, що Shizuku+ додано до списків «Автозапуск» і «Високе фонове споживання енергії» в Налаштуваннях.</string>
-    <string name="doctor_tip_battery">Вимкніть оптимізацію батареї для Shizuku+, щоб запобігти його завершенню у фоні.</string>
+    <string name="doctor_tip_tcl_background">TCL: переконайтеся, що 白い熊 雫 додано до списків «Автозапуск» і «Високе фонове споживання енергії» в Налаштуваннях.</string>
+    <string name="doctor_tip_battery">Вимкніть оптимізацію батареї для 白い熊 雫, щоб запобігти його завершенню у фоні.</string>
     <string name="doctor_tip_adb">Бездротове налагодження має бути активним, щоб Shizuku запускався в режимі без root після перезавантаження.</string>
     <string name="doctor_button_fix">Виправити</string>
     <string name="snackbar_invalid_port">Порт має бути між 1 та 65535</string>
@@ -586,7 +586,7 @@
     <string name="watchdog_shizuku_crashed_action_turn_off_alerts">Вимкнути сповіщення</string>
     <string name="dialog_cannot_open_browser_title">Не вдалося запустити браузер</string>
     <string name="toast_copied_to_clipboard">Скопійовано в буфер обміну</string>
-    <string name="accessibility_service_description">Надає підтримку створення пари для пристроїв (наприклад, ТБ і телефонів Samsung One UI), де сповіщення або розділений екран важко використати.\n\nДозволяє Shizuku+ витягувати код пари з екрана створення пари бездротового налагодження. Служба автоматично вимкнеться, щойно код буде знайдено.</string>
+    <string name="accessibility_service_description">Надає підтримку створення пари для пристроїв (наприклад, ТБ і телефонів Samsung One UI), де сповіщення або розділений екран важко використати.\n\nДозволяє 白い熊 雫 витягувати код пари з екрана створення пари бездротового налагодження. Служба автоматично вимкнеться, щойно код буде знайдено.</string>
     <string name="dialog_legacy_not_support_title">%1$s не підтримує сучасний Shizuku</string>
     <string name="dialog_legacy_not_support_message"><![CDATA[Застарілий Shizuku припинив підтримку з березня 2019 року. Крім того, застарілий Shizuku не працює на нових версіях Android.<p>Будь ласка, попросіть розробника <b>%1$s</b> оновити додаток.]]></string>
     <string name="dialog_requesting_legacy_title">%1$s запитує застарілий Shizuku</string>
@@ -668,7 +668,7 @@
     <string name="empty_state_description_no_home_cards">Ви приховали всі картки головного екрана. Перейдіть у Налаштування, щоб їх відновити.</string>
     <string name="empty_state_action_restore_home_cards">Відновити картки</string>
     <string name="empty_state_title_no_plus_features">Усі функції вимкнено</string>
-    <string name="empty_state_description_no_plus_features">Ви вимкнули всі функції Shizuku+. Увімкніть функції, щоб побачити їх тут.</string>
+    <string name="empty_state_description_no_plus_features">Ви вимкнули всі функції 白い熊 雫. Увімкніть функції, щоб побачити їх тут.</string>
     <string name="empty_state_title_activity_log_empty">Активність не зафіксовано</string>
     <string name="empty_state_description_activity_log_empty">Виклики API та події Shizuku з\'являтимуться тут, коли увімкнено журналювання активності.</string>
     <string name="empty_state_title_hidden_apps">Немає прихованих додатків</string>
@@ -699,16 +699,16 @@
     <string name="update_notification_channel">Сповіщення про оновлення</string>
     <string name="update_notification_channel_description">Сповіщення про завантаження й встановлення оновлень додатка</string>
     <string name="update_downloading_title">Завантаження оновлення</string>
-    <string name="update_downloading_description">Завантаження Shizuku+ %1$s…</string>
+    <string name="update_downloading_description">Завантаження 白い熊 雫 %1$s…</string>
     <string name="update_downloading_progress">Завантаження %1$s - %2$d%%</string>
     <string name="update_ready_title">Оновлення готове до встановлення</string>
-    <string name="update_ready_description">Shizuku+ %1$s готовий до встановлення</string>
+    <string name="update_ready_description">白い熊 雫 %1$s готовий до встановлення</string>
     <string name="update_install_now">Встановити зараз</string>
     <string name="update_download_failed_title">Не вдалося завантажити</string>
     <string name="update_download_failed_message">Не вдалося завантажити оновлення. Спробуйте ще раз.</string>
     <string name="migration_dialog_title">Важливо: потрібне перевстановлення</string>
-    <string name="migration_dialog_message">Shizuku+ змінив ID пакета з moe.shizuku.privileged.api на af.shizuku.plus.api. Стара та нова версії розглядаються як окремі додатки, тому пряме оновлення було неможливим.\n\nВи можете перенести налаштування зі старої версії, а потім видалити її.</string>
-    <string name="migration_dialog_message_root">Shizuku+ змінив ID пакета з moe.shizuku.privileged.api на af.shizuku.plus.api. Стара та нова версії розглядаються як окремі додатки, тому пряме оновлення було неможливим.\n\nDoступний root-доступ — натисніть «Перенести налаштування», щоб скопіювати налаштування зі старої версії, а потім видаліть її.</string>
+    <string name="migration_dialog_message">白い熊 雫 змінив ID пакета з moe.shizuku.privileged.api на af.shizuku.plus.api. Стара та нова версії розглядаються як окремі додатки, тому пряме оновлення було неможливим.\n\nВи можете перенести налаштування зі старої версії, а потім видалити її.</string>
+    <string name="migration_dialog_message_root">白い熊 雫 змінив ID пакета з moe.shizuku.privileged.api на af.shizuku.plus.api. Стара та нова версії розглядаються як окремі додатки, тому пряме оновлення було неможливим.\n\nDoступний root-доступ — натисніть «Перенести налаштування», щоб скопіювати налаштування зі старої версії, а потім видаліть її.</string>
     <string name="migration_migrate_settings">Перенести налаштування</string>
     <string name="migration_uninstall_old">Видалити стару версію</string>
     <string name="migration_dismiss">Закрити</string>
@@ -740,7 +740,7 @@
     <string name="shell_export_partial">Експортовано %1$d з %2$d файлів (деякі не вдалися)</string>
     <string name="settings_backup_category">Резервне копіювання та відновлення</string>
     <string name="settings_export_title">Експортувати налаштування</string>
-    <string name="settings_export_summary">Зберегти всі налаштування Shizuku+ у файл JSON</string>
+    <string name="settings_export_summary">Зберегти всі налаштування 白い熊 雫 у файл JSON</string>
     <string name="settings_import_title">Імпортувати налаштування</string>
     <string name="settings_import_summary">Відновити налаштування з попередньо експортованого файлу JSON</string>
     <string name="settings_export_success">Налаштування успішно експортовано</string>
@@ -753,7 +753,7 @@
     <string name="changelog_title">Що нового</string>
     <string name="changelog_close">Закрити</string>
     <string name="aicore_plus_label">Міст автоматизації AICore+</string>
-    <string name="aicore_plus_description">Потрібно для функцій AICore+ в Shizuku+. Надає привілейоване знімання ієрархії інтерфейсу та симуляцію фізичного вводу для AI-автоматизації. Не спостерігає за паролями чи особистими даними.</string>
+    <string name="aicore_plus_description">Потрібно для функцій AICore+ в 白い熊 雫. Надає привілейоване знімання ієрархії інтерфейсу та симуляцію фізичного вводу для AI-автоматизації. Не спостерігає за паролями чи особистими даними.</string>
     <string name="action_clear_all">Очистити все</string>
     <string name="action_continue">Продовжити</string>
     <string name="action_open_github">GitHub</string>
@@ -764,7 +764,7 @@
     <string name="update_no_release_notes">Нотатки випуску недоступні.</string>
     <string name="accessibility_service_monitoring">Служба спеціальних можливостей активна: відстеження коду пари…</string>
     <string name="dhizuku_setup_title">Налаштування Власника пристрою</string>
-    <string name="dhizuku_setup_message">Режим Dhizuku потребує встановлення Shizuku+ як Власника пристрою. Виконайте цю команду один раз через ADB, поки ввімкнено Налагодження USB:\n\n%1$s\n\nПісля виконання команди перезапустіть Shizuku.</string>
+    <string name="dhizuku_setup_message">Режим Dhizuku потребує встановлення 白い熊 雫 як Власника пристрою. Виконайте цю команду один раз через ADB, поки ввімкнено Налагодження USB:\n\n%1$s\n\nПісля виконання команди перезапустіть Shizuku.</string>
     <string name="dhizuku_setup_copy">Копіювати команду</string>
     <string name="dhizuku_setup_copied">Команду скопійовано в буфер обміну</string>
     <string name="dhizuku_status_active">Власник пристрою: активний</string>
@@ -790,7 +790,7 @@
     <string name="settings_companion_fallback">Резервний варіант при збоях</string>
     <string name="settings_companion_fallback_summary">Після 3 послідовних збоїв показувати в сповіщенні про збій варіант відкрити звичайний Shizuku</string>
     <string name="home_companion_title">Звичайний Shizuku</string>
-    <string name="home_companion_description">Звичайний Shizuku встановлено. Використовуйте його як резервний варіант, якщо в Shizuku+ виникають проблеми.</string>
+    <string name="home_companion_description">Звичайний Shizuku встановлено. Використовуйте його як резервний варіант, якщо в 白い熊 雫 виникають проблеми.</string>
     <string name="home_companion_not_installed">Звичайний Shizuku не встановлено. Встановіть його з GitHub, щоб використовувати як резервний варіант.</string>
     <string name="home_companion_open">Відкрити</string>
     <string name="home_companion_install">Встановити</string>
@@ -804,9 +804,9 @@
     <string name="root_hub_global_config_desc">Усі додатки використовують цей шлях. Автоналаштування спробує налаштувати підтримувані додатки за вас.</string>
     <string name="root_hub_setup_all">Налаштувати всі</string>
     <string name="root_hub_setup_all_success">Виконано спробу автоналаштування для всіх сумісних додатків.</string>
-    <string name="root_hub_magic_setup_all_summary">Shizuku+ налаштував %d додатків за вас!</string>
+    <string name="root_hub_magic_setup_all_summary">白い熊 雫 налаштував %d додатків за вас!</string>
     <string name="root_hub_magic_setup_all_no_apps">Не знайдено root-додатків з підтримкою автоматичного налаштування.</string>
-    <string name="root_hub_magic_setup_success">Магічне налаштування завершено! Shizuku+ налаштував %s за вас.</string>
+    <string name="root_hub_magic_setup_success">Магічне налаштування завершено! 白い熊 雫 налаштував %s за вас.</string>
     <string name="root_hub_magic_setup_fail">Не вдалося виконати Магічне налаштування. Спробуйте скопіювати шлях вручну.</string>
     <string name="root_hub_path_copied">Шлях SU скопійовано в буфер обміну</string>
     <string name="root_hub_no_export">Шлях SU не встановлено. Спочатку експортуйте файли Shizuku з головного екрана.</string>
