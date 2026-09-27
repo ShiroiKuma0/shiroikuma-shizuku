@@ -8,6 +8,80 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.7.0.r2702+2026-09-26.16-06.g9d88f4ce+001
+
+One upstream sync since the last published build: `r2592` → `r2702` (`9d88f4ce`, **110 commits**) —
+the largest feature sync since the fork began, and the point where upstream's version line moved to
+**13.7.0** (it briefly self-declared `14.0.0`, then walked back to `13.7.0.r{N}`). Everything below
+reaches users for the first time in this release; the fork's own layer is unchanged in intent, only
+re-reconciled against the new base.
+
+### New upstream features, integrated here
+
+- **Device Control** — a new home card (gated behind Feature Hub → Experimental, **default off**,
+  with a warning dialog) over a new `IDeviceControlPlus` AIDL: airplane mode, Wi-Fi, Bluetooth,
+  mobile data, NFC, **Private DNS** (off/auto/custom hostname), USB function, screen brightness and
+  auto-brightness, screen timeout, auto-rotate, stream volumes, font scale, animations, and
+  reboot/shutdown — all from the shell uid, no root. The card renders at fork id 14.
+- **Permission Manager** — a new home card and screen (fork id 15) to grant or revoke shell-level
+  permissions (`WRITE_SECURE_SETTINGS`, `READ_LOGS`, `DUMP`, `PACKAGE_USAGE_STATS`, …) to any app
+  via `pm grant`, no root — the reversible cousin of this fork's Device-Owner policy locks.
+- **App Backup overhaul** — backups now land in the user's SAF export directory (visible to file
+  managers on scoped storage), a real `BackupAgent` makes `adb backup` and device transfer capture
+  the device-protected settings store, plus Backup All, a search filter, a system-apps toggle,
+  per-app external-data and OBB restore, and honest failure reporting. Hidden by default on fresh
+  installs behind its own flag.
+- **Stealth mode** — intercepts `IPackageManager` binder queries to report the manager as "not
+  installed", defeating PM-based root detection in banking/DRM SDKs. It keys off the de-branded
+  `ServerConstants` ids, so it covers `shiroikuma.shizuku` with no patch. Shell auto-grant expands
+  from 3 to all 22 shell-grantable privileged permissions.
+- **Material 3 Expressive UI pass** — expressive motion, per-item segmented settings cards, tonal
+  category headers and chevrons, an inline settings search (replacing the full-screen "monolith"),
+  tightened app-list margins, and a two-tier AMOLED / AMOLED+ system.
+
+### Security and correctness fixes that reach users
+
+- **`run-as` injection closed** — package names are validated before `run-as` in the storage proxy
+  and five backup entry points; a caller-supplied name could previously carry path traversal and
+  shell injection.
+- **ADB auth-token validation restored** in `AdbClient` — a broken guard silently accepted an
+  A_AUTH response with an unexpected token.
+- **Android 9 server crash fixed** — `ShizukuService.<init>` no longer throws `NoClassDefFoundError`
+  from a direct `DeviceConfig` reference before the API guard runs (now reflected).
+- **IPC observers work again** — the five `clearAppData` / uninstall observer sites used
+  `Proxy`-based binders that could not be marshaled and silently fell through to exec fallbacks;
+  now real `Binder` subclasses.
+- **Android 17 ADB fix** — `EnvironmentUtils.isAdbEnabled()` handles API 37 redacting
+  `Settings.Global.ADB_ENABLED` to 0 for third-party apps.
+- **`rish` VerifyError fixed** — a `-keep` for `rikka.hidden.compat.**` in the separate `:shell` R8
+  pass stops ART 16 rejecting the loader dex at class-definition time.
+- **Reboot whitelist** — `"edl"` (Emergency Download Mode) removed; it can hard-brick a device.
+
+### Fork decisions on this base
+
+- **The home header stays fixed** — the fork's 2026-09-05 decision (a one-row, top-left title, no
+  scroll behaviour) wins over upstream's collapsing-title refinements; the long-press settings cog
+  is kept.
+- **The changelog stays built into the APK** — upstream rewrote its What's New into a
+  fetch-since-install bottom sheet, but this fork's tags carry no `v` and it installs unpublished
+  test builds, so a GitHub fetch would 404. The asset-based dialog and house styling are kept.
+- **AMOLED override guard kept** — the house pure-black scheme still wins over upstream's new
+  near-black container tiers when the 白い熊 雫 theme override is live.
+
+### No-phone-home, re-verified after the sync
+
+- **Sentry** — upstream re-added the SDK (8.40.0), the Gradle plugin, and ~48 call sites; all are
+  removed again. Two now-dead settings keys upstream still referenced
+  (`KEY_SENTRY_LIMIT_REACHED`, `KEY_LAST_SEEN_VERSION`) were pruned. The transport-neutral
+  server→client `dispatchSentryEvent` channel is kept (it has no Sentry dependency of its own).
+- **`.github/` removed** — with it upstream's new `crowdin-sync.yml`, which uploaded source strings
+  to Crowdin on every push to `master`.
+- **Play Integrity** attestation stays gone (only the local root-compat cache-clear helper remains);
+  the automatic update poll and device-hardening self-grant remain **default off**; the update
+  checker still targets this repo's own releases.
+- **De-brand sweep** across every locale: `Shizuku+` / `ShizukuPlus` → the house name in
+  user-visible strings; only the Crowdin `translation_url` keeps upstream's project link.
+
 ## 13.6.0.r2592+2026-09-15.17-46.gb0ea544c+002
 
 Two upstream syncs since the last published build (`r2431+005`): `r2554` (`87da810e`, **123
