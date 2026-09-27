@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="companion_conflict_title">순정 Shizuku 감지됨</string>
-    <string name="companion_conflict_description">순정 Shizuku와 Shizuku+를 함께 설치하면 권한 충돌 및 앱 비정상 종료가 발생할 수 있습니다. Shizuku+가 정상 작동하도록 순정 Shizuku 앱을 제거하거나 사용 중지해 주세요.\n\n다음 방법으로 진행할 수 있습니다:\n1. 설정 -> 애플리케이션 -> Shizuku -> 사용 안함/삭제\n2. 아래 버튼 (Shizuku+ 서비스가 실행 중인 경우)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
+    <string name="companion_conflict_description">순정 Shizuku와 白い熊 雫를 함께 설치하면 권한 충돌 및 앱 비정상 종료가 발생할 수 있습니다. 白い熊 雫가 정상 작동하도록 순정 Shizuku 앱을 제거하거나 사용 중지해 주세요.\n\n다음 방법으로 진행할 수 있습니다:\n1. 설정 -> 애플리케이션 -> Shizuku -> 사용 안함/삭제\n2. 아래 버튼 (白い熊 雫 서비스가 실행 중인 경우)\n3. ADB: adb shell pm disable-user --user 0 moe.shizuku.privileged.api</string>
     <string name="companion_action_disable">순정 앱 사용 중지</string>
     <string name="companion_action_uninstall">순정 앱 제거</string>
     <string name="companion_disable_success">순정 Shizuku를 성공적으로 사용 중지했습니다.</string>
-    <string name="companion_disable_failure">순정 Shizuku 사용 중지에 실패했습니다. Shizuku+가 실행 중인지 확인하거나 ADB를 수동으로 사용하세요.</string>
+    <string name="companion_disable_failure">순정 Shizuku 사용 중지에 실패했습니다. 白い熊 雫가 실행 중인지 확인하거나 ADB를 수동으로 사용하세요.</string>
     <string name="companion_action_disabling">사용 중지하는 중…</string>
 
     <string name="compat_hub_installed_title">Compat Hub 설치됨</string>
-    <string name="compat_hub_installed_desc">이제 타사 앱(예: SwiftBackup)이 Shizuku+를 매끄럽게 감지합니다.</string>
+    <string name="compat_hub_installed_desc">이제 타사 앱(예: SwiftBackup)이 白い熊 雫를 매끄럽게 감지합니다.</string>
     <string name="compat_hub_missing_title">Compat Hub 필요</string>
-    <string name="compat_hub_missing_desc">순정 Shizuku를 명시적으로 확인하는 타사 앱은 Shizuku+를 감지하지 못합니다. 앱이 Shizuku+를 감지할 수 있도록 가벼운 Compat Hub를 설치하세요.</string>
+    <string name="compat_hub_missing_desc">순정 Shizuku를 명시적으로 확인하는 타사 앱은 白い熊 雫를 감지하지 못합니다. 앱이 白い熊 雫를 감지할 수 있도록 가벼운 Compat Hub를 설치하세요.</string>
     <string name="compat_hub_install_btn">Compat Hub 설치</string>
     <string name="compat_hub_installing">설치 중…</string>
     <string name="compat_hub_install_success">Compat Hub가 성공적으로 설치되었습니다!</string>
-    <string name="compat_hub_install_fail">설치에 실패했습니다. Shizuku+ 또는 Root가 활성화되어 있는지 확인하세요.</string>
+    <string name="compat_hub_install_fail">설치에 실패했습니다. 白い熊 雫 또는 Root가 활성화되어 있는지 확인하세요.</string>
     <string name="compat_hub_install_fail_detail">설치 실패: %1$s</string>
     <string name="compat_hub_install_fail_restricted">설치할 수 없음: 기기 제한(예: Samsung 보안 위험 자동 차단)에 의해 차단되었습니다. 설정 → 보안 → 보안 위험 자동 차단에서 해제한 후 다시 시도하세요.</string>
     <string name="compat_hub_install_signature_conflict">설치할 수 없음: 호환되지 않는 서명을 가진 다른 앱(예: 순정 Shizuku)이 이미 moe.shizuku.privileged.api로 설치되어 있습니다. 먼저 해당 앱을 제거하세요.</string>

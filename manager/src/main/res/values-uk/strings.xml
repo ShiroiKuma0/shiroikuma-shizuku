@@ -1334,16 +1334,16 @@
     <string name="doctor_status_xiaomi_adb_unknown">Увімкніть у Параметрах розробника</string>
     <string name="doctor_check_xiaomi_autostart">Автозапуск Xiaomi/HyperOS</string>
     <string name="doctor_status_xiaomi_autostart_unknown">Надайте Автозапуск, щоб служба працювала</string>
-    <string name="doctor_tip_xiaomi_battery">Батарея HyperOS: відкрийте налаштування Батареї та встановіть для Shizuku+ «Без обмежень». HyperOS завершує фонові процеси з інтервалом Doze (~30 хв), якщо це не налаштовано.</string>
+    <string name="doctor_tip_xiaomi_battery">Батарея HyperOS: відкрийте налаштування Батареї та встановіть для 白い熊 雫 «Без обмежень». HyperOS завершує фонові процеси з інтервалом Doze (~30 хв), якщо це не налаштовано.</string>
     <string name="doctor_check_oppo_permission">Моніторинг дозволів ColorOS/OxygenOS</string>
     <string name="doctor_check_oppo_battery">Автозапуск ColorOS/OxygenOS</string>
     <string name="doctor_status_oppo_battery_unknown">Увімкніть Автозапуск, щоб служба працювала</string>
-    <string name="doctor_tip_oppo_battery">Автозапуск ColorOS: натисніть «Виправити», щоб відкрити налаштування батареї. Увімкніть Автозапуск і встановіть для Shizuku+ «Без обмежень», щоб ColorOS не завершував фонову службу.</string>
+    <string name="doctor_tip_oppo_battery">Автозапуск ColorOS: натисніть «Виправити», щоб відкрити налаштування батареї. Увімкніть Автозапуск і встановіть для 白い熊 雫 «Без обмежень», щоб ColorOS не завершував фонову службу.</string>
     <string name="doctor_check_tcl_autostart">Автозапуск TCL</string>
     <string name="doctor_status_tcl_autostart_unknown">Додайте до білого списку автозапуску</string>
-    <string name="doctor_tip_background_restricted">Фонові обмеження: Android помістив Shizuku+ у режим фонових обмежень. Перейдіть до Про додаток → Батарея → і встановіть «Без обмежень», щоб відновити надійність служби.</string>
+    <string name="doctor_tip_background_restricted">Фонові обмеження: Android помістив 白い熊 雫 у режим фонових обмежень. Перейдіть до Про додаток → Батарея → і встановіть «Без обмежень», щоб відновити надійність служби.</string>
     <string name="doctor_check_local_network">Доступ до локальної мережі</string>
-    <string name="doctor_tip_local_network">Доступ до локальної мережі (%1$s): Android 16/17 потребує цей дозвіл для виявлення та підключення до служби бездротового налагодження. Без нього Shizuku+ непомітно не запускається в режимі ADB. Натисніть «Виправити», щоб надати його.</string>
+    <string name="doctor_tip_local_network">Доступ до локальної мережі (%1$s): Android 16/17 потребує цей дозвіл для виявлення та підключення до служби бездротового налагодження. Без нього 白い熊 雫 непомітно не запускається в режимі ADB. Натисніть «Виправити», щоб надати його.</string>
     <string name="doctor_check_wallet_integrity">Google Гаманець та Play Integrity</string>
     <string name="doctor_wallet_ok">Перевірку пройдено (Немає слідів root)</string>
     <string name="doctor_wallet_risk_tmp_su">Ризик безпеки (виявлено бінарний файл su)</string>
@@ -1377,7 +1377,7 @@
     <string name="wadb_error_generic_short">Не вдалося підключитися до ADB</string>
     <string name="accessibility_icon_toggle_visibility">Перемкнути видимість картки</string>
     <string name="empty_state_title_service_starting">Запускається…</string>
-    <string name="empty_state_description_service_starting">Очікування завершення запуску Shizuku+. Зазвичай це триває недовго.</string>
+    <string name="empty_state_description_service_starting">Очікування завершення запуску 白い熊 雫. Зазвичай це триває недовго.</string>
     <string name="settings_automation_trusted_networks">Довірені мережі</string>
     <string name="settings_automation_trusted_networks_summary">Назви мереж Wi-Fi (SSID) через кому. Фаєрвол Binder автоматично вимикається під час підключення до однієї з них і автоматично вмикається всюди інде (зокрема на мобільних даних). Залиште порожнім, щоб керувати Фаєрволом Binder вручну.</string>
     <string name="settings_automation_auto_hide_packages">Автоприховування на передньому плані</string>
@@ -1427,7 +1427,7 @@
     <string name="backup_error_key_invalidated_restore">екран блокування або біометрія вашого пристрою змінились після створення ключа шифрування цієї резервної копії, що остаточно анулює її за задумом. Цю резервну копію більше неможливо розшифрувати.</string>
     <string name="backup_error_prefix_backup_failed">Помилка резервного копіювання</string>
     <string name="backup_error_prefix_restore_failed">Помилка відновлення</string>
-    <string name="backup_error_wrong_install">не вдалося розшифрувати цю резервну копію. Скоріш за все, вона була створена іншою інсталяцією Shizuku+ — резервні копії шифруються окремо для кожної інсталяції та не можуть бути відновлені після перевстановлення або очищення даних застосунку.</string>
+    <string name="backup_error_wrong_install">не вдалося розшифрувати цю резервну копію. Скоріш за все, вона була створена іншою інсталяцією 白い熊 雫 — резервні копії шифруються окремо для кожної інсталяції та не можуть бути відновлені після перевстановлення або очищення даних застосунку.</string>
     <string name="backup_menu_backup_all">Зберегти всі застосунки</string>
     <string name="backup_menu_search">Пошук застосунків</string>
     <string name="backup_menu_show_system">Показати системні застосунки</string>
@@ -1480,7 +1480,7 @@
 
     <!-- Help dialogs -->
     <string name="help_stealth_mode_title">Режим невидимості</string>
-    <string name="help_stealth_mode_detail">Перехоплює запити PackageManager на рівні Binder та повертає «не встановлено» для пакетів ShizukuPlus та Shizuku. Застосунки, що використовують PM для виявлення root-інструментів (банківські застосунки, перевірки DRM), не знайдуть їх. Примітка: це лише приховує їх від запитів PackageManager — режим розробника та USB-налагодження все одно видимі для застосунків, що перевіряють параметри Android безпосередньо.</string>
+    <string name="help_stealth_mode_detail">Перехоплює запити PackageManager на рівні Binder та повертає «не встановлено» для пакетів 白い熊 雫 та Shizuku. Застосунки, що використовують PM для виявлення root-інструментів (банківські застосунки, перевірки DRM), не знайдуть їх. Примітка: це лише приховує їх від запитів PackageManager — режим розробника та USB-налагодження все одно видимі для застосунків, що перевіряють параметри Android безпосередньо.</string>
     <string name="help_root_build_prop_title">Про перенаправлення build.prop</string>
     <string name="help_root_build_prop_detail">Цей модуль автоматично копіює оригінальний build.prop до шляху, доступного для запису, та перенаправляє всі записи до нього, дозволяючи налаштовувати системні значення без root.</string>
     <string name="help_root_iptables_title">Про імітацію брандмауера</string>

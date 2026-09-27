@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Shizuku+</string>
+    <string name="app_name" translatable="false">白い熊 雫</string>
     <!-- To translators: you can leave your here -->
     <string name="translation_contributors">thejaustin, Yizutt</string>
     <string name="translation_url">https://github.com/thejaustin/ShizukuPlus</string>
@@ -106,10 +106,10 @@
     <string name="doctor_tip_secure_folder"><b>检测到安全文件夹</b>：Shizuku 在主用户（所有者）下运行效果最佳。在安全文件夹或工作资料中运行，可能需要先从主用户启动服务。</string>
     <string name="doctor_tip_phantom_process"><b>幽灵进程杀手</b>：如果执行过多命令，Android 12-15+ 可能会终止 Shizuku。「修复」按钮会尝试关闭该限制。</string>
     <string name="doctor_tip_samsung_optimization"><b>三星自动优化</b>：请在设备维护中关闭「自动重启」，以免 Shizuku 在夜间被终止。</string>
-    <string name="doctor_tip_samsung_sleeping"><b>三星休眠应用</b>：请确保 Shizuku+ 已加入<b>\'永不休眠的应用\'</b>列表（*设备维护 > 电池 > 后台使用限制*），以免后台服务被终止。</string>
+    <string name="doctor_tip_samsung_sleeping"><b>三星休眠应用</b>：请确保 白い熊 雫 已加入<b>\'永不休眠的应用\'</b>列表（*设备维护 > 电池 > 后台使用限制*），以免后台服务被终止。</string>
     <string name="doctor_tip_s22_ultra_exynos"><b>S22 Ultra（Exynos）</b>：如果服务响应迟缓，请尝试在设备维护 > 内存中关闭<b>「RAM Plus」</b>。</string>
     <string name="doctor_tip_s22_ultra_snapdragon"><b>S22 Ultra（骁龙）</b>：请确保在快捷设置中启用「增强处理」，以获得最大的命令吞吐量。</string>
-    <string name="doctor_system_well_configured">你的系统似乎已为 Shizuku+ 配置良好。</string>
+    <string name="doctor_system_well_configured">你的系统似乎已为 白い熊 雫 配置良好。</string>
     <!-- Root Compatibility -->
     <string name="su_bridge_other_detected_apps">其他检测到的 Root 应用</string>
     <string name="su_bridge_installed_root_app">已安装的 Root 应用</string>
@@ -161,8 +161,8 @@
     <string name="home_app_management_view_authorized_apps"><![CDATA[点按以管理授权的应用]]></string>
     <string name="home_app_management_empty">已请求或声明 Shizuku 权限的应用将显示在此处。</string>
     <!-- Home - Automation -->
-    <string name="home_automation_title">使用自动化应用控制 Shizuku+</string>
-    <string name="home_automation_description">Tasker 和 MacroDroid 等应用可以发送 Intent 来自动启动/停止 Shizuku+。</string>
+    <string name="home_automation_title">使用自动化应用控制 白い熊 雫</string>
+    <string name="home_automation_description">Tasker 和 MacroDroid 等应用可以发送 Intent 来自动启动/停止 白い熊 雫。</string>
     <string name="home_automation_description_device_restriction">要在你的设备上使用启动 intent，你需要先通过电脑运行 %1$s 来启用 ADB over TCP。</string>
     <string name="home_automation_button_view_intents">查看意图</string>
     <string name="home_automation_bottom_sheet_intents">Intent</string>
@@ -208,7 +208,7 @@
     <string name="app_management_dialog_adb_is_limited_message"><![CDATA[这极有可能是你的设备制造商限制了 adb 的权限。<p><b><a href="%1$s">此文档</a></b>中可能有针对你的系统的解决方案。]]></string>
     <string name="app_management_item_summary_requires_root">* 需要以 root 执行的 Shizuku</string>
     <string name="app_management_item_summary_partial_root">⚠ 部分支持 — 部分功能仍需带 root 的 Shizuku</string>
-    <string name="app_management_item_summary_requires_plus">* 需要 Shizuku+ 增强 API</string>
+    <string name="app_management_item_summary_requires_plus">* 需要 白い熊 雫 增强 API</string>
     <string name="app_management_item_summary_shizuku_aware">支持 Shizuku：原生支持 Shizuku</string>
     <string name="app_management_item_context">关于此应用：%s</string>
     <string name="app_management_enhancements">增强功能</string>
@@ -221,8 +221,8 @@
     <string name="app_management_bulk_hide">隐藏所选</string>
     <string name="app_management_bulk_select_all">全选</string>
     <!-- Terminal -->
-    <string name="home_terminal_title">在终端应用中使用 Shizuku+</string>
-    <string name="home_terminal_description">通过 Shizuku+ 在终端应用中运行 shell 命令</string>
+    <string name="home_terminal_title">在终端应用中使用 白い熊 雫</string>
+    <string name="home_terminal_description">通过 白い熊 雫 在终端应用中运行 shell 命令</string>
     <string name="terminal_tutorial_miui">用户反映 MIUI 破坏了导出功能所使用的存储访问框架。</string>
     <string name="terminal_tutorial_miui_2">如果您使用的是 MIUI 系统，则可能需要从 Shizuku 的 APK 的 assets 文件夹中提取该文件。</string>
     <string name="terminal_tutorial_1">将文件导出到新文件夹。</string>
@@ -248,14 +248,14 @@
     <string name="settings_lp_toggle_permission">切换 Shizuku 权限</string>
     <string name="settings_lp_hide_from_list">从列表中隐藏</string>
     <!-- Onboarding -->
-    <string name="onboarding_welcome_title">欢迎使用 Shizuku+</string>
+    <string name="onboarding_welcome_title">欢迎使用 白い熊 雫</string>
     <string name="onboarding_welcome_desc">功能增强的 Shizuku，带来强大的应用管理能力。滑动手势、快捷操作与可定制体验，尽在一处。</string>
     <string name="onboarding_swipe_title">默认手势</string>
     <string name="onboarding_swipe_desc">默认情况下，在应用管理列表中右滑可打开应用，左滑可查看其系统设置页面。</string>
     <string name="onboarding_gestures_title">自定义手势</string>
     <string name="onboarding_gestures_desc">你可以在设置中完全自定义这些滑动操作。可选择打开应用、应用信息、切换权限或从列表中隐藏。</string>
     <string name="onboarding_longpress_title">定制体验</string>
-    <string name="onboarding_longpress_desc">选择长按应用时显示的操作，或启用诸如 Dhizuku 模式等 Shizuku+ 专属功能。</string>
+    <string name="onboarding_longpress_desc">选择长按应用时显示的操作，或启用诸如 Dhizuku 模式等 白い熊 雫 专属功能。</string>
     <string name="onboarding_next">下一步</string>
     <string name="onboarding_skip">跳过</string>
     <string name="onboarding_get_started">开始使用</string>
@@ -279,14 +279,14 @@
     <string name="settings_start_on_boot_bug">由于 Android 11-12 中的一个漏洞，无线调试不会记住任何授权网络。\n\n每次重启时，当授权对话框弹出时，点击“允许”重新授权网络。</string>
     <string name="settings_use_system_color">使用系统主题颜色</string>
     <string name="settings_watchdog">看门狗</string>
-    <string name="settings_watchdog_summary">在崩溃或意外停止后自动重启 Shizuku+。当底层网络断开时（例如使用 RNDIS/USB ADB 时拔出 USB 数据线）无法重新连接。</string>
+    <string name="settings_watchdog_summary">在崩溃或意外停止后自动重启 白い熊 雫。当底层网络断开时（例如使用 RNDIS/USB ADB 时拔出 USB 数据线）无法重新连接。</string>
     <string name="settings_tcp_mode">TCP 模式</string>
-    <string name="settings_tcp_mode_summary">\"允许 Shizuku+ 在没有 Wi-Fi 的情况下重启。（Shizuku+ 必须在重启后启动过一次）\"</string>
+    <string name="settings_tcp_mode_summary">\"允许 白い熊 雫 在没有 Wi-Fi 的情况下重启。（白い熊 雫 必须在重启后启动过一次）\"</string>
     <string name="settings_tcp_mode_dialog_close_port">"TCP 端口将立即关闭。您需要连接 Wi-Fi 才能重新启用 TCP 模式。是否继续？"</string>
     <string name="settings_tcp_mode_closing_port">正在关闭 TCP 端口...</string>
     <string name="settings_restart_dialog_title">需要重启</string>
-    <string name="settings_restart_dialog_message">Shizuku+ 需要重启才能应用此设置。</string>
-    <string name="settings_restart_dialog_message_wifi_required"><![CDATA[<br><br><b>需要 Wi-Fi。Shizuku+ 会在后台继续运行并等待 Wi-Fi 连接，连接成功后才会重启。</b>]]></string>
+    <string name="settings_restart_dialog_message">白い熊 雫 需要重启才能应用此设置。</string>
+    <string name="settings_restart_dialog_message_wifi_required"><![CDATA[<br><br><b>需要 Wi-Fi。白い熊 雫 会在后台继续运行并等待 Wi-Fi 连接，连接成功后才会重启。</b>]]></string>
     <string name="settings_tcp_port">TCP 端口</string>
     <string name="settings_tcp_port_default">默认值 (5555)</string>
     <string name="settings_tcp_port_hint">留空则使用默认值(5555)</string>
@@ -329,16 +329,16 @@
     <string name="settings_reset_adb_keys_summary">删除现有的 ADB 密钥与证书。适用于配对卡住或 KeyStore 损坏的情况。</string>
     <string name="settings_reset_adb_keys_success">已清除 ADB 密钥</string>
     <string name="settings_reset_adb_keys_error">重置 ADB 密钥失败</string>
-    <!-- Shizuku+ Features -->
-    <string name="settings_shizuku_plus_features">Shizuku+ 功能</string>
+    <!-- 白い熊 雫 Features -->
+    <string name="settings_shizuku_plus_features">白い熊 雫 功能</string>
     <string name="settings_dhizuku_mode">Dhizuku 模式</string>
     <string name="settings_dhizuku_mode_summary">将设备所有者（DevicePolicyManager）权限委派给支持 Dhizuku 的应用。</string>
-    <string name="dhizuku_device_owner_label">Shizuku+（Dhizuku 模式）</string>
+    <string name="dhizuku_device_owner_label">白い熊 雫（Dhizuku 模式）</string>
     <string name="dhizuku_device_owner_desc">Dhizuku 模式需要它才能与已授权的应用共享设备所有者权限。</string>
     <string name="dhizuku_device_owner_enabled">Dhizuku 设备所有者已启用</string>
     <string name="dhizuku_device_owner_disabled">Dhizuku 设备所有者已停用</string>
-    <string name="settings_enhanced_api">Shizuku+ 增强 API</string>
-    <string name="settings_enhanced_api_summary">为高级用户启用进阶系统接口。所有 Shizuku+ 专属功能都需要它。</string>
+    <string name="settings_enhanced_api">白い熊 雫 增强 API</string>
+    <string name="settings_enhanced_api_summary">为高级用户启用进阶系统接口。所有 白い熊 雫 专属功能都需要它。</string>
     <string name="settings_shell_interceptor">Shell 加速器</string>
     <string name="settings_shell_interceptor_summary">通过原生 API 加速 shell 命令。可提升 MacroDroid 与 Tasker 任务的性能。</string>
     <string name="settings_avf_manager">虚拟机管理器（AVF）</string>
@@ -361,7 +361,7 @@
     <string name="settings_plus_app_setup_title">设置集成</string>
     <string name="settings_plus_app_open">打开应用</string>
     <string name="settings_plus_learn_more">了解更多</string>
-    <string name="help_general_plus_summary">Shizuku+ 通过强大的系统级桥接扩展了 Shizuku 核心框架。这些功能让 MacroDroid、Tasker 等第三方自动化工具，以及 Hex Installer 等主题引擎，能够以原生、安全的方式执行特权操作。每项功能都旨在弥合仅限 Root 的能力与标准 Android API 之间的差距，为你的常用进阶应用带来高性能与深度系统集成。</string>
+    <string name="help_general_plus_summary">白い熊 雫 通过强大的系统级桥接扩展了 Shizuku 核心框架。这些功能让 MacroDroid、Tasker 等第三方自动化工具，以及 Hex Installer 等主题引擎，能够以原生、安全的方式执行特权操作。每项功能都旨在弥合仅限 Root 的能力与标准 Android API 之间的差距，为你的常用进阶应用带来高性能与深度系统集成。</string>
     <!-- Detailed Help Strings -->
     <string name="help_dhizuku_title">关于 Dhizuku 模式</string>
     <string name="help_dhizuku_detail">Dhizuku 允许 Shizuku 将其设备所有者（DevicePolicyManager）权限共享给第三方应用。这对 Dhizuku Manager 或某些需要在非唯一设备所有者的情况下管理系统策略的 kiosk 模式工具来说至关重要。</string>
@@ -372,7 +372,7 @@
     <string name="help_storage_proxy_title">关于存储桥接</string>
     <string name="help_storage_proxy_detail">存储桥接为 /data/data/（应用数据）和 /data/app/（APK 文件）等受限文件系统路径提供经过身份验证的高速访问。这让 Neo Backup 等备份工具无需完整 root 权限即可工作，同时通过 Shizuku 的权限模型保障安全。</string>
     <string name="help_continuity_bridge_title">关于多设备连续性</string>
-    <string name="help_continuity_bridge_detail">连续性桥接允许同一网络中的 Shizuku+ 设备移交任务并同步剪贴板/应用状态。它利用 Android 17 的 Handoff API（在可能的情况下向下移植），让自动化任务能在手机与平板之间无缝切换。</string>
+    <string name="help_continuity_bridge_detail">连续性桥接允许同一网络中的 白い熊 雫 设备移交任务并同步剪贴板/应用状态。它利用 Android 17 的 Handoff API（在可能的情况下向下移植），让自动化任务能在手机与平板之间无缝切换。</string>
     <string name="help_ai_core_plus_title">关于智能桥接</string>
     <string name="help_ai_core_plus_detail">智能桥接授予 AI 助手对屏幕内容和 NPU 调度的特权访问。它通过提供高性能、感知窗口的帧捕获（绕过 Android 标准的录屏限制），实现「圈选搜索」或本地大模型的屏幕感知上下文等功能。</string>
     <string name="help_window_manager_plus_title">关于窗口调校器</string>
@@ -422,7 +422,7 @@
     <string name="settings_experimental_root_experimental">实验性 Root 兼容性（实验性）</string>
     <string name="settings_spoof_device_experimental">伪造设备标识（实验性）</string>
     <string name="settings_open_source_licenses">开源许可</string>
-    <string name="settings_open_source_licenses_summary">Shizuku+ 使用的开源库</string>
+    <string name="settings_open_source_licenses_summary">白い熊 雫 使用的开源库</string>
     <string name="settings_experimental_warning_title">实验性功能</string>
     <string name="settings_experimental_warning_message">此功能仍属实验性，可能导致系统不稳定或崩溃。确定要启用吗？</string>
     <string name="settings_spoof_target">目标设备</string>
@@ -438,9 +438,9 @@
     <string name="settings_fake_su">SU 桥接（su 包装器）</string>
     <string name="settings_fake_su_summary">为支持自定义路径的传统 root 应用提供一个由 Shizuku 支持的「su」二进制文件。</string>
     <string name="settings_root_integration_hub">Root 集成中心</string>
-    <string name="settings_root_integration_hub_summary">配置和管理使用 Shizuku+ 权限的 root 应用。</string>
+    <string name="settings_root_integration_hub_summary">配置和管理使用 白い熊 雫 权限的 root 应用。</string>
     <string name="settings_root_compatibility_hub">Root 兼容中心</string>
-    <string name="settings_root_compatibility_hub_summary">配置和管理使用 Shizuku+ 权限的 root 应用。</string>
+    <string name="settings_root_compatibility_hub_summary">配置和管理使用 白い熊 雫 权限的 root 应用。</string>
     <string name="su_bridge_title">SU 桥接</string>
     <string name="su_bridge_description">通过创建自定义的「su」二进制文件，为不支持 Shizuku 的应用提供 root 访问。</string>
     <string name="su_bridge_suggested_apps">建议的应用</string>
@@ -452,10 +452,10 @@
     <string name="su_bridge_setup_all">一键设置全部</string>
     <string name="su_bridge_setup_all_success">已尝试为所有兼容应用自动设置。</string>
     <string name="su_bridge_magic_setup">魔法设置</string>
-    <string name="su_bridge_magic_setup_success">魔法设置完成！Shizuku+ 已为你配置好 %s。</string>
+    <string name="su_bridge_magic_setup_success">魔法设置完成！白い熊 雫 已为你配置好 %s。</string>
     <string name="su_bridge_magic_setup_fail">魔法设置失败。请改用手动复制路径。</string>
     <string name="su_bridge_magic_setup_all">全部魔法设置</string>
-    <string name="su_bridge_magic_setup_all_summary">Shizuku+ 已为你配置了 %d 个应用！</string>
+    <string name="su_bridge_magic_setup_all_summary">白い熊 雫 已为你配置了 %d 个应用！</string>
     <string name="su_bridge_magic_setup_all_no_apps">未找到可用于自动化的受支持 root 应用。</string>
     <string name="su_bridge_copy_open">复制路径并打开</string>
     <string name="su_bridge_no_export">未设置 SU 路径。请先从主界面导出 Shizuku 文件。</string>
@@ -467,7 +467,7 @@
     <string name="su_bridge_step_1">1. 从主界面导出 Shizuku 文件。</string>
     <string name="su_bridge_step_2">2. 在你的 root 应用设置中找到「SU 路径」或「二进制文件路径」。</string>
     <string name="su_bridge_step_3">3. 将其改为导出的「su」文件路径。</string>
-    <string name="su_bridge_step_4">4. 对于没有自定义路径设置的应用，请在 Shizuku+ 设置中启用「SU 桥接」。这会自动重定向许多传统的 su 调用。</string>
+    <string name="su_bridge_step_4">4. 对于没有自定义路径设置的应用，请在 白い熊 雫 设置中启用「SU 桥接」。这会自动重定向许多传统的 su 调用。</string>
     <string name="su_bridge_app_instruction">在「设置 > %s」中设置路径</string>
     <string name="su_bridge_path_label">导出的 su 路径</string>
     <string name="su_bridge_su_path_label">导出的 su 路径</string>
@@ -499,7 +499,7 @@
     <string name="manual_report_copied_dialog_title">报告已复制</string>
     <string name="manual_report_copied_dialog_message">报告已复制到剪贴板。要现在打开 GitHub Issues，还是改为以文件形式分享报告？</string>
     <string name="manual_report_copied_dialog_share">分享文件</string>
-    <string name="crash_detected_dialog_message">Shizuku+ 检测到你上次使用时发生了崩溃。是否生成报告以帮助我们修复？</string>
+    <string name="crash_detected_dialog_message">白い熊 雫 检测到你上次使用时发生了崩溃。是否生成报告以帮助我们修复？</string>
     <string name="crash_detected_dialog_short_message">报告已复制。要打开 GitHub 粘贴，还是改为以文件形式分享报告？</string>
     <string name="crash_detected_dialog_ignore">忽略</string>
     <string name="shortcut_open_terminal">打开终端</string>
@@ -537,8 +537,8 @@
     <string name="doctor_status_restricted_bg">后台执行受限</string>
     <string name="doctor_tip_xiaomi">小米/HyperOS：请在开发者选项中启用「USB 调试（安全设置）」。</string>
     <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus：请在开发者选项中关闭「权限监控」，以免后台服务被终止。</string>
-    <string name="doctor_tip_tcl_background">TCL：请确保在设置中将 Shizuku+ 加入「自启动」和「高耗电后台运行」白名单。</string>
-    <string name="doctor_tip_battery">为 Shizuku+ 关闭电池优化，以免其在后台被终止。</string>
+    <string name="doctor_tip_tcl_background">TCL：请确保在设置中将 白い熊 雫 加入「自启动」和「高耗电后台运行」白名单。</string>
+    <string name="doctor_tip_battery">为 白い熊 雫 关闭电池优化，以免其在后台被终止。</string>
     <string name="doctor_tip_adb">重启后如需 Shizuku 在非 root 模式下启动，必须保持无线调试开启。</string>
     <string name="doctor_button_fix">修复</string>
     <!-- Snackbar -->
@@ -548,7 +548,7 @@
     <string name="snackbar_action_fix">修复</string>
     <!-- Toast -->
     <string name="toast_no_email_app">未找到电子邮件应用</string>
-    <string name="toast_shizuku_already_starting">Shizuku+ 已在后台启动</string>
+    <string name="toast_shizuku_already_starting">白い熊 雫 已在后台启动</string>
     <string name="toast_accessibility_tv_only">该服务仅支持电视设备</string>
     <string name="toast_pairing_timeout">Shizuku 配对服务超时</string>
     <string name="toast_adb_ssl_error">无线 ADB 握手失败（SSL 协议错误）。请在开发者选项中使用「重置 ADB 密钥」后重试。</string>
@@ -569,8 +569,8 @@
     <!-- Start/Stop -->
      <string name="start">启动</string>
      <string name="stop">停止</string>
-    <string name="action_stop">停止 Shizuku+</string>
-    <string name="dialog_stop_message">Shizuku+ 服务将被停止。</string>
+    <string name="action_stop">停止 白い熊 雫</string>
+    <string name="dialog_stop_message">白い熊 雫 服务将被停止。</string>
     <!-- Notification -->
     <string name="notification_channel_service_status">服务启动状态</string>
     <string name="notification_service_starting">Shizuku 服务正在启动…</string>
@@ -627,7 +627,7 @@
     <!-- Misc -->
     <string name="dialog_cannot_open_browser_title">无法启动浏览器</string>
     <string name="toast_copied_to_clipboard">已复制到剪贴板</string>
-    <string name="accessibility_service_description">为通知或分屏不易使用的设备（例如电视和三星 One UI 手机）提供配对支持。\n\n使 Shizuku+ 能够从无线调试配对界面提取配对码。找到配对码后，该服务会自动禁用。</string>
+    <string name="accessibility_service_description">为通知或分屏不易使用的设备（例如电视和三星 One UI 手机）提供配对支持。\n\n使 白い熊 雫 能够从无线调试配对界面提取配对码。找到配对码后，该服务会自动禁用。</string>
     <!-- Messages for legacy -->
     <string name="dialog_legacy_not_support_title">%1$s 不支持现代 Shizuku</string>
     <string name="dialog_legacy_not_support_message"><![CDATA[旧式 Shizuku 已于 2019 年 3 月被弃用。此外，旧式 Shizuku 无法在较新版本的 Android 系统上工作。<p>请要求 <b>%1$s</b> 的开发者进行更新。]]></string>
@@ -713,7 +713,7 @@
     <string name="empty_state_description_no_home_cards">你已隐藏所有主界面卡片。请前往设置恢复它们。</string>
     <string name="empty_state_action_restore_home_cards">恢复卡片</string>
     <string name="empty_state_title_no_plus_features">所有功能已停用</string>
-    <string name="empty_state_description_no_plus_features">你已停用所有 Shizuku+ 功能。启用功能后即可在此查看。</string>
+    <string name="empty_state_description_no_plus_features">你已停用所有 白い熊 雫 功能。启用功能后即可在此查看。</string>
     <string name="empty_state_title_activity_log_empty">暂无活动记录</string>
     <string name="empty_state_description_activity_log_empty">启用活动日志后，Shizuku API 调用与事件会显示在这里。</string>
     <string name="empty_state_title_hidden_apps">没有隐藏的应用</string>
@@ -747,17 +747,17 @@
     <string name="update_notification_channel">更新通知</string>
     <string name="update_notification_channel_description">应用更新下载与安装的通知</string>
     <string name="update_downloading_title">正在下载更新</string>
-    <string name="update_downloading_description">正在下载 Shizuku+ %1$s…</string>
+    <string name="update_downloading_description">正在下载 白い熊 雫 %1$s…</string>
     <string name="update_downloading_progress">正在下载 %1$s - %2$d%%</string>
     <string name="update_ready_title">更新已可安装</string>
-    <string name="update_ready_description">Shizuku+ %1$s 已可安装</string>
+    <string name="update_ready_description">白い熊 雫 %1$s 已可安装</string>
     <string name="update_install_now">立即安装</string>
     <string name="update_download_failed_title">下载失败</string>
     <string name="update_download_failed_message">下载更新失败。请重试。</string>
     <!-- Migration Dialog -->
 <string name="migration_dialog_title">重要：需要重新安装</string>
-    <string name="migration_dialog_message">Shizuku+ 的包名已从 moe.shizuku.privileged.api 更改为 af.shizuku.plus.api。旧版本与当前版本被视为两个独立应用，因此无法直接升级。\n\n你可以从旧版本迁移设置，然后将其卸载。</string>
-    <string name="migration_dialog_message_root">Shizuku+ 的包名已从 moe.shizuku.privileged.api 更改为 af.shizuku.plus.api。旧版本与当前版本被视为两个独立应用，因此无法直接升级。\n\nRoot 访问可用——点按「迁移设置」从旧版本复制设置，然后将其卸载。</string>
+    <string name="migration_dialog_message">白い熊 雫 的包名已从 moe.shizuku.privileged.api 更改为 af.shizuku.plus.api。旧版本与当前版本被视为两个独立应用，因此无法直接升级。\n\n你可以从旧版本迁移设置，然后将其卸载。</string>
+    <string name="migration_dialog_message_root">白い熊 雫 的包名已从 moe.shizuku.privileged.api 更改为 af.shizuku.plus.api。旧版本与当前版本被视为两个独立应用，因此无法直接升级。\n\nRoot 访问可用——点按「迁移设置」从旧版本复制设置，然后将其卸载。</string>
     <string name="migration_migrate_settings">迁移设置</string>
     <string name="migration_uninstall_old">卸载旧版本</string>
     <string name="migration_dismiss">忽略</string>
@@ -791,7 +791,7 @@
     <!-- Settings backup/restore -->
     <string name="settings_backup_category">备份与恢复</string>
     <string name="settings_export_title">导出设置</string>
-    <string name="settings_export_summary">将所有 Shizuku+ 设置保存为 JSON 文件</string>
+    <string name="settings_export_summary">将所有 白い熊 雫 设置保存为 JSON 文件</string>
     <string name="settings_import_title">导入设置</string>
     <string name="settings_import_summary">从之前导出的 JSON 文件恢复设置</string>
     <string name="settings_export_success">设置导出成功</string>
@@ -804,7 +804,7 @@
     <string name="changelog_title">更新内容</string>
     <string name="changelog_close">关闭</string>
     <string name="aicore_plus_label">AICore+ 自动化桥接</string>
-    <string name="aicore_plus_description">Shizuku+ AICore+ 功能所需。为 AI 驱动的自动化提供特权 UI 层级转储与物理输入模拟能力，不会读取密码或个人数据。</string>
+    <string name="aicore_plus_description">白い熊 雫 AICore+ 功能所需。为 AI 驱动的自动化提供特权 UI 层级转储与物理输入模拟能力，不会读取密码或个人数据。</string>
     <!-- Common action labels -->
     <string name="action_clear_all">全部清除</string>
     <string name="action_continue">继续</string>
@@ -821,7 +821,7 @@
     <string name="accessibility_service_monitoring">无障碍服务已启用：正在监听配对码…</string>
     <!-- Dhizuku Device Owner Setup -->
     <string name="dhizuku_setup_title">设置设备所有者</string>
-    <string name="dhizuku_setup_message">Dhizuku 模式需要将 Shizuku+ 设为设备所有者。请在开启 USB 调试的情况下通过 ADB 运行一次以下命令：\n\n%1$s\n\n运行命令后，请重启 Shizuku。</string>
+    <string name="dhizuku_setup_message">Dhizuku 模式需要将 白い熊 雫 设为设备所有者。请在开启 USB 调试的情况下通过 ADB 运行一次以下命令：\n\n%1$s\n\n运行命令后，请重启 Shizuku。</string>
     <string name="dhizuku_setup_copy">复制命令</string>
     <string name="dhizuku_setup_copied">已复制命令到剪贴板</string>
     <string name="dhizuku_status_active">设备所有者：已激活</string>
@@ -848,7 +848,7 @@
     <string name="settings_companion_fallback">崩溃兜底</string>
     <string name="settings_companion_fallback_summary">连续崩溃 3 次后，在崩溃通知中提供打开原版 Shizuku 的选项</string>
     <string name="home_companion_title">原版 Shizuku</string>
-    <string name="home_companion_description">已安装原版 Shizuku。如果 Shizuku+ 出现问题，可用它作为后备。</string>
+    <string name="home_companion_description">已安装原版 Shizuku。如果 白い熊 雫 出现问题，可用它作为后备。</string>
     <string name="home_companion_not_installed">未安装原版 Shizuku。可从 GitHub 安装以作为备用。</string>
     <string name="home_companion_open">打开</string>
     <string name="home_companion_install">安装</string>
@@ -864,9 +864,9 @@
     <string name="root_hub_global_config_desc">所有应用均使用此路径。自动设置将尝试为您配置支持的应用。</string>
     <string name="root_hub_setup_all">全部设置</string>
     <string name="root_hub_setup_all_success">已尝试对所有兼容应用进行自动设置。</string>
-    <string name="root_hub_magic_setup_all_summary">Shizuku+ 已为您配置了 %d 个应用！</string>
+    <string name="root_hub_magic_setup_all_summary">白い熊 雫 已为您配置了 %d 个应用！</string>
     <string name="root_hub_magic_setup_all_no_apps">未找到支持自动化设置的 root 应用。</string>
-    <string name="root_hub_magic_setup_success">Magic Setup 完成！Shizuku+ 已为您配置了 %s。</string>
+    <string name="root_hub_magic_setup_success">Magic Setup 完成！白い熊 雫 已为您配置了 %s。</string>
     <string name="root_hub_magic_setup_fail">Magic Setup 失败。请尝试手动复制路径。</string>
     <string name="root_hub_path_copied">SU 路径已复制到剪贴板</string>
     <string name="root_hub_no_export">未设置 SU 路径。请先在主页导出 Shizuku 文件。</string>

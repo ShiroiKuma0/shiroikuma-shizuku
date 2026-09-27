@@ -1083,7 +1083,7 @@
     <string name="backup_error_prefix_restore_failed">Restore failed</string>
     <string name="backup_error_key_invalidated_backup">your device\'s screen lock or biometrics changed since this backup\'s encryption key was created, which permanently invalidates it by design. Please try again to generate a new key.</string>
     <string name="backup_error_key_invalidated_restore">your device\'s screen lock or biometrics changed since this backup\'s encryption key was created, which permanently invalidates it by design. This backup can no longer be decrypted.</string>
-    <string name="backup_error_wrong_install">this backup could not be decrypted. It was most likely created by a different installation of Shizuku+ — backups are encrypted per-install and can\'t be restored after reinstalling or clearing the app\'s data.</string>
+    <string name="backup_error_wrong_install">this backup could not be decrypted. It was most likely created by a different installation of 白い熊 雫 — backups are encrypted per-install and can\'t be restored after reinstalling or clearing the app\'s data.</string>
 
     <!-- Update Settings -->
     <string name="settings_update_category">Updates</string>
@@ -1587,9 +1587,9 @@
 
     <!-- Stealth Mode -->
     <string name="settings_stealth_mode">Stealth Mode</string>
-    <string name="settings_stealth_mode_summary">Hide ShizukuPlus and Shizuku from app package queries so security SDKs cannot detect them</string>
+    <string name="settings_stealth_mode_summary">Hide 白い熊 雫 and Shizuku from app package queries so security SDKs cannot detect them</string>
     <string name="help_stealth_mode_title">Stealth Mode</string>
-    <string name="help_stealth_mode_detail">Intercepts PackageManager queries at the Binder level and returns "not installed" for ShizukuPlus and Shizuku packages. Apps that use PM to detect root tools (banking apps, DRM checks) will not find them. Note: this only hides them from PackageManager queries — developer mode and USB debugging are still visible to apps that check Android settings directly.</string>
+    <string name="help_stealth_mode_detail">Intercepts PackageManager queries at the Binder level and returns "not installed" for 白い熊 雫 and Shizuku packages. Apps that use PM to detect root tools (banking apps, DRM checks) will not find them. Note: this only hides them from PackageManager queries — developer mode and USB debugging are still visible to apps that check Android settings directly.</string>
 
     <!-- Per-section corner style options (shared by home card and settings card shape prefs) -->
     <string name="settings_home_card_shape">Home Card Corners</string>
