@@ -34,9 +34,11 @@ class HomeAdapter(
         const val ID_COMPANION = 9L
         const val ID_START_VIA_STOCK = 10L
         const val ID_BOOT_SETUP = 11L
+
         // Fixed, not draggable, and not in DEFAULT_ORDER: it reports setup state rather than
         // offering a feature, and it belongs directly under the status card.
         const val ID_RISH = 12L
+
         // Fork id allocation. 11L/12L/13L are reserved by the fork and persist in saved card
         // orders: ID_BOOT_SETUP (11) and ID_RISH (12). Upstream's App Backup card first collided
         // on 11L (r2431) and was moved to 13L; its Device Control and Permission Manager cards
@@ -46,37 +48,51 @@ class HomeAdapter(
         const val ID_DEVICE_CONTROL = 14L
         const val ID_PERMISSION_MANAGER = 15L
 
-        private val DEFAULT_ORDER = listOf(
-            ID_TERMINAL, ID_START_ROOT, ID_BOOT_SETUP, ID_START_WADB, ID_START_ADB, ID_AUTOMATION,
-            ID_BACKUP, ID_DEVICE_CONTROL, ID_PERMISSION_MANAGER, ID_LEARN_MORE, ID_COMPANION
-        )
+        private val DEFAULT_ORDER =
+            listOf(
+                ID_TERMINAL,
+                ID_START_ROOT,
+                ID_BOOT_SETUP,
+                ID_START_WADB,
+                ID_START_ADB,
+                ID_AUTOMATION,
+                ID_BACKUP,
+                ID_DEVICE_CONTROL,
+                ID_PERMISSION_MANAGER,
+                ID_LEARN_MORE,
+                ID_COMPANION,
+            )
     }
 
-    private val cardOrder: MutableList<Long> = run {
-        val saved = ShizukuSettings.getCardOrder()
-        if (saved.isNullOrEmpty()) {
-            DEFAULT_ORDER.toMutableList()
-        } else {
-            val parsed = saved.split(",").mapNotNull { it.trim().toLongOrNull() }
-            val merged = parsed.toMutableList()
-            var migrated = false
-            // Merge in ids the saved order predates. Appending them — what this used to do — drops
-            // every new card at the bottom of the home screen on existing installs, wherever it
-            // actually belongs: the boot-setup card has to sit *above* the wireless-adb card, since
-            // it is what makes that card's start survive a reboot. So a missing id goes in front of
-            // the first card that follows it in DEFAULT_ORDER and is actually present, and only
-            // falls back to the end when nothing following it is.
-            DEFAULT_ORDER.forEachIndexed { index, id ->
-                if (id in merged) return@forEachIndexed
-                val anchor = DEFAULT_ORDER.drop(index + 1)
-                    .firstNotNullOfOrNull { next -> merged.indexOf(next).takeIf { it >= 0 } }
-                if (anchor != null) merged.add(anchor, id) else merged.add(id)
-                migrated = true
+    private val cardOrder: MutableList<Long> =
+        run {
+            val saved = ShizukuSettings.getCardOrder()
+            if (saved.isNullOrEmpty()) {
+                DEFAULT_ORDER.toMutableList()
+            } else {
+                val parsed = saved.split(",").mapNotNull { it.trim().toLongOrNull() }
+                val merged = parsed.toMutableList()
+                var migrated = false
+                // Merge in ids the saved order predates. Appending them — what this used to do — drops
+                // every new card at the bottom of the home screen on existing installs, wherever it
+                // actually belongs: the boot-setup card has to sit *above* the wireless-adb card, since
+                // it is what makes that card's start survive a reboot. So a missing id goes in front of
+                // the first card that follows it in DEFAULT_ORDER and is actually present, and only
+                // falls back to the end when nothing following it is.
+                DEFAULT_ORDER.forEachIndexed { index, id ->
+                    if (id in merged) return@forEachIndexed
+                    val anchor =
+                        DEFAULT_ORDER
+                            .drop(index + 1)
+                            .firstNotNullOfOrNull { next -> merged.indexOf(next).takeIf { it >= 0 } }
+                    if (anchor != null) merged.add(anchor, id) else merged.add(id)
+                    migrated = true
+                }
+                // Persist at once: the placement is a one-time migration, so leaving it unsaved would
+                // redo it on every launch and fight any reorder the user makes afterwards.
+                if (migrated) ShizukuSettings.setCardOrder(merged.joinToString(","))
+                merged
             }
-            // Persist at once: the placement is a one-time migration, so leaving it unsaved would
-            // redo it on every launch and fight any reorder the user makes afterwards.
-            if (migrated) ShizukuSettings.setCardOrder(merged.joinToString(","))
-            merged
         }
 
     private val startWadbCreator = StartWirelessAdbViewHolder.creator(scope, homeModel)
@@ -227,10 +243,12 @@ class HomeAdapter(
 
         // Fixed cards
         var fixedCardCount = 0
-        addItem(serverStatusCreator, status, ID_STATUS); fixedCardCount++
+        addItem(serverStatusCreator, status, ID_STATUS)
+        fixedCardCount++
         // Directly beneath the status card: after "is the server up", whether rish runs prompt-free
         // is the next thing worth knowing, and the card is how it gets set up on a new phone.
-        addItem(RishViewHolder.CREATOR, null, ID_RISH); fixedCardCount++
+        addItem(RishViewHolder.CREATOR, null, ID_RISH)
+        fixedCardCount++
         if (isOriginalShizukuRunning) {
             addItem(startStockCreator, null, ID_START_VIA_STOCK)
             fixedCardCount++
@@ -250,16 +268,24 @@ class HomeAdapter(
             if (isHidden && !isEditMode) return@forEach
             when (id) {
                 ID_TERMINAL -> addItem(TerminalViewHolder.CREATOR, status, id)
-                ID_START_ROOT -> if (isEditMode || (isPrimaryUser && (EnvironmentUtils.isRooted() || ShizukuSettings.isSamsungSystemUidEscalationEnabled())))
-                    addItem(StartRootViewHolder.CREATOR, rootRestart, id)
+                ID_START_ROOT ->
+                    if (isEditMode || (isPrimaryUser && (EnvironmentUtils.isRooted() || ShizukuSettings.isSamsungSystemUidEscalationEnabled()))) {
+                        addItem(StartRootViewHolder.CREATOR, rootRestart, id)
+                    }
                 // Same gate as the wireless-adb card it sits above — the checklist only makes
                 // sense where that start path exists at all.
-                ID_BOOT_SETUP -> if (isEditMode || (isPrimaryUser && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R || EnvironmentUtils.getAdbTcpPort() > 0)))
-                    addItem(bootSetupCreator, null, id)
-                ID_START_WADB -> if (isEditMode || (isPrimaryUser && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R || EnvironmentUtils.getAdbTcpPort() > 0)))
-                    addItem(startWadbCreator, null, id)
-                ID_START_ADB -> if (isEditMode || isPrimaryUser)
-                    addItem(StartAdbViewHolder.CREATOR, null, id)
+                ID_BOOT_SETUP ->
+                    if (isEditMode || (isPrimaryUser && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R || EnvironmentUtils.getAdbTcpPort() > 0))) {
+                        addItem(bootSetupCreator, null, id)
+                    }
+                ID_START_WADB ->
+                    if (isEditMode || (isPrimaryUser && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R || EnvironmentUtils.getAdbTcpPort() > 0))) {
+                        addItem(startWadbCreator, null, id)
+                    }
+                ID_START_ADB ->
+                    if (isEditMode || isPrimaryUser) {
+                        addItem(StartAdbViewHolder.CREATOR, null, id)
+                    }
                 ID_AUTOMATION -> addItem(AutomationViewHolder.CREATOR, null, id)
                 ID_BACKUP ->
                     if (isEditMode || ShizukuSettings.isBackupCardVisible()) {

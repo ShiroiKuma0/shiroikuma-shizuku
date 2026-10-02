@@ -164,7 +164,7 @@
     <string name="dialog_wireless_adb_not_enabled">Wireless debugging is not enabled.\nNote, before Android 11, to enable wireless debugging, computer connection is a must.</string>
     <string name="dialog_usb_debugging_not_enabled">USB debugging is not enabled.\nPlease enable it in \"Developer Options\".</string>
     <string name="dialog_adb_pairing_message">Please start pairing by performing the following steps:\n- Navigate to \"Developer Options\"\n- Enable \"USB debugging\" and \"Wireless debugging\"\n- Tap the left side of \"Wireless debugging\"\n- Tap \"Pair device with pairing code\"\n- Input the pairing code in the notification</string>
-    <string name="dialog_adb_pairing_accessibility_permission">On Android 14, installing/updating 白い熊 雫 with the Package Installer revokes the %1$s permission, which is required to enable the accessibility service for pairing.\n\nTo grant it, run the following ADB command:\n\n%2$s\n\nAfter running the command, you may continue with the pairing process.\n\nNote: you can bypass this by installing/updating 白い熊 雫 with ADB.</string>
+    <string name="dialog_adb_pairing_accessibility_permission">On Android 13+, sideloaded apps have restricted settings locked by default for security, which blocks enabling the pairing accessibility service.\n\nTo allow it easily on your device:\n1. Tap \"Open app info settings\" below\n2. Tap the ⋮ (three dots) menu in the top right corner\n3. Tap \"Allow restricted settings\" and confirm your biometric/PIN\n4. Return here and tap Continue\n\nAlternatively, you can run this ADB command:\n\n%2$s</string>
 
     <!-- Service Doctor -->
     <string name="snackbar_samsung_auto_blocker">Samsung Auto Blocker may block ADB on One UI 7/8. Check Security settings.</string>

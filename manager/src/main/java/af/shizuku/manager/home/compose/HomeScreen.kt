@@ -5,39 +5,31 @@ import af.shizuku.core.ui.compose.ButtonSize
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import android.content.Context
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.recyclerview.widget.RecyclerView
-import af.shizuku.manager.R
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import af.shizuku.core.ui.compose.Button
-import af.shizuku.core.ui.compose.ButtonSize
-import af.shizuku.manager.ShizukuSettings
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.snap
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.LocalIndication
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.recyclerview.widget.RecyclerView
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
@@ -72,8 +64,11 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Text(
-                        if (isEditMode) stringResource(R.string.home_edit_mode_title)
-                        else stringResource(R.string.app_name)
+                        if (isEditMode) {
+                            stringResource(R.string.home_edit_mode_title)
+                        } else {
+                            stringResource(R.string.app_name)
+                        },
                     )
                 },
                 actions = {
@@ -82,40 +77,40 @@ fun HomeScreen(
                             Text(
                                 text = stringResource(R.string.home_edit_mode_done),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.primary,
                             )
                         }
                     } else {
                         IconButton(onClick = onStopClick) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_close_24),
-                                contentDescription = stringResource(id = R.string.action_stop)
+                                contentDescription = stringResource(id = R.string.action_stop),
                             )
                         }
                         // Fork: the cog takes a LONG-PRESS straight to the 白い熊 雫 UI page.
                         // An IconButton has no long-press, so the cog is a combinedClickable box.
                         Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .clip(CircleShape)
-                                .combinedClickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = LocalIndication.current,
-                                    onClick = onSettingsClick,
-                                    onLongClick = onSettingsLongClick
-                                )
-                                .padding(8.dp),
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .padding(4.dp)
+                                    .clip(CircleShape)
+                                    .combinedClickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = LocalIndication.current,
+                                        onClick = onSettingsClick,
+                                        onLongClick = onSettingsLongClick,
+                                    ).padding(8.dp),
+                            contentAlignment = Alignment.Center,
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_settings_outline_24),
-                                contentDescription = stringResource(id = R.string.settings_title)
+                                contentDescription = stringResource(id = R.string.settings_title),
                             )
                         }
                         IconButton(onClick = onHelpClick) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_help_outline_24),
-                                contentDescription = stringResource(id = R.string.settings_plus_learn_more)
+                                contentDescription = stringResource(id = R.string.settings_plus_learn_more),
                             )
                         }
                     }
@@ -124,15 +119,18 @@ fun HomeScreen(
                 // shows through, which let the cards scroll visibly under the title. On this theme
                 // the bar colour equals the page colour anyway, so an opaque ground costs nothing
                 // and keeps the header a header.
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = if (ShizukuSettings.isBlurUiEnabled())
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
-                    else
-                        MaterialTheme.colorScheme.surfaceContainer
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor =
+                            if (ShizukuSettings.isBlurUiEnabled()) {
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
+                            } else {
+                                MaterialTheme.colorScheme.surfaceContainer
+                            },
+                    ),
             )
-        }
+        },
     ) { innerPadding ->
         // Samsung One UI one-handed mode: translate the entire content downward so the action
         // zone stays in the comfortable thumb area without scaling. Target is 38% screen height,
@@ -142,42 +140,49 @@ fun HomeScreen(
         val extraOneHanded = (targetThumbTop - innerPadding.calculateTopPadding()).coerceAtLeast(0.dp)
         val oneHandedOffset by animateDpAsState(
             targetValue = if (isOneHanded) extraOneHanded else 0.dp,
-            animationSpec = if (ShizukuSettings.isExpressiveAnimationsEnabled())
-                spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessMedium / ShizukuSettings.getAnimationDurationScale().coerceAtLeast(0.1f)
-                )
-            else
-                snap(),
-            label = "oneHandedOffset"
+            animationSpec =
+                if (ShizukuSettings.isExpressiveAnimationsEnabled()) {
+                    spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMedium / ShizukuSettings.getAnimationDurationScale().coerceAtLeast(0.1f),
+                    )
+                } else {
+                    snap()
+                },
+            label = "oneHandedOffset",
         )
-        val adjustedPadding = PaddingValues(
-            top = innerPadding.calculateTopPadding() + oneHandedOffset,
-            bottom = innerPadding.calculateBottomPadding() + 72.dp
-        )
+        val adjustedPadding =
+            PaddingValues(
+                top = innerPadding.calculateTopPadding() + oneHandedOffset,
+                bottom = innerPadding.calculateBottomPadding() + 72.dp,
+            )
         AnimatedGradientBackground {
             if (isOneHanded && oneHandedOffset > 16.dp) {
                 // Fork: the header is fixed, so there is no collapsedFraction to fade the pill by.
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(oneHandedOffset + innerPadding.calculateTopPadding())
-                        .padding(top = innerPadding.calculateTopPadding() + 8.dp),
-                    contentAlignment = Alignment.TopCenter
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(oneHandedOffset + innerPadding.calculateTopPadding())
+                            .padding(top = innerPadding.calculateTopPadding() + 8.dp),
+                    contentAlignment = Alignment.TopCenter,
                 ) {
                     Box(
-                        modifier = Modifier
-                            .width(36.dp)
-                            .height(4.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.28f),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(2.dp)
-                            )
+                        modifier =
+                            Modifier
+                                .width(36.dp)
+                                .height(4.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.28f),
+                                    shape =
+                                        androidx.compose.foundation.shape
+                                            .RoundedCornerShape(2.dp),
+                                ),
                     )
                 }
             }
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 if (showEmptyState) {
                     Box(modifier = Modifier.padding(adjustedPadding)) {
@@ -220,14 +225,18 @@ fun AnimatedGradientBackground(content: @Composable () -> Unit) {
     val color3 = MaterialTheme.colorScheme.secondary.copy(alpha = 0.03f)
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.sweepGradient(
-                    colors = listOf(color1, color2, color3, color1),
-                    center = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY) // Sweep from bottom corner
-                )
-            )
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.sweepGradient(
+                        colors = listOf(color1, color2, color3, color1),
+                        center =
+                            androidx.compose.ui.geometry
+                                .Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
+                        // Sweep from bottom corner
+                    ),
+                ),
     ) {
         content()
     }

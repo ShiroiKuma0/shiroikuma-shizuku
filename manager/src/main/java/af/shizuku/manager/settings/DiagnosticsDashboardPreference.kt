@@ -3,10 +3,10 @@ package af.shizuku.manager.settings
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.automation.AutomationService
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import android.app.ActivityManager
 import android.app.admin.DevicePolicyManager
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.PowerManager
@@ -21,11 +21,6 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import af.shizuku.manager.R
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.automation.AutomationService
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class DiagnosticsDashboardPreference
     @JvmOverloads
@@ -125,39 +120,51 @@ class DiagnosticsDashboardPreference
                                 af.shizuku.manager.utils.SettingsHelper
                                     .requestIgnoreBatteryOptimizations(context)
                             } catch (_: Exception) {
-                                ShiroikumaToast.show(context, R.string.diagnostics_battery_settings_open_failed, Toast.LENGTH_SHORT)
+                                try {
+                                    val intent = Intent(Settings.ACTION_SETTINGS)
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {
+                                    ShiroikumaToast.show(context, R.string.diagnostics_battery_settings_open_failed, Toast.LENGTH_SHORT)
+                                }
                             }
                         }
-                    }
-                    "shadow_binder_no_apps" -> {
-                        val activity = context as? androidx.fragment.app.FragmentActivity
-                        val frag = activity?.supportFragmentManager
-                            ?.findFragmentById(R.id.fragment_container)
-                        val opened = if (frag is ShizukuPlusSettingsFragment) {
-                            frag.findPreference<Preference>("shadow_binder_hidden_packages")?.let {
-                                frag.onPreferenceTreeClick(it)
-                            } != null
-                        } else false
-                        if (!opened) {
-                            ShiroikumaToast.show(
-                                context,
-                                R.string.diagnostics_shadow_binder_navigate_hint,
-                                Toast.LENGTH_LONG
-                            )
+                        "shadow_binder_no_apps" -> {
+                            val activity = context as? androidx.fragment.app.FragmentActivity
+                            val frag =
+                                activity
+                                    ?.supportFragmentManager
+                                    ?.findFragmentById(R.id.fragment_container)
+                            val opened =
+                                if (frag is ShizukuPlusSettingsFragment) {
+                                    frag.findPreference<Preference>("shadow_binder_hidden_packages")?.let {
+                                        frag.onPreferenceTreeClick(it)
+                                    } != null
+                                } else {
+                                    false
+                                }
+                            if (!opened) {
+                                ShiroikumaToast.show(
+                                    context,
+                                    R.string.diagnostics_shadow_binder_navigate_hint,
+                                    Toast.LENGTH_LONG,
+                                )
+                            }
                         }
-                    }
-                    // The command was built with the `pkg/.Receiver` shorthand, which expands against
-                    // the applicationId — `shiroikuma.shizuku/shiroikuma.shizuku.admin.DhizukuAdminReceiver`,
-                    // a class that does not exist. The copy button handed over a command that could
-                    // only ever fail. DeviceOwnerHelper derives the component from the class instead.
-                    "dhizuku_not_owner" -> af.shizuku.manager.admin.DeviceOwnerHelper
-                        .showSetupCommandDialog(context)
-                    "automation_service_stopped" -> {
-                        try {
-                            context.startService(Intent(context, AutomationService::class.java))
-                            notifyChanged()
-                        } catch (_: Exception) {
-                            ShiroikumaToast.show(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT)
+                        // The command was built with the `pkg/.Receiver` shorthand, which expands against
+                        // the applicationId — `shiroikuma.shizuku/shiroikuma.shizuku.admin.DhizukuAdminReceiver`,
+                        // a class that does not exist. The copy button handed over a command that could
+                        // only ever fail. DeviceOwnerHelper derives the component from the class instead.
+                        "dhizuku_not_owner" ->
+                            af.shizuku.manager.admin.DeviceOwnerHelper
+                                .showSetupCommandDialog(context)
+                        "automation_service_stopped" -> {
+                            try {
+                                context.startService(Intent(context, AutomationService::class.java))
+                                notifyChanged()
+                            } catch (_: Exception) {
+                                ShiroikumaToast.show(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT)
+                            }
                         }
                     }
                 }
@@ -167,10 +174,8 @@ class DiagnosticsDashboardPreference
                     sp?.edit()?.putStringSet("diagnostics_dismissed", newDismissed)?.apply()
                     notifyChanged()
                 }
-                .setNegativeButton(android.R.string.cancel, null)
-                .showHouse()
-        }
-    }
+                listContainer.addView(itemView)
+            }
 
             btnDisable?.setOnClickListener {
                 MaterialAlertDialogBuilder(context)
@@ -180,7 +185,7 @@ class DiagnosticsDashboardPreference
                         sp?.edit()?.putBoolean("diagnostics_enabled", false)?.apply()
                         notifyChanged()
                     }.setNegativeButton(android.R.string.cancel, null)
-                    .show()
+                    .showHouse()
             }
         }
 

@@ -1,6 +1,7 @@
 package af.shizuku.manager.home
 
 import af.shizuku.core.ui.AppActivity
+import af.shizuku.manager.BuildConfig
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.adb.AdbPairingService
@@ -9,6 +10,8 @@ import af.shizuku.manager.home.compose.HomeScreen
 import af.shizuku.manager.ktx.toHtml
 import af.shizuku.manager.management.AppsViewModel
 import af.shizuku.manager.settings.SettingsActivity
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.update.UpdateChecker
 import af.shizuku.manager.update.UpdateManager
 import af.shizuku.manager.utils.EnvironmentUtils
@@ -37,8 +40,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.mvrx.MavericksView
@@ -47,20 +48,6 @@ import com.airbnb.mvrx.viewModel
 import com.airbnb.mvrx.withState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import af.shizuku.manager.R
-import af.shizuku.manager.BuildConfig
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.adb.AdbPairingService
-import af.shizuku.manager.worker.AdbStartWorker
-import af.shizuku.manager.app.SnackbarHelper
-import af.shizuku.manager.home.showAccessibilityDialog
-import af.shizuku.manager.ktx.toHtml
-import af.shizuku.manager.management.AppsViewModel
-import af.shizuku.manager.settings.SettingsActivity
-import af.shizuku.manager.update.UpdateChecker
-import af.shizuku.manager.update.UpdateManager
-import af.shizuku.manager.utils.EnvironmentUtils
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -72,18 +59,9 @@ import rikka.recyclerview.fixEdgeEffect
 import rikka.shizuku.Shizuku
 import timber.log.Timber
 
-import androidx.activity.compose.setContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import af.shizuku.core.ui.AppActivity
-import af.shizuku.manager.home.compose.HomeScreen
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
-import af.shizuku.manager.shiroikuma.showHouse
-
-open class HomeActivity : AppActivity(), MavericksView {
-
+open class HomeActivity :
+    AppActivity(),
+    MavericksView {
     private val homeModel: HomeViewModel by viewModel()
     private val appsModel: AppsViewModel by viewModels()
     private val adapter by unsafeLazy { HomeAdapter(homeModel, appsModel, lifecycleScope) }
@@ -105,6 +83,7 @@ open class HomeActivity : AppActivity(), MavericksView {
     // Show the "restart after update" prompt at most once per Activity instance so it doesn't
     // reappear on every state refresh while the user hasn't restarted yet.
     private var versionSkewPromptShown = false
+
     // Same once-per-session guard for the Samsung Auto Blocker hint snackbar.
     private var autoBlockerSnackbarShown = false
 
@@ -208,10 +187,12 @@ open class HomeActivity : AppActivity(), MavericksView {
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_server_skew_title)
                 .setMessage(
-                    if (skewed) R.string.dialog_server_skew_message
-                    else R.string.dialog_server_skew_unverified_message
-                )
-                .setPositiveButton(R.string.dialog_server_skew_restart) { _, _ ->
+                    if (skewed) {
+                        R.string.dialog_server_skew_message
+                    } else {
+                        R.string.dialog_server_skew_unverified_message
+                    },
+                ).setPositiveButton(R.string.dialog_server_skew_restart) { _, _ ->
                     // Drives the status card's own routine. A restart here is deliberately NOT
                     // stop-then-start — without root the only shell available is the one the running
                     // server lends us — so this must never grow a second implementation.
@@ -219,11 +200,10 @@ open class HomeActivity : AppActivity(), MavericksView {
                         ShiroikumaToast.show(
                             this,
                             getString(R.string.dialog_server_skew_use_card),
-                            android.widget.Toast.LENGTH_LONG
+                            android.widget.Toast.LENGTH_LONG,
                         )
                     }
-                }
-                .setNegativeButton(R.string.dialog_server_skew_later, null)
+                }.setNegativeButton(R.string.dialog_server_skew_later, null)
                 // Recorded on DISMISS, never before show(): marking it asked up front means any
                 // reason the dialog fails to appear silences it permanently for that build, with
                 // nothing to show for it. Dismissal covers every exit — either button, back, or a
@@ -231,8 +211,7 @@ open class HomeActivity : AppActivity(), MavericksView {
                 // means later: the next update asks again, because that is when it matters again.
                 .setOnDismissListener {
                     ShizukuSettings.setSkewPromptedVersion(BuildConfig.VERSION_CODE)
-                }
-                .showHouse()
+                }.showHouse()
         }
     }
 
@@ -306,63 +285,50 @@ open class HomeActivity : AppActivity(), MavericksView {
                                     ShizukuStateMachine.set(ShizukuStateMachine.State.STOPPING)
                                     runCatching { Shizuku.exit() }
                                 }.setNegativeButton(android.R.string.cancel, null)
-                                .show()
+                                .showHouse()
                         }
                     },
                     onSettingsClick = {
                         startActivity(Intent(this, SettingsActivity::class.java))
                     },
+                    // Fork: long-press the cog to land straight on the 白い熊 雫 UI page.
+                    onSettingsLongClick = {
+                        startActivity(
+                            af.shizuku.manager.shiroikuma.ShiroikumaUiFragment
+                                .intent(this),
+                        )
+                    },
                     onHelpClick = {
                         MaterialAlertDialogBuilder(this)
-                            .setMessage(R.string.dialog_stop_message)
-                            .setPositiveButton(android.R.string.ok) { _, _ ->
-                                ShizukuStateMachine.set(ShizukuStateMachine.State.STOPPING)
-                                runCatching { Shizuku.exit() }
-                            }
-                            .setNegativeButton(android.R.string.cancel, null)
+                            .setTitle(R.string.settings_shizuku_plus_features)
+                            .setMessage(getString(R.string.help_general_plus_summary).toHtml())
+                            .setPositiveButton(android.R.string.ok, null)
                             .showHouse()
-                    }
-                },
-                onSettingsClick = {
-                    startActivity(Intent(this, SettingsActivity::class.java))
-                },
-                // Fork: long-press the cog to land straight on the 白い熊 雫 UI page.
-                onSettingsLongClick = {
-                    startActivity(
-                        af.shizuku.manager.shiroikuma.ShiroikumaUiFragment.intent(this)
-                    )
-                },
-                onHelpClick = {
-                    MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.settings_shizuku_plus_features)
-                        .setMessage(getString(R.string.help_general_plus_summary).toHtml())
-                        .setPositiveButton(android.R.string.ok, null)
-                        .showHouse()
-                },
-                onDoneClick = { HomeEditMode.exit() },
-                onRestoreHomeCards = { adapter.restoreAllCards() },
-                recyclerViewProvider = { ctx, paddingValues ->
-                    val density = ctx.resources.displayMetrics.density
-                    recyclerView.apply {
-                        setPadding(
-                            paddingLeft,
-                            (paddingValues.calculateTopPadding().value * density).toInt(),
-                            paddingRight,
-                            (paddingValues.calculateBottomPadding().value * density).toInt()
-                        )
-                        // FORK: the home cards are View holders inside a RecyclerView, so the
-                        // Compose theme cannot reach them — apply the 白い熊 雫 knobs to the tree.
-                        // Cards recycle, so re-apply on layout; the applier is idempotent.
-                        if (getTag(R.id.home_shiroikuma_themed) == null) {
-                            setTag(R.id.home_shiroikuma_themed, true)
-                            viewTreeObserver.addOnGlobalLayoutListener {
-                                af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
-                                    .applyToTree(this, tintBackground = false)
+                    },
+                    onDoneClick = { HomeEditMode.exit() },
+                    onRestoreHomeCards = { adapter.restoreAllCards() },
+                    recyclerViewProvider = { ctx, paddingValues ->
+                        val density = ctx.resources.displayMetrics.density
+                        recyclerView.apply {
+                            setPadding(
+                                paddingLeft,
+                                (paddingValues.calculateTopPadding().value * density).toInt(),
+                                paddingRight,
+                                (paddingValues.calculateBottomPadding().value * density).toInt(),
+                            )
+                            // FORK: the home cards are View holders inside a RecyclerView, so the
+                            // Compose theme cannot reach them — apply the 白い熊 雫 knobs to the tree.
+                            // Cards recycle, so re-apply on layout; the applier is idempotent.
+                            if (getTag(R.id.home_shiroikuma_themed) == null) {
+                                setTag(R.id.home_shiroikuma_themed, true)
+                                viewTreeObserver.addOnGlobalLayoutListener {
+                                    af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
+                                        .applyToTree(this, tintBackground = false)
+                                }
                             }
                         }
-                    }
-                }
-            )
+                    },
+                )
             }
         }
 
@@ -916,27 +882,12 @@ open class HomeActivity : AppActivity(), MavericksView {
 
         val openReleases = {
             startActivity(
-                android.content.Intent(android.content.Intent.ACTION_VIEW,
-                    android.net.Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases"))
-                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                android.content
+                    .Intent(
+                        android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases"),
+                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
             )
-        }
-
-        val showInAppChangelog = {
-            lifecycleScope.launch {
-                val releases =
-                    try {
-                        UpdateChecker.fetchReleasesSince(sinceVersionCode = 0, maxReleases = 25)
-                    } catch (e: Exception) {
-                        Timber.w(e, "Failed to fetch releases for in-app changelog")
-                        emptyList()
-                    }
-                if (!isFinishing && !isDestroyed) {
-                    ChangelogDialogFragment
-                        .newInstance(releases, updateInfo.versionName)
-                        .show(supportFragmentManager, ChangelogDialogFragment.TAG)
-                }
-            }
         }
 
         val builder =
@@ -944,7 +895,7 @@ open class HomeActivity : AppActivity(), MavericksView {
                 .setTitle(R.string.update_available_title)
                 .setView(dialogView)
                 .setNegativeButton(R.string.update_later, null)
-                .setNeutralButton(R.string.update_release_notes) { _, _ -> showInAppChangelog() }
+                .setNeutralButton(R.string.update_release_notes) { _, _ -> openReleases() }
 
         if (updateInfo.requiresManualDownload) {
             builder.setPositiveButton(R.string.update_view_on_github) { _, _ -> openReleases() }

@@ -9,7 +9,6 @@ import af.shizuku.manager.utils.ActivityLogSettingsImpl
 import af.shizuku.manager.utils.AppContextSettingsImpl
 import af.shizuku.manager.utils.ShizukuStateMachine
 import af.shizuku.manager.utils.ThemeDelegateImpl
-import af.shizuku.manager.worker.RemoteDbSyncWorker
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -20,24 +19,6 @@ import androidx.core.os.LocaleListCompat
 import androidx.work.Configuration
 import com.airbnb.mvrx.Mavericks
 import com.topjohnwu.superuser.Shell
-import android.content.Intent
-import af.shizuku.manager.service.WatchdogService
-import af.shizuku.manager.utils.ThemeDelegateImpl
-import af.shizuku.core.ui.ThemeDelegateManager
-import af.shizuku.manager.utils.AppContextSettingsImpl
-import af.shizuku.manager.database.AppContextManager
-import af.shizuku.manager.utils.ActivityLogSettingsImpl
-import af.shizuku.manager.database.ActivityLogManager
-import af.shizuku.manager.utils.ShizukuStateMachine
-import org.lsposed.hiddenapibypass.HiddenApiBypass
-import rikka.core.util.BuildUtils.atLeast30
-import rikka.material.app.LocaleDelegate
-import rikka.shizuku.Shizuku
-import timber.log.Timber
-import af.shizuku.manager.di.appModule
-import af.shizuku.manager.worker.RemoteDbSyncWorker
-import android.os.UserManager
-import com.airbnb.mvrx.Mavericks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -308,7 +289,6 @@ class ShizukuApplication :
             ActivityLogManager.log(appName, packageName, action)
         }
 
-
         // FORK: the periodic remote-database sync is NOT scheduled. Upstream enqueues a
         // 24-hourly WorkManager job that fetches app-context-db.json from the upstream author's
         // GitHub repo — a recurring, fully automatic call-out from this device that we do not
@@ -322,11 +302,13 @@ class ShizukuApplication :
         // FORK: install the live 白い熊 雫 theme provider BEFORE any Activity composes, so the very
         // first frame already carries the user's own colours and typeface rather than the static
         // overlay's defaults. See ShiroikumaTheme.
-        af.shizuku.manager.shiroikuma.ShiroikumaTheme.install(this)
+        af.shizuku.manager.shiroikuma.ShiroikumaTheme
+            .install(this)
         // Every DialogFragment gets the house black fill + yellow border automatically. Material's
         // dialog builder overrides the themed window background, and there is no stroke attribute to
         // set, so this is the only way short of editing ~40 files. See ShiroikumaDialogs.
-        af.shizuku.manager.shiroikuma.ShiroikumaDialogs.installGlobalStyling(this)
+        af.shizuku.manager.shiroikuma.ShiroikumaDialogs
+            .installGlobalStyling(this)
         super.onCreate()
 
         // 0. Initialize Timber

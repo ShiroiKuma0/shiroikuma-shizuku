@@ -58,10 +58,11 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         // attaches, and a stored value beats the new default.
         ShizukuSettings.resetCategoryExpansionOnce()
 
-        batteryOptimizationListener = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val accepted = SettingsHelper.isIgnoringBatteryOptimizations(requireContext())
-            batteryOptimizationContinuation?.resume(accepted)
-        }
+        batteryOptimizationListener =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                val accepted = SettingsHelper.isIgnoringBatteryOptimizations(requireContext())
+                batteryOptimizationContinuation?.resume(accepted)
+            }
 
         onCreateSettingsPreferences(savedInstanceState, rootKey)
 
@@ -224,15 +225,19 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         val density = context.resources.displayMetrics.density
         val defaultBg = itemView.background
 
-        itemView.background = android.graphics.drawable.GradientDrawable().apply {
-            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-            cornerRadius = p.getInt(context, p.KEY_CORNER_RADIUS) * density
-            setColor(androidx.core.graphics.ColorUtils.setAlphaComponent(accent, 0x2A))
-            setStroke((2 * density).toInt(), accent)
-        }
+        itemView.background =
+            android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = p.getInt(context, p.KEY_CORNER_RADIUS) * density
+                setColor(
+                    androidx.core.graphics.ColorUtils
+                        .setAlphaComponent(accent, 0x2A),
+                )
+                setStroke((2 * density).toInt(), accent)
+            }
         itemView.postDelayed(
             { itemView.background = defaultBg },
-            ShizukuSettings.scaledAnimationDuration(1200)
+            ShizukuSettings.scaledAnimationDuration(1200),
         )
     }
 
@@ -254,9 +259,11 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         // Rows are recycled, so re-apply on each layout pass rather than once; the applier is
         // idempotent and skips anything already carrying a house layout.
         if (this !is af.shizuku.manager.shiroikuma.ShiroikumaUiFragment) {
-            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.applyToTree(view)
+            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
+                .applyToTree(view)
             listView?.viewTreeObserver?.addOnGlobalLayoutListener {
-                af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.applyToTree(listView, tintBackground = false)
+                af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
+                    .applyToTree(listView, tintBackground = false)
             }
         }
     }
@@ -267,7 +274,10 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
     protected fun showDialog(builder: MaterialAlertDialogBuilder) {
         val dialog = builder.show()
         // Fork: these are not DialogFragments, so the global hook does not see them — style here.
-        runCatching { af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(dialog) }
+        runCatching {
+            af.shizuku.manager.shiroikuma.ShiroikumaDialogs
+                .style(dialog)
+        }
         activeDialogs.add(dialog)
         dialog.setOnDismissListener { activeDialogs.remove(dialog) }
     }
@@ -486,13 +496,20 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         onResult(false)
     }
 
-    protected class SettingsItemDecoration(context: Context) : af.shizuku.manager.widget.M3ECardItemDecoration(context) {
+    protected class SettingsItemDecoration(
+        context: Context,
+    ) : af.shizuku.manager.widget.M3ECardItemDecoration(context) {
         // Every settings group gets the rounded yellow box. This decoration groups by header, so
         // each box spans exactly one category — and a folded one shrinks to its own title row,
         // which is what makes the folded state obvious.
         override val drawsBorder: Boolean get() = true
 
-        override fun getItemOffsets(outRect: android.graphics.Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+        override fun getItemOffsets(
+            outRect: android.graphics.Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State,
+        ) {
             val pos = parent.getChildAdapterPosition(view)
             if (pos == RecyclerView.NO_POSITION) return
 

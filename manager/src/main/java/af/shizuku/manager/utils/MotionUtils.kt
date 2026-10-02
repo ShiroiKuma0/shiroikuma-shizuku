@@ -57,12 +57,13 @@ object MotionUtils {
             springY.animateToFinalPosition(1.0f)
         }
 
-        val showPress = Runnable {
-            pressShown = true
-            HapticUtils.tap(this)
-            springX.animateToFinalPosition(scale)
-            springY.animateToFinalPosition(scale)
-        }
+        val showPress =
+            Runnable {
+                pressShown = true
+                HapticUtils.tap(this)
+                springX.animateToFinalPosition(scale)
+                springY.animateToFinalPosition(scale)
+            }
 
         setOnTouchListener { v, event ->
             // Unlike every other animation/haptic call site in the app, this touch feedback

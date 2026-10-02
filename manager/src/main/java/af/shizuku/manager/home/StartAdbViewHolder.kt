@@ -5,6 +5,8 @@ import af.shizuku.manager.R
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeStartAdbBinding
 import af.shizuku.manager.ktx.toHtml
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.starter.Starter
 import af.shizuku.manager.utils.IconStyleHelper
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
@@ -20,10 +22,6 @@ import rikka.core.util.ClipboardUtils
 import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
-
-import af.shizuku.manager.utils.MotionUtils.applySpringTouch
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class StartAdbViewHolder(
     private val binding: HomeStartAdbBinding,
@@ -60,7 +58,7 @@ class StartAdbViewHolder(
                         ShiroikumaToast.show(
                             context,
                             context.getString(R.string.toast_copied_to_clipboard),
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_SHORT,
                         )
                     }
                 }.setNegativeButton(android.R.string.cancel, null)
@@ -74,8 +72,7 @@ class StartAdbViewHolder(
                             context.getString(R.string.home_adb_dialog_view_command_button_send),
                         )
                     context.startActivity(intent)
-                }
-                .showHouse()
+                }.showHouse()
         }
         binding.text1.movementMethod = LinkMovementMethod.getInstance()
         binding.text1.text =

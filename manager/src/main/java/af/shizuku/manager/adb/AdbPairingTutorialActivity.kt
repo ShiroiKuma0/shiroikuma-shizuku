@@ -3,6 +3,7 @@ import af.shizuku.core.ui.AppBarActivity
 import af.shizuku.manager.AppConstants
 import af.shizuku.manager.R
 import af.shizuku.manager.databinding.AdbPairingTutorialActivityBinding
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import af.shizuku.manager.utils.SettingsHelper
 import af.shizuku.manager.utils.SettingsPage
@@ -20,7 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import rikka.compatibility.DeviceCompatibility
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import timber.log.Timber
 
 @RequiresApi(Build.VERSION_CODES.R)
 class AdbPairingTutorialActivity : AppBarActivity() {
@@ -29,14 +30,18 @@ class AdbPairingTutorialActivity : AppBarActivity() {
     private var notificationEnabled: Boolean = false
 
     // Registered unconditionally (required before onStart); only invoked on API 33+.
-    private val notifPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-            // Permanently denied — guide user to settings
-            ShiroikumaToast.show(this, R.string.dialog_notif_permission_denied, Toast.LENGTH_LONG)
-            SettingsPage.Notifications.NotificationSettings.launch(this)
+    private val notifPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { granted ->
+            if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
+            ) {
+                // Permanently denied — guide user to settings
+                ShiroikumaToast.show(this, R.string.dialog_notif_permission_denied, Toast.LENGTH_LONG)
+                SettingsPage.Notifications.NotificationSettings.launch(this)
+            }
+            // onResume() re-checks enabled state and starts service if now granted
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {

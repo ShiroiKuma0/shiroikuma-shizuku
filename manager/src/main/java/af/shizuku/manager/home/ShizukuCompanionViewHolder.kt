@@ -4,6 +4,7 @@ import af.shizuku.manager.R
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeShizukuCompanionBinding
 import af.shizuku.manager.migration.MigrationHelper
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.utils.IconStyleHelper
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import af.shizuku.manager.utils.StockShizukuCompat
@@ -25,7 +26,6 @@ import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 import rikka.shizuku.Shizuku
 import timber.log.Timber
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ShizukuCompanionViewHolder(
     private val binding: HomeShizukuCompanionBinding,
@@ -114,7 +114,7 @@ class ShizukuCompanionViewHolder(
                         ShiroikumaToast.show(
                             v.context,
                             if (success) R.string.companion_disable_success else R.string.companion_disable_failure,
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_SHORT,
                         )
                         homeModel.reload()
                     }
@@ -273,9 +273,9 @@ class ShizukuCompanionViewHolder(
                             installOutput.contains("INSTALL_FAILED_NO_MATCHING_ABIS") ->
                                 ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail_abi, Toast.LENGTH_SHORT)
                             installOutput.contains("INSTALL_FAILED_USER_RESTRICTED") ||
-                            installOutput.contains("INSTALL_FAILED_VERIFICATION_FAILURE") ||
-                            installOutput.contains("INSTALL_FAILED_BLOCKED") ||
-                            installOutput.contains("INSTALL_FAILED_POLICY_ERROR") ->
+                                installOutput.contains("INSTALL_FAILED_VERIFICATION_FAILURE") ||
+                                installOutput.contains("INSTALL_FAILED_BLOCKED") ||
+                                installOutput.contains("INSTALL_FAILED_POLICY_ERROR") ->
                                 ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail_restricted, Toast.LENGTH_LONG)
                             else -> {
                                 val errorSnippet =
@@ -288,7 +288,7 @@ class ShizukuCompanionViewHolder(
                                     ShiroikumaToast.show(
                                         v.context,
                                         v.context.getString(R.string.compat_hub_install_fail_detail, errorSnippet),
-                                        Toast.LENGTH_LONG
+                                        Toast.LENGTH_LONG,
                                     )
                                 } else {
                                     ShiroikumaToast.show(v.context, R.string.compat_hub_install_fail, Toast.LENGTH_SHORT)

@@ -15,6 +15,8 @@ import af.shizuku.manager.home.AdbPairDialogFragment
 import af.shizuku.manager.home.StartWirelessAdbViewHolder
 import af.shizuku.manager.home.showAccessibilityDialog
 import af.shizuku.manager.ktx.themeColor
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.starter.Starter
 import af.shizuku.manager.starter.StarterActivity
 import af.shizuku.manager.utils.CustomTabsHelper
@@ -36,8 +38,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import rikka.core.util.ClipboardUtils
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class OnboardingActivity : AppActivity() {
     private lateinit var binding: ActivityOnboardingBinding
@@ -427,7 +427,6 @@ class OnboardingActivity : AppActivity() {
                 intent.putExtra(Intent.EXTRA_TEXT, Starter.adbCommand)
                 intent = Intent.createChooser(intent, getString(R.string.home_adb_dialog_view_command_button_send))
                 startActivity(intent)
-            }
-            .showHouse()
+            }.showHouse()
     }
 }

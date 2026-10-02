@@ -10,6 +10,8 @@ import af.shizuku.manager.databinding.ActivityRootCompatibilityBinding
 import af.shizuku.manager.databinding.AppListItemBinding
 import af.shizuku.manager.databinding.ListSectionHeaderBinding
 import af.shizuku.manager.shell.ShellTutorialActivity
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -44,11 +46,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
-import af.shizuku.manager.database.RootSupportLevel
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
-
-class RootCompatibilityActivity : AppBarActivity() {
+import timber.log.Timber
 
 class RootCompatibilityActivity : AppBarActivity() {
     companion object {
@@ -152,10 +150,11 @@ class RootCompatibilityActivity : AppBarActivity() {
         binding.btnSetupAll.setContent {
             af.shizuku.core.ui.compose.Button(
                 onClick = {
-                    val path = resolvedSuPath ?: run {
-                        ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT)
-                        return@Button
-                    }
+                    val path =
+                        resolvedSuPath ?: run {
+                            ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_no_export, Toast.LENGTH_SHORT)
+                            return@Button
+                        }
                     lifecycleScope.launch {
                         val count = RootCompatHelper.autoSetupAll(this@RootCompatibilityActivity, path)
                         if (!isFinishing && !isDestroyed) {
@@ -388,8 +387,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                     val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     cm.setPrimaryClip(ClipData.newPlainText("SU Bridge self-test", result.report))
                     ShiroikumaToast.show(this@RootCompatibilityActivity, R.string.su_bridge_self_test_copied, Toast.LENGTH_SHORT)
-                }
-                .showHouse()
+                }.showHouse()
         }
     }
 
@@ -647,13 +645,14 @@ class RootCompatibilityActivity : AppBarActivity() {
                     }
 
                     holder.itemView.setOnClickListener {
-                        val url = when (pkg) {
-                            "dev.ukanth.ufirewall" -> "https://f-droid.org/packages/dev.ukanth.ufirewall/"
-                            "com.machiav3lli.neo_backup" -> "https://f-droid.org/packages/com.machiav3lli.neo_backup/"
-                            "samolego.canta" -> "https://f-droid.org/packages/samolego.canta/"
-                            "com.aistra.hail" -> "https://f-droid.org/packages/com.aistra.hail/"
-                            else -> "https://play.google.com/store/apps/details?id=$pkg"
-                        }
+                        val url =
+                            when (pkg) {
+                                "dev.ukanth.ufirewall" -> "https://f-droid.org/packages/dev.ukanth.ufirewall/"
+                                "com.machiav3lli.neo_backup" -> "https://f-droid.org/packages/com.machiav3lli.neo_backup/"
+                                "samolego.canta" -> "https://f-droid.org/packages/samolego.canta/"
+                                "com.aistra.hail" -> "https://f-droid.org/packages/com.aistra.hail/"
+                                else -> "https://play.google.com/store/apps/details?id=$pkg"
+                            }
                         try {
                             startActivity(
                                 Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {

@@ -190,7 +190,8 @@ class RequestPermissionActivity : AppActivity() {
             // authorisation prompt third-party apps trigger was the one house dialog with no yellow
             // edge. Must run after show(), since MaterialAlertDialogBuilder installs its own window
             // background during show().
-            af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(dialog)
+            af.shizuku.manager.shiroikuma.ShiroikumaDialogs
+                .style(dialog)
         } catch (_: WindowManager.BadTokenException) {
             // Activity window detached by the time the coroutine resumed
             finish()
@@ -216,7 +217,8 @@ class RequestPermissionActivity : AppActivity() {
         }
         try {
             d.show()
-            af.shizuku.manager.shiroikuma.ShiroikumaDialogs.style(d)
+            af.shizuku.manager.shiroikuma.ShiroikumaDialogs
+                .style(d)
         } catch (e: Throwable) {
             LOGGER.w("Failed to show permission dialog (window may be detached)", e)
         }

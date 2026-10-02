@@ -6,6 +6,7 @@ import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.databinding.TerminalTutorialActivityBinding
 import af.shizuku.manager.ktx.toHtml
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.utils.CustomTabsHelper
 import android.net.Uri
 import android.os.Bundle
@@ -16,7 +17,8 @@ import androidx.core.view.isVisible
 import rikka.compatibility.DeviceCompatibility
 import rikka.html.text.HtmlCompat
 import rikka.insets.*
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import timber.log.Timber
+import kotlin.math.roundToInt
 
 class ShellTutorialActivity : AppBarActivity() {
     companion object {
@@ -105,15 +107,18 @@ class ShellTutorialActivity : AppBarActivity() {
             ShizukuSettings.setExportDirUri(tree.toString())
             updateCommandTexts()
 
-            val toastMsg = if (successCount == totalCount) {
-                getString(R.string.shell_export_success)
-            } else if (successCount == 0) {
-                getString(R.string.shell_export_failed)
-            } else {
-                getString(R.string.shell_export_partial, successCount, totalCount)
-            }
-            af.shizuku.manager.shiroikuma.ShiroikumaToast.show(this@ShellTutorialActivity, toastMsg,
-                if (successCount == totalCount) android.widget.Toast.LENGTH_SHORT else android.widget.Toast.LENGTH_LONG
+            val toastMsg =
+                if (successCount == totalCount) {
+                    getString(R.string.shell_export_success)
+                } else if (successCount == 0) {
+                    getString(R.string.shell_export_failed)
+                } else {
+                    getString(R.string.shell_export_partial, successCount, totalCount)
+                }
+            af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
+                this@ShellTutorialActivity,
+                toastMsg,
+                if (successCount == totalCount) android.widget.Toast.LENGTH_SHORT else android.widget.Toast.LENGTH_LONG,
             )
         }
 
@@ -182,7 +187,8 @@ class ShellTutorialActivity : AppBarActivity() {
                     openDocumentsTree.launch(null)
                 } catch (e: android.content.ActivityNotFoundException) {
                     Timber.tag(TAG).w("No file picker available on this device: ${e.message}")
-                    af.shizuku.manager.shiroikuma.ShiroikumaToast.show(this@ShellTutorialActivity, R.string.no_file_picker, android.widget.Toast.LENGTH_LONG)
+                    af.shizuku.manager.shiroikuma.ShiroikumaToast
+                        .show(this@ShellTutorialActivity, R.string.no_file_picker, android.widget.Toast.LENGTH_LONG)
                 }
             }
             button2.setOnClickListener { v: View -> CustomTabsHelper.launchUrlOrCopy(v.context, Helps.RISH.get()) }

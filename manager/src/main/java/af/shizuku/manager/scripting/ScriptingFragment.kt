@@ -5,6 +5,8 @@ import af.shizuku.manager.R
 import af.shizuku.manager.database.ScriptSnippetManager
 import af.shizuku.manager.database.ScriptSnippetRoom
 import af.shizuku.manager.databinding.ItemScriptSnippetBinding
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -31,13 +33,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import af.shizuku.core.ui.EmptyStateView
-import af.shizuku.manager.R
-import af.shizuku.manager.databinding.ItemScriptSnippetBinding
-import af.shizuku.manager.database.ScriptSnippetManager
-import af.shizuku.manager.database.ScriptSnippetRoom
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class ScriptingFragment : Fragment() {
     private val adapter =
@@ -148,8 +143,7 @@ class ScriptingFragment : Fragment() {
                     val cm = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     cm.setPrimaryClip(ClipData.newPlainText(snippet.title, output))
                     ShiroikumaToast.show(ctx, R.string.scripting_output_copied, Toast.LENGTH_SHORT)
-                }
-                .showHouse()
+                }.showHouse()
         }
     }
 
@@ -212,8 +206,7 @@ class ScriptingFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     ScriptSnippetManager.save(existing?.id, title, script, autoRunCheck.isChecked)
                 }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
             .showHouse()
     }
 
@@ -226,8 +219,7 @@ class ScriptingFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     ScriptSnippetManager.delete(snippet)
                 }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
             .showHouse()
     }
 

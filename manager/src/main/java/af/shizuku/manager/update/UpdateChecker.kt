@@ -2,7 +2,6 @@ package af.shizuku.manager.update
 
 import af.shizuku.manager.BuildConfig
 import android.util.Xml
-import timber.log.Timber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

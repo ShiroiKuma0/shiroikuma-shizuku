@@ -1,6 +1,7 @@
 package af.shizuku.manager.settings
 
 import af.shizuku.manager.R
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.HapticUtils
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -22,7 +23,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import af.shizuku.manager.shiroikuma.showHouse
 
 class AppPickerPreference(
     context: Context,
@@ -286,23 +286,24 @@ class AppPickerPreference(
                         persistString(result)
                         updateSummary(result)
                     }
-                }
-                .setNegativeButton(android.R.string.cancel, null)
+                }.setNegativeButton(android.R.string.cancel, null)
                 .showHouse()
         }
     }
 
     private fun updateSummary(value: String) {
         val packages = value.split(",").filter { it.isNotBlank() }
-        summary = if (packages.isEmpty()) {
-            emptySummary
-        } else {
-            val scope = CoroutineScope(Dispatchers.Main)
-            scope.launch {
-                val apps = getApps(context)
-                val selectedNames = packages.mapNotNull { pkg ->
-                    apps.find { it.packageName == pkg }?.label
-                }
+        summary =
+            if (packages.isEmpty()) {
+                emptySummary
+            } else {
+                val scope = CoroutineScope(Dispatchers.Main)
+                scope.launch {
+                    val apps = getApps(context)
+                    val selectedNames =
+                        packages.mapNotNull { pkg ->
+                            apps.find { it.packageName == pkg }?.label
+                        }
 
                     val limit = 3
                     val displayNames = selectedNames.take(limit).joinToString(", ")
@@ -315,14 +316,11 @@ class AppPickerPreference(
                             displayNames
                         }
                 }
-                // Temporary summary while loading names
+                // Temporary summary while loading names. The plural keeps upstream's shadow-binder name,
+                // but its wording ("%d apps selected") is feature-neutral and reads correctly on every
+                // picker — renaming it would touch two modules' strings for no visible change.
                 context.resources.getQuantityString(R.plurals.settings_shadow_binder_hidden_packages_count, packages.size, packages.size)
             }
-            // Temporary summary while loading names. The plural keeps upstream's shadow-binder name,
-            // but its wording ("%d apps selected") is feature-neutral and reads correctly on every
-            // picker — renaming it would touch two modules' strings for no visible change.
-            context.resources.getQuantityString(R.plurals.settings_shadow_binder_hidden_packages_count, packages.size, packages.size)
-        }
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {

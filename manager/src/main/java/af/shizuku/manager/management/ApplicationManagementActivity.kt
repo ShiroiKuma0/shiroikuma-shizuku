@@ -8,6 +8,7 @@ import af.shizuku.manager.database.ActivityLogManager
 import af.shizuku.manager.databinding.AppsActivityBinding
 import af.shizuku.manager.databinding.SwipeHintOverlayBinding
 import af.shizuku.manager.management.AppViewHolder.Callbacks
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.utils.HapticUtils
 import af.shizuku.manager.utils.ShizukuStateMachine
 import android.app.ActivityOptions
@@ -47,7 +48,6 @@ import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.fixEdgeEffect
 import timber.log.Timber
 import java.util.Objects
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 open class ApplicationManagementActivity :
     AppBarActivity(),
@@ -487,8 +487,11 @@ open class ApplicationManagementActivity :
         when (action) {
             "open_app" -> {
                 val intent = packageManager.getLaunchIntentForPackage(item.packageName)
-                if (intent != null) startActivity(intent, opts)
-                else ShiroikumaToast.show(this, R.string.app_management_no_launcher, Toast.LENGTH_SHORT)
+                if (intent != null) {
+                    startActivity(intent, opts)
+                } else {
+                    ShiroikumaToast.show(this, R.string.app_management_no_launcher, Toast.LENGTH_SHORT)
+                }
             }
             "app_info" ->
                 startActivity(
@@ -523,8 +526,11 @@ open class ApplicationManagementActivity :
                         }
                     } catch (_: SecurityException) {
                         withContext(Dispatchers.Main) {
-                            ShiroikumaToast.show(this@ApplicationManagementActivity,
-                                R.string.app_management_dialog_adb_is_limited_title, Toast.LENGTH_SHORT)
+                            ShiroikumaToast.show(
+                                this@ApplicationManagementActivity,
+                                R.string.app_management_dialog_adb_is_limited_title,
+                                Toast.LENGTH_SHORT,
+                            )
                         }
                     }
                 }
@@ -621,7 +627,8 @@ open class ApplicationManagementActivity :
         // it needs the house border or it is not merely flat but invisible. The layout carries a
         // static outline baseline; this applies the live colour/width/radius the UI page sets.
         // tintBackground = false: the root here IS the card, and painting it would defeat the fill.
-        af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.applyToTree(hint, tintBackground = false)
+        af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
+            .applyToTree(hint, tintBackground = false)
         (rootView as ViewGroup).addView(hint)
 
         hint.doOnLayout { v ->
@@ -689,7 +696,9 @@ open class ApplicationManagementActivity :
         // activity finished, the process died — comes back rather than being silently spent.
         hintBinding.hintButtonOk.setOnClickListener {
             getSharedPreferences("app_management_prefs", Context.MODE_PRIVATE)
-                .edit().putBoolean("swipe_hint_acknowledged", true).apply()
+                .edit()
+                .putBoolean("swipe_hint_acknowledged", true)
+                .apply()
             dismiss()
         }
     }

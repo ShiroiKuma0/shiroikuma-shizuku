@@ -3,6 +3,7 @@ import af.shizuku.manager.MainActivity
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.home.HomeActivity
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import android.annotation.TargetApi
 import android.app.*
 import android.content.Context
@@ -17,7 +18,6 @@ import kotlinx.coroutines.*
 import rikka.core.ktx.unsafeLazy
 import timber.log.Timber
 import java.net.ConnectException
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 @TargetApi(Build.VERSION_CODES.R)
 class AdbPairingService : Service() {

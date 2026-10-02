@@ -4,10 +4,10 @@ import af.shizuku.core.ui.AppActivity
 import af.shizuku.manager.R
 import af.shizuku.manager.automation.locale.LocalePluginContract.EXTRA_BUNDLE
 import af.shizuku.manager.automation.locale.LocalePluginContract.EXTRA_STRING_BLURB
+import af.shizuku.manager.shiroikuma.showHouse
 import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import af.shizuku.manager.shiroikuma.showHouse
 
 /**
  * com.twofortyfouram.locale.intent.action.EDIT_CONDITION handler. Only one condition exists
@@ -27,8 +27,7 @@ class LocaleConditionEditActivity : AppActivity() {
             }.setOnCancelListener {
                 setResult(RESULT_CANCELED)
                 finish()
-            }
-            .showHouse()
+            }.showHouse()
     }
 
     private fun finishWithResult() {

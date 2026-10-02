@@ -2,6 +2,8 @@ package af.shizuku.manager.adb
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.database.ActivityLogManager
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.starter.Starter
 import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.SettingsPage
@@ -15,7 +17,6 @@ import android.provider.Settings
 import android.view.ContextThemeWrapper
 import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -24,25 +25,6 @@ import timber.log.Timber
 import java.io.EOFException
 import java.net.SocketException
 import javax.net.ssl.SSLException
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.database.ActivityLogManager
-import af.shizuku.manager.adb.AdbClient
-import af.shizuku.manager.adb.AdbKey
-import af.shizuku.manager.adb.PreferenceAdbKeyStore
-import af.shizuku.manager.starter.Starter
-import af.shizuku.manager.utils.EnvironmentUtils
-import af.shizuku.manager.utils.ShizukuStateMachine
-import android.app.Activity
-import android.content.ContextWrapper
-import android.view.ContextThemeWrapper
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import af.shizuku.manager.utils.SettingsPage
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 object AdbStarter {
     private const val TAG = "AdbStarter"
@@ -56,7 +38,11 @@ object AdbStarter {
         return null
     }
 
-    suspend fun startAdb(context: Context, port: Int, log: ((String) -> Unit)? = null) {
+    suspend fun startAdb(
+        context: Context,
+        port: Int,
+        log: ((String) -> Unit)? = null,
+    ) {
         if (port !in 1..65535) {
             Timber.tag(TAG).w("startAdb called with invalid port $port — skipping")
             return
@@ -114,10 +100,14 @@ object AdbStarter {
                     Timber.tag(TAG).i("Connected to ADB at 127.0.0.1:%d; deploying starter command", activePort)
                     log?.invoke("Successfully connected on port $activePort...\n")
                     client.runCommand("shell:${Starter.internalCommand}")
-                    runCatching {
-                        client.runCommand("shell:cmd appops set ${context.packageName} ACCESS_RESTRICTED_SETTINGS allow")
-                        client.runCommand("shell:pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS")
-                    }.onFailure { Timber.tag(TAG).w(it, "Failed to auto-elevate privileges on ADB start") }
+                    // Fork: a silent self-grant on every start is gated behind Device Hardening
+                    // (default off), like DeviceOptimizer's — upstream (33f4e97b) runs it always.
+                    if (ShizukuSettings.isDeviceHardeningEnabled()) {
+                        runCatching {
+                            client.runCommand("shell:cmd appops set ${context.packageName} ACCESS_RESTRICTED_SETTINGS allow")
+                            client.runCommand("shell:pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS")
+                        }.onFailure { Timber.tag(TAG).w(it, "Failed to auto-elevate privileges on ADB start") }
+                    }
                     ShizukuSettings.setLastPort(activePort)
                     ActivityLogManager.log("Shizuku", context.packageName, "Service started via ADB on port $activePort")
                     ShizukuStateMachine.update()
@@ -135,8 +125,7 @@ object AdbStarter {
                             .setMessage(R.string.adb_error_ssl_message)
                             .setPositiveButton(R.string.adb_error_ssl_button_reset) { _, _ ->
                                 SettingsPage.Developer.Options.launch(activity)
-                            }
-                            .setNegativeButton(android.R.string.cancel, null)
+                            }.setNegativeButton(android.R.string.cancel, null)
                             .showHouse()
                     } else {
                         // Fallback for non-activity context
@@ -180,10 +169,11 @@ object AdbStarter {
                 // The stop failed, so STOPPING is over — resolve it rather than leaving it standing.
                 ShizukuStateMachine.settle()
                 withContext(Dispatchers.Main) {
-                    val errorMsg = when (it) {
-                        is AdbKeyException -> context.getString(R.string.adb_error_key_store)
-                        else -> it.message
-                    }
+                    val errorMsg =
+                        when (it) {
+                            is AdbKeyException -> context.getString(R.string.adb_error_key_store)
+                            else -> it.message
+                        }
                     ShiroikumaToast.show(context, context.getString(R.string.adb_error_stop_tcp) + ". ${errorMsg?.take(80)}", Toast.LENGTH_LONG)
                 }
             }

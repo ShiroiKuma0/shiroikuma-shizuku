@@ -22,16 +22,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.topjohnwu.superuser.Shell
-import af.shizuku.manager.R
-import af.shizuku.manager.AppConstants
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.ShizukuSettings.LaunchMethod
-import af.shizuku.manager.starter.Starter
-import af.shizuku.manager.utils.EnvironmentUtils
-import af.shizuku.manager.utils.SettingsPage
-import af.shizuku.manager.utils.ShizukuStateMachine
-import af.shizuku.common.util.UserHandleCompat
-import af.shizuku.manager.worker.AdbStartWorker
 import rikka.shizuku.Shizuku
 import timber.log.Timber
 
@@ -175,7 +165,7 @@ object ShizukuReceiverStarter {
 
     private fun rootStart(context: Context) {
         if (!Shell.getShell().isRoot) {
-            //NotificationHelper.notify(context, AppConstants.NOTIFICATION_ID_STATUS, AppConstants.NOTIFICATION_CHANNEL_STATUS, R.string.notification_service_start_no_root)
+            // NotificationHelper.notify(context, AppConstants.NOTIFICATION_ID_STATUS, AppConstants.NOTIFICATION_CHANNEL_STATUS, R.string.notification_service_start_no_root)
             Shell.getCachedShell()?.close()
             return
         }
@@ -216,9 +206,13 @@ object ShizukuReceiverStarter {
         }
 
         val webpageIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/wiki#shizuku-isnt-starting-on-boot-for-me"))
-        val pendingWebpageIntent = PendingIntent.getActivity(
-            context, 0, webpageIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        val pendingWebpageIntent =
+            PendingIntent.getActivity(
+                context,
+                0,
+                webpageIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
 
         val msg = context.getString(R.string.wadb_permission_error_notification_content)
 

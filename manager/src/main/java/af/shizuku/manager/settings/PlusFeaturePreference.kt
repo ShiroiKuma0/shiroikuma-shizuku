@@ -1,6 +1,7 @@
 package af.shizuku.manager.settings
 
 import af.shizuku.manager.R
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -15,10 +16,7 @@ import androidx.preference.PreferenceViewHolder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import af.shizuku.manager.R
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
-
-class PlusFeaturePreference(context: Context, attrs: AttributeSet) : GrayableIconSwitchPreference(context, attrs) {
+import com.google.android.material.materialswitch.MaterialSwitch
 
 class PlusFeaturePreference(
     context: Context,
@@ -206,7 +204,9 @@ class PlusFeaturePreference(
             context.startActivity(intent)
         } else {
             af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
-                context, R.string.app_management_no_launcher, android.widget.Toast.LENGTH_SHORT
+                context,
+                R.string.app_management_no_launcher,
+                android.widget.Toast.LENGTH_SHORT,
             )
         }
     }
@@ -269,22 +269,30 @@ class PlusFeaturePreference(
             container.addView(titleTextView)
 
             // Detail Card (container for content)
-            val cardView = com.google.android.material.card.MaterialCardView(context).apply {
-                radius = (16 * context.resources.displayMetrics.density)
-                // strokeWidth was 0 over a colorSurfaceVariant fill. In this theme every surface role
-                // is the same pure black as the page, so that card had no edge at all — not flat, but
-                // genuinely invisible. Ordinary content inside a panel, so the MINOR border tier.
-                val p = af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs
-                strokeWidth = (p.getInt(context, p.KEY_CARD_BORDER).coerceAtLeast(1) *
-                    context.resources.displayMetrics.density).toInt()
-                strokeColor = p.getInt(context, p.KEY_COLOR_BORDER_MINOR)
-                cardElevation = 0f
-                setCardBackgroundColor(resolveColor(com.google.android.material.R.attr.colorSurfaceVariant, 0xFFF5F5F5.toInt()))
-                val params = android.widget.LinearLayout.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    bottomMargin = (20 * context.resources.displayMetrics.density).toInt()
+            val cardView =
+                com.google.android.material.card.MaterialCardView(context).apply {
+                    radius = (16 * context.resources.displayMetrics.density)
+                    // strokeWidth was 0 over a colorSurfaceVariant fill. In this theme every surface role
+                    // is the same pure black as the page, so that card had no edge at all — not flat, but
+                    // genuinely invisible. Ordinary content inside a panel, so the MINOR border tier.
+                    val p = af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs
+                    strokeWidth =
+                        (
+                            p.getInt(context, p.KEY_CARD_BORDER).coerceAtLeast(1) *
+                                context.resources.displayMetrics.density
+                        ).toInt()
+                    strokeColor = p.getInt(context, p.KEY_COLOR_BORDER_MINOR)
+                    cardElevation = 0f
+                    setCardBackgroundColor(resolveColor(com.google.android.material.R.attr.colorSurfaceVariant, 0xFFF5F5F5.toInt()))
+                    val params =
+                        android.widget.LinearLayout
+                            .LayoutParams(
+                                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ).apply {
+                                bottomMargin = (20 * context.resources.displayMetrics.density).toInt()
+                            }
+                    layoutParams = params
                 }
 
             val detailTextView =
@@ -390,7 +398,8 @@ class PlusFeaturePreference(
             dialog.show()
             // A sheet cannot take the house dialog treatment: it does not draw from the window
             // background. styleSheet borders the sheet container itself, top corners only.
-            af.shizuku.manager.shiroikuma.ShiroikumaDialogs.styleSheet(dialog)
+            af.shizuku.manager.shiroikuma.ShiroikumaDialogs
+                .styleSheet(dialog)
         }
     }
 }

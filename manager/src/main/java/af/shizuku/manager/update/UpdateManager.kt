@@ -102,7 +102,7 @@ class UpdateManager(
                     .setMimeType("application/vnd.android.package-archive")
 
             // Add after-download broadcast
-            request.addRequestHeader("User-Agent", "白い熊 雫/${versionName}")
+            request.addRequestHeader("User-Agent", "白い熊 雫/$versionName")
 
             try {
                 downloadId = downloadManager.enqueue(request)

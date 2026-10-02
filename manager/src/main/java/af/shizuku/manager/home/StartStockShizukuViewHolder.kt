@@ -4,6 +4,8 @@ import af.shizuku.manager.R
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeStartRootBinding
 import af.shizuku.manager.ktx.themeColor
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -16,8 +18,6 @@ import kotlinx.coroutines.withContext
 import rikka.core.content.asActivity
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class StartStockShizukuViewHolder(
     private val binding: HomeStartRootBinding,

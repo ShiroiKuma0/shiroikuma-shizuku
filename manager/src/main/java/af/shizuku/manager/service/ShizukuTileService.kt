@@ -4,6 +4,8 @@ import af.shizuku.manager.MainActivity
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.adb.AdbPortProber
+import af.shizuku.manager.shiroikuma.ShiroikumaDialogs
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.starter.Starter
 import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.ShizukuStateMachine
@@ -22,10 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.work.WorkManager
-import af.shizuku.manager.shiroikuma.ShiroikumaDialogs
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
-import com.topjohnwu.superuser.Shell
 
 class ShizukuTileService : TileService() {
     private val stateListener: (ShizukuStateMachine.State) -> Unit = { updateTile() }
@@ -106,8 +104,11 @@ class ShizukuTileService : TileService() {
                 // A successful starter only means the command ran; the binder lands a moment later,
                 // so keep STARTING and let the sticky binder listener promote it. A failed one has
                 // no binder coming — settle it now instead of leaving the tile stuck mid-transition.
-                if (it.isSuccess) ShizukuStateMachine.update()
-                else ShizukuStateMachine.settle()
+                if (it.isSuccess) {
+                    ShizukuStateMachine.update()
+                } else {
+                    ShizukuStateMachine.settle()
+                }
                 updateTile()
             }
         } else {
@@ -204,9 +205,7 @@ class ShizukuTileService : TileService() {
                             startActivityAndCollapse(pi)
                         }
                     }
-                }
-            }
-            .create()
+                }.create()
         // Raised straight from the tile, so the DialogFragment hook in
         // ShiroikumaDialogs.installGlobalStyling never sees it: style it here or it comes up as a
         // black fill with no border, which in this theme is an invisible dialog rather than a

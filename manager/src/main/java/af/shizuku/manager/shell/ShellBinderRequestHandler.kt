@@ -63,7 +63,8 @@ object ShellBinderRequestHandler {
         // set up to run prompt-free — the terminal's own directory cannot be inspected without
         // root. The home screen's rish card reads this; nothing else records it.
         if (delivered && requireAuth) {
-            af.shizuku.manager.shiroikuma.RishSetup.recordTokenAuth(ShizukuSettings.getAuthToken())
+            af.shizuku.manager.shiroikuma.RishSetup
+                .recordTokenAuth(ShizukuSettings.getAuthToken())
         }
         return delivered
     }

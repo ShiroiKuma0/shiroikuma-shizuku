@@ -117,8 +117,10 @@ fun ServerMetricsScreen() {
             shape = RoundedCornerShape(24.dp),
             // FORK: the card fill is the same pure black as the page — without a border it is
             // invisible. Minor tier (grey): a metric tile, not a section heading.
-            border = af.shizuku.manager.shiroikuma.minorBorder(),
-            modifier = Modifier.fillMaxWidth()
+            border =
+                af.shizuku.manager.shiroikuma
+                    .minorBorder(),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(stringResource(R.string.server_memory_usage), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -146,8 +148,10 @@ fun MetricCard(
     Card(
         shape = RoundedCornerShape(24.dp),
         // FORK: see the memory card above — black on black without this.
-        border = af.shizuku.manager.shiroikuma.minorBorder(),
-        modifier = Modifier.fillMaxWidth()
+        border =
+            af.shizuku.manager.shiroikuma
+                .minorBorder(),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

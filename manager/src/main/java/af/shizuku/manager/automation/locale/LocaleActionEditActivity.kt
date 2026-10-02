@@ -7,10 +7,10 @@ import af.shizuku.manager.automation.locale.LocalePluginContract.ACTION_STOP
 import af.shizuku.manager.automation.locale.LocalePluginContract.BUNDLE_KEY_ACTION
 import af.shizuku.manager.automation.locale.LocalePluginContract.EXTRA_BUNDLE
 import af.shizuku.manager.automation.locale.LocalePluginContract.EXTRA_STRING_BLURB
+import af.shizuku.manager.shiroikuma.showHouse
 import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import af.shizuku.manager.shiroikuma.showHouse
 
 /**
  * com.twofortyfouram.locale.intent.action.EDIT_SETTING handler: lets Tasker/Locale-compatible
@@ -35,8 +35,7 @@ class LocaleActionEditActivity : AppActivity() {
             .setOnCancelListener {
                 setResult(RESULT_CANCELED)
                 finish()
-            }
-            .showHouse()
+            }.showHouse()
     }
 
     private fun finishWithResult(action: String) {

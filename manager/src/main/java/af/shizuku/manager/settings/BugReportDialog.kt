@@ -1,6 +1,5 @@
 package af.shizuku.manager.settings
 
-import af.shizuku.manager.BuildConfig
 import af.shizuku.manager.R
 import af.shizuku.manager.databinding.BugReportDialogBinding
 import af.shizuku.manager.ktx.applyTemplateArgs
@@ -9,14 +8,9 @@ import af.shizuku.manager.utils.CustomTabsHelper
 import af.shizuku.manager.worker.AdbStartWorker
 import android.app.Dialog
 import android.app.NotificationManager
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -27,16 +21,19 @@ class BugReportDialog : DialogFragment() {
         val context = requireContext()
         binding = BugReportDialogBinding.inflate(layoutInflater)
 
-        val updateLink = getString(R.string.bug_report_dialog_link_update)
-            .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest")
+        val updateLink =
+            getString(R.string.bug_report_dialog_link_update)
+                .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases/latest")
 
         // Fork: upstream had "/releases/wiki" and "/releases/issues" here — both 404. Corrected
         // to the real paths while repointing them at our fork.
-        val wikiLink = getString(R.string.bug_report_dialog_link_wiki)
-            .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/wiki#troubleshooting")
+        val wikiLink =
+            getString(R.string.bug_report_dialog_link_wiki)
+                .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/wiki#troubleshooting")
 
-        val issuesLink = getString(R.string.bug_report_dialog_link_issues)
-            .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues")
+        val issuesLink =
+            getString(R.string.bug_report_dialog_link_issues)
+                .asLink("https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues")
 
         binding.apply {
             updateText.applyTemplateArgs(updateLink)

@@ -205,9 +205,10 @@ class WatchdogService : Service() {
             nm.createNotificationChannel(channel)
         }
 
-        val learnMoreIntent = Intent(Intent.ACTION_VIEW).apply {
-            setData(Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/wiki#shizuku-keeps-stopping-randomly"))
-        }
+        val learnMoreIntent =
+            Intent(Intent.ACTION_VIEW).apply {
+                setData(Uri.parse("https://github.com/ShiroiKuma0/shiroikuma-shizuku/wiki#shizuku-keeps-stopping-randomly"))
+            }
         val learnMorePendingIntent = PendingIntent.getActivity(this, 10, learnMoreIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         val disableIntent = SettingsPage.Notifications.NotificationChannel.buildIntent(applicationContext)

@@ -1,16 +1,15 @@
 package af.shizuku.manager.utils
 
 import af.shizuku.manager.R
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
-import af.shizuku.manager.R
-import af.shizuku.manager.utils.SettingsPage
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import androidx.activity.result.ActivityResultLauncher
 
 object SettingsHelper {
     fun launchOrHighlightWirelessDebugging(context: Context) {
@@ -90,9 +89,9 @@ object SettingsHelper {
             .setPositiveButton(R.string.home_adb_dialog_view_command_copy_button) { _, _ ->
                 val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                 cm.setPrimaryClip(android.content.ClipData.newPlainText("adb command", command))
-                af.shizuku.manager.shiroikuma.ShiroikumaToast.show(context, R.string.toast_copied_to_clipboard, android.widget.Toast.LENGTH_SHORT)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+                af.shizuku.manager.shiroikuma.ShiroikumaToast
+                    .show(context, R.string.toast_copied_to_clipboard, android.widget.Toast.LENGTH_SHORT)
+            }.setNegativeButton(android.R.string.cancel, null)
             .showHouse()
     }
 
