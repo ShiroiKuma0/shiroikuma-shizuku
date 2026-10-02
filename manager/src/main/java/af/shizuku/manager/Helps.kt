@@ -39,9 +39,10 @@ object Helps {
     // "Supported-apps" doesn't exist as its own page either — Knowledgebase is the closest
     // real landing page until a dedicated compatibility list is written.
 
-    val HOME = MultiLocaleEntity().apply {
-        put("en", "https://github.com/ShiroiKuma0/shiroikuma-shizuku/blob/custom/README.md")
-    }
+    val HOME =
+        MultiLocaleEntity().apply {
+            put("en", "https://github.com/ShiroiKuma0/shiroikuma-shizuku/blob/custom/README.md")
+        }
 
     val ADB_PERMISSION =
         MultiLocaleEntity().apply {
@@ -50,16 +51,13 @@ object Helps {
             put("en", "https://github.com/thejaustin/ShizukuPlus/wiki/Service-Connection#error-reference")
         }
 
-    val SUI = MultiLocaleEntity().apply {
-        put("en", "https://github.com/RikkaApps/Sui")
-    }
-
-    val RISH = MultiLocaleEntity().apply {
-        put("en", "https://github.com/ShiroiKuma0/shiroikuma-shizuku/blob/custom/README.md#build")
-    }
+    val SUI =
+        MultiLocaleEntity().apply {
+            put("en", "https://github.com/RikkaApps/Sui")
+        }
 
     val RISH =
         MultiLocaleEntity().apply {
-            put("en", "https://github.com/thejaustin/ShizukuPlus-API/tree/master/rish")
+            put("en", "https://github.com/ShiroiKuma0/shiroikuma-shizuku/blob/custom/README.md#build")
         }
 }

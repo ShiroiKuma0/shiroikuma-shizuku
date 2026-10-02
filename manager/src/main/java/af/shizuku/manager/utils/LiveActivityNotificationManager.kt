@@ -17,14 +17,15 @@ object LiveActivityNotificationManager {
     private fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "白い熊 雫 Live Status",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Shows live 白い熊 雫 activity"
-                setShowBadge(false)
-            }
+            val channel =
+                NotificationChannel(
+                    CHANNEL_ID,
+                    "白い熊 雫 Live Status",
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    description = "Shows live 白い熊 雫 activity"
+                    setShowBadge(false)
+                }
             manager.createNotificationChannel(channel)
         }
     }

@@ -3,6 +3,7 @@ package af.shizuku.manager.home
 import af.shizuku.manager.R
 import af.shizuku.manager.adb.AdbPairingAccessibilityService
 import af.shizuku.manager.utils.EnvironmentUtils
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.SettingsPage
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.content.Context
@@ -16,10 +17,6 @@ import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.TypefaceSpan
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import af.shizuku.manager.R
-import af.shizuku.manager.adb.AdbPairingAccessibilityService
-import af.shizuku.manager.utils.SettingsPage
-import af.shizuku.manager.shiroikuma.showHouse
 
 fun Context.showAccessibilityDialog() {
     if (isAccessibilityEnabled()) {

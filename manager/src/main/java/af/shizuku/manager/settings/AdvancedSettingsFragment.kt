@@ -3,8 +3,9 @@ import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.ShizukuSettings.Keys.*
 import af.shizuku.manager.activitylog.ActivityLogActivity
-import af.shizuku.manager.database.AppContextManager
 import af.shizuku.manager.ktx.setComponentEnabled
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.CustomTabsHelper
 import af.shizuku.manager.utils.EnvironmentUtils
 import android.content.ClipData
@@ -13,13 +14,10 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import timber.log.Timber
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
-import android.content.ClipData
-import android.content.ClipboardManager
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import timber.log.Timber
 
 class AdvancedSettingsFragment : BaseSettingsFragment() {
     override fun getTitle(): CharSequence? = getString(R.string.settings_main_nav_advanced_diagnostics_title)
@@ -94,8 +92,7 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                         Timber.tag("AdvancedSettings").e(e, "Failed to reset ADB keys")
                         ShiroikumaToast.show(context, R.string.settings_reset_adb_keys_error, Toast.LENGTH_LONG)
                     }
-                }
-                .setNegativeButton(android.R.string.cancel, null)
+                }.setNegativeButton(android.R.string.cancel, null)
                 .showHouse()
             true
         }
@@ -152,8 +149,7 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                             (pref as? TwoStatePreference)?.isChecked = true
                         }.setNegativeButton(android.R.string.cancel) { _, _ ->
                             (pref as? TwoStatePreference)?.isChecked = false
-                        }
-                        .showHouse()
+                        }.showHouse()
                     false
                 } else {
                     context.packageManager.setComponentEnabled(launcherAlias, true)

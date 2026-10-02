@@ -7,6 +7,7 @@ import af.shizuku.manager.adb.AdbKeyException
 import af.shizuku.manager.adb.AdbStarter
 import af.shizuku.manager.database.ActivityLogManager
 import af.shizuku.manager.databinding.StarterActivityBinding
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.HapticUtils
 import af.shizuku.manager.utils.ShizukuStateMachine
 import android.app.Application
@@ -21,7 +22,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.topjohnwu.superuser.CallbackList
 import com.topjohnwu.superuser.Shell
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +29,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import rikka.lifecycle.Resource
 import rikka.lifecycle.Status
-import af.shizuku.manager.shiroikuma.showHouse
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.util.concurrent.TimeoutException
+import javax.net.ssl.SSLProtocolException
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 private class NotRootedException : Exception()
 
@@ -93,8 +98,7 @@ class StarterActivity : AppBarActivity() {
                         binding.progressIndicator.visibility = View.VISIBLE
                         binding.cancelButton.visibility = View.VISIBLE
                         viewModel.retry()
-                    }
-                    .showHouse()
+                    }.showHouse()
             }
             binding.text1.text = output
             binding.scrollView.post { binding.scrollView.scrollTo(0, Int.MAX_VALUE) }
@@ -134,12 +138,13 @@ class ViewModel(
 
     val output = _output as LiveData<Resource<StringBuilder>>
 
-    private val handler = CoroutineExceptionHandler { _, throwable ->
-        // The start is over and it failed — settle, not update: update() preserves STARTING, which
-        // would leave the home card's start button disabled behind this screen's error dialog.
-        ShizukuStateMachine.settle()
-        log(error = throwable)
-    }
+    private val handler =
+        CoroutineExceptionHandler { _, throwable ->
+            // The start is over and it failed — settle, not update: update() preserves STARTING, which
+            // would leave the home card's start button disabled behind this screen's error dialog.
+            ShizukuStateMachine.settle()
+            log(error = throwable)
+        }
 
     private var started = false
     private var lastRoot = false

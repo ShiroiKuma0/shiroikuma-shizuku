@@ -1,8 +1,5 @@
 package af.shizuku.manager.worker
 
-import af.shizuku.manager.BuildConfig
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.database.AppContextManager
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
@@ -25,8 +22,10 @@ import timber.log.Timber
  *
  * This app sends nothing anywhere. See CLAUDE.md, "No phone-home".
  */
-class RemoteDbSyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
-
+class RemoteDbSyncWorker(
+    context: Context,
+    params: WorkerParameters,
+) : CoroutineWorker(context, params) {
     companion object {
         private const val WORK_NAME = "remote_app_db_sync"
 

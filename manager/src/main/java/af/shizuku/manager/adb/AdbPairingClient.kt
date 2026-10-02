@@ -1,11 +1,9 @@
 package af.shizuku.manager.adb
 
+import af.shizuku.manager.ShizukuSettings
 import android.os.Build
 import androidx.annotation.RequiresApi
-import af.shizuku.manager.ShizukuSettings
 import com.android.org.conscrypt.Conscrypt
-import io.sentry.Breadcrumb
-import io.sentry.Sentry
 import timber.log.Timber
 import java.io.Closeable
 import java.io.DataInputStream
@@ -14,7 +12,6 @@ import java.net.Socket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.net.ssl.SSLSocket
-
 
 private const val TAG = "AdbPairClient"
 

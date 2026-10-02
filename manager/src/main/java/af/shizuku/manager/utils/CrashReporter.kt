@@ -110,8 +110,8 @@ object CrashReporter {
         val report = generateReport(context)
         val title = "Manual Crash Report: ${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
         return "https://github.com/ShiroiKuma0/shiroikuma-shizuku/issues/new" +
-               "?title=" + Uri.encode(title) +
-               "&body=" + Uri.encode(report)
+            "?title=" + Uri.encode(title) +
+            "&body=" + Uri.encode(report)
     }
 
     /**

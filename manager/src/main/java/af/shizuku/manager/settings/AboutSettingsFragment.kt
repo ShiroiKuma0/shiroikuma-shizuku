@@ -6,8 +6,23 @@ import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.home.ChangelogDialogFragment
 import af.shizuku.manager.update.UpdateChecker
 import af.shizuku.manager.update.UpdateManager
-import af.shizuku.manager.utils.CustomTabsHelper
+import af.shizuku.manager.shiroikuma.ShiroikumaChangelog
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.utils.CustomTabsHelper
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.TwoStatePreference
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
+import timber.log.Timber
 
 class AboutSettingsFragment : BaseSettingsFragment() {
     companion object {
@@ -16,7 +31,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
         private const val KEY_AUTO_INSTALL = "auto_install_enabled"
         private const val KEY_UPDATE_CHANNEL = "update_channel"
         private const val KEY_CHECK_FOR_UPDATE = "check_for_update"
-        private const val RELEASES_URL = "https://github.com/thejaustin/ShizukuPlus/releases"
+        private const val RELEASES_URL = "https://github.com/ShiroiKuma0/shiroikuma-shizuku/releases"
     }
 
     private val updateManager: UpdateManager by inject()
@@ -62,20 +77,24 @@ class AboutSettingsFragment : BaseSettingsFragment() {
         setupChannelPreference()
         updateLastCheckSummary()
 
+        // Fork: the bundled changelog, not upstream's GitHub release list — it is generated into
+        // assets at build time (see ShiroikumaChangelog), covers every build including unpublished
+        // ones, and costs no network request.
         findPreference<Preference>("changelog")?.setOnPreferenceClickListener {
             val activity = activity as? androidx.fragment.app.FragmentActivity ?: return@setOnPreferenceClickListener true
             activity.lifecycleScope.launch {
-                val currentTag = BuildConfig.VERSION_NAME.removePrefix("Shizuku+ ").trim()
-                val releases =
-                    try {
-                        UpdateChecker.fetchReleasesSince(sinceVersionCode = 0, maxReleases = 25)
-                    } catch (e: Exception) {
-                        Timber.w(e, "Failed to fetch releases for in-app changelog")
-                        emptyList()
+                val notes =
+                    withContext(Dispatchers.IO) {
+                        try {
+                            ShiroikumaChangelog.full(activity)
+                        } catch (e: Exception) {
+                            Timber.w(e, "Failed to read bundled changelog")
+                            null
+                        }
                     }
                 if (isAdded && !isDetached) {
                     ChangelogDialogFragment
-                        .newInstance(releases, currentTag)
+                        .newInstance(notes, BuildConfig.VERSION_NAME)
                         .show(activity.supportFragmentManager, ChangelogDialogFragment.TAG)
                 }
             }
@@ -242,23 +261,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
             MaterialAlertDialogBuilder(context)
                 .setTitle(getString(R.string.update_available_title) + devBadge)
                 .setNegativeButton(R.string.update_later, null)
-                .setNeutralButton(R.string.update_release_notes) { _, _ ->
-                    val activity = activity as? androidx.fragment.app.FragmentActivity ?: return@setNeutralButton
-                    activity.lifecycleScope.launch {
-                        val releases =
-                            try {
-                                UpdateChecker.fetchReleasesSince(sinceVersionCode = 0, maxReleases = 25)
-                            } catch (e: Exception) {
-                                Timber.w(e, "Failed to fetch releases for in-app changelog")
-                                emptyList()
-                            }
-                        if (isAdded && !isDetached) {
-                            ChangelogDialogFragment
-                                .newInstance(releases, info.versionName)
-                                .show(activity.supportFragmentManager, ChangelogDialogFragment.TAG)
-                        }
-                    }
-                }
+                .setNeutralButton(R.string.update_release_notes) { _, _ -> openReleasesPage() }
 
         if (info.requiresManualDownload) {
             builder

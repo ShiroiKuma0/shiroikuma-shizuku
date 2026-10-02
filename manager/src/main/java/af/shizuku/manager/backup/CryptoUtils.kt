@@ -133,8 +133,9 @@ object CryptoUtils {
  * on this device (typically after uninstall/reinstall or clearing app data). Distinct from
  * AEADBadTagException so the UI can explain the real cause rather than showing a raw crypto error.
  */
-class BackupKeyUnavailableException : java.security.GeneralSecurityException(
-    "The encryption key for this backup no longer exists on this device. Settings backups are " +
-        "encrypted with a hardware-backed key that is destroyed when 白い熊 雫 is uninstalled or its " +
-        "data is cleared, so a backup can only be restored by the installation that created it."
-)
+class BackupKeyUnavailableException :
+    java.security.GeneralSecurityException(
+        "The encryption key for this backup no longer exists on this device. Settings backups are " +
+            "encrypted with a hardware-backed key that is destroyed when 白い熊 雫 is uninstalled or its " +
+            "data is cleared, so a backup can only be restored by the installation that created it.",
+    )

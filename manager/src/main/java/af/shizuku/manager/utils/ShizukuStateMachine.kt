@@ -7,15 +7,17 @@ import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.content.pm.PackageManager
 import android.os.SystemClock
 import android.provider.Settings
-import timber.log.Timber
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
+import timber.log.Timber
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 
 object ShizukuStateMachine {
     enum class State { STARTING, RUNNING, STOPPING, STOPPED, CRASHED }
@@ -73,7 +75,7 @@ object ShizukuStateMachine {
                 val ourStart = get() == State.STARTING
                 set(State.RUNNING)
                 if (ourStart) recordServerStarted()
-            }
+            },
         )
         Shizuku.addBinderDeadListener(
             Shizuku.OnBinderDeadListener {
@@ -91,16 +93,18 @@ object ShizukuStateMachine {
         var computed: State? = null
         val oldState = state.getAndUpdate { current -> transform(current).also { computed = it } }
         val newState = computed ?: error("getAndUpdate lambda must always execute synchronously")
-        if(oldState != newState) {
+        if (oldState != newState) {
             // Only on a real transition — see [transientSince].
             transientSince.set(
-                if (newState == State.STARTING || newState == State.STOPPING)
-                    SystemClock.elapsedRealtime() else 0L
+                if (newState == State.STARTING || newState == State.STOPPING) {
+                    SystemClock.elapsedRealtime()
+                } else {
+                    0L
+                },
             )
 
             listeners.forEach { it(newState) }
             Timber.tag("ShizukuStateMachine").d(newState.toString())
-
 
             if (newState == State.RUNNING || newState == State.STOPPED || newState == State.CRASHED) {
                 try {
@@ -118,10 +122,13 @@ object ShizukuStateMachine {
                     try {
                         val context = ShizukuApplication.appContext
                         CoroutineScope(Dispatchers.IO).launch {
+                            // Fork: upstream (33f4e97b) moved the self-grant outside this check, so it
+                            // ran on every RUNNING transition regardless of the switch. Device Hardening
+                            // (default off) gates every silent start-up self-elevation here.
                             if (ShizukuSettings.isDeviceHardeningEnabled()) {
                                 DeviceOptimizer.applyFixes(context)
+                                SettingsHelper.autoGrantPrivileges(context)
                             }
-                            SettingsHelper.autoGrantPrivileges(context)
                         }
                     } catch (e: Exception) {
                         Timber.tag("ShizukuStateMachine").w(e, "Failed to apply optimizations and privileges on RUNNING")
@@ -222,27 +229,29 @@ object ShizukuStateMachine {
     fun settle(): State = evaluate(keepTransient = false)
 
     private fun evaluate(keepTransient: Boolean): State {
-        val isAlive = try {
-            Shizuku.pingBinder()
-        } catch (_: Exception) {
-            false
-        }
+        val isAlive =
+            try {
+                Shizuku.pingBinder()
+            } catch (_: Exception) {
+                false
+            }
 
         val currentState = get()
-        val state = when {
-            isAlive -> State.RUNNING
-            keepTransient && currentState == State.STARTING && isTransientFresh() -> State.STARTING
-            keepTransient && currentState == State.STOPPING && isTransientFresh() -> State.STOPPING
-            currentState == State.CRASHED -> State.CRASHED
-            // Was RUNNING (or, thanks to loadPersistedSettledState(), a freshly cold-started
-            // process that persisted RUNNING before it died) and the binder isn't answering: that's
-            // a crash, not a stop. Previously fell into the `else -> STOPPED` branch below, which
-            // WatchdogService's flow collector (only listens for CRASHED) silently ignores - the
-            // watchdog's external re-arm (#417) never restarted anything because every unexpected
-            // death got misreported as an intentional stop.
-            currentState == State.RUNNING -> State.CRASHED
-            else -> State.STOPPED
-        }
+        val state =
+            when {
+                isAlive -> State.RUNNING
+                keepTransient && currentState == State.STARTING && isTransientFresh() -> State.STARTING
+                keepTransient && currentState == State.STOPPING && isTransientFresh() -> State.STOPPING
+                currentState == State.CRASHED -> State.CRASHED
+                // Was RUNNING (or, thanks to loadPersistedSettledState(), a freshly cold-started
+                // process that persisted RUNNING before it died) and the binder isn't answering: that's
+                // a crash, not a stop. Previously fell into the `else -> STOPPED` branch below, which
+                // WatchdogService's flow collector (only listens for CRASHED) silently ignores - the
+                // watchdog's external re-arm (#417) never restarted anything because every unexpected
+                // death got misreported as an intentional stop.
+                currentState == State.RUNNING -> State.CRASHED
+                else -> State.STOPPED
+            }
         set(state)
         return state
     }
@@ -256,9 +265,7 @@ object ShizukuStateMachine {
         return SystemClock.elapsedRealtime() - since < timeout
     }
 
-    fun isRunning(): Boolean {
-        return get() == State.RUNNING
-    }
+    fun isRunning(): Boolean = get() == State.RUNNING
 
     /**
      * True when the running privileged server was started by an app build older than the one now
@@ -318,9 +325,7 @@ object ShizukuStateMachine {
     fun shouldPromptServerRestart(): Boolean =
         needsServerRestart() && ShizukuSettings.getSkewPromptedVersion() != BuildConfig.VERSION_CODE
 
-    fun isDead(): Boolean {
-        return (get() == State.STOPPED || get() == State.CRASHED)
-    }
+    fun isDead(): Boolean = (get() == State.STOPPED || get() == State.CRASHED)
 
     fun addListener(listener: (State) -> Unit) {
         listeners.add(listener)

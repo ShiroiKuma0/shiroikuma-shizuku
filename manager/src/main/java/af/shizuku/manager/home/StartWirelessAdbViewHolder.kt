@@ -10,6 +10,7 @@ import af.shizuku.manager.databinding.HomeStartWirelessAdbBinding
 import af.shizuku.manager.ktx.startWithSceneTransition
 import af.shizuku.manager.ktx.toHtml
 import af.shizuku.manager.receiver.NotifCancelReceiver
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.starter.StarterActivity
 import af.shizuku.manager.utils.CustomTabsHelper
 import af.shizuku.manager.utils.EnvironmentUtils
@@ -38,9 +39,6 @@ import rikka.core.content.asActivity
 import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
-import com.airbnb.mvrx.withState
-import af.shizuku.manager.utils.MotionUtils.applySpringTouch
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class StartWirelessAdbViewHolder(
     private val binding: HomeStartWirelessAdbBinding,

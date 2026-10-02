@@ -2,6 +2,8 @@ package af.shizuku.manager.settings
 
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import android.os.Bundle
 import android.text.InputType
 import android.widget.EditText
@@ -10,10 +12,6 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import af.shizuku.manager.R
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AppManagementSettingsFragment : BaseSettingsFragment() {
     companion object {

@@ -3,14 +3,15 @@ package af.shizuku.manager.settings
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.ShizukuSettings.Keys.*
+import af.shizuku.manager.admin.DhizukuAdminReceiver
 import af.shizuku.manager.automation.AutomationService
 import af.shizuku.manager.backup.BackupKeyUnavailableException
 import af.shizuku.manager.backup.BackupRestoreManager
 import af.shizuku.manager.backup.CryptoUtils
 import af.shizuku.manager.security.BiometricLock
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import android.app.admin.DevicePolicyManager
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
@@ -30,28 +31,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rikka.html.text.toHtml
-import af.shizuku.manager.R
-import timber.log.Timber
-import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.automation.AutomationService
-import af.shizuku.manager.admin.DhizukuAdminReceiver
-import af.shizuku.manager.security.BiometricLock
-import androidx.biometric.BiometricPrompt
-import af.shizuku.manager.ShizukuSettings.Keys.*
 import rikka.shizuku.Shizuku
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import javax.crypto.AEADBadTagException
 
 class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
-
     /** The Device Owner Tools rows — see [updateDeviceOwnerToolsAvailability]. */
-    private val deviceOwnerToolKeys = listOf(
-        "dhizuku_disable_screencap",
-        "dhizuku_disallow_usb",
-        "dhizuku_suspended_packages",
-    )
+    private val deviceOwnerToolKeys =
+        listOf(
+            "dhizuku_disable_screencap",
+            "dhizuku_disallow_usb",
+            "dhizuku_suspended_packages",
+        )
 
     /**
      * The subset whose summary we may rewrite: the two switches, whose summary is the static XML
@@ -85,35 +77,29 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
     // KeyPermanentlyInvalidatedException needs a message explaining it's unrecoverable rather
     // than a raw exception string (#332) - encryption self-heals from this in CryptoUtils, but
     // decryption of an existing backup genuinely can't.
-    private fun backupErrorMessage(prefix: String, e: Exception): String = when (e) {
-        is KeyPermanentlyInvalidatedException ->
-            "$prefix: your device's screen lock or biometrics changed since this backup's " +
-                "encryption key was created, which permanently invalidates it by design. " +
-                if (prefix == "Restore failed") "This backup can no longer be decrypted."
-                else "Please try again to generate a new key."
-        // The key was destroyed (uninstall/reinstall or cleared data) — explain, don't show a raw error (#370).
-        is BackupKeyUnavailableException -> "$prefix: ${e.message}"
-        // A valid key exists but can't authenticate this ciphertext: the backup was made by a
-        // different install, is corrupt, or was tampered with. GCM's tag check is exactly what
-        // catches that — surface it as a clear cause instead of "AEADBadTagException" (#370).
-        is AEADBadTagException ->
-            "$prefix: this backup could not be decrypted. It was most likely created by a different " +
-                "installation of 白い熊 雫 — backups are encrypted per-install and can't be restored " +
-                "after reinstalling or clearing the app's data."
-        else -> "$prefix: ${e.message ?: e.javaClass.simpleName}"
-    }
-
-    private val createPlainBackupLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        if (uri == null) return@registerForActivityResult
-        val ctx = requireContext()
-        try {
-            val payload = BackupRestoreManager.createPlainBackupPayload(ctx)
-            ctx.contentResolver.openOutputStream(uri)?.use { os ->
-                OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
-            }
-            ShiroikumaToast.show(ctx, R.string.backup_plain_exported, Toast.LENGTH_LONG)
-        } catch (e: Exception) {
-            ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_failed_generic, e.message), Toast.LENGTH_LONG)
+    private fun backupErrorMessage(
+        prefix: String,
+        e: Exception,
+    ): String =
+        when (e) {
+            is KeyPermanentlyInvalidatedException ->
+                "$prefix: your device's screen lock or biometrics changed since this backup's " +
+                    "encryption key was created, which permanently invalidates it by design. " +
+                    if (prefix == "Restore failed") {
+                        "This backup can no longer be decrypted."
+                    } else {
+                        "Please try again to generate a new key."
+                    }
+            // The key was destroyed (uninstall/reinstall or cleared data) — explain, don't show a raw error (#370).
+            is BackupKeyUnavailableException -> "$prefix: ${e.message}"
+            // A valid key exists but can't authenticate this ciphertext: the backup was made by a
+            // different install, is corrupt, or was tampered with. GCM's tag check is exactly what
+            // catches that — surface it as a clear cause instead of "AEADBadTagException" (#370).
+            is AEADBadTagException ->
+                "$prefix: this backup could not be decrypted. It was most likely created by a different " +
+                    "installation of 白い熊 雫 — backups are encrypted per-install and can't be restored " +
+                    "after reinstalling or clearing the app's data."
+            else -> "$prefix: ${e.message ?: e.javaClass.simpleName}"
         }
 
     private val createPlainBackupLauncher =
@@ -125,9 +111,9 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 ctx.contentResolver.openOutputStream(uri)?.use { os ->
                     OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
                 }
-                ShiroikumaToast.show(ctx, R.string.backup_exported_success, Toast.LENGTH_SHORT)
+                ShiroikumaToast.show(ctx, R.string.backup_plain_exported, Toast.LENGTH_LONG)
             } catch (e: Exception) {
-                ShiroikumaToast.show(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG)
+                ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_failed_generic, e.message), Toast.LENGTH_LONG)
             }
         }
 
@@ -149,62 +135,27 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 } catch (e: Exception) {
                     ShiroikumaToast.show(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG)
                 }
-            }, onError = { errCode ->
-                ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT)
-            }, crypto = BiometricPrompt.CryptoObject(cipher))
-        } catch (e: Exception) {
-            ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_failed_generic, e.message), Toast.LENGTH_LONG)
-        }
-    }
-
-    private val restoreBackupLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri == null) return@registerForActivityResult
-        val ctx = requireContext()
-        val lock = BiometricLock(requireActivity())
-        val useAuth = lock.canAuthenticate(ctx)
-
-        try {
-            val payload = ctx.contentResolver.openInputStream(uri)?.use { `is` ->
-                InputStreamReader(`is`, Charsets.UTF_8).readText()
-            } ?: return@registerForActivityResult
-
-            // Auto-detect format: plain (v2) backups skip encryption entirely.
-            if (!BackupRestoreManager.isEncrypted(payload)) {
-                try {
-                    BackupRestoreManager.restoreFromPlainPayload(ctx, payload)
-                    onRestoreSuccess()
-                } catch (e: Exception) {
-                    ShiroikumaToast.show(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG)
-                }
                 return@registerForActivityResult
             }
 
-            val iv = BackupRestoreManager.extractIv(payload)
-
-            if (!useAuth) {
-                try {
-                    val cipher = CryptoUtils.getCipherForDecryption(iv, userAuthRequired = false)
-                    BackupRestoreManager.restoreFromPayload(ctx, payload, cipher)
-                    onRestoreSuccess()
-                } catch (e: Exception) {
-                    ShiroikumaToast.show(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG)
-                }
-                return@registerForActivityResult
+            try {
+                val cipher = CryptoUtils.getCipherForEncryption(userAuthRequired = true)
+                lock.authenticate(onSuccess = { crypto ->
+                    try {
+                        val payload = BackupRestoreManager.createBackupPayload(ctx, crypto?.cipher ?: cipher)
+                        ctx.contentResolver.openOutputStream(uri)?.use { os ->
+                            OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
+                        }
+                        ShiroikumaToast.show(ctx, R.string.backup_exported_success, Toast.LENGTH_SHORT)
+                    } catch (e: Exception) {
+                        ShiroikumaToast.show(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG)
+                    }
+                }, onError = { errCode ->
+                    ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT)
+                }, crypto = BiometricPrompt.CryptoObject(cipher))
+            } catch (e: Exception) {
+                ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_failed_generic, e.message), Toast.LENGTH_LONG)
             }
-
-            val cipher = CryptoUtils.getCipherForDecryption(iv, userAuthRequired = true)
-            lock.authenticate(onSuccess = { crypto ->
-                try {
-                    BackupRestoreManager.restoreFromPayload(ctx, payload, crypto?.cipher ?: cipher)
-                    onRestoreSuccess()
-                } catch (e: Exception) {
-                    ShiroikumaToast.show(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG)
-                }
-            }, onError = { errCode ->
-                ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT)
-            }, crypto = BiometricPrompt.CryptoObject(cipher))
-        } catch (e: Exception) {
-            ShiroikumaToast.show(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG)
         }
 
     private val restoreBackupLauncher =
@@ -226,7 +177,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                         BackupRestoreManager.restoreFromPlainPayload(ctx, payload)
                         onRestoreSuccess()
                     } catch (e: Exception) {
-                        Toast.makeText(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG).show()
+                        ShiroikumaToast.show(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG)
                     }
                     return@registerForActivityResult
                 }
@@ -239,7 +190,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                         BackupRestoreManager.restoreFromPayload(ctx, payload, cipher)
                         onRestoreSuccess()
                     } catch (e: Exception) {
-                        Toast.makeText(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG).show()
+                        ShiroikumaToast.show(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG)
                     }
                     return@registerForActivityResult
                 }
@@ -250,13 +201,13 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                         BackupRestoreManager.restoreFromPayload(ctx, payload, crypto?.cipher ?: cipher)
                         onRestoreSuccess()
                     } catch (e: Exception) {
-                        Toast.makeText(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG).show()
+                        ShiroikumaToast.show(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG)
                     }
                 }, onError = { errCode ->
-                    Toast.makeText(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT).show()
+                    ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT)
                 }, crypto = BiometricPrompt.CryptoObject(cipher))
             } catch (e: Exception) {
-                Toast.makeText(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG).show()
+                ShiroikumaToast.show(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG)
             }
         }
 
@@ -443,8 +394,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                     } catch (_: android.content.ActivityNotFoundException) {
                         ShiroikumaToast.show(requireContext(), R.string.backup_no_file_manager_save, Toast.LENGTH_LONG)
                     }
-                }
-                .showHouse()
+                }.showHouse()
             true
         }
 
@@ -695,8 +645,8 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             }
     }
 
-    private fun isDeviceOwnerActive(ctx: Context): Boolean {
-        return try {
+    private fun isDeviceOwnerActive(ctx: Context): Boolean =
+        try {
             val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             dpm.isDeviceOwnerApp(ctx.packageName) || dpm.isProfileOwnerApp(ctx.packageName)
         } catch (_: Exception) {
@@ -733,7 +683,8 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
     }
 
     private fun showDhizukuSetupDialog(ctx: Context) {
-        af.shizuku.manager.admin.DeviceOwnerHelper.showSetupCommandDialog(ctx)
+        af.shizuku.manager.admin.DeviceOwnerHelper
+            .showSetupCommandDialog(ctx)
     }
 
     private fun showGeneralHelpDialog() {
@@ -757,8 +708,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 val pref = findPreference<TwoStatePreference>(prefKey)
                 pref?.isChecked = true
                 onConfirm()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
             .showHouse()
     }
 

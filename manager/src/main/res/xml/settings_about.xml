@@ -31,7 +31,7 @@
             android:title="@string/settings_auto_update_title"
             android:summary="@string/settings_auto_update_summary"
             android:icon="@drawable/ic_update_24"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="auto_install_enabled"

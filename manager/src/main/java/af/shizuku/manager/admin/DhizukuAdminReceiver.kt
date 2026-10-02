@@ -1,12 +1,11 @@
 package af.shizuku.manager.admin
 
 import af.shizuku.manager.R
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import android.app.admin.DeviceAdminReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import af.shizuku.manager.R
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class DhizukuAdminReceiver : DeviceAdminReceiver() {
     override fun onEnabled(

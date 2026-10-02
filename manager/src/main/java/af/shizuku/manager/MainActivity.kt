@@ -2,7 +2,9 @@ package af.shizuku.manager
 
 import af.shizuku.manager.home.ChangelogDialogFragment
 import af.shizuku.manager.home.HomeActivity
-import af.shizuku.manager.update.UpdateChecker
+import af.shizuku.manager.shiroikuma.ShiroikumaChangelog
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.ShizukuStateMachine
 import android.os.Bundle
 import android.widget.Toast
@@ -11,15 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import af.shizuku.manager.R
-import af.shizuku.manager.home.ChangelogDialogFragment
-import af.shizuku.manager.home.HomeActivity
-import af.shizuku.manager.migration.MigrationHelper
-import af.shizuku.manager.onboarding.OnboardingActivity
-import af.shizuku.manager.utils.ShizukuStateMachine
-import af.shizuku.manager.shiroikuma.ShiroikumaChangelog
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import timber.log.Timber
 
 class MainActivity : HomeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +24,9 @@ class MainActivity : HomeActivity() {
             // Check for previous crashes and offer to report. Crash reporting is entirely
             // manual in this fork — nothing is sent anywhere — so this is gated only on the
             // developer switch, which keeps it out of the general-purpose UI.
-            if (af.shizuku.manager.utils.CrashHandler.getLastCrashReport(this) != null) {
+            if (af.shizuku.manager.utils.CrashHandler
+                    .getLastCrashReport(this) != null
+            ) {
                 if (ShizukuSettings.isVectorEnabled()) {
                     showCrashReportDialog()
                 }
@@ -113,14 +109,15 @@ class MainActivity : HomeActivity() {
         if (currentCode <= lastSeenCode) return
 
         lifecycleScope.launch {
-            val notes = withContext(Dispatchers.IO) {
-                try {
-                    ShiroikumaChangelog.sectionFor(this@MainActivity, BuildConfig.VERSION_NAME)
-                } catch (e: Exception) {
-                    Timber.tag("MainActivity").w(e, "Failed to read bundled changelog")
-                    null
+            val notes =
+                withContext(Dispatchers.IO) {
+                    try {
+                        ShiroikumaChangelog.sectionFor(this@MainActivity, BuildConfig.VERSION_NAME)
+                    } catch (e: Exception) {
+                        Timber.tag("MainActivity").w(e, "Failed to read bundled changelog")
+                        null
+                    }
                 }
-            }
 
             // Mark seen either way — a build whose asset somehow has no section for it shouldn't
             // re-prompt on every cold start; the dialog's fallback message covers that case once.
@@ -128,7 +125,8 @@ class MainActivity : HomeActivity() {
 
             if (isFinishing || isDestroyed) return@launch
             try {
-                ChangelogDialogFragment.newInstance(notes, BuildConfig.VERSION_NAME)
+                ChangelogDialogFragment
+                    .newInstance(notes, BuildConfig.VERSION_NAME)
                     .show(supportFragmentManager, ChangelogDialogFragment.TAG)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to show changelog dialog")
@@ -145,16 +143,18 @@ class MainActivity : HomeActivity() {
                 .setTitle(R.string.manual_report_title)
                 .setMessage(R.string.crash_detected_dialog_message)
                 .setPositiveButton(R.string.manual_report_button_github) { _, _ ->
-                    af.shizuku.manager.utils.CrashReporter.shareAsFile(this)
-                    af.shizuku.manager.utils.CrashHandler.clearLastCrash(this)
-                }
-                .setNegativeButton(R.string.crash_detected_dialog_ignore) { _, _ ->
-                    af.shizuku.manager.utils.CrashHandler.clearLastCrash(this)
-                }
-                .showHouse()
+                    af.shizuku.manager.utils.CrashReporter
+                        .shareAsFile(this)
+                    af.shizuku.manager.utils.CrashHandler
+                        .clearLastCrash(this)
+                }.setNegativeButton(R.string.crash_detected_dialog_ignore) { _, _ ->
+                    af.shizuku.manager.utils.CrashHandler
+                        .clearLastCrash(this)
+                }.showHouse()
         } catch (e: Exception) {
             Timber.e(e, "showCrashReportDialog failed — clearing crash file silently")
-            af.shizuku.manager.utils.CrashHandler.clearLastCrash(this)
+            af.shizuku.manager.utils.CrashHandler
+                .clearLastCrash(this)
         }
     }
 }

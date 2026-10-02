@@ -5,12 +5,14 @@ import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeServerStatusBinding
 import af.shizuku.manager.ktx.startWithSceneTransition
 import af.shizuku.manager.model.ServiceStatus
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.launch
 import rikka.core.content.asActivity
 import rikka.html.text.HtmlCompat
 import rikka.html.text.toHtml
@@ -19,16 +21,11 @@ import rikka.recyclerview.BaseViewHolder.Creator
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuApiConstants
 
-import af.shizuku.manager.utils.MotionUtils.applySpringTouch
-import af.shizuku.manager.shiroikuma.showHouse
-import kotlinx.coroutines.launch
-
 class ServerStatusViewHolder(
     private val binding: HomeServerStatusBinding,
     root: View,
-    private val scope: kotlinx.coroutines.CoroutineScope
+    private val scope: kotlinx.coroutines.CoroutineScope,
 ) : BaseViewHolder<ServiceStatus>(root) {
-
     private val cardView: com.google.android.material.card.MaterialCardView = itemView as com.google.android.material.card.MaterialCardView
 
     companion object {
@@ -46,11 +43,12 @@ class ServerStatusViewHolder(
         @Volatile
         private var inFlightLabel: Int? = null
 
-        fun creator(scope: kotlinx.coroutines.CoroutineScope) = Creator<ServiceStatus> { inflater: LayoutInflater, parent: ViewGroup? ->
-            val outer = HomeItemContainerBinding.inflate(inflater, parent, false)
-            val inner = HomeServerStatusBinding.inflate(inflater, outer.cardContent, true)
-            ServerStatusViewHolder(inner, outer.root, scope)
-        }
+        fun creator(scope: kotlinx.coroutines.CoroutineScope) =
+            Creator<ServiceStatus> { inflater: LayoutInflater, parent: ViewGroup? ->
+                val outer = HomeItemContainerBinding.inflate(inflater, parent, false)
+                val inner = HomeServerStatusBinding.inflate(inflater, outer.cardContent, true)
+                ServerStatusViewHolder(inner, outer.root, scope)
+            }
     }
 
     private var prevBgColor: Int? = null
@@ -213,10 +211,13 @@ class ServerStatusViewHolder(
 
         // Outline: hidden when user disables it. Style toggles between Material (theme roles) and
         // Status (semantic green/amber/red). Starting state always uses amber regardless of style.
-        if (af.shizuku.manager.ShizukuSettings.isShowStatusCardOutlineEnabled()) {
+        if (af.shizuku.manager.ShizukuSettings
+                .isShowStatusCardOutlineEnabled()
+        ) {
             // Fork: the house applier re-strokes every MaterialCardView on layout; this tag tells
             // it to leave this card's state colour alone (ShiroikumaViewTheme.markColorOwned).
-            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.markColorOwned(cardView)
+            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
+                .markColorOwned(cardView)
             val strokeDp = 2f
             cardView.strokeWidth = (strokeDp * context.resources.displayMetrics.density + 0.5f).toInt()
             val useStatusColors =
@@ -249,7 +250,8 @@ class ServerStatusViewHolder(
                 }
         } else {
             // Outline off: hand the stroke back to the house applier (major-tier border).
-            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.clearColorOwned(cardView)
+            af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
+                .clearColorOwned(cardView)
             cardView.strokeWidth = 0
         }
 
@@ -357,6 +359,7 @@ class ServerStatusViewHolder(
      * running, and its version skew silently breaks clients. It is also the case that dictates the
      * design — see [startOrRestart] for why this cannot be stop-then-start.
      */
+
     /**
      * The persistent half of the stale-server warning.
      *
@@ -368,8 +371,12 @@ class ServerStatusViewHolder(
      */
     private fun bindStaleWarning(context: android.content.Context) {
         val view = binding.serverStale
-        val skewed = af.shizuku.manager.utils.ShizukuStateMachine.isServerVersionSkewed()
-        val unverified = af.shizuku.manager.utils.ShizukuStateMachine.isServerVersionUnverified()
+        val skewed =
+            af.shizuku.manager.utils.ShizukuStateMachine
+                .isServerVersionSkewed()
+        val unverified =
+            af.shizuku.manager.utils.ShizukuStateMachine
+                .isServerVersionUnverified()
         if (!skewed && !unverified) {
             view.visibility = View.GONE
             return
@@ -377,13 +384,14 @@ class ServerStatusViewHolder(
         view.visibility = View.VISIBLE
         view.setText(if (skewed) R.string.home_status_server_stale else R.string.home_status_server_unverified)
         view.setTextColor(af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs.RED)
-        af.shizuku.manager.shiroikuma.ShiroikumaViewTheme.markSkipped(view)
+        af.shizuku.manager.shiroikuma.ShiroikumaViewTheme
+            .markSkipped(view)
     }
 
     private fun bindServerControls(
         context: android.content.Context,
         running: Boolean,
-        state: af.shizuku.manager.utils.ShizukuStateMachine.State
+        state: af.shizuku.manager.utils.ShizukuStateMachine.State,
     ) {
         val p = af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs
         val accent = p.getInt(context, p.KEY_COLOR_ACCENT)
@@ -394,8 +402,12 @@ class ServerStatusViewHolder(
 
         listOf(startButton, stopButton).forEach { button ->
             button.setTextColor(accent)
-            button.iconTint = android.content.res.ColorStateList.valueOf(accent)
-            button.strokeColor = android.content.res.ColorStateList.valueOf(accent)
+            button.iconTint =
+                android.content.res.ColorStateList
+                    .valueOf(accent)
+            button.strokeColor =
+                android.content.res.ColorStateList
+                    .valueOf(accent)
             button.strokeWidth = (p.getInt(context, p.KEY_CARD_BORDER).coerceAtLeast(1) * density).toInt()
         }
         binding.serverProgress.setIndicatorColor(accent)
@@ -416,11 +428,12 @@ class ServerStatusViewHolder(
         // Re-applied on every bind so a list rebuild mid-operation restores the in-flight look rather
         // than resetting the buttons to "tap me again". Also covers the state-machine transitions that
         // originate outside this card (the watchdog, a boot start, the WADB flow).
-        val externalTransition = when (state) {
-            af.shizuku.manager.utils.ShizukuStateMachine.State.STARTING -> R.string.home_status_starting
-            af.shizuku.manager.utils.ShizukuStateMachine.State.STOPPING -> R.string.home_status_stopping
-            else -> null
-        }
+        val externalTransition =
+            when (state) {
+                af.shizuku.manager.utils.ShizukuStateMachine.State.STARTING -> R.string.home_status_starting
+                af.shizuku.manager.utils.ShizukuStateMachine.State.STOPPING -> R.string.home_status_stopping
+                else -> null
+            }
         applyInFlight(inFlightLabel ?: externalTransition)
     }
 
@@ -445,8 +458,13 @@ class ServerStatusViewHolder(
             startButton.setText(label!!)
         } else {
             startButton.setText(
-                if (af.shizuku.manager.utils.ShizukuStateMachine.isRunning()) R.string.home_status_action_restart
-                else R.string.home_status_action_start
+                if (af.shizuku.manager.utils.ShizukuStateMachine
+                        .isRunning()
+                ) {
+                    R.string.home_status_action_restart
+                } else {
+                    R.string.home_status_action_start
+                },
             )
         }
     }
@@ -477,90 +495,124 @@ class ServerStatusViewHolder(
      * decided by [Starter.waitForBinder] and a state re-check rather than by the shell's verdict.
      */
     private fun startOrRestart(context: android.content.Context) {
-        val label = if (af.shizuku.manager.utils.ShizukuStateMachine.isRunning())
-            R.string.home_status_restarting else R.string.home_status_starting
+        val label =
+            if (af.shizuku.manager.utils.ShizukuStateMachine
+                    .isRunning()
+            ) {
+                R.string.home_status_restarting
+            } else {
+                R.string.home_status_starting
+            }
         beginOperation(label)
-        af.shizuku.manager.utils.ShizukuStateMachine.set(af.shizuku.manager.utils.ShizukuStateMachine.State.STARTING)
+        af.shizuku.manager.utils.ShizukuStateMachine
+            .set(af.shizuku.manager.utils.ShizukuStateMachine.State.STARTING)
         scope.launch {
             // finally, not a flag reset per branch: an exception anywhere below would otherwise leave
             // the buttons disabled and the bar spinning for the rest of the process's life.
             try {
-            val outcome = af.shizuku.manager.utils.PrivilegedShell.run(
-                af.shizuku.manager.starter.Starter.internalCommand
-            )
+                val outcome =
+                    af.shizuku.manager.utils.PrivilegedShell.run(
+                        af.shizuku.manager.starter.Starter.internalCommand,
+                    )
 
-            if (outcome is af.shizuku.manager.utils.PrivilegedShell.Outcome.Unavailable) {
-                // No usable shell from a running server, and no root. Before falling back to the
-                // wireless-debugging *pairing* flow, try local TCP adb — which is not a WiFi feature.
-                //
-                // Once adbd is in TCP mode it listens on 127.0.0.1, and this app can drive it with its
-                // own stored key over a plain cable with no WiFi, no pairing and no PC in the loop.
-                // That is the path that matters on the Mate XT, where the wireless route is the
-                // awkward one. It is also the only way out of the deadlock after an update: the
-                // manager cannot get a shell from a server whose attach handling is the very thing
-                // being fixed, so the replacement has to be launched from outside that server.
-                //
-                // What this app CANNOT do is speak to adbd over USB — that endpoint is USB functionfs,
-                // not a socket any app can dial. So adbd has to have been put in TCP mode once; if it
-                // has not, say so with the exact command rather than dumping the user into pairing.
-                val sysPropPort = af.shizuku.manager.utils.EnvironmentUtils.getAdbTcpPort()
-                val lastPort = af.shizuku.manager.ShizukuSettings.getLastPort()
-                val localPort = when {
-                    sysPropPort in 1..65535 -> sysPropPort
-                    lastPort in 1..65535 -> lastPort
-                    else -> -1
-                }
+                if (outcome is af.shizuku.manager.utils.PrivilegedShell.Outcome.Unavailable) {
+                    // No usable shell from a running server, and no root. Before falling back to the
+                    // wireless-debugging *pairing* flow, try local TCP adb — which is not a WiFi feature.
+                    //
+                    // Once adbd is in TCP mode it listens on 127.0.0.1, and this app can drive it with its
+                    // own stored key over a plain cable with no WiFi, no pairing and no PC in the loop.
+                    // That is the path that matters on the Mate XT, where the wireless route is the
+                    // awkward one. It is also the only way out of the deadlock after an update: the
+                    // manager cannot get a shell from a server whose attach handling is the very thing
+                    // being fixed, so the replacement has to be launched from outside that server.
+                    //
+                    // What this app CANNOT do is speak to adbd over USB — that endpoint is USB functionfs,
+                    // not a socket any app can dial. So adbd has to have been put in TCP mode once; if it
+                    // has not, say so with the exact command rather than dumping the user into pairing.
+                    val sysPropPort =
+                        af.shizuku.manager.utils.EnvironmentUtils
+                            .getAdbTcpPort()
+                    val lastPort =
+                        af.shizuku.manager.ShizukuSettings
+                            .getLastPort()
+                    val localPort =
+                        when {
+                            sysPropPort in 1..65535 -> sysPropPort
+                            lastPort in 1..65535 -> lastPort
+                            else -> -1
+                        }
 
-                if (localPort <= 0) {
-                    // Dead end, and the STARTING set above has to be undone explicitly: update()
-                    // keeps a transient state, so it would leave this card reading "Starting…" with
-                    // its own start button disabled — and the dialog we are about to show asks the
-                    // user to go run `adb tcpip 5555` and come back to press exactly that button.
-                    af.shizuku.manager.utils.ShizukuStateMachine.settle()
-                    showEnableTcpAdbDialog(context)
+                    if (localPort <= 0) {
+                        // Dead end, and the STARTING set above has to be undone explicitly: update()
+                        // keeps a transient state, so it would leave this card reading "Starting…" with
+                        // its own start button disabled — and the dialog we are about to show asks the
+                        // user to go run `adb tcpip 5555` and come back to press exactly that button.
+                        af.shizuku.manager.utils.ShizukuStateMachine
+                            .settle()
+                        showEnableTcpAdbDialog(context)
+                        return@launch
+                    }
+
+                    val started =
+                        runCatching {
+                            af.shizuku.manager.adb.AdbStarter
+                                .startAdb(context, localPort)
+                        }
+                    runCatching {
+                        af.shizuku.manager.starter.Starter
+                            .waitForBinder()
+                    }
+                    if (af.shizuku.manager.utils.ShizukuStateMachine
+                            .settle() ==
+                        af.shizuku.manager.utils.ShizukuStateMachine.State.RUNNING
+                    ) {
+                        af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
+                            context,
+                            R.string.home_status_restart_ok,
+                            android.widget.Toast.LENGTH_SHORT,
+                        )
+                    } else {
+                        // A refused connection here almost always means adbd has this app's key but the
+                        // authorisation was revoked, or adbd left TCP mode — both are the dialog's subject.
+                        timber.log.Timber
+                            .tag(TAG)
+                            .w(started.exceptionOrNull(), "Local TCP adb start failed on port %d", localPort)
+                        showEnableTcpAdbDialog(context)
+                    }
                     return@launch
                 }
 
-                val started = runCatching {
-                    af.shizuku.manager.adb.AdbStarter.startAdb(context, localPort)
+                runCatching {
+                    af.shizuku.manager.starter.Starter
+                        .waitForBinder()
                 }
-                runCatching { af.shizuku.manager.starter.Starter.waitForBinder() }
-                if (af.shizuku.manager.utils.ShizukuStateMachine.settle() ==
-                    af.shizuku.manager.utils.ShizukuStateMachine.State.RUNNING
-                ) {
+                val nowRunning =
+                    af.shizuku.manager.utils.ShizukuStateMachine
+                        .settle() ==
+                        af.shizuku.manager.utils.ShizukuStateMachine.State.RUNNING
+
+                if (nowRunning) {
                     af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
-                        context, R.string.home_status_restart_ok, android.widget.Toast.LENGTH_SHORT
+                        context,
+                        R.string.home_status_restart_ok,
+                        android.widget.Toast.LENGTH_SHORT,
                     )
                 } else {
-                    // A refused connection here almost always means adbd has this app's key but the
-                    // authorisation was revoked, or adbd left TCP mode — both are the dialog's subject.
-                    timber.log.Timber.tag(TAG).w(started.exceptionOrNull(), "Local TCP adb start failed on port %d", localPort)
-                    showEnableTcpAdbDialog(context)
+                    val detail =
+                        when (outcome) {
+                            is af.shizuku.manager.utils.PrivilegedShell.Outcome.Failed -> outcome.output
+                            is af.shizuku.manager.utils.PrivilegedShell.Outcome.Ok -> outcome.output
+                            else -> ""
+                        }
+                    timber.log.Timber
+                        .tag(TAG)
+                        .w("Restart did not yield a running server: %s", detail)
+                    af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
+                        context,
+                        context.getString(R.string.home_status_restart_failed, detail),
+                        android.widget.Toast.LENGTH_LONG,
+                    )
                 }
-                return@launch
-            }
-
-            runCatching { af.shizuku.manager.starter.Starter.waitForBinder() }
-            val nowRunning = af.shizuku.manager.utils.ShizukuStateMachine.settle() ==
-                af.shizuku.manager.utils.ShizukuStateMachine.State.RUNNING
-
-            if (nowRunning) {
-                af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
-                    context, R.string.home_status_restart_ok, android.widget.Toast.LENGTH_SHORT
-                )
-            } else {
-                val detail = when (outcome) {
-                    is af.shizuku.manager.utils.PrivilegedShell.Outcome.Failed -> outcome.output
-                    is af.shizuku.manager.utils.PrivilegedShell.Outcome.Ok -> outcome.output
-                    else -> ""
-                }
-                timber.log.Timber.tag(TAG).w("Restart did not yield a running server: %s", detail)
-                af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
-                    context,
-                    context.getString(R.string.home_status_restart_failed, detail),
-                    android.widget.Toast.LENGTH_LONG
-                )
-            }
             } finally {
                 endOperation()
             }
@@ -577,36 +629,41 @@ class ServerStatusViewHolder(
      */
     private fun showEnableTcpAdbDialog(context: android.content.Context) {
         val command = "adb tcpip 5555"
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+        com.google.android.material.dialog
+            .MaterialAlertDialogBuilder(context)
             .setTitle(R.string.home_status_tcp_adb_title)
             .setMessage(context.getString(R.string.home_status_tcp_adb_message, command))
             .setPositiveButton(R.string.home_adb_dialog_view_command_copy_button) { _, _ ->
                 val cm = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                 cm.setPrimaryClip(android.content.ClipData.newPlainText("adb command", command))
                 af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
-                    context, R.string.toast_copied_to_clipboard, android.widget.Toast.LENGTH_SHORT
+                    context,
+                    R.string.toast_copied_to_clipboard,
+                    android.widget.Toast.LENGTH_SHORT,
                 )
-            }
-            .setNeutralButton(R.string.home_status_tcp_adb_use_wireless) { _, _ ->
+            }.setNeutralButton(R.string.home_status_tcp_adb_use_wireless) { _, _ ->
                 StartWirelessAdbViewHolder.start(context, scope)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
             .showHouse()
     }
 
     /** `exit()` only enforces the manager permission, which we hold — so this needs no shell at all. */
     private fun stopServer(context: android.content.Context) {
         beginOperation(R.string.home_status_stopping)
-        af.shizuku.manager.receiver.ShizukuReceiverStarter.stop()
+        af.shizuku.manager.receiver.ShizukuReceiverStarter
+            .stop()
         scope.launch {
             try {
                 // exit() is System.exit(0) on the far side; the binder death takes a moment to land.
                 kotlinx.coroutines.delay(600)
-                if (af.shizuku.manager.utils.ShizukuStateMachine.settle() !=
+                if (af.shizuku.manager.utils.ShizukuStateMachine
+                        .settle() !=
                     af.shizuku.manager.utils.ShizukuStateMachine.State.RUNNING
                 ) {
                     af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
-                        context, R.string.home_status_stop_ok, android.widget.Toast.LENGTH_SHORT
+                        context,
+                        R.string.home_status_stop_ok,
+                        android.widget.Toast.LENGTH_SHORT,
                     )
                 }
             } finally {

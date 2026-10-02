@@ -10,7 +10,6 @@ import android.app.Application
 import android.app.Dialog
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -192,7 +191,7 @@ class AdbPairDialogFragment : DialogFragment() {
                             af.shizuku.manager.shiroikuma.ShiroikumaToast.show(
                                 context,
                                 context.getString(R.string.adb_error_key_store),
-                                Toast.LENGTH_LONG
+                                Toast.LENGTH_LONG,
                             )
                         }
                         else -> Unit

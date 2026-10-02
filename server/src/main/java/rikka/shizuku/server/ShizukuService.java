@@ -194,30 +194,12 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         LOGGER.i("migratePermissionGrants: granted/refreshed %d permission(s)", migrated);
     }
 
-    private void grantManagerEssentialPermissions() {
-        try {
-            int userId = UserHandleCompat.getUserId(android.os.Process.myUid());
-            String[] managerIds = new String[]{
-                MANAGER_APPLICATION_ID,
-                ServerConstants.DROPIN_APPLICATION_ID,
-                ServerConstants.PLUS_APPLICATION_ID
-            };
-            for (String pkg : managerIds) {
-                if (pkg == null) continue;
-                try {
-                    Android17Compat.grantRuntimePermission(pkg, WRITE_SECURE_SETTINGS, userId);
-                    Android17Compat.grantRuntimePermission(pkg, "android.permission.DUMP", userId);
-                    ApplicationInfo ai = Android17Compat.getApplicationInfo(pkg, 0, userId);
-                    if (ai != null) {
-                        performAppOpsElevation(pkg, ai.uid);
-                    }
-                } catch (Throwable ignored) {
-                }
-            }
-        } catch (Throwable e) {
-            LOGGER.w("grantManagerEssentialPermissions failed", e);
-        }
-    }
+    // Fork: upstream's grantManagerEssentialPermissions() (r2715, 4733ffb6/e1c251d0) is removed.
+    // On every server start and every manager attach it granted the manager WRITE_SECURE_SETTINGS
+    // and DUMP and ran performAppOpsElevation on it — a silent self-elevation 白い熊 keeps behind
+    // the Device Hardening switch, which defaults off. The server cannot read that manager-side
+    // preference, so the gated grant lives in the manager instead: ShizukuStateMachine calls
+    // SettingsHelper.autoGrantPrivileges on RUNNING only when Device Hardening is on.
 
     private void disablePhantomProcessKiller() {
         if (Build.VERSION.SDK_INT < 31) return; // Only needed on Android 12+
@@ -362,7 +344,6 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         });
 
         mainHandler.post(() -> {
-            grantManagerEssentialPermissions();
             migratePermissionGrants();
             sendBinderToClient();
             sendBinderToManager();
@@ -598,10 +579,6 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         isManager = MANAGER_APPLICATION_ID.equals(requestPackageName)
                 || ServerConstants.DROPIN_APPLICATION_ID.equals(requestPackageName)
                 || ServerConstants.PLUS_APPLICATION_ID.equals(requestPackageName);
-
-        if (isManager) {
-            grantManagerEssentialPermissions();
-        }
 
         synchronized (this) {
             ClientRecord existing = clientManager.findClient(callingUid, callingPid);

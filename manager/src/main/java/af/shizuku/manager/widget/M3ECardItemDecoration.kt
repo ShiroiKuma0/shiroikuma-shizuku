@@ -3,15 +3,12 @@ package af.shizuku.manager.widget
 import af.shizuku.manager.R
 import af.shizuku.manager.ktx.themeColor
 import af.shizuku.manager.ktx.themeCornerSizePx
+import af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import af.shizuku.manager.R
-import af.shizuku.manager.ktx.themeColor
-import af.shizuku.manager.ktx.themeCornerSizePx
-import af.shizuku.manager.shiroikuma.ShiroikumaUiPrefs
 
 /**
  * Base ItemDecoration for Material 3 Expressive card-style lists.
@@ -23,6 +20,7 @@ abstract class M3ECardItemDecoration(
     protected val cardPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     protected val dividerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     protected val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+
     // Matches every other 28dp/ExtraLarge card in the app (see #333) and follows the Shape
     // Style setting (Modern/Classic/Squircle) instead of a fixed radius.
     protected val cornerRadius = context.themeCornerSizePx(com.google.android.material.R.attr.shapeAppearanceCornerExtraLarge)
@@ -70,6 +68,8 @@ abstract class M3ECardItemDecoration(
 
         var currentCardTop = Float.MIN_VALUE
         var lastItemBottom = Float.MIN_VALUE
+        var currentCardLeft = Float.MIN_VALUE
+        var currentCardRight = Float.MIN_VALUE
         // A card whose first row is the first ATTACHED child, rather than a header, began above the
         // viewport — its top edge is not a real edge and must not be drawn, or scrolling a long
         // group would paint a line across it. Same for the bottom, resolved after the loop.
@@ -81,7 +81,7 @@ abstract class M3ECardItemDecoration(
             if (child.visibility != View.VISIBLE || !shouldDecorate(child)) {
                 if (currentCardTop != Float.MIN_VALUE && !shouldDecorate(child)) {
                     // Closed by an undecorated row, so this bottom is a real edge.
-                    drawCard(c, parent, currentCardTop, lastItemBottom, topIsRealEdge, true)
+                    drawCard(c, parent, currentCardTop, lastItemBottom, currentCardLeft, currentCardRight, topIsRealEdge, true)
                     currentCardTop = Float.MIN_VALUE
                     lastItemBottom = Float.MIN_VALUE
                     currentCardLeft = Float.MIN_VALUE
@@ -94,10 +94,12 @@ abstract class M3ECardItemDecoration(
             if (isHeader(child)) {
                 if (currentCardTop != Float.MIN_VALUE) {
                     // Closed by the next header, so this bottom is a real edge.
-                    drawCard(c, parent, currentCardTop, lastItemBottom, topIsRealEdge, true)
+                    drawCard(c, parent, currentCardTop, lastItemBottom, currentCardLeft, currentCardRight, topIsRealEdge, true)
                 }
                 currentCardTop = child.top.toFloat()
                 lastItemBottom = child.bottom.toFloat()
+                currentCardLeft = child.left.toFloat()
+                currentCardRight = child.right.toFloat()
                 topIsRealEdge = true
 
                 // Draw a divider under the header if it has visible child preferences following
@@ -110,6 +112,8 @@ abstract class M3ECardItemDecoration(
             } else {
                 if (currentCardTop == Float.MIN_VALUE) {
                     currentCardTop = child.top.toFloat()
+                    currentCardLeft = child.left.toFloat()
+                    currentCardRight = child.right.toFloat()
                     // Started mid-group unless this really is the list's first row.
                     topIsRealEdge = parent.getChildAdapterPosition(child) == 0
                 }
@@ -127,9 +131,10 @@ abstract class M3ECardItemDecoration(
         if (currentCardTop != Float.MIN_VALUE) {
             // The last card ran out of attached children rather than hitting the next header, so
             // its bottom is only a real edge if that child is genuinely the last row in the list.
-            val bottomIsRealEdge = lastChild != null &&
-                parent.getChildAdapterPosition(lastChild) == state.itemCount - 1
-            drawCard(c, parent, currentCardTop, lastItemBottom, topIsRealEdge, bottomIsRealEdge)
+            val bottomIsRealEdge =
+                lastChild != null &&
+                    parent.getChildAdapterPosition(lastChild) == state.itemCount - 1
+            drawCard(c, parent, currentCardTop, lastItemBottom, currentCardLeft, currentCardRight, topIsRealEdge, bottomIsRealEdge)
         }
     }
 
@@ -162,11 +167,15 @@ abstract class M3ECardItemDecoration(
         parent: RecyclerView,
         top: Float,
         bottom: Float,
+        left: Float = cardMargin,
+        right: Float = parent.width - cardMargin,
         topIsRealEdge: Boolean = true,
-        bottomIsRealEdge: Boolean = true
+        bottomIsRealEdge: Boolean = true,
     ) {
-        val left = cardMargin
-        val right = parent.width - cardMargin
+        // Upstream resolves the bounds from the decorated children, so the card follows insets,
+        // cutouts and orientation; MIN_VALUE means "no child seen", falling back to the margins.
+        val left = if (left != Float.MIN_VALUE) left else cardMargin
+        val right = if (right != Float.MIN_VALUE) right else parent.width - cardMargin
         val radius = if (drawsBorder) houseRadiusPx else cornerRadius
 
         c.drawRoundRect(left, top, right, bottom, radius, radius, cardPaint)
@@ -186,7 +195,9 @@ abstract class M3ECardItemDecoration(
             if (topIsRealEdge) top + inset else top - overshoot,
             right - inset,
             if (bottomIsRealEdge) bottom - inset else bottom + overshoot,
-            radius, radius, borderPaint
+            radius,
+            radius,
+            borderPaint,
         )
     }
 }

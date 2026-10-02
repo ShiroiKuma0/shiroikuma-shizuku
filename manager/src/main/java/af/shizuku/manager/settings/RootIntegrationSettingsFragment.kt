@@ -5,6 +5,8 @@ import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.ShizukuSettings.Keys.KEY_COMPANION_FALLBACK
 import af.shizuku.manager.database.RootCompatHelper
 import af.shizuku.manager.service.AdbProxyService
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.StockShizukuCompat
 import android.content.Intent
@@ -18,8 +20,6 @@ import androidx.preference.TwoStatePreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 /**
  * Root Integration Settings
@@ -175,8 +175,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                                     ?.apply()
                                 pref.isChecked = true
                                 ShizukuSettings.syncAllPlusFeaturesToServer()
-                            }
-                            .setNegativeButton(android.R.string.cancel, null)
+                            }.setNegativeButton(android.R.string.cancel, null)
                             .showHouse()
                         return@setOnPreferenceChangeListener false
                     } else if (newValue && key == "root_magisk_mocking_enabled") {
@@ -268,8 +267,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                         ShizukuSettings.syncAllPlusFeaturesToServer()
                         ShiroikumaToast.show(context, getString(R.string.su_path_preset_applied, presets[which]), Toast.LENGTH_SHORT)
                     }
-                }
-                .showHouse()
+                }.showHouse()
             true // Intercept click to show presets dialog first
         }
 

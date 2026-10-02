@@ -3,14 +3,12 @@ import af.shizuku.manager.MainActivity
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.home.HomeActivity
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.utils.EnvironmentUtils
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
-import io.sentry.Breadcrumb
-import io.sentry.Sentry
-import io.sentry.SentryLevel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,7 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.net.ConnectException
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AdbPairingAccessibilityService : AccessibilityService() {
     var port: Int? = null
@@ -31,10 +28,9 @@ class AdbPairingAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
 
-
         val isTv = EnvironmentUtils.isTelevision()
 
-        if (!(isTv || isSamsung) || !EnvironmentUtils.isTlsSupported()) {
+        if (!EnvironmentUtils.isTlsSupported()) {
             ShiroikumaToast.show(this, getString(R.string.toast_accessibility_tv_only), Toast.LENGTH_SHORT)
             disableSelf()
             return
@@ -117,26 +113,14 @@ class AdbPairingAccessibilityService : AccessibilityService() {
             serviceScope.launch {
                 val host = "127.0.0.1"
 
-                val key = try {
-                    AdbKey(PreferenceAdbKeyStore(ShizukuSettings.getPreferences()), "shizuku+")
-                } catch (e: Throwable) {
-                    Timber.tag("AdbAccessibility").e(e, "Failed to load AdbKey")
-                    toastMsg = getString(R.string.adb_error_key_store)
-                    return@launch
-                }
-
-                AdbPairingClient(host, portValue, passwordValue, key).runCatching {
-                    start()
-                }.onFailure {
-                    Timber.tag("AdbAccessibility").e(it, "Pairing client failed")
-                    when (it) {
-                        is ConnectException -> toastMsg = getString(R.string.cannot_connect_port)
-                        is AdbInvalidPairingCodeException -> toastMsg = getString(R.string.paring_code_is_wrong)
-                        is AdbKeyException -> toastMsg = getString(R.string.adb_error_key_store)
+                val key =
+                    try {
+                        AdbKey(PreferenceAdbKeyStore(ShizukuSettings.getPreferences()), "shizuku+")
+                    } catch (e: Throwable) {
+                        Timber.tag("AdbAccessibility").e(e, "Failed to load AdbKey")
+                        toastMsg = getString(R.string.adb_error_key_store)
+                        return@launch
                     }
-                }.onSuccess {
-                    if (it) {
-                        toastMsg = "${getString(R.string.notification_adb_pairing_succeed_title)}. ${getString(R.string.notification_adb_pairing_succeed_text)}"
 
                 AdbPairingClient(host, portValue, passwordValue, key)
                     .runCatching {
@@ -147,15 +131,9 @@ class AdbPairingAccessibilityService : AccessibilityService() {
                             is ConnectException -> toastMsg = getString(R.string.cannot_connect_port)
                             is AdbInvalidPairingCodeException -> toastMsg = getString(R.string.paring_code_is_wrong)
                             is AdbKeyException -> toastMsg = getString(R.string.adb_error_key_store)
-                            else -> Sentry.captureException(it)
                         }
                     }.onSuccess {
                         if (it) {
-                            Sentry.addBreadcrumb(
-                                Breadcrumb("Pairing client succeeded").apply {
-                                    category = "adb.pairing"
-                                },
-                            )
                             toastMsg = "${getString(R.string.notification_adb_pairing_succeed_title)}. ${getString(R.string.notification_adb_pairing_succeed_text)}"
 
                             val intent =
@@ -165,15 +143,7 @@ class AdbPairingAccessibilityService : AccessibilityService() {
                                 }
                             startActivity(intent)
                         } else {
-                            Sentry.addBreadcrumb(
-                                Breadcrumb("Pairing client returned false").apply {
-                                    category = "adb.pairing"
-                                    level = SentryLevel.WARNING
-                                },
-                            )
                         }
-                        startActivity(intent)
-                    } else {
                     }
                 withContext(Dispatchers.Main) {
                     ShiroikumaToast.show(this@AdbPairingAccessibilityService, toastMsg, Toast.LENGTH_LONG)

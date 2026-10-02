@@ -7,6 +7,8 @@ import af.shizuku.manager.databinding.HomeAutomationBinding
 import af.shizuku.manager.databinding.HomeAutomationBottomSheetBinding
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.ktx.toHtml
+import af.shizuku.manager.shiroikuma.ShiroikumaToast
+import af.shizuku.manager.shiroikuma.showHouse
 import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.IconStyleHelper
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
@@ -24,8 +26,6 @@ import rikka.core.util.ClipboardUtils
 import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
-import af.shizuku.manager.shiroikuma.showHouse
-import af.shizuku.manager.shiroikuma.ShiroikumaToast
 
 class AutomationViewHolder(
     private val binding: HomeAutomationBinding,
@@ -166,7 +166,8 @@ class AutomationViewHolder(
                 // Same treatment as the Plus help sheet: a sheet draws from its container view, not
                 // the dialog window, so it needs styleSheet rather than the house dialog styling —
                 // without it, black content sits on black with no edge anywhere.
-                af.shizuku.manager.shiroikuma.ShiroikumaDialogs.styleSheet(this)
+                af.shizuku.manager.shiroikuma.ShiroikumaDialogs
+                    .styleSheet(this)
             }
         }
 

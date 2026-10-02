@@ -2,8 +2,8 @@ package af.shizuku.manager.service
 
 import af.shizuku.manager.MainActivity
 import af.shizuku.manager.R
-import af.shizuku.manager.starter.Starter
 import af.shizuku.manager.shiroikuma.ShiroikumaDialogs
+import af.shizuku.manager.starter.Starter
 import af.shizuku.manager.utils.ShizukuStateMachine
 import af.shizuku.manager.worker.AdbStartWorker
 import android.content.Intent
@@ -95,8 +95,11 @@ class TileOptionsActivity : AppCompatActivity() {
                 // settle() on failure, as everywhere else a start attempt ends: update() preserves
                 // STARTING, so a root shell that exited non-zero would leave the tile and the home
                 // card mid-transition with the start button disabled.
-                if (it.isSuccess) ShizukuStateMachine.update()
-                else ShizukuStateMachine.settle()
+                if (it.isSuccess) {
+                    ShizukuStateMachine.update()
+                } else {
+                    ShizukuStateMachine.settle()
+                }
             }
         } else {
             AdbStartWorker.enqueue(this)
