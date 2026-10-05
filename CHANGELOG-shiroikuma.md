@@ -8,6 +8,70 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.7.0.r2748+2026-10-05.00-19.gf34eaa8b+002
+
+Two upstream syncs since the last published build: `r2702` → `r2715` → `r2748` (`f34eaa8b`,
+**46 commits** in all). The `r2715` build below was tested but never published, so its notes reach
+users for the first time here too. This section covers the second step, `r2715` → `r2748`
+(**33 commits**): a set of fixes users will notice, two upstream features this fork deliberately
+does not take, and a new Korean translation.
+
+### New upstream features, integrated here
+
+- **Randomize TCP port** — a one-tap action in Behavior picks a random port in the private range
+  (49152–65535) instead of the well-known 5555, which port scanners look for first.
+- **Auto-close TCP port on stop** (off by default) — when Shizuku stops or crashes, wireless
+  debugging is switched off, so adbd stops listening. It needs `WRITE_SECURE_SETTINGS`, which this
+  fork grants only with Device Hardening on; without it the switch does nothing.
+- **Backup & Restore moved to About** — encrypted and plain settings backups now sit beside the
+  version and update rows, still writing `shiroikuma-shizuku_settings_*.json` and still in the
+  house dialog and toasts.
+- **Settings search opens collapsed sections** — a result inside a collapsed category now expands
+  it, scrolls to the row and flashes it, instead of landing nowhere.
+- **Korean translation** across the manager, the shared UI and the Compat Hub, de-branded like
+  every other language.
+- **Samsung One UI 7+ theming** — enabling an overlay through the overlay bridge now skips
+  Samsung's one-time theme setup wizard, and a new `setActiveThemePackage` API call lets theming
+  apps set it directly. Nothing changes on non-Samsung phones.
+
+### Fixes that reach users
+
+- **Manual `pm revoke` now sticks** — the server used to re-grant every authorized app's
+  permission on every start, quietly undoing a revoke made outside the app. The backfill it
+  existed for now runs once and never again (#568).
+- **Server start on Android 16 and some OEM ROMs** — the start command now carries the app's own
+  native-library path, so `libshizuku.so` finds its bundled `libc++_shared.so` when the shell
+  linker would not.
+- **Blank Settings after the app is restored from the background** — the settings page is
+  re-attached whenever the restored one has no view (#551).
+- **"Padding must be non-negative" crash** — fixed in Settings after a font-scale, display-size or
+  rotation change (#569).
+- **Settings titles after search navigation** — the page now keeps its own title.
+- **Pairing on Android 16 / Honor Magic 7** — the port-availability check no longer reports a busy
+  port as free, which stalled pairing at "Searching for pairing service" (#559).
+- **Samsung boot start** — when One UI resets wireless debugging during boot, it is turned back
+  on (up to four retries) before start-on-boot gives up (#545).
+
+### Fork decisions on this base
+
+- **The legacy binder proxy is never applied.** Upstream now shifts every transaction code down
+  by one for apps that request only the original `moe.shizuku.manager.permission.API_V23`. That
+  describes every client built against the published Shizuku API (SD Maid SE, Swift Backup,
+  Obtainium), whose codes match ours, so the shift would send each of their calls to the wrong
+  method. Here those clients keep the plain binder.
+- **No Drop-In ↔ Plus settings sync.** Upstream added an exported provider and an automatic
+  two-way settings sync between its own two package flavors, running at app start, on every home
+  screen return and on every settings change. This build is neither flavor, so the sync could
+  only ever find our own Compat Hub. It is removed entirely, provider included.
+- **The Dhizuku setup command stays derived from the class**, not spelled out, as since
+  `r2431`; upstream's new spelled-out fix for the same bug (#560) is not needed here.
+
+### No-phone-home, re-verified after the sync
+
+- No Sentry dependency or call site came back, the only outbound connection is still the
+  user-tapped update check, and `.github/` is still absent. Upstream's new `.claude/settings.json`,
+  whose edit hook ran a build script from a path on upstream's own phone, is not carried.
+
 ## 13.7.0.r2715+2026-09-28.02-52.g18680fd1+002
 
 One upstream sync since the last published build: `r2702` → `r2715` (`18680fd1`, **13 commits**).
