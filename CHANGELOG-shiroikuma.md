@@ -8,6 +8,58 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.7.0.r2715+2026-09-28.02-52.g18680fd1+002
+
+One upstream sync since the last published build: `r2702` → `r2715` (`18680fd1`, **13 commits**).
+A small feature batch inside one very large change — upstream ran ktlint across ~170 manager files —
+plus two new silent self-grants that this fork puts behind the Device Hardening switch.
+
+### New upstream features, integrated here
+
+- **Wireless pairing auto-captures on every device** — the pairing accessibility service now reads
+  the pairing code and port on any Android 11+ phone, not only TVs and Samsung, and a successful
+  pair starts the service over wireless ADB straight away.
+- **Detached privileged processes** — a client can launch a long-lived tool (`SHIZUKU_DETACHED=1`,
+  `nohup` or `setsid`, or the new `executeShellDetached` API) that survives the calling app's
+  death instead of being killed with it.
+- **Update controls live in About** — version, *Check for update* (with its status shown inline
+  while it runs), auto-update, auto-install and the update channel moved out of Behavior.
+- **`rish` finds Termux by itself** — the scripts and loader default the calling package to
+  `com.termux` when run from Termux.
+- **Expressive UI pass** — a shape-shifting search bar in the app list, haptics and spring motion
+  on cards, settings-category icons restored, and settings cards now take their width from their
+  own rows, so they line up across insets, cutouts and orientations.
+
+### Fixes that reach users
+
+- **Cold-start user services bind** — a background client such as ColorBlendr that binds a user
+  service while the manager is still waking now waits up to 1.5 s for the server binder instead of
+  being refused (#549).
+- **Android 16 `VerifyError` in the manager** — broader R8 keeps for `rikka.hidden.compat`,
+  `rikka.rish` and `rikka.shizuku` stop ART 16 rejecting obfuscated classes loaded from the dex.
+- **Pairing accessibility no longer disables your other services** — enabling it via Shizuku keeps
+  every accessibility service that was already on.
+
+### Fork decisions on this base
+
+- **New self-grants gated behind Device Hardening (default off)** — upstream now has the manager
+  grant itself `ACCESS_RESTRICTED_SETTINGS` and `WRITE_SECURE_SETTINGS` on every start and on
+  every ADB start, regardless of any switch. Here both run only with Device Hardening on.
+  Upstream's server-side twin, which granted the manager `WRITE_SECURE_SETTINGS`, `DUMP` and a
+  set of appops on every server start and attach, is removed — the server cannot read the switch.
+- **The changelog stays built into the APK** — the new About → Changelog row and the update
+  dialog's *Release notes* button open the bundled changelog and this repo's releases page, not
+  upstream's 25-release GitHub fetch.
+- **Auto-update stays default off** — upstream's moved switch declared itself on by default.
+- **House borders kept** — the yellow settings-card borders and their real-edge handling while
+  scrolling now sit on upstream's row-derived card bounds.
+
+### No-phone-home, re-verified after the sync
+
+- No Sentry dependency or call site came back (the reformat touched three files this fork had
+  deleted; they stay deleted), no new outbound connection exists outside the user-tapped update
+  check, and `.github/` is still absent.
+
 ## 13.7.0.r2702+2026-09-26.16-06.g9d88f4ce+001
 
 One upstream sync since the last published build: `r2592` → `r2702` (`9d88f4ce`, **110 commits**) —
