@@ -5,9 +5,6 @@ import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.ShizukuSettings.Keys.*
 import af.shizuku.manager.admin.DhizukuAdminReceiver
 import af.shizuku.manager.automation.AutomationService
-import af.shizuku.manager.backup.BackupKeyUnavailableException
-import af.shizuku.manager.backup.BackupRestoreManager
-import af.shizuku.manager.backup.CryptoUtils
 import af.shizuku.manager.security.BiometricLock
 import af.shizuku.manager.shiroikuma.ShiroikumaToast
 import af.shizuku.manager.shiroikuma.showHouse
@@ -15,13 +12,10 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
-import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.biometric.BiometricPrompt
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -32,9 +26,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rikka.html.text.toHtml
 import rikka.shizuku.Shizuku
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
-import javax.crypto.AEADBadTagException
 
 class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
     /** The Device Owner Tools rows — see [updateDeviceOwnerToolsAvailability]. */
@@ -67,149 +58,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         // Same reason, and the same screen can revoke it: Remove Device Owner sits two rows above
         // the tools it disables.
         if (isAdded) updateDeviceOwnerToolsAvailability()
-        // Upstream #461: re-apply the Backup & Restore category visibility, so a toggle made in
-        // Advanced settings takes effect on the way back without recreating the fragment. Folded
-        // in here — a second onResume() override would not compile.
-        applyBackupCategoryVisibility()
     }
-
-    // e.message is often null for keystore/cipher exceptions (#315's "Backup failed: null"), and
-    // KeyPermanentlyInvalidatedException needs a message explaining it's unrecoverable rather
-    // than a raw exception string (#332) - encryption self-heals from this in CryptoUtils, but
-    // decryption of an existing backup genuinely can't.
-    private fun backupErrorMessage(
-        prefix: String,
-        e: Exception,
-    ): String =
-        when (e) {
-            is KeyPermanentlyInvalidatedException ->
-                "$prefix: your device's screen lock or biometrics changed since this backup's " +
-                    "encryption key was created, which permanently invalidates it by design. " +
-                    if (prefix == "Restore failed") {
-                        "This backup can no longer be decrypted."
-                    } else {
-                        "Please try again to generate a new key."
-                    }
-            // The key was destroyed (uninstall/reinstall or cleared data) — explain, don't show a raw error (#370).
-            is BackupKeyUnavailableException -> "$prefix: ${e.message}"
-            // A valid key exists but can't authenticate this ciphertext: the backup was made by a
-            // different install, is corrupt, or was tampered with. GCM's tag check is exactly what
-            // catches that — surface it as a clear cause instead of "AEADBadTagException" (#370).
-            is AEADBadTagException ->
-                "$prefix: this backup could not be decrypted. It was most likely created by a different " +
-                    "installation of 白い熊 雫 — backups are encrypted per-install and can't be restored " +
-                    "after reinstalling or clearing the app's data."
-            else -> "$prefix: ${e.message ?: e.javaClass.simpleName}"
-        }
-
-    private val createPlainBackupLauncher =
-        registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-            if (uri == null) return@registerForActivityResult
-            val ctx = requireContext()
-            try {
-                val payload = BackupRestoreManager.createPlainBackupPayload(ctx)
-                ctx.contentResolver.openOutputStream(uri)?.use { os ->
-                    OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
-                }
-                ShiroikumaToast.show(ctx, R.string.backup_plain_exported, Toast.LENGTH_LONG)
-            } catch (e: Exception) {
-                ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_failed_generic, e.message), Toast.LENGTH_LONG)
-            }
-        }
-
-    private val createBackupLauncher =
-        registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-            if (uri == null) return@registerForActivityResult
-            val ctx = requireContext()
-            val lock = BiometricLock(requireActivity())
-            val useAuth = lock.canAuthenticate(ctx)
-
-            if (!useAuth) {
-                try {
-                    val cipher = CryptoUtils.getCipherForEncryption(userAuthRequired = false)
-                    val payload = BackupRestoreManager.createBackupPayload(ctx, cipher)
-                    ctx.contentResolver.openOutputStream(uri)?.use { os ->
-                        OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
-                    }
-                    ShiroikumaToast.show(ctx, R.string.backup_exported_success, Toast.LENGTH_SHORT)
-                } catch (e: Exception) {
-                    ShiroikumaToast.show(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG)
-                }
-                return@registerForActivityResult
-            }
-
-            try {
-                val cipher = CryptoUtils.getCipherForEncryption(userAuthRequired = true)
-                lock.authenticate(onSuccess = { crypto ->
-                    try {
-                        val payload = BackupRestoreManager.createBackupPayload(ctx, crypto?.cipher ?: cipher)
-                        ctx.contentResolver.openOutputStream(uri)?.use { os ->
-                            OutputStreamWriter(os, Charsets.UTF_8).use { it.write(payload) }
-                        }
-                        ShiroikumaToast.show(ctx, R.string.backup_exported_success, Toast.LENGTH_SHORT)
-                    } catch (e: Exception) {
-                        ShiroikumaToast.show(ctx, backupErrorMessage("Backup failed", e), Toast.LENGTH_LONG)
-                    }
-                }, onError = { errCode ->
-                    ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT)
-                }, crypto = BiometricPrompt.CryptoObject(cipher))
-            } catch (e: Exception) {
-                ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_failed_generic, e.message), Toast.LENGTH_LONG)
-            }
-        }
-
-    private val restoreBackupLauncher =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            if (uri == null) return@registerForActivityResult
-            val ctx = requireContext()
-            val lock = BiometricLock(requireActivity())
-            val useAuth = lock.canAuthenticate(ctx)
-
-            try {
-                val payload =
-                    ctx.contentResolver.openInputStream(uri)?.use { `is` ->
-                        InputStreamReader(`is`, Charsets.UTF_8).readText()
-                    } ?: return@registerForActivityResult
-
-                // Auto-detect format: plain (v2) backups skip encryption entirely.
-                if (!BackupRestoreManager.isEncrypted(payload)) {
-                    try {
-                        BackupRestoreManager.restoreFromPlainPayload(ctx, payload)
-                        onRestoreSuccess()
-                    } catch (e: Exception) {
-                        ShiroikumaToast.show(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG)
-                    }
-                    return@registerForActivityResult
-                }
-
-                val iv = BackupRestoreManager.extractIv(payload)
-
-                if (!useAuth) {
-                    try {
-                        val cipher = CryptoUtils.getCipherForDecryption(iv, userAuthRequired = false)
-                        BackupRestoreManager.restoreFromPayload(ctx, payload, cipher)
-                        onRestoreSuccess()
-                    } catch (e: Exception) {
-                        ShiroikumaToast.show(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG)
-                    }
-                    return@registerForActivityResult
-                }
-
-                val cipher = CryptoUtils.getCipherForDecryption(iv, userAuthRequired = true)
-                lock.authenticate(onSuccess = { crypto ->
-                    try {
-                        BackupRestoreManager.restoreFromPayload(ctx, payload, crypto?.cipher ?: cipher)
-                        onRestoreSuccess()
-                    } catch (e: Exception) {
-                        ShiroikumaToast.show(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG)
-                    }
-                }, onError = { errCode ->
-                    ShiroikumaToast.show(ctx, ctx.getString(R.string.backup_auth_failed, errCode), Toast.LENGTH_SHORT)
-                }, crypto = BiometricPrompt.CryptoObject(cipher))
-            } catch (e: Exception) {
-                ShiroikumaToast.show(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG)
-            }
-        }
 
     override fun onCreateSettingsPreferences(
         savedInstanceState: Bundle?,
@@ -372,42 +221,6 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             }
             false
         }
-
-        val backupSettingsPref = findPreference<Preference>("backup_settings")
-        backupSettingsPref?.setOnPreferenceClickListener {
-            val dateStr = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US).format(java.util.Date())
-            // Some ROMs ship no Storage Access Framework document UI, so launching the picker throws
-            // ActivityNotFoundException (SHIZUKUPLUS-82). Fail with a message instead of crashing.
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.backup_export_title)
-                .setItems(
-                    arrayOf(
-                        getString(R.string.backup_type_encrypted),
-                        getString(R.string.backup_type_plain),
-                    ),
-                ) { _, which ->
-                    try {
-                        when (which) {
-                            0 -> createBackupLauncher.launch("shiroikuma-shizuku_settings_$dateStr.json")
-                            1 -> createPlainBackupLauncher.launch("shiroikuma-shizuku_settings_plain_$dateStr.json")
-                        }
-                    } catch (_: android.content.ActivityNotFoundException) {
-                        ShiroikumaToast.show(requireContext(), R.string.backup_no_file_manager_save, Toast.LENGTH_LONG)
-                    }
-                }.showHouse()
-            true
-        }
-
-        val restoreSettingsPref = findPreference<Preference>("restore_settings")
-        restoreSettingsPref?.setOnPreferenceClickListener {
-            try {
-                restoreBackupLauncher.launch(arrayOf("application/json", "*/*"))
-            } catch (_: android.content.ActivityNotFoundException) {
-                ShiroikumaToast.show(requireContext(), R.string.backup_no_file_manager_open, Toast.LENGTH_LONG)
-            }
-            true
-        }
-
         val hideDisabledPref = findPreference<TwoStatePreference>("hide_disabled_plus_features")
         hideDisabledPref?.isChecked = ShizukuSettings.isHideDisabledPlusFeaturesEnabled()
         hideDisabledPref?.setOnPreferenceChangeListener { _, newValue ->
@@ -573,10 +386,6 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         // Initialize all preference dependencies
         updateAllPlusFeatureDependencies()
 
-        // Feature 2 (#461): Apply backup-settings visibility on fragment entry.
-        // The toggle itself lives in Advanced & Diagnostics settings; the preference screen
-        // re-reads the flag here so the setting takes effect without an app restart.
-        applyBackupCategoryVisibility()
         updateDeviceOwnerToolsAvailability()
 
         // Check for integrated apps and update summaries
@@ -889,16 +698,6 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         }
     }
 
-    /**
-     * Shows or hides the entire "Backup & Restore" category in the Feature Hub based on the
-     * [ShizukuSettings.isHideBackupSettingsEnabled] preference (issue #461).
-     */
-    private fun applyBackupCategoryVisibility() {
-        val hide = ShizukuSettings.isHideBackupSettingsEnabled()
-        findPreference<af.shizuku.manager.settings.CollapsiblePreferenceCategory>("category_backup")
-            ?.isVisible = !hide
-    }
-
     // Must be called before setPreferencesFromResource(). In builds prior to r2436 this key was
     // stored as Set<String>; EditTextPreference calls getString() during XML inflation and Android
     // throws ClassCastException immediately — crashing the Feature Hub screen (#499).
@@ -922,18 +721,5 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 .putString(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, oldSet?.joinToString(",") ?: "")
                 .apply()
         }
-    }
-
-    private fun onRestoreSuccess() {
-        if (!isAdded) return
-        Toast.makeText(requireContext(), R.string.backup_restored_success, Toast.LENGTH_SHORT).show()
-        com.google.android.material.snackbar.Snackbar
-            .make(
-                requireView(),
-                R.string.backup_restored_restart_hint,
-                com.google.android.material.snackbar.Snackbar.LENGTH_LONG,
-            ).setAction(R.string.backup_restored_restart_now) {
-                requireActivity().recreate()
-            }.show()
     }
 }

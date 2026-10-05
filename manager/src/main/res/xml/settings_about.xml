@@ -71,19 +71,6 @@
             android:summary="@string/settings_restore_settings_summary"
             android:icon="@drawable/ic_install_24" />
 
-        <Preference
-            android:key="sync_peer_settings"
-            android:title="@string/settings_sync_peer_title"
-            android:summary="@string/settings_sync_peer_summary_installed"
-            android:icon="@drawable/ic_autorenew" />
-
-        <af.shizuku.manager.settings.GrayableIconSwitchPreference
-            android:key="auto_sync_peer_settings"
-            android:title="@string/settings_auto_sync_peer_title"
-            android:summary="@string/settings_auto_sync_peer_summary"
-            android:icon="@drawable/ic_autorenew"
-            android:defaultValue="true" />
-
     </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
     <!-- Project & Legal -->

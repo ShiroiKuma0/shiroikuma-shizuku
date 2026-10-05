@@ -181,6 +181,11 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         val highlightKey = arguments?.getString("highlight_key")
         if (!highlightKey.isNullOrEmpty()) {
             listView?.post {
+                // Auto-expand the parent CollapsiblePreferenceCategory if it's collapsed so the
+                // target preference is actually visible in the adapter before we try to scroll.
+                val targetPref = findPreference<androidx.preference.Preference>(highlightKey)
+                (targetPref?.parent as? CollapsiblePreferenceCategory)?.expand()
+
                 val adapter = listView?.adapter
                 if (adapter != null) {
                     var position = -1

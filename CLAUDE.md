@@ -287,6 +287,27 @@ binder" guard. **Keep `LOGGER.i("send binder to user app …")` as a single line
 the count of those lines per client launch is how a duplicate server is diagnosed, and moving it
 inside the loop makes that check silently meaningless.
 
+### ⛔ `LegacyShizukuBinderProxy` is never applied (`r2748` sync, 2026-10-05)
+
+Upstream `e70237f1` / `c643e740` wrap the `moe` container's binder in a proxy that shifts **every
+transaction code down by one** for any app requesting `moe.shizuku.manager.permission.API_V23` and
+no Plus permission — aimed at Hex Bodhi's positional-code build. But that permission set describes
+**every** client built against the published `dev.rikka.shizuku` artifacts (SD Maid SE, Swift
+Backup, Obtainium), whose AIDL uses the same explicit codes we do (`getVersion() = 2`,
+`attachApplication = 17`); the shift would land each of their calls on the wrong method. The class
+and `isLegacyOriginalShizukuApp` stay (rebase-quiet), but `sendBinderToUserApp` never wraps — every
+rebase will try to restore the `binderForLegacy` line, so drop it again.
+
+### Drop-In ↔ Plus settings sync is removed (`r2748` sync)
+
+Upstream `75e3a9f0` added `SettingsSharingProvider` (exported), `SettingsShareManager`, `<queries>`
+for `af.shizuku.plus.api` / `moe.shizuku.privileged.api`, an app-start sync, a sync on every home
+resume and an export on every preference change. It pairs only upstream's own two flavors; this
+build is neither, and its only "peer" here would be our Compat Hub. Both files are deleted, the
+manifest entries, the `initPeerSettingsSync()` call, the HomeActivity resume hook and the two About
+rows are gone. The Backup & Restore move from Feature Hub to About that came in the same commit
+**was** taken, with our toasts, house dialog and `shiroikuma-shizuku_settings_*` filenames.
+
 ## Shell access — how `rish` gets the binder without a prompt (2026-08-16)
 
 Upstream asks for consent on **every** `REQUEST_BINDER`, and it is right to. That action is the

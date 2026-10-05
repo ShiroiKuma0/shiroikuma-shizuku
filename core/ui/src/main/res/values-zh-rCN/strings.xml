@@ -3,7 +3,7 @@
     <string name="app_name" translatable="false">白い熊 雫</string>
     <!-- To translators: you can leave your here -->
     <string name="translation_contributors">thejaustin, Yizutt</string>
-    <string name="translation_url">https://github.com/thejaustin/ShizukuPlus</string>
+    <string name="translation_url">https://github.com/ShiroiKuma0/shiroikuma-shizuku</string>
     <!-- UI Settings - Expressive -->
     <string name="settings_expressive_title">表现力设计（M3E）</string>
     <string name="settings_expressive_shapes">表现力图标形状</string>

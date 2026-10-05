@@ -57,13 +57,6 @@
         android:name="android.hardware.touchscreen"
         android:required="false" />
 
-    <queries>
-        <package android:name="af.shizuku.plus.api" />
-        <package android:name="moe.shizuku.privileged.api" />
-        <provider android:authorities="af.shizuku.plus.api.settings.share" />
-        <provider android:authorities="moe.shizuku.privileged.api.settings.share" />
-    </queries>
-
     <!-- ${applicationId}-scoped: Plus and Dropin flavors share this manifest but have different
          applicationIds, and a permission-group name is not allowed to be redeclared by a second
          package - installing both side by side used to fail with error -126 ("attempting to
@@ -528,15 +521,6 @@
             android:enabled="true"
             android:exported="true"
             android:multiprocess="false" />
-
-        <provider
-            android:name=".settings.SettingsSharingProvider"
-            android:authorities="${applicationId}.settings.share"
-            android:directBootAware="true"
-            android:enabled="true"
-            android:exported="true"
-            android:multiprocess="false"
-            android:permission="af.shizuku.plus.permission.MANAGER" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

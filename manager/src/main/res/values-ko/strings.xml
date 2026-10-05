@@ -1,259 +1,1452 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="server_uptime">서버 가동 시간</string>
+    <string name="active_connections">활성 연결</string>
+    <string name="server_memory_usage">서버 메모리 사용량</string>
+    <string name="server_memory_uncapped">제한 없음</string>
+    <string name="server_clients_connected">연결된 앱 %1$d개</string>
     <!-- To translators: you can leave your here -->
+    <string name="translation_contributors">白い熊</string>
+    <string name="translation_url">https://github.com/ShiroiKuma0/shiroikuma-shizuku</string>
+    <!-- UI Settings - Expressive -->
+    <string name="settings_expressive_title">익스프레시브 디자인 (M3E)</string>
+    <string name="settings_expressive_shapes">익스프레시브 아이콘 모양</string>
+    <string name="settings_expressive_shapes_summary">아이콘에 비대칭의 나뭇잎과 물방울 모양을 사용합니다</string>
+    <string name="settings_expressive_animations">탄성 애니메이션</string>
+    <string name="settings_expressive_animations_summary">M3 탄성 예측 백과 드래그 스케일링을 활성화합니다</string>
+    <string name="settings_haptic_feedback">햅틱 피드백</string>
+    <string name="settings_haptic_feedback_summary">탭과 제스처 시 진동</string>
+    <string name="settings_icon_style">아이콘 스타일</string>
+    <string name="settings_icon_style_summary">시스템 아이콘의 시각적 스타일을 선택합니다</string>
+    <string name="settings_shape_style">컨테이너 모양 스타일</string>
+    <string name="settings_shape_style_summary">카드와 대화상자의 모서리 둥글기를 사용자 지정합니다</string>
+    <string name="settings_rounded_edges">둥근 모서리</string>
+    <string name="settings_rounded_edges_summary">카드와 대화상자 컨테이너에 둥근 모서리를 사용합니다</string>
+    <string name="settings_animation_intensity">애니메이션 강도</string>
+    <string name="settings_animation_intensity_summary">UI 전환의 속도와 탄력 정도를 조정합니다</string>
+    <!-- UI Settings - Display -->
+    <string name="settings_display_category">디스플레이</string>
+    <string name="settings_edge_to_edge">전체 화면 레이아웃</string>
+    <string name="settings_edge_to_edge_summary">시스템 바 뒤로 콘텐츠를 확장합니다. 시스템 바가 중요한 컨트롤을 가리면 비활성화하세요</string>
+    <string name="settings_blur_ui">프로스트 글래스 효과</string>
+    <string name="settings_blur_ui_summary">대화상자와 상단 바에 블러와 반투명 효과를 적용합니다. Android 12 이상에서 가장 잘 작동합니다</string>
+    <!-- UI Settings - One UI Theme -->
+    <string name="settings_oneui_theme">One UI 스타일</string>
+    <string name="settings_oneui_theme_summary">Samsung One UI의 디자인 언어에 맞춥니다 — 크고 둥근 모서리와 굵은 타이포그래피. 색상은 영향을 받지 않으므로, 색상은 위의 Material You나 사용자 지정 강조색으로 설정하세요.</string>
+    <string name="settings_one_handed_mode">한 손 모드</string>
+    <string name="settings_one_handed_mode_summary">편안한 엄지 조작을 위해 대화형 콘텐츠를 화면 하단으로 이동합니다</string>
+    <!-- UI Settings - Typography & Layout -->
+    <string name="settings_bold_typography">굵은 타이포그래피</string>
+    <string name="settings_bold_typography_summary">제목과 헤딩에 더 굵은 글꼴 두께를 사용합니다</string>
+    <string name="settings_expanded_headers">확장된 섹션 헤더</string>
+    <string name="settings_expanded_headers_summary">설정 화면에 크고 접을 수 있는 헤더를 사용합니다</string>
+    <!-- UI Settings - Corner Rounding -->
+    <string name="settings_corner_rounding_override">모서리 둥글기</string>
+    <!-- UI Settings - System-following -->
+    <string name="settings_follow_system_animations">시스템 애니메이션 따르기</string>
+    <string name="settings_follow_system_animations_summary">개발자 옵션에서 설정한 기기의 애니메이션 속도 설정을 따릅니다</string>
+    <string name="settings_follow_system_haptics">시스템 햅틱 따르기</string>
+    <string name="settings_follow_system_haptics_summary">시스템 햅틱 피드백이 꺼져 있을 때 앱 내 햅틱을 비활성화합니다</string>
+    <string name="settings_icon_color_mode">투톤 아이콘 색상</string>
+    <string name="settings_icon_color_mode_summary">투톤 아이콘 배경에 색상을 입히는 방식</string>
+    <string name="home_status_service_running_tile_sublabel">실행 중</string>
+    <string name="home_status_service_stopped_tile_sublabel">중지됨</string>
     <!-- Home - Status -->
-    <string name="home_status_service_is_running">%1$s가 실행 중입니다</string>
-    <string name="home_status_service_not_running">%1$s가 실행 중이 아닙니다</string>
-    <string name="home_status_service_version">%1$s, 버전 %2$s</string>
-    <string name="home_status_service_version_update"><![CDATA[%1$s, 버전 %2$s<br>다시 시작하여 버전 %3$s로 업데이트]]></string>
+<string name="home_status_service_is_running">%1$s가 실행 중입니다</string>
+<string name="home_status_service_not_running">%1$s가 실행 중이 아닙니다</string>
+    <string name="home_status_service_not_running_summary">%1$s이(가) 중지되었습니다</string>
+    <string name="home_status_service_user_root">루트</string>
+    <string name="home_status_service_user_adb">adb</string>
+<string name="home_status_service_version">%1$s, 버전 %2$s</string>
+<string name="home_status_service_version_update"><![CDATA[%1$s, 버전 %2$s<br>다시 시작하여 버전 %3$s로 업데이트]]></string>
     <!-- Home - Adb -->
-    <string name="home_adb_title"><![CDATA[컴퓨터에 연결하여 시작]]></string>
-    <string name="home_adb_description"><![CDATA[루링 없이 白い熊 雫를 시작하기 위해 adb가 필요합니다. (컴퓨터 연결 필수) 이 작업은 다시 시작 시 마다 필요로 합니다. 자세한 정보는 <b><a href="%1$s">도움말</a></b>을 확인하세요.]]></string>
-    <string name="home_adb_button_view_help">도움말 읽기</string>
-    <string name="home_adb_button_view_command">명령어 보기</string>
-    <string name="home_adb_dialog_view_command_message"><![CDATA[<font face=monospace>%1$s</font><br><br>* 몇 가지 다른 참고 사항이 있으므로, 도움말을 먼저 확인하세요.]]></string>
-    <string name="home_adb_dialog_view_command_copy_button">복사</string>
-    <string name="home_adb_dialog_view_command_button_send">보내기</string>
+<string name="home_adb_title"><![CDATA[컴퓨터에 연결하여 시작]]></string>
+<string name="home_adb_description"><![CDATA[루링 없이 白い熊 雫를 시작하기 위해 adb가 필요합니다. (컴퓨터 연결 필수) 이 작업은 다시 시작 시 마다 필요로 합니다. 자세한 정보는 <b><a href="%1$s">도움말</a></b>을 확인하세요.]]></string>
+<string name="home_adb_button_view_help">도움말 읽기</string>
+<string name="home_adb_button_view_command">명령어 보기</string>
+<string name="home_adb_dialog_view_command_message"><![CDATA[<font face=monospace>%1$s</font><br><br>* 몇 가지 다른 참고 사항이 있으므로, 도움말을 먼저 확인하세요.]]></string>
+<string name="home_adb_dialog_view_command_copy_button">복사</string>
+<string name="home_adb_dialog_view_command_button_send">보내기</string>
     <!-- Home - Wireless Adb -->
-    <string name="home_wireless_adb_title"><![CDATA[무선 디버깅으로 시작]]></string>
-    <string name="home_wireless_adb_description"><![CDATA[Android 11 또는 그 이상 버전에서는 컴퓨터에 연결하지 않아도 무선 디버깅을 활성화하하여 기기에서 직접 白い熊 雫를 시작할 수 있습니다.<p>단계별 가이드를 먼저 확인하세요.]]></string>
-    <string name="home_wireless_adb_description_pre_11"><![CDATA[Android 11 이전에서는 무선 디버깅을 활성화하기 위해 컴퓨터에 연결해야 합니다.]]></string>
-    <string name="home_wireless_adb_view_guide_button">단계별 가이드</string>
+<string name="home_wireless_adb_title"><![CDATA[무선 디버깅으로 시작]]></string>
+<string name="home_wireless_adb_description"><![CDATA[Android 11 또는 그 이상 버전에서는 컴퓨터에 연결하지 않아도 무선 디버깅을 활성화하하여 기기에서 직접 白い熊 雫를 시작할 수 있습니다.<p>단계별 가이드를 먼저 확인하세요.]]></string>
+<string name="home_wireless_adb_description_pre_11"><![CDATA[Android 11 이전에서는 무선 디버깅을 활성화하기 위해 컴퓨터에 연결해야 합니다.]]></string>
+<string name="home_wireless_adb_view_guide_button">단계별 가이드</string>
+    <string name="home_layout_sim_adb">ADB</string>
     <!-- Adb -->
-    <string name="dialog_adb_discovery">무선 디버깅 서비스 검색 중</string>
-    <string name="dialog_adb_discovery_message">\"개발자 옵션\"에서 \"무선 디버깅\"을 사용으로 설정하세요. \"무선 디버깅\"은
+<string name="dialog_adb_discovery">무선 디버깅 서비스 검색 중</string>
+<string name="dialog_adb_discovery_message">\"개발자 옵션\"에서 \"무선 디버깅\"을 사용으로 설정하세요. \"무선 디버깅\"은
         네트워크가 변경될 때 자동으로 사용 안 함으로 변경됩니다.
         \n
         \n\"개발자 옵션\"이나 \"USB 디버깅\"을 사용 안 함으로 하면 白い熊 雫가 중지됩니다.</string>
-    <string name="dialog_adb_discovery_message_toggle_wireless_debugging">\"무선 디버깅\"이 검색중으로 유지된다면
+<string name="dialog_adb_discovery_message_toggle_wireless_debugging">\"무선 디버깅\"이 검색중으로 유지된다면
         비활성화했다가 다시 활성화해 보세요.</string>
-    <string name="dialog_adb_port">포트 번호</string>
-    <string name="dialog_adb_invalid_port">포트 번호는 1에서 65535 사이의 정수입니다.</string>
-    <string name="adb_pairing">페어링</string>
-    <string name="dialog_adb_pairing_title">기기와 페어링</string>
-    <string name="dialog_adb_pairing_discovery">페어링 서비스 검색 중</string>
-    <string name="dialog_adb_pairing_paring_code">페어링 코드</string>
-    <string name="paring_code_is_wrong">페어링 코드가 올바르지 않습니다.</string>
-    <string name="cannot_connect_port">무선 디버깅 서비스에 연결할 수 없습니다.\n\n白い熊 雫가 모든 방화벽, 광고 차단, VPN 또는
+    <string name="dialog_adb_wifi_disconnected_warning">&lt;b&gt;Wi-Fi가 연결되지 않았습니다.&lt;/b&gt;&lt;br&gt;Android에서는 모바일 데이터(5G/LTE)로 무선 디버깅을 검색할 수 없습니다.</string>
+    <string name="dialog_adb_hotspot_tip">💡 &lt;b&gt;팁:&lt;/b&gt; 휴대전화의 &lt;b&gt;모바일 핫스팟&lt;/b&gt;을 켜면 Wi-Fi 네트워크 없이도 무선 디버깅을 사용할 수 있습니다. 또는 로컬 포트 5555로 연결하세요.</string>
+    <string name="dialog_adb_samsung_hotspot_warning">💡 &lt;b&gt;Samsung 참고:&lt;/b&gt; One UI는 모바일 핫스팟이 활성화된 동안 무선 디버깅을 비활성화합니다. 다른 기기의 Wi-Fi 핫스팟에 연결(오프라인도 가능)하거나 USB를 통해 &lt;code&gt;adb tcpip 5555&lt;/code&gt;를 한 번 실행하세요.</string>
+    <string name="dialog_adb_open_hotspot">모바일 핫스팟 설정</string>
+    <string name="dialog_adb_probing_loopback">로컬 포트(127.0.0.1:5555) 확인 중…</string>
+    <string name="dialog_adb_loopback_found">포트 %1$d에서 활성 ADB 서비스를 찾았습니다! 연결 중…</string>
+<string name="dialog_adb_port">포트 번호</string>
+<string name="dialog_adb_invalid_port">포트 번호는 1에서 65535 사이의 정수입니다.</string>
+<string name="adb_pairing">페어링</string>
+<string name="dialog_adb_pairing_title">기기와 페어링</string>
+<string name="dialog_adb_pairing_discovery">페어링 서비스 검색 중</string>
+<string name="dialog_adb_pairing_paring_code">페어링 코드</string>
+<string name="paring_code_is_wrong">페어링 코드가 올바르지 않습니다.</string>
+<string name="cannot_connect_port">무선 디버깅 서비스에 연결할 수 없습니다.\n\n白い熊 雫가 모든 방화벽, 광고 차단, VPN 또는
         네트워크 접근 제한 관련 앱에서 화이트리스트에 등록되어 있는지 꼭 확인해 주세요.</string>
-    <string name="dialog_wireless_adb_not_enabled">무선 디버깅을 사용하고 있지 않습니다.
+<string name="dialog_wireless_adb_not_enabled">무선 디버깅을 사용하고 있지 않습니다.
         \n안드로이드 11 이전은 무선 디버깅을 사용하기 위해서 컴퓨터 연결을 필수로 해야 합니다.</string>
-    <string name="dialog_usb_debugging_not_enabled">USB 디버깅이 활성화되어 있지 않습니다.\n\"개발자 옵션\"에서 활성화해 주세요.</string>
-    <string name="dialog_adb_pairing_message">다음 단계를 수행하여 페어링을 시작하세요.\n- \"개발자 옵션\"으로 이동합니다.\n-
+<string name="dialog_usb_debugging_not_enabled">USB 디버깅이 활성화되어 있지 않습니다.\n\"개발자 옵션\"에서 활성화해 주세요.</string>
+<string name="dialog_adb_pairing_message">다음 단계를 수행하여 페어링을 시작하세요.\n- \"개발자 옵션\"으로 이동합니다.\n-
         \"USB 디버깅\" 및 \"무선 디버깅\"을 활성화합니다.\n- \"무선 디버깅\"의 왼쪽을 탭합니다.\n- \"페어링 코드로 장치 페어링\"을 탭합니다.\n-
         알림에 페어링 코드를 입력합니다.</string>
-    <string name="dialog_adb_pairing_accessibility_permission">Android 14에서 패키지 설치 관리자를 사용하여
+<string name="dialog_adb_pairing_accessibility_permission">Android 14에서 패키지 설치 관리자를 사용하여
         白い熊 雫를 설치/업데이트하면 페어링을 위한 접근성 서비스를 활성화하는 데 필요한 ^1 권한이 취소됩니다.\n\n이 권한을 부여하려면 다음 ADB 명령을
         실행하세요.\n\n^2\n\n명령을 실행한 후 페어링 프로세스를 계속 진행할 수 있습니다.\n\n참고: ADB를 사용하여 白い熊 雫를 설치/업데이트하면 이 문제를
         해결할 수 있습니다.</string>
-    <string name="dialog_adb_pairing_accessibility_enable">페어링 과정을 시작하려면 접근성 서비스를 활성화하세요. 이렇게 하면
+    <!-- Service Doctor -->
+    <string name="snackbar_samsung_auto_blocker">Samsung Auto Blocker가 One UI 7/8에서 ADB를 차단할 수 있습니다. 보안 설정을 확인하세요.</string>
+    <string name="snackbar_action_check">확인</string>
+    <string name="doctor_check_accessibility">ADB 페어링 접근성 서비스</string>
+    <string name="doctor_check_samsung_autoblocker">Samsung Auto Blocker</string>
+    <string name="doctor_check_samsung_battery_protection">Samsung 배터리 보호</string>
+    <string name="doctor_check_samsung_max_restrictions">최대 제한 (One UI 8+)</string>
+    <string name="doctor_check_secondary_user">보조 사용자 / 보안 폴더</string>
+    <string name="doctor_check_phantom_process">팬텀 프로세스 킬러</string>
+    <string name="doctor_check_su_bridge_a16">SU Bridge (Android 16+ ADB)</string>
+    <string name="doctor_status_manual_check">수동 확인 필요</string>
+    <string name="doctor_status_detected">감지됨</string>
+    <string name="doctor_status_fix_available">수정 가능</string>
+    <string name="doctor_status_autoblocker_on">활성화됨 (끄기)</string>
+    <string name="doctor_status_samsung_max_restrictions_on">활성화됨 (반드시 비활성화)</string>
+    <string name="doctor_status_samsung_sleeping_apps">검토 필요 (절전 앱 확인)</string>
+    <string name="doctor_status_su_bridge_path_set">내보낸 경로 설정됨</string>
+    <string name="doctor_status_su_bridge_no_path">내보낸 경로가 구성되지 않음</string>
+    <string name="doctor_tip_oneui8_max_restrictions">One UI 8+: Auto Blocker의 \'Maximum Restrictions\'(최대 제한)이 ADB를 비활성화합니다. 白い熊 雫를 사용하려면 끄세요.</string>
+    <string name="doctor_tip_su_bridge_a16">Android 16+에서는 ADB 셸에서 /data/local/tmp에 쓰는 것이 제한됩니다. Root Compat Hub를 열고 \"내보내기\"를 눌러 기기에서 작동하는 SU Bridge 경로를 설정하세요.</string>
+    <string name="doctor_tip_samsung_autoblocker"><b>Samsung Auto Blocker</b>: <b>끔(OFF)</b>으로 되어 있거나 \'최대 제한\'이 비활성화되어 있는지 확인하세요. One UI 7/8+에서 ADB 명령을 조용히 차단합니다.</string>
+    <string name="doctor_tip_oneui_connectivity"><b>One UI 7/8 연결</b>: 무선 페어링이 실패하면 白い熊 雫와 개발자 옵션을 동시에 연 상태로 <b>분할 화면 모드</b>를 사용해 보세요.</string>
+    <string name="doctor_tip_s22_ultra"><b>S22 Ultra 팁</b>: 안정적인 ADB 연결을 위해 `*#0808#`을 다이얼하고 연결이 끊기면 `MTP + ADB`를 선택하세요.</string>
+    <string name="doctor_tip_secure_folder"><b>보안 폴더 감지됨</b>: 白い熊 雫는 기본 사용자(소유자)에서 가장 잘 동작합니다. 보안 폴더나 작업 프로필 안에서 실행하려면 먼저 기본 사용자에서 서버를 시작해야 할 수 있습니다.</string>
+    <string name="doctor_tip_phantom_process"><b>팬텀 프로세스 킬러</b>: Android 12-15+에서는 명령을 너무 많이 실행하면 白い熊 雫가 종료될 수 있습니다. \'수정\' 버튼을 누르면 이 제한을 비활성화합니다.</string>
+    <string name="doctor_tip_samsung_optimization"><b>Samsung 자동 최적화</b>: 白い熊 雫가 밤에 종료되지 않도록 디바이스 케어에서 \'자동 다시 시작\'을 비활성화하세요.</string>
+    <string name="doctor_tip_samsung_sleeping"><b>Samsung 절전 앱</b>: 수정을 누르면 <b>\'절전되지 않는 앱\'</b> 목록이 바로 열립니다. <b>+</b> 버튼을 눌러 白い熊 雫를 추가하면 Samsung이 백그라운드 서비스를 동결하지 않습니다.</string>
+    <string name="doctor_tip_s22_ultra_exynos">
+        <b>S22 Ultra (Exynos)</b>
+        <b>\'RAM Plus\'</b>
+    </string>
+    <string name="doctor_tip_s22_ultra_snapdragon"><b>S22 Ultra(Snapdragon)</b>: 최대 명령 처리량을 위해 빠른 설정에서 \'향상된 프로세싱\'이 활성화되어 있는지 확인하세요.</string>
+    <string name="doctor_system_well_configured">시스템이 白い熊 雫 사용에 잘 구성되어 있습니다.</string>
+    <!-- Root Compatibility -->
+    <string name="su_bridge_other_detected_apps">감지된 다른 루트 앱</string>
+    <string name="su_bridge_installed_root_app">설치된 루트 앱</string>
+    <string name="su_bridge_suggested_root_app">권장 루트 앱</string>
+    <!-- Shell Tutorial -->
+    <string name="terminal_tutorial_export_summary">파일(%1$s, %2$s, %3$s, %4$s)을 새 폴더로 내보내세요.</string>
+    <string name="terminal_tutorial_copy_command">cp /sdcard/chosen-folder/* /data/data/terminal.package.name/files</string>
+    <string name="terminal_tutorial_copy_summary">내보낸 파일이 터미널 앱의 비공개 저장소에 복사됩니다. &lt;font face=\"monospace\"&gt;.bashrc&lt;/font&gt;나 &lt;font face=\"monospace\"&gt;.zshrc&lt;/font&gt;에 %1$s, %2$s, %3$s에 대한 별칭을 추가할 수도 있습니다.</string>
+    <string name="terminal_tutorial_run_command">sh /path/to/%1$s</string>
+    <string name="terminal_tutorial_run_plus_command">sh /path/to/plus [command]</string>
+    <!-- Adb Pairing Dialog -->
+    <string name="adb_pairing_searching">페어링 서비스 검색 중…</string>
+    <string name="adb_pairing_status_pairing">기기와 페어링 중…</string>
+    <string name="adb_pairing_status_failed">페어링 실패.</string>
+    <!-- App Management -->
+    <string name="app_management_badge_format">&lt;b&gt;&lt;font color=\"%1$s\"&gt;[%2$s]&lt;/font&gt;&lt;/b&gt; %3$s</string>
+<string name="dialog_adb_pairing_accessibility_enable">페어링 과정을 시작하려면 접근성 서비스를 활성화하세요. 이렇게 하면
         白い熊 雫가 페어링 코드를 감지할 수 있습니다.\n\n코드를 찾거나 1분 후에 에너지 절약을 위해 접근성 서비스가 꺼집니다.</string>
-    <string name="dialog_adb_pairing_accessibility_navigate">다음 단계를 수행하여 페어링을 시작하세요.\n- \"개발자 옵션\"으로
+<string name="dialog_adb_pairing_accessibility_navigate">다음 단계를 수행하여 페어링을 시작하세요.\n- \"개발자 옵션\"으로
         이동합니다.\n- \"USB 디버깅\" 및 \"무선 디버깅\"을 활성화합니다.\n- \"무선 디버깅\"의 왼쪽을 탭합니다.\n- \"페어링 코드로 기기 페어링\"을
         탭합니다. 白い熊 雫가 자동으로 페어링 코드를 감지합니다.</string>
-    <string name="adb_pairing_requires_multi_window">먼저 화면 분할 (멀티 윈도우) 모드로 진입하세요.</string>
-    <string name="adb_pairing_requires_multi_window_reason">이 시스템은 페어링 대화 대화가 항상 보이도록 요구합니다. 분할 화면
+<string name="adb_pairing_requires_multi_window">먼저 화면 분할 (멀티 윈도우) 모드로 진입하세요.</string>
+<string name="adb_pairing_requires_multi_window_reason">이 시스템은 페어링 대화 대화가 항상 보이도록 요구합니다. 분할 화면
         모드를 사용하는 것만이 이 앱과 시스템 대화 대화를 동시에 볼 수 있는 방법입니다.</string>
-    <string name="adb_error_key_store">무선 디버깅용 키를 생성할 수 없습니다.\n이는 이 장치의 KeyStore 메커니즘이 고장 났기 때문일 수
+<string name="adb_error_key_store">무선 디버깅용 키를 생성할 수 없습니다.\n이는 이 장치의 KeyStore 메커니즘이 고장 났기 때문일 수
         있습니다.</string>
-    <string name="adb_stopping_tcp">TCP 포트를 닫습니다</string>
-    <string name="adb_error_stop_tcp">TCP를 통한 ADB를 중지하지 못했습니다.</string>
-    <string name="adb_pair_required">페어링 단계를 먼저 진행하세요.</string>
-    <string name="enable">할 수 있게 하다</string>
-    <string name="development_settings">개발자 옵션</string>
-    <string name="notification_settings">알림 옵션</string>
-    <string name="adb_pairing_tutorial_title">기기와 白い熊 雫 페어링</string>
-    <string name="adb_pairing_tutorial_content_notification">白い熊 雫의 알림이 페어링을 완료하는 데 도움이 될 수도 있습니다.</string>
-    <string name="adb_pairing_tutorial_content_steps">\"개발자 옵션\"으로 이동한 다음 \"USB 디버깅\"과 \"무선 디버깅\"을
+<string name="adb_stopping_tcp">TCP 포트를 닫습니다</string>
+<string name="adb_error_stop_tcp">TCP를 통한 ADB를 중지하지 못했습니다.</string>
+<string name="adb_pair_required">페어링 단계를 먼저 진행하세요.</string>
+<string name="enable">할 수 있게 하다</string>
+<string name="development_settings">개발자 옵션</string>
+<string name="notification_settings">알림 옵션</string>
+<string name="adb_pairing_tutorial_title">기기와 白い熊 雫 페어링</string>
+<string name="adb_pairing_tutorial_content_notification">白い熊 雫의 알림이 페어링을 완료하는 데 도움이 될 수도 있습니다.</string>
+<string name="adb_pairing_tutorial_content_steps">\"개발자 옵션\"으로 이동한 다음 \"USB 디버깅\"과 \"무선 디버깅\"을
         활성화합니다.</string>
-    <string name="adb_pairing_tutorial_content_enter_pairing_code">\"무선 디버깅\"의 왼쪽을 탭한 다음 \"페어링 코드로
+<string name="adb_pairing_tutorial_content_enter_pairing_code">\"무선 디버깅\"의 왼쪽을 탭한 다음 \"페어링 코드로
         기기 페어링\"을 탭합니다. 알림에 있는 코드를 입력하여 페어링을 완료합니다.</string>
-    <string name="adb_pairing_tutorial_content_notification_blocked">페어링 프로세스에서는 白い熊 雫의 알림과 상호
+<string name="adb_pairing_tutorial_content_notification_blocked">페어링 프로세스에서는 白い熊 雫의 알림과 상호
         작용해야 합니다. 白い熊 雫가 알림을 게시하도록 허용하십시오.</string>
-    <string name="adb_pairing_tutorial_content_miui">MIUI 사용자는 시스템 설정의 \"알림\" - \"알림 창\"에서 알림 스타일을
+<string name="adb_pairing_tutorial_content_miui">MIUI 사용자는 시스템 설정의 \"알림\" - \"알림 창\"에서 알림 스타일을
         \"Android\"로 전환해야 합니다.</string>
-    <string name="adb_pairing_tutorial_content_miui_2">그렇지 않으면 알림에서 페어링 코드를 입력하지 못할 수도 있습니다.</string>
-    <string name="adb_pairing_tutorial_content_finish">시즈쿠에게 돌아가서 시즈쿠를 시작해.</string>
-    <string name="adb_pairing_tutorial_content_network">시즈쿠는 로컬 네트워크에 접속해야 해. 네트워크 권한으로 제어됩니다.</string>
-    <string name="adb_pairing_tutorial_content_network_limation_not_foreground">일부 시스템(예: MIUI)은 앱이
+<string name="adb_pairing_tutorial_content_miui_2">그렇지 않으면 알림에서 페어링 코드를 입력하지 못할 수도 있습니다.</string>
+<string name="adb_pairing_tutorial_content_finish">시즈쿠에게 돌아가서 시즈쿠를 시작해.</string>
+<string name="adb_pairing_tutorial_content_network">시즈쿠는 로컬 네트워크에 접속해야 해. 네트워크 권한으로 제어됩니다.</string>
+<string name="adb_pairing_tutorial_content_network_limation_not_foreground">일부 시스템(예: MIUI)은 앱이
         포그라운드 서비스를 사용하더라도 보이지 않으면 네트워크에 접속하지 못하게 합니다. 해당 시스템에서는 시즈쿠의 배터리 최적화 기능을 비활성화해 주세요.</string>
     <!-- Home - Root -->
-    <string name="home_root_title"><![CDATA[시작 (루팅된 기기용)]]></string>
-    <string name="home_root_description"><![CDATA[Magisk를 사용 중이라면 %1$s를 사용해 보세요. 루트 사용자의 경우, 이 명령은 白い熊 雫를 대체하게 됩니다. 참고: %2$s를 사용하려면 기존 애플리케이션을 약간 변경해야 합니다.]]></string>
-    <string name="home_root_button_start">시작</string>
-    <string name="home_root_button_restart">재시작</string>
+<string name="home_root_title"><![CDATA[시작 (루팅된 기기용)]]></string>
+<string name="home_root_description"><![CDATA[Magisk를 사용 중이라면 %1$s를 사용해 보세요. 루트 사용자의 경우, 이 명령은 白い熊 雫를 대체하게 됩니다. 참고: %2$s를 사용하려면 기존 애플리케이션을 약간 변경해야 합니다.]]></string>
+<string name="home_root_button_start">시작</string>
+<string name="home_root_button_restart">재시작</string>
     <!-- Home - Application management -->
-    <string name="home_app_management_title">어플리케이션 관리</string>
-    <plurals name="home_app_management_authorized_apps_count">
+<string name="home_app_management_title">어플리케이션 관리</string>
+<plurals name="home_app_management_authorized_apps_count">
+        <item quantity="one">%d개 앱 인증됨</item>
         <item quantity="other"><![CDATA[%d개 앱 인증됨]]></item>
     </plurals>
-    <string name="home_app_management_view_authorized_apps"><![CDATA[탭하여 인증된 앱 관리]]></string>
-    <string name="home_app_management_empty">白い熊 雫 권한을 요청하거나 선언한 앱이 여기에 표시됩니다.</string>
+<string name="home_app_management_view_authorized_apps"><![CDATA[탭하여 인증된 앱 관리]]></string>
+<string name="home_app_management_empty">白い熊 雫 권한을 요청하거나 선언한 앱이 여기에 표시됩니다.</string>
     <!-- Home - Automation -->
-    <string name="home_automation_title">자동화 앱으로 白い熊 雫 제어</string>
-    <string name="home_automation_description">Tasker 및 MacroDroid와 같은 앱은 白い熊 雫를 자동으로 시작/중지하는 인텐트를
+<string name="home_automation_title">자동화 앱으로 白い熊 雫 제어</string>
+<string name="home_automation_description">Tasker 및 MacroDroid와 같은 앱은 白い熊 雫를 자동으로 시작/중지하는 인텐트를
         보낼 수 있습니다.</string>
-    <string name="home_automation_button_view_intents">의도 보기</string>
-    <string name="home_automation_dialog_label_action">행동</string>
-    <string name="home_automation_dialog_label_package">패키지</string>
-    <string name="home_automation_dialog_label_class">수업</string>
-    <string name="home_automation_dialog_label_target">목표</string>
+    <string name="home_automation_description_device_restriction">기기에서 시작 인텐트를 사용하려면 먼저 PC에서 %1$s를 실행하여 TCP를 통한 ADB를 활성화해야 합니다.</string>
+<string name="home_automation_button_view_intents">의도 보기</string>
+    <string name="home_automation_bottom_sheet_intents">인텐트</string>
+    <string name="home_automation_bottom_sheet_label_action">동작</string>
+    <string name="home_automation_bottom_sheet_label_package">패키지</string>
+    <string name="home_automation_bottom_sheet_label_target">대상</string>
+    <string name="home_automation_bottom_sheet_label_extras">엑스트라</string>
+    <string name="home_automation_regenerate_token">토큰을 다시 생성할까요?</string>
+    <string name="home_automation_regenerate_token_message">새 토큰으로 인텐트를 다시 구성해야 합니다.</string>
+    <string name="home_automation_token_encrypt_failed">토큰을 안전하게 보호하지 못했습니다 — 다시 시도하세요</string>
     <!-- Home - Learn more -->
-    <string name="home_learn_more_title">개발자 가이드</string>
-    <string name="home_learn_more_description">白い熊 雫로 개발하는 방법 알아보기</string>
+<string name="home_learn_more_title">개발자 가이드</string>
+<string name="home_learn_more_description">白い熊 雫로 개발하는 방법 알아보기</string>
     <!-- Home - Adb permissions limited -->
-    <string name="home_adb_is_limited_title">추가 단계를 진행해야 합니다</string>
-    <string name="home_adb_is_limited_description">디바이스 제조업체에서 ADB 권한을 제한하여 白い熊 雫를 사용하는 앱이 제대로
+<string name="home_adb_is_limited_title">추가 단계를 진행해야 합니다</string>
+<string name="home_adb_is_limited_description">디바이스 제조업체에서 ADB 권한을 제한하여 白い熊 雫를 사용하는 앱이 제대로
         작동하지 않습니다.
         \n
         \n일반적으로 \'개발자 옵션\'에서 일부 옵션을 조정하여 이 제한을 해제할 수 있습니다. 자세한 방법은 도움말을 참조하세요.
         \n
         \n작업을 적용하려면 白い熊 雫를 다시 시작해야 할 수도 있습니다.</string>
+    <!-- Application management - context menu -->
+    <string name="app_management_context_open_app">앱 열기</string>
+    <string name="app_management_context_app_info">앱 정보</string>
+    <string name="app_management_context_grant">권한 부여</string>
+    <string name="app_management_context_revoke">권한 취소</string>
+    <string name="app_management_context_hide">목록에서 숨기기</string>
+    <string name="app_management_no_launcher">이 앱에는 런처가 없습니다</string>
+    <string name="app_management_package_copied">패키지 이름이 복사되었습니다</string>
+    <string name="app_management_log_permission_toggle">권한 전환: %s</string>
+    <string name="app_management_log_hide">목록에서 숨기기</string>
+    <string name="app_management_log_unhide">목록에서 숨기기 해제</string>
+    <string name="app_management_hidden">앱이 숨겨졌습니다</string>
+    <string name="app_management_selected">%d개 선택됨</string>
+    <string name="app_management_undo">실행 취소</string>
+    <!-- Application management - search / filter / sort -->
+    <string name="app_management_hint_search">앱 검색…</string>
+    <string name="app_management_filter_all">전체</string>
+    <string name="app_management_filter_granted">부여됨</string>
+    <string name="app_management_filter_denied">거부됨</string>
+    <string name="app_management_filter_hidden">숨김</string>
+    <string name="app_management_action_sort">정렬</string>
+    <string name="app_management_action_hidden_apps">숨겨진 앱</string>
+    <string name="app_management_sort_a_to_z">이름 (A–Z)</string>
+    <string name="app_management_sort_last_installed">최근 설치 순</string>
+    <string name="app_management_sort_last_updated">최근 업데이트 순</string>
     <!-- Application management -->
-    <string name="app_management_dialog_adb_is_limited_title">ADB의 권한이 제한됨</string>
-    <string name="app_management_dialog_adb_is_limited_message"><![CDATA[기기 제조사에서 ADB의 권한을 제한하고 있을 가능성이 높습니다.<p><b><a href="%1$s">이 문서</a></b>에 시스템에 대한 해결 방안이 있을 수 있습니다.]]></string>
-    <string name="app_management_item_summary_requires_root">* 루트 권한으로 실행된 白い熊 雫 필요</string>
-    <string name="app_management_toggle_all">모두 전환</string>
+<string name="app_management_dialog_adb_is_limited_title">ADB의 권한이 제한됨</string>
+<string name="app_management_dialog_adb_is_limited_message"><![CDATA[기기 제조사에서 ADB의 권한을 제한하고 있을 가능성이 높습니다.<p><b><a href="%1$s">이 문서</a></b>에 시스템에 대한 해결 방안이 있을 수 있습니다.]]></string>
+<string name="app_management_item_summary_requires_root">* 루트 권한으로 실행된 白い熊 雫 필요</string>
+    <string name="app_management_item_summary_partial_root">⚠ 부분 지원 — 일부 기능은 루트 권한의 白い熊 雫가 여전히 필요합니다</string>
+    <string name="app_management_item_summary_requires_plus">* 白い熊 雫 Enhanced API 필요</string>
+    <string name="app_management_item_context">이 앱 정보: %s</string>
+    <string name="app_management_enhancements">개선 사항</string>
+    <string name="app_management_enhancements_desc">성능과 호환성을 향상시키기 위해 이 앱에 대한 Plus 기능을 활성화합니다.</string>
+    <string name="app_management_badge_enhanced">향상됨</string>
+    <string name="app_management_badge_upgrade">Plus 업그레이드 가능</string>
+<string name="app_management_toggle_all">모두 전환</string>
+    <string name="app_management_bulk_grant">선택 항목에 권한 부여</string>
+    <string name="app_management_bulk_revoke">선택 항목의 권한 취소</string>
+    <string name="app_management_bulk_hide">선택 항목 숨기기</string>
+    <string name="app_management_bulk_select_all">모두 선택</string>
     <!-- Terminal -->
-    <string name="home_terminal_title">터미널에서 白い熊 雫 사용</string>
-    <string name="home_terminal_description">白い熊 雫를 통해 터미널 앱에서 셸 명령 실행</string>
-    <string name="terminal_tutorial_miui">사용자들은 MIUI가 내보내기 기능에서 사용되는 Storage Access Framework를
+<string name="home_terminal_title">터미널에서 白い熊 雫 사용</string>
+<string name="home_terminal_description">白い熊 雫를 통해 터미널 앱에서 셸 명령 실행</string>
+<string name="terminal_tutorial_miui">사용자들은 MIUI가 내보내기 기능에서 사용되는 Storage Access Framework를
         손상시킨다고 보고했습니다.</string>
-    <string name="terminal_tutorial_miui_2">MIUI를 사용하는 경우 白い熊 雫 APK의 assets 폴더에서 파일을 추출해야 할 수도
+<string name="terminal_tutorial_miui_2">MIUI를 사용하는 경우 白い熊 雫 APK의 assets 폴더에서 파일을 추출해야 할 수도
         있습니다.</string>
-    <string name="terminal_tutorial_1">파일을 새 폴더로 내보냅니다.</string>
-    <string name="terminal_tutorial_1_description">%1$s 및 %2$s두 개의 파일이 내보내집니다. 선택한 폴더에 해당 파일이 이미 있는
+<string name="terminal_tutorial_1">파일을 새 폴더로 내보냅니다.</string>
+<string name="terminal_tutorial_1_description">%1$s 및 %2$s두 개의 파일이 내보내집니다. 선택한 폴더에 해당 파일이 이미 있는
         경우 삭제됩니다.</string>
-    <string name="terminal_export_files">파일 내보내기</string>
-    <string name="terminal_tutorial_2">터미널 앱을 사용하여 파일을 개인 파일 디렉토리에 복사합니다.</string>
-    <string name="terminal_tutorial_2_description">팁: 터미널 앱의 홈 디렉토리(~)가 개인 파일 디렉토리에 있는 경우, 해당 디렉토리에
+<string name="terminal_export_files">파일 내보내기</string>
+<string name="terminal_tutorial_2">터미널 앱을 사용하여 파일을 개인 파일 디렉토리에 복사합니다.</string>
+<string name="terminal_tutorial_2_description">팁: 터미널 앱의 홈 디렉토리(~)가 개인 파일 디렉토리에 있는 경우, 해당 디렉토리에
         파일을 두면 경로를 쓰지 않고도 %1$s 을 실행할 수 있습니다.\n\n그렇지 않은 경우, 터미널 앱의 %3$s 구성 파일에서 %2$s 에 대한 별칭을 만들 수
         있습니다.</string>
-    <string name="terminal_tutorial_3">다음 명령으로 셸을 엽니다.</string>
-    <string name="rish_description"><![CDATA[%1$s를 사용하면 모든 터미널 앱에서 셸 명령을 실행할 수 있습니다.<p>탭하여 사용 방법에 대한 자세한 내용을 알아보세요.]]></string>
+<string name="terminal_tutorial_3">다음 명령으로 셸을 엽니다.</string>
+<string name="rish_description"><![CDATA[%1$s를 사용하면 모든 터미널 앱에서 셸 명령을 실행할 수 있습니다.<p>탭하여 사용 방법에 대한 자세한 내용을 알아보세요.]]></string>
+    <!-- Settings — swipe customisation -->
+    <string name="settings_swipe_right">오른쪽으로 스와이프 동작</string>
+    <string name="settings_swipe_left">왼쪽으로 스와이프 동작</string>
+    <string name="settings_action_none">없음</string>
+    <string name="settings_action_open_app">앱 열기</string>
+    <string name="settings_action_app_info">앱 정보</string>
+    <string name="settings_action_toggle_permission">권한 전환</string>
+    <string name="settings_action_hide_from_list">목록에서 숨기기</string>
+    <!-- Settings — long-press customisation -->
+    <string name="settings_app_management">앱 관리</string>
+    <string name="settings_lp_category_summary">관리 목록에서 앱을 길게 눌렀을 때 표시할 동작을 선택합니다. 하나만 활성화되어 있으면 메뉴 없이 바로 실행됩니다.</string>
+    <string name="settings_lp_open_app">앱 열기</string>
+    <string name="settings_lp_app_info">앱 정보</string>
+    <string name="settings_lp_toggle_permission">白い熊 雫 권한 전환</string>
+    <string name="settings_lp_hide_from_list">목록에서 숨기기</string>
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">白い熊 雫에 오신 것을 환영합니다</string>
+    <string name="onboarding_welcome_desc">강력한 앱 관리 기능을 갖춘 향상된 白い熊 雫입니다. 스와이프 제스처, 빠른 동작, 사용자 지정 가능한 경험이 모두 한곳에 있습니다.</string>
+    <string name="onboarding_swipe_title">기본 제스처</string>
+    <string name="onboarding_swipe_desc">기본적으로 앱 관리 목록에서 오른쪽으로 스와이프하면 앱이 열리고, 왼쪽으로 스와이프하면 해당 시스템 설정 페이지가 열립니다.</string>
+    <string name="onboarding_gestures_title">사용자 지정 제스처</string>
+    <string name="onboarding_gestures_desc">설정에서 이러한 스와이프 동작을 완전히 사용자 지정할 수 있습니다. 앱 열기, 앱 정보, 권한 전환, 목록에서 숨기기 중에서 선택하세요.</string>
+    <string name="onboarding_longpress_title">경험 사용자 지정</string>
+    <string name="onboarding_longpress_desc">앱을 길게 눌렀을 때 표시할 동작을 선택하거나, Dhizuku 모드와 같은 白い熊 雫 전용 기능을 활성화하세요.</string>
+    <string name="onboarding_next">다음</string>
+    <string name="onboarding_skip">건너뛰기</string>
+    <string name="onboarding_get_started">시작하기</string>
+    <string name="onboarding_setup_title">白い熊 雫 시작</string>
+    <string name="onboarding_setup_desc">이 기기에서 白い熊 雫를 시작할 방법을 선택하세요. 나중에 메인 화면에서도 설정할 수 있습니다.</string>
+    <string name="onboarding_setup_running">白い熊 雫가 실행 중입니다</string>
+    <string name="onboarding_setup_later">나중에 하겠습니다</string>
+    <string name="onboarding_setup_wadb_desc">Android 11 이상, 컴퓨터가 필요 없습니다. 무선 디버깅을 사용합니다.</string>
+    <string name="onboarding_setup_root_desc">기기가 루팅되어 있습니다. 루트 권한으로 白い熊 雫를 시작하세요.</string>
+    <string name="onboarding_setup_adb_desc">모든 기기에서 사용 가능합니다. 컴퓨터에서 ADB 명령 하나만 실행하면 시작할 수 있습니다.</string>
+    <!-- Swipe hint overlay -->
+    <string name="swipe_hint_title">스와이프 제스처</string>
+    <string name="swipe_hint_right">빠른 동작을 위해 오른쪽으로 스와이프</string>
+    <string name="swipe_hint_left">빠른 동작을 위해 왼쪽으로 스와이프</string>
     <!-- Settings -->
-    <string name="settings_title">설정</string>
-    <string name="settings_behavior">행동</string>
-    <string name="settings_start_on_boot">부팅 시 시작</string>
-    <string name="settings_start_on_boot_summary">Android 11 이상 또는 루트가 필요합니다.</string>
-    <string name="settings_start_on_boot_bug">Android 11-12의 버그로 인해 무선 디버깅은 권한이 부여된 네트워크를 기억하지
+<string name="settings_title">설정</string>
+<string name="settings_behavior">행동</string>
+<string name="settings_start_on_boot">부팅 시 시작</string>
+<string name="settings_start_on_boot_summary">Android 11 이상 또는 루트가 필요합니다.</string>
+<string name="settings_start_on_boot_bug">Android 11-12의 버그로 인해 무선 디버깅은 권한이 부여된 네트워크를 기억하지
         못합니다.\n\n재부팅할 때마다 인증 대화상자가 뜰 때 \"허용\" 버튼을 눌러 네트워크를 재승인해야 합니다.</string>
-    <string name="settings_use_system_color">시스템 테마 색상 사용</string>
-    <string name="settings_watchdog">지키는 개</string>
-    <string name="settings_watchdog_summary">白い熊 雫가 충돌하면 자동으로 다시 시작합니다.</string>
-    <string name="settings_tcp_mode">TCP 모드</string>
-    <string name="settings_tcp_mode_summary">"白い熊 雫가 Wi-Fi 없이 재시작할 수 있도록 합니다. (白い熊 雫는 재부팅 후 한 번
+<string name="settings_use_system_color">시스템 테마 색상 사용</string>
+<string name="settings_watchdog">지키는 개</string>
+<string name="settings_watchdog_summary">충돌이나 예기치 않은 중지 후 白い熊 雫를 자동으로 다시 시작합니다. 기본 네트워크가 끊어지면(RNDIS/USB ADB 사용 중 USB 케이블 분리 등) 다시 연결할 수 없습니다.</string>
+    <string name="settings_device_hardening">기기 강화 및 연결 유지</string>
+    <string name="settings_device_hardening_summary">白い熊 雫와 터미널 클라이언트를 Doze에서 제외하고, WRITE_SECURE_SETTINGS를 자동으로 부여하며, 스타터 바이너리를 동기화합니다</string>
+    <string name="doctor_check_device_hardening">기기 강화 및 Doze 제외</string>
+    <string name="device_hardening_applied">기기 강화 및 Doze 최적화가 적용되었습니다</string>
+<string name="settings_tcp_mode">TCP 모드</string>
+<string name="settings_tcp_mode_summary">"白い熊 雫가 Wi-Fi 없이 재시작할 수 있도록 합니다. (白い熊 雫는 재부팅 후 한 번
         시작되어야 합니다.)"</string>
-    <string name="settings_tcp_mode_dialog_close_port">"TCP 포트가 즉시 닫힙니다. TCP 모드를 다시 켜려면 Wi-Fi에 연결해야
+<string name="settings_tcp_mode_dialog_close_port">"TCP 포트가 즉시 닫힙니다. TCP 모드를 다시 켜려면 Wi-Fi에 연결해야
         합니다. 계속하시겠습니까?"</string>
-    <string name="settings_tcp_mode_closing_port">TCP 포트를 닫는 중...</string>
-    <string name="settings_restart_dialog_title">재시작 필요</string>
-    <string name="settings_restart_dialog_message">시즈쿠는 이 설정을 적용하려면 다시 시작해야 합니다.</string>
-    <string name="settings_restart_dialog_message_wifi_required"><![CDATA[<br><br><b>와이파이가 필수입니다. 시즈쿠는 계속 달리면서 와이파이 연결이 될 때까지 기다렸다가 백그라운드에서 다시 시작할 것이다.</b>]]></string>
-    <string name="settings_tcp_port">TCP 포트</string>
-    <string name="settings_tcp_port_default">기본값(5555)</string>
-    <string name="settings_tcp_port_hint">기본값(5555)을 사용하려면 비워두세요.</string>
-    <string name="settings_tcp_learn_more">자동화 앱을 사용하여 白い熊 雫를 제어하는 방법에 대해 자세히 알아보세요.</string>
-    <string name="settings_language">언어</string>
-    <string name="settings_translation_contributors">번역 기여자</string>
-    <string name="settings_translation">번역 참여</string>
-    <string name="settings_translation_summary">%s를 당신의 언어로 번역할 수 있도록 도와주세요</string>
-    <string name="settings_user_interface">화면</string>
-    <string name="settings_black_night_theme">검은 테마</string>
-    <string name="settings_black_night_theme_summary">어두운 테마가 사용될 때 검은 테마를 사용</string>
-    <string name="settings_support">지원하다</string>
-    <string name="settings_help">돕다</string>
-    <string name="settings_report_bug">버그 신고</string>
-    <string name="settings_advanced">고급의</string>
-    <string name="settings_legacy_pairing">레거시 페어링</string>
-    <string name="settings_legacy_pairing_summary">알림 대신 대화 상자에 페어링 코드를 입력하세요.</string>
+<string name="settings_tcp_mode_closing_port">TCP 포트를 닫는 중...</string>
+<string name="settings_restart_dialog_title">재시작 필요</string>
+<string name="settings_restart_dialog_message">시즈쿠는 이 설정을 적용하려면 다시 시작해야 합니다.</string>
+<string name="settings_restart_dialog_message_wifi_required"><![CDATA[<br><br><b>와이파이가 필수입니다. 시즈쿠는 계속 달리면서 와이파이 연결이 될 때까지 기다렸다가 백그라운드에서 다시 시작할 것이다.</b>]]></string>
+<string name="settings_tcp_port">TCP 포트</string>
+<string name="settings_tcp_port_default">기본값(5555)</string>
+<string name="settings_tcp_port_hint">기본값(5555)을 사용하려면 비워두세요.</string>
+    <string name="settings_auto_reconnect_mdns">지능형 자동 재연결</string>
+    <string name="settings_auto_reconnect_mdns_summary">무선 ADB 포트가 이미 활성 상태인 경우 앱이 열릴 때 서비스를 자동으로 다시 시작합니다</string>
+    <string name="settings_auto_disable_usb_debugging">USB 디버깅 자동 비활성화</string>
+    <string name="settings_auto_disable_usb_debugging_summary">白い熊 雫를 중지할 때 USB 디버깅을 비활성화합니다</string>
+<string name="settings_language">언어</string>
+<string name="settings_translation_contributors">번역 기여자</string>
+<string name="settings_translation">번역 참여</string>
+<string name="settings_translation_summary">%s를 당신의 언어로 번역할 수 있도록 도와주세요</string>
+<string name="settings_user_interface">화면</string>
+<string name="settings_black_night_theme">검은 테마</string>
+<string name="settings_black_night_theme_summary">어두운 테마가 사용될 때 검은 테마를 사용</string>
+    <string name="settings_amoled_plus">AMOLED+</string>
+    <string name="settings_amoled_plus_summary">모든 카드와 표면을 순수 검정으로 만들어 패널과 어우러지게 합니다</string>
+<string name="settings_support">지원하다</string>
+    <string name="settings_version">버전</string>
+    <string name="settings_developer_options_revealed">개발자 옵션이 표시되었습니다!</string>
+    <string name="settings_developer_options_click_more">개발자 옵션을 표시하려면 %d번 더 탭하세요.</string>
+    <string name="settings_diagnostics_category">진단</string>
+<string name="settings_report_bug">버그 신고</string>
+    <string name="settings_activity_log">활동 로그</string>
+    <string name="settings_activity_log_empty">기록된 활동이 아직 없습니다.</string>
+    <string name="settings_activity_log_clear">로그 지우기</string>
+    <string name="settings_enable_activity_log">활동 로그 활성화</string>
+    <string name="settings_enable_activity_log_summary">홈 화면에 白い熊 雫 API 호출 및 이벤트를 기록하고 표시합니다.</string>
+    <string name="settings_show_activity_log_home">활동 로그 표시</string>
+    <string name="settings_show_status_card_outline">상태 카드 외곽선</string>
+    <string name="settings_show_status_card_outline_summary">서비스 상태 카드에 색상 외곽선을 표시합니다</string>
+    <string name="settings_status_card_outline_style">외곽선 색상</string>
+    <string name="settings_home_visibility">홈 화면 표시 설정</string>
+    <string name="settings_update_app_database">앱 데이터베이스 업데이트</string>
+    <string name="settings_update_app_database_summary">GitHub에서 최신 앱 설명과 개선 제안을 가져옵니다.</string>
+    <string name="settings_update_app_database_success">데이터베이스가 성공적으로 업데이트되었습니다</string>
+    <string name="settings_update_app_database_error">데이터베이스 업데이트에 실패했습니다</string>
+    <string name="settings_show_terminal_home">터미널 표시 (rish)</string>
+    <string name="settings_show_automation_home">자동화 표시</string>
+    <string name="settings_show_learn_more_home">개발자 가이드 표시</string>
+    <string name="settings_show_start_adb_home">유선 ADB 설정 표시</string>
+    <string name="home_edit_mode_title">카드 정렬</string>
+    <string name="home_edit_mode_hint">드래그하여 재정렬 · ×로 숨기기 · +로 복원</string>
+    <string name="home_edit_mode_done">완료</string>
+<string name="settings_advanced">고급의</string>
+<string name="settings_legacy_pairing">레거시 페어링</string>
+<string name="settings_legacy_pairing_summary">알림 대신 대화 상자에 페어링 코드를 입력하세요.</string>
+    <string name="settings_reset_adb_keys">ADB 키 초기화</string>
+    <string name="settings_reset_adb_keys_summary">기존 ADB 키와 인증서를 삭제합니다. 페어링이 멈추거나 KeyStore가 손상된 경우 유용합니다.</string>
+    <string name="settings_reset_adb_keys_success">ADB 키가 지워졌습니다</string>
+    <string name="settings_reset_adb_keys_error">ADB 키 초기화에 실패했습니다</string>
+    <!-- Shizuku+ Features -->
+    <string name="settings_shizuku_plus_features">白い熊 雫 기능</string>
+    <string name="settings_dhizuku_mode">Dhizuku 모드</string>
+    <string name="settings_dhizuku_mode_summary">Dhizuku를 지원하는 앱에 기기 소유자(DevicePolicyManager) 권한을 위임합니다.</string>
+    <string name="dhizuku_device_owner_label">白い熊 雫 (Dhizuku 모드)</string>
+    <string name="dhizuku_device_owner_desc">인증된 앱과 기기 소유자 권한을 공유하는 Dhizuku 모드에 필요합니다.</string>
+    <string name="dhizuku_device_owner_enabled">Dhizuku 기기 소유자 활성화됨</string>
+    <string name="dhizuku_device_owner_disabled">Dhizuku 기기 소유자 비활성화됨</string>
+    <string name="settings_enhanced_api">白い熊 雫 Enhanced API</string>
+    <string name="settings_enhanced_api_summary">고급 사용자를 위한 고급 시스템 인터페이스를 활성화합니다. 모든 白い熊 雫 전용 기능에 필요합니다.</string>
+    <string name="settings_themed_icon">테마 적용 앱 아이콘</string>
+    <string name="settings_themed_icon_summary">런처에서 테마 아이콘을 지원하면 白い熊 雫 아이콘의 Material You 색상 버전을 사용합니다.</string>
+    <string name="settings_themed_icon_open_settings">아이콘 설정 열기</string>
+    <string name="settings_shell_interceptor">셸 가속기</string>
+    <string name="settings_shell_interceptor_summary">네이티브 API를 통해 셸 명령을 가속합니다. MacroDroid와 Tasker 작업의 성능을 향상시킵니다.</string>
+    <string name="settings_avf_manager">가상 머신 관리자 (AVF)</string>
+    <string name="settings_avf_manager_summary">격리된 Microdroid 또는 Linux VM을 실행합니다. 가상 환경을 관리하기 위해 Hyperbox 및 Termux-VM과 함께 사용합니다.</string>
+    <string name="settings_storage_proxy">스토리지 브리지</string>
+    <string name="settings_storage_proxy_summary">/data/data/ 및 제한된 경로에 직접 액세스합니다. 앱 데이터를 관리하기 위해 Neo Backup 및 SD Maid에서 사용합니다.</string>
+    <string name="settings_continuity_bridge">다중 기기 연속성</string>
+    <string name="settings_continuity_bridge_summary">기기 간에 앱 상태를 동기화하고 권한 작업을 넘겨줍니다. 기기 간 자동화를 위해 MacroDroid와 함께 작동합니다.</string>
+    <string name="settings_ai_core_plus">인텔리전스 브리지</string>
+    <string name="settings_ai_core_plus_summary">우선 NPU 및 화면 컨텍스트 API. 권한 있는 화면 인식을 통해 Gemini와 로컬 LLM을 향상시킵니다.</string>
+    <string name="settings_window_manager_plus">창 튜너</string>
+    <string name="settings_window_manager_plus_summary">창 관리와 버블 바를 제어합니다. 자유 형식 창과 시스템 오버레이를 관리하기 위해 Taskbar 및 MacroDroid에서 사용합니다.</string>
+    <string name="settings_overlay_manager_plus">↳ 시스템 테마 브리지</string>
+    <string name="settings_overlay_manager_plus_summary">시스템 RRO 오버레이를 관리합니다. Hex Installer와 Substratum 테마가 루트 없이 작동하는 데 필요합니다.</string>
+    <string name="settings_network_governor_plus">네트워크 및 DNS 거버너</string>
+    <string name="settings_network_governor_plus_summary">권한 있는 네트워크 제어. AFWall+에서 강력한 시스템 전체 필터링에 사용합니다.</string>
+    <string name="settings_activity_manager_plus">↳ 심층 프로세스 제어</string>
+    <string name="settings_activity_manager_plus_summary">네이티브 프로세스 제어. MacroDroid, Tasker, Naptime이 앱을 심층 강제 종료하고 대기 버킷을 설정할 수 있게 합니다.</string>
+    <!-- Plus feature short titles (used in settings preference titles) -->
+    <string name="settings_network_governor_plus_title">DNS 거버너</string>
+    <string name="settings_continuity_bridge_title">연속성 브리지</string>
+    <string name="settings_activity_manager_plus_title">프로세스 제어</string>
+    <string name="settings_status_bar_governor_plus_title">상태 표시줄 제어</string>
+    <string name="settings_package_governor_plus_title">패키지 거버너</string>
+    <string name="settings_avf_manager_title">VM 관리자</string>
+    <!-- Dhizuku admin tools -->
+    <string name="settings_dhizuku_screencap_lockdown">화면 캡처 잠금</string>
+    <string name="settings_dhizuku_screencap_lockdown_summary">기기 전체에서 스크린샷과 화면 녹화를 비활성화합니다</string>
+    <string name="settings_dhizuku_usb_lockdown">USB 데이터 잠금</string>
+    <string name="settings_dhizuku_usb_lockdown_summary">USB 파일 전송(MTP)을 허용하지 않고 기기를 물리적으로 보호합니다</string>
+    <string name="settings_dhizuku_suspended_packages">정지된 애플리케이션</string>
+    <string name="settings_dhizuku_suspended_packages_summary">동결하고 완전히 실행 차단할 애플리케이션을 선택합니다</string>
+    <!-- Backup / Restore settings -->
+    <string name="settings_backup_settings">설정 백업</string>
+    <string name="settings_backup_settings_summary">생체 인식 암호화를 사용해 구성과 개선 사항을 안전하게 내보냅니다.</string>
+    <string name="settings_restore_settings">설정 복원</string>
+    <string name="settings_restore_settings_summary">암호화된 백업에서 구성을 복원합니다.</string>
+    <!-- Experimental Plus settings (developer section) -->
+    <string name="settings_ai_core_master">AI Core Master</string>
+    <string name="settings_ai_core_master_summary">권한 있는 AI 작업을 활성화합니다: NPU 스케줄링 및 창 계층 구조 액세스</string>
+    <string name="settings_npu_acceleration">NPU 가속</string>
+    <string name="settings_npu_acceleration_summary">사용 가능한 경우 AI 추론 작업을 기기의 신경망 처리 장치(NPU)에 위임합니다</string>
+    <string name="settings_window_crawler">창 계층 구조 크롤러</string>
+    <string name="settings_window_crawler_summary">접근성 서비스 없이 AI 자동화가 활성 창 보기 계층 구조를 읽을 수 있게 합니다</string>
+    <string name="settings_ai_automation_experimental">실험적 AI 자동화</string>
+    <string name="settings_ai_automation_experimental_summary">AI 기반 자동화를 위한 제스처 시뮬레이션, 픽셀 캡처, 텍스트 삽입을 활성화합니다</string>
+    <string name="settings_keystore_fallback">소프트웨어 KeyStore 대체</string>
+    <string name="settings_keystore_fallback_summary">하드웨어 KeyStore가 실패할 때(예: Samsung Knox) 소프트웨어 AES 키로 암호화된 ADB RSA 키를 캐시합니다. 페어링 프롬프트는 줄어들지만 보안이 낮아집니다.</string>
+    <string name="settings_samsung_uid_escalation">Samsung 시스템 UID 에스컬레이션</string>
+    <string name="settings_samsung_uid_escalation_summary">패치되지 않은 Samsung 기기 전용 익스플로잇(pascua28 제작)을 사용하여 UID 1000(시스템)으로 에스컬레이션을 시도합니다. 본인의 책임 하에 사용하세요.</string>
+    <string name="settings_display_tuner_plus_title">디스플레이 튜너</string>
+    <string name="settings_device_control_home_title">기기 제어 홈 카드</string>
+    <string name="settings_device_control_home_summary">홈 화면에 기기 제어 카드를 표시합니다. Wi-Fi, Bluetooth, 모바일 데이터, 디스플레이, 오디오, 전원에 대한 권한 있는 제어를 허용합니다. 실험적 기능 — 일부 기기에서 예기치 않은 동작이 발생할 수 있습니다.</string>
+    <string name="settings_plus_app_found">통합 앱 감지됨: %1$s. 설정하려면 탭하세요.</string>
+    <string name="settings_plus_app_setup_title">통합 설정</string>
+    <string name="settings_plus_app_open">앱 열기</string>
+    <string name="settings_plus_learn_more">자세히 알아보기</string>
+    <string name="settings_plus_feature_help_enable">기능 활성화</string>
+    <string name="settings_plus_feature_help_close">닫기</string>
+    <string name="diagnostics_dismiss">닫기</string>
+    <string name="diagnostics_warning_dhizuku_not_owner">Dhizuku 모드가 활성화되어 있지만 Device Owner 컴포넌트가 활성화되어 있지 않습니다. 탭하여 해결하세요.</string>
+    <string name="diagnostics_warning_shadow_binder_no_apps">Shadow Binder가 활성화되어 있지만 숨길 앱이 선택되지 않았습니다. 탭하여 선택하세요.</string>
+    <string name="diagnostics_warning_battery_optimization">배터리 최적화가 활성화되어 있습니다. 白い熊 雫가 백그라운드에서 종료될 수 있습니다. 탭하여 예외로 지정하세요.</string>
+    <string name="diagnostics_warning_automation_stopped">네트워크 자동화 규칙이 구성되었지만 서비스가 중지되었습니다 — Binder 방화벽이 자동으로 전환되지 않습니다. 탭하여 다시 시작하세요.</string>
+    <string name="diagnostics_automation_start_failed">자동화 서비스를 시작할 수 없습니다</string>
+    <string name="diagnostics_battery_settings_open_failed">배터리 설정을 열 수 없습니다</string>
+    <string name="diagnostics_shadow_binder_navigate_hint">Feature Hub → Security &amp; Access → Shadow Binder로 이동하여 앱을 선택하세요</string>
+    <string name="diagnostics_device_owner_setup_title">Device Owner 설정</string>
+    <string name="diagnostics_device_owner_setup_message">Dhizuku 모드는 이 앱이 Device Owner이어야 합니다.\n\nPC에서 다음 명령을 실행하세요(USB 디버깅이 활성화되어 있어야 합니다):\n\n%1$s</string>
+    <string name="diagnostics_copy_command">명령 복사</string>
+    <string name="diagnostics_command_copied">명령이 복사되었습니다</string>
+    <string name="diagnostics_disable_title">진단을 비활성화하시겠습니까?</string>
+    <string name="diagnostics_disable_message">진단 경고 패널이 숨겨집니다. 고급 설정에서 언제든지 다시 활성화할 수 있습니다.</string>
+    <string name="diagnostics_disable_confirm">비활성화</string>
+    <string name="diagnostics_action_required">조치 필요</string>
+    <string name="diagnostics_disable_button">진단 비활성화</string>
+    <string name="help_general_plus_summary">&lt;b&gt;白い熊 雫가 다른 앱과 함께 작동하는 방식&lt;/b&gt;&lt;br&gt;&lt;br&gt;白い熊 雫는 이 앱과 白い熊 雫 API(shiroikuma.shizuku)를 명시적으로 대상으로 하는 타사 앱에서 액세스할 수 있는 &lt;i&gt;독점 Plus 기능&lt;/i&gt;(Storage Bridge, AI Bridge, Theming Bridge)을 제공합니다.&lt;br&gt;&lt;br&gt;&lt;b&gt;중요:&lt;/b&gt; 白い熊 雫는 원본 Shizuku API와 완전히 하위 호환됩니다. 기존 Shizuku를 사용하는 기존 앱(SD Maid SE 및 SwiftBackup 등)은 개발자 업데이트 없이 자동으로 白い熊 雫를 검색하고 함께 동작합니다.&lt;br&gt;&lt;br&gt;&lt;b&gt;기존 Shizuku와 함께 사용:&lt;/b&gt; 한 번에 하나의 서비스만 실행할 수 있습니다. 기존 Shizuku가 아직 설치되어 있는 경우 홈 화면의 Companion 카드를 사용하면 전환이 쉽지만, 기존 Shizuku를 제거하고 白い熊 雫만 사용하는 것이 좋습니다.</string>
+    <!-- Detailed Help Strings -->
+    <string name="help_dhizuku_title">Dhizuku 모드 정보</string>
+    <string name="help_dhizuku_detail">Dhizuku를 사용하면 白い熊 雫가 Device Owner(DevicePolicyManager) 권한을 타사 앱과 공유할 수 있습니다. 이는 스스로 유일한 Device Owner가 되지 않고도 시스템 정책을 관리해야 하는 Dhizuku Manager와 같은 앱이나 특정 키오스크 모드 도구에 필수적입니다.</string>
+    <string name="help_shell_interceptor_title">Shell Accelerator 정보</string>
+    <string name="help_shell_interceptor_detail">Shell Accelerator는 표준 셸 명령(am, pm, settings)을 가로채 白い熊 雫 서버 API 호출로 직접 변환합니다. 이를 통해 모든 명령마다 새 /system/bin/sh 프로세스를 생성하는 높은 오버헤드를 피할 수 있어 MacroDroid나 Tasker의 자동화가 훨씬 빠르고 배터리 효율적으로 동작합니다.</string>
+    <string name="help_avf_manager_title">AVF Manager 정보</string>
+    <string name="help_avf_manager_detail">Android Virtualization Framework(AVF) Manager를 사용하면 격리된 Linux 또는 Microdroid 가상 머신을 실행할 수 있습니다. 지원되는 하드웨어(Snapdragon 8 Gen 1 이상, Tensor G2 이상)에서는 VirtIO-GPU 지원을 통한 하드웨어 가속 가상화를 통해 데스크톱 Linux 환경이나 격리된 보안 작업을 실행할 수 있습니다.</string>
+    <string name="help_storage_proxy_title">Storage Bridge 정보</string>
+    <string name="help_storage_proxy_detail">Storage Bridge는 /data/data/(앱 데이터) 및 /data/app/(APK 파일)와 같은 제한된 파일 시스템 경로에 대한 인증된 고속 액세스를 제공합니다. 이를 통해 Neo Backup과 같은 백업 도구가 완전한 루트 액세스 없이 동작할 수 있으며, 白い熊 雫의 권한 모델을 통해 보안이 유지됩니다.</string>
+    <string name="help_continuity_bridge_title">Multi-Device Continuity 정보</string>
+    <string name="help_continuity_bridge_detail">Continuity Bridge를 사용하면 같은 네트워크상의 白い熊 雫 기기 간에 작업을 인계하고 클립보드/앱 상태를 동기화할 수 있습니다. Android 17 Handoff API(가능한 경우 백포트됨)를 활용하여 휴대폰과 태블릿 간에 자동화 작업을 원활하게 전환할 수 있습니다.</string>
+    <string name="help_ai_core_plus_title">Intelligence Bridge 정보</string>
+    <string name="help_ai_core_plus_detail">Intelligence Bridge는 AI 어시스턴트에게 화면 콘텐츠 및 NPU 스케줄링에 대한 특권 액세스를 부여합니다. 표준 Android 화면 녹화 제한을 우회하는 고성능의 창 인식 프레임 캡처를 제공하여 "Circle to Search"와 같은 기능이나 로컬 LLM을 위한 화면 인식 컨텍스트를 가능하게 합니다.</string>
+    <string name="help_window_manager_plus_title">Window Tuner 정보</string>
+    <string name="help_window_manager_plus_detail">Window Tuner는 모든 앱을 자유형 모드로 강제 전환하거나, 지속적인 Bubble Bar에 배치하거나, 항상 위 오버레이로 렌더링할 수 있는 고급 WindowManager 플래그를 노출합니다. 이는 멀티태스킹과 OneUI 데스크톱 경험을 사용자 지정하는 데 유용한 강력한 도구입니다.</string>
+    <string name="help_overlay_manager_plus_title">System Theming Bridge 정보</string>
+    <string name="help_overlay_manager_plus_detail">이 브릿지는 OverlayManagerService(OMS)에 대한 루트 없는 액세스를 제공합니다. 최신 OverlayManagerTransactions를 사용하여 Fabricated Overlays를 등록하므로, Hex Installer와 같은 앱이 루트된 기기 없이도 OneUI 6/7/8에서 시스템 색상, 글꼴 및 치수를 수정할 수 있습니다.</string>
+    <string name="help_network_governor_plus_title">Network &amp; DNS Governor 정보</string>
+    <string name="help_network_governor_plus_detail">Network Governor는 INetworkPolicyManager 및 Private DNS 설정에 대한 특권 액세스를 제공합니다. 개별 앱에 대해 POLICY_REJECT_ALL을 적용할 수 있어, 활성 VPN 터널 없이도 Wi-Fi 및 5G 연결에서 동작하는 견고한 시스템 수준 방화벽을 제공합니다.</string>
+    <string name="help_activity_manager_plus_title">Deep Process Control 정보</string>
+    <string name="help_activity_manager_plus_detail">Deep Process Control을 사용하면 서버가 표준 앱 최대 절전 및 대기 제한을 우회할 수 있습니다. 앱을 RESTRICTED 대기 버킷으로 강제 전환하거나 진정한 deepForceStop(모든 서비스 및 백그라운드 작업 종료)을 수행할 수 있어, 공격적인 배터리 절약 도구에 필수적입니다.</string>
+    <!-- Plus settings category titles -->
+    <string name="settings_plus_category_framework">프레임워크</string>
+    <string name="settings_plus_category_performance">성능 및 프로세스 제어</string>
+    <string name="settings_plus_category_files">파일 및 가상 머신</string>
+    <string name="settings_plus_category_display">디스플레이 및 테마</string>
+    <string name="settings_plus_category_network">네트워크 및 개인 정보</string>
+    <string name="settings_plus_category_intelligence">인텔리전스 및 연속성</string>
+    <string name="settings_plus_category_developer">개발자 옵션 (실험적)</string>
+    <string name="settings_plus_category_root_compat">루트 호환성 모듈</string>
+    <string name="settings_root_magisk_mocking">Magisk 환경 모킹</string>
+    <string name="settings_root_magisk_mocking_summary">루트를 감지하는 앱을 속이기 위해 Magisk 바이너리, 속성 및 내부 폴더를 위장합니다.</string>
+    <string name="settings_root_auto_grant">자동 승인 브릿지</string>
+    <string name="settings_root_auto_grant_summary">WRITE_SECURE_SETTINGS와 같은 민감한 권한에 대한 \'pm grant\' 요청을 자동으로 승인합니다.</string>
+    <string name="settings_root_file_interceptor">스마트 파일 인터셉터</string>
+    <string name="settings_root_file_interceptor_summary">민감한 시스템 경로를 대상으로 하는 파일 작업에 권한 유지 플래그를 자동으로 주입합니다.</string>
+    <string name="settings_root_busybox_mocking">BusyBox 시뮬레이션</string>
+    <string name="settings_root_busybox_mocking_summary">레거시 스크립트 요구 사항을 충족하기 위해 \'busybox\' 명령에 대한 가짜 버전 문자열을 반환합니다.</string>
+    <string name="help_root_magisk_title">Magisk 모킹 정보</string>
+    <string name="help_root_magisk_detail">많은 앱이 Magisk 고유 속성이나 /sbin/.magisk 폴더를 확인하여 루트를 감지합니다. 이 모듈은 이러한 요소를 시뮬레이션하므로, Magisk 환경이 감지되지 않으면 시작을 거부하는 앱에서도 루트 전용 기능을 사용할 수 있습니다.</string>
+    <string name="help_root_auto_grant_title">자동 승인 정보</string>
+    <string name="help_root_auto_grant_detail">레거시 루트 앱은 종종 셸을 통해 스스로 권한을 부여하려고 시도합니다. 이 브릿지는 이러한 \'pm grant\' 호출을 감지하고 白い熊 雫의 상승된 권한을 사용해 즉시 승인하므로 수동 권한 관리가 필요 없습니다.</string>
+    <string name="help_root_file_interceptor_title">파일 인터셉터 정보</string>
+    <string name="help_root_file_interceptor_detail">앱이 표준 셸을 사용하여 /data/data에 파일을 복사하면 소유권과 SELinux 컨텍스트가 손실되는 경우가 많습니다. 이 모듈은 --preserve=all과 같은 플래그를 자동으로 추가하여 파일 무결성을 유지하고 앱 충돌을 방지합니다.</string>
+    <string name="help_root_busybox_title">BusyBox 시뮬레이션 정보</string>
+    <string name="help_root_busybox_detail">BusyBox는 루트된 기기에서 흔히 볼 수 있는 Unix 유틸리티 모음입니다. 일부 오래된 루트 앱은 로직을 실행하기 전에 BusyBox의 존재를 확인합니다. 이 모듈은 \'busybox\' 명령에 대해 시뮬레이션된 성공 응답을 반환합니다.</string>
+    <string name="settings_hide_disabled_plus_features">비활성화된 Plus 기능 숨기기</string>
+    <string name="settings_hide_disabled_plus_features_summary">이 기기 또는 구성에서 사용할 수 없는 Plus 기능을 숨깁니다</string>
+    <string name="settings_vector">벡터 가속</string>
+    <string name="settings_vector_summary">그래픽 성능 향상을 위해 하드웨어 가속 벡터 렌더링을 활성화합니다</string>
+    <string name="settings_experimental_root">루트 호환성</string>
+    <string name="settings_experimental_root_summary">白い熊 雫를 통한 루트 기반 작업용 호환성 레이어를 활성화합니다</string>
+    <string name="settings_spoof_device">기기 ID 스푸핑</string>
+    <string name="settings_spoof_device_summary">호환성 또는 테스트 목적으로 앱에 다른 기기 모델을 보고합니다</string>
+    <string name="settings_avf_manager_experimental">가상 머신 관리자 (AVF) (실험적)</string>
+    <string name="settings_ai_core_plus_experimental">Intelligence Bridge (실험적)</string>
+    <string name="settings_vector_experimental">벡터 가속</string>
+    <string name="settings_experimental_root_experimental">실험적 루트 호환성</string>
+    <string name="settings_spoof_device_experimental">기기 ID 스푸핑</string>
+    <string name="settings_open_source_licenses">오픈소스 라이선스</string>
+    <string name="settings_open_source_licenses_summary">白い熊 雫에서 사용하는 오픈소스 라이브러리</string>
+    <string name="settings_experimental_warning_title">실험적 기능</string>
+    <string name="settings_experimental_warning_message">이 기능은 실험적이며 시스템 불안정이나 충돌을 일으킬 수 있습니다. 활성화하시겠습니까?</string>
+    <string name="settings_spoof_target">대상 기기</string>
+    <!-- Root Integration (renamed from Legacy Compatibility) -->
+    <string name="settings_category_root_integration">루트 통합</string>
+    <string name="settings_nav_root_integration_summary">SU 브릿지, ADB 프록시 및 루트 세션 관리</string>
+    <string name="settings_adb_proxy">로컬 ADB 프록시 서버</string>
+    <string name="settings_adb_proxy_summary">시스템 기능을 활성화된 상태로 유지하지 않고 무선 ADB가 필요한 앱을 지원하기 위해 포트 15555에 ADB 서버를 에뮬레이션합니다.</string>
+    <string name="settings_on_device_adb_tcp">기기 내 TCP 기반 ADB</string>
+    <string name="settings_on_device_adb_tcp_summary">기기에서 직접 ADB TCP 모드(포트 5555)를 활성화합니다. 루트 권한의 白い熊 雫가 필요합니다. Wi-Fi 없이 ADB 도구를 사용할 때 유용합니다.</string>
+    <string name="settings_force_start_wadb">WADB의 Wi-Fi 검사 우회</string>
+    <string name="settings_force_start_wadb_summary">Wi-Fi가 연결되지 않은 경우에도 ADB TCP를 통해 白い熊 雫를 시작하려고 시도합니다. 로컬 루프백 또는 모바일 데이터 ADB에 유용합니다.</string>
+    <string name="settings_fake_su">SU 브릿지 (su 래퍼)</string>
+    <string name="settings_fake_su_summary">사용자 지정 경로를 지원하는 레거시 루트 앱용 白い熊 雫 기반 \'su\' 바이너리를 제공합니다.</string>
+    <string name="settings_root_integration_hub">루트 통합 허브</string>
+    <string name="settings_root_integration_hub_summary">白い熊 雫 권한으로 동작하도록 루트 앱을 구성하고 관리합니다.</string>
+    <string name="settings_root_compatibility_hub">루트 호환성 허브</string>
+    <string name="settings_root_compatibility_hub_summary">白い熊 雫 권한으로 동작하도록 루트 앱을 구성하고 관리합니다.</string>
+    <string name="su_bridge_title">SU 브릿지</string>
+    <string name="su_bridge_description">사용자 지정 \'su\' 바이너리를 만들어 白い熊 雫를 지원하지 않는 앱에 루트 액세스를 제공합니다.</string>
+    <string name="su_bridge_suggested_apps">추천 앱</string>
+    <string name="su_bridge_suggested_apps_desc">이 앱들은 사용자 지정 SU 경로를 지원합니다. 내보낸 \'su\' 스크립트를 가리키도록 설정하세요.</string>
+    <string name="su_bridge_global_config_title">전역 구성</string>
+    <string name="su_bridge_global_config_desc">SU 브릿지 스크립트의 사용자 지정 경로를 설정합니다. 앱이 루트를 요청할 때 이 경로를 실행합니다.</string>
+    <string name="su_bridge_setup_all">모두 설정</string>
+    <string name="su_bridge_setup_all_success">호환되는 모든 앱에 대해 자동 설정을 시도했습니다.</string>
+    <string name="su_bridge_magic_setup">자동 설정</string>
+    <string name="su_bridge_magic_setup_success">자동 설정이 완료되었습니다! 白い熊 雫가 %s를 구성했습니다.</string>
+    <string name="su_bridge_magic_setup_fail">자동 설정에 실패했습니다. 대신 수동으로 경로를 복사하세요.</string>
+    <string name="su_bridge_magic_setup_all">모두 자동 설정</string>
+    <string name="su_bridge_magic_setup_all_summary">白い熊 雫가 %d개의 앱을 구성했습니다!</string>
+    <string name="su_bridge_magic_setup_all_no_apps">자동화를 지원하는 루트 앱이 없습니다.</string>
+    <string name="su_bridge_copy_open">경로 복사 및 열기</string>
+    <string name="su_bridge_no_export">SU 경로가 설정되지 않았습니다. 먼저 홈 화면에서 白い熊 雫 파일을 내보내세요.</string>
+    <string name="root_hub_shizuku_aware_note">SU 브릿지는 루트되지 않은 기기에 루트와 유사한 액세스를 제공합니다. 그러나 다른 앱을 수정하려면 "자동 설정"에 루트 모드의 白い熊 雫가 필요합니다. ADB 모드에서는 "경로 복사"를 사용해 앱을 수동으로 구성하세요.</string>
+    <string name="su_bridge_magic_setup_root_required">자동 설정에는 루트 모드의 白い熊 雫가 필요합니다.</string>
+    <string name="su_bridge_no_custom_path_support">이 앱에는 사용자 지정 경로 설정이 없습니다. 실제 루트가 필요합니다.</string>
+    <string name="su_bridge_manual_setup_required">ADB 모드에서는 수동 설정이 필요합니다</string>
+    <string name="su_bridge_how_to_use">사용 방법:</string>
+    <string name="su_bridge_step_1">1. 홈 화면에서 白い熊 雫 파일을 내보내세요.</string>
+    <string name="su_bridge_step_2">2. 루트 앱의 설정에서 "SU Path" 또는 "Binary Path"를 찾으세요.</string>
+    <string name="su_bridge_step_3">3. 내보낸 \'su\' 파일의 경로로 변경하세요.</string>
+    <string name="su_bridge_step_4">4. 사용자 지정 경로 설정이 없는 앱의 경우 白い熊 雫 설정에서 "SU Bridge"를 활성화하세요. 이렇게 하면 많은 레거시 su 호출이 자동으로 리디렉션됩니다.</string>
+    <string name="su_bridge_app_instruction">설정 &gt; %s에서 경로 설정</string>
+    <string name="su_bridge_path_label">내보낸 su 경로</string>
+    <string name="su_bridge_su_path_label">내보낸 su 경로</string>
+    <string name="su_bridge_copy_path">경로 복사</string>
+    <string name="su_bridge_default_nav_hint">앱 설정에서 사용자 지정 SU 경로 설정</string>
+    <string name="su_bridge_path_copied">SU 경로가 클립보드에 복사되었습니다</string>
+    <string name="su_bridge_self_test">브릿지 자가 테스트 실행</string>
+    <string name="su_bridge_self_test_running">SU 브릿지를 테스트하는 중…</string>
+    <string name="su_bridge_self_test_title">SU 브릿지 자가 테스트</string>
+    <string name="su_bridge_self_test_ok">브릿지 정상</string>
+    <string name="su_bridge_self_test_fail">브릿지가 동작하지 않습니다</string>
+    <string name="su_bridge_self_test_copy">결과 복사</string>
+    <string name="su_bridge_self_test_copied">자가 테스트 결과가 복사되었습니다</string>
+    <string name="su_bridge_device_identity_title">기기 ID</string>
+    <string name="starter_service_started">서비스가 시작되었습니다.</string>
+    <string name="su_bridge_device_identity_real">실제: %s</string>
+    <string name="su_bridge_device_identity_spoofed">스푸핑됨: %s</string>
+    <string name="su_bridge_device_identity_none">없음 (실제 기기 표시)</string>
+    <!-- Sentry Offline Notice -->
+    <string name="manual_report_title">수동 충돌 보고서</string>
+    <string name="manual_report_summary">문제를 수동으로 디버깅하는 데 도움이 되도록 로그가 포함된 상세 보고서를 생성합니다.</string>
+    <string name="manual_report_button_generate">생성 및 복사</string>
+    <string name="manual_report_button_github">보고서 복사 및 GitHub로 이동</string>
+    <string name="manual_report_toast_copied">보고서가 복사되었습니다! GitHub 이슈에 붙여넣어 주세요.</string>
+    <string name="manual_report_last_crash_title">마지막 충돌 보고</string>
+    <string name="manual_report_last_crash_summary">지속적인 충돌이 감지되었습니다. 탭하여 저장된 스택트레이스로 보고서를 생성하세요.</string>
+    <string name="manual_report_clipboard_label">충돌 보고서</string>
+    <string name="manual_report_clear_dialog_title">저장된 충돌을 지우시겠습니까?</string>
+    <string name="manual_report_clear_dialog_message">보고서가 복사되었으므로 저장된 충돌 데이터를 지우시겠습니까?</string>
+    <string name="manual_report_clear_dialog_clear">지우기</string>
+    <string name="manual_report_clear_dialog_keep">유지</string>
+    <string name="manual_report_copied_dialog_title">보고서가 복사되었습니다</string>
+    <string name="manual_report_copied_dialog_message">보고서가 클립보드에 복사되었습니다. 지금 GitHub Issues를 열거나, 대신 보고서를 파일로 공유하시겠습니까?</string>
+    <string name="manual_report_copied_dialog_share">파일 공유</string>
+    <string name="crash_detected_dialog_message">白い熊 雫가 마지막 세션에서 충돌을 감지했습니다. 문제 해결에 도움이 되도록 보고서를 생성하시겠습니까?</string>
+    <string name="crash_detected_dialog_short_message">보고서가 복사되었습니다. GitHub를 열어 붙여넣거나, 대신 보고서를 파일로 공유하시겠습니까?</string>
+    <string name="crash_detected_dialog_ignore">무시</string>
+    <string name="shortcut_open_terminal">터미널 열기</string>
+    <string name="watchdog_shizuku_crashed_action_report_manually">수동 보고</string>
     <!-- Bug Report Dialog -->
-    <string name="bug_report_dialog_before_reporting">먼저 다음 사항을 수행해 주십시오.</string>
-    <string name="bug_report_dialog_update">^1을 사용하고 있는지 확인하세요.</string>
-    <string name="bug_report_dialog_link_update">최신 버전</string>
-    <string name="bug_report_dialog_wiki">^1을 읽고 관련된 모든 문제 해결 단계를 따르십시오.</string>
-    <string name="bug_report_dialog_link_wiki">위키</string>
-    <string name="bug_report_dialog_issues">버그가 이미 보고되었는지 확인하려면 ^1을 모두 검색해 보세요.</string>
-    <string name="bug_report_dialog_link_issues">기존 문제</string>
-    <string name="bug_report_dialog_method">계정이 있으시면 ^1에 이슈를 제출해 주세요.</string>
-    <string name="bug_report_dialog_method_2">아니면 이메일을 보내셔도 됩니다.</string>
-    <string name="bug_report_dialog_button_email">이메일</string>
+<string name="bug_report_dialog_before_reporting">먼저 다음 사항을 수행해 주십시오.</string>
+<string name="bug_report_dialog_update">^1을 사용하고 있는지 확인하세요.</string>
+<string name="bug_report_dialog_link_update">최신 버전</string>
+<string name="bug_report_dialog_wiki">^1을 읽고 관련된 모든 문제 해결 단계를 따르십시오.</string>
+<string name="bug_report_dialog_link_wiki">위키</string>
+<string name="bug_report_dialog_issues">버그가 이미 보고되었는지 확인하려면 ^1을 모두 검색해 보세요.</string>
+<string name="bug_report_dialog_link_issues">기존 문제</string>
+<string name="bug_report_dialog_method">계정이 있으시면 ^1에 이슈를 제출해 주세요.</string>
+<string name="bug_report_dialog_method_2">아니면 이메일을 보내셔도 됩니다.</string>
+<string name="bug_report_dialog_button_email">이메일</string>
+    <!-- Service Doctor -->
+    <string name="home_service_doctor_title">서비스 닥터</string>
+    <string name="home_service_doctor_summary">白い熊 雫 시작에 문제가 있나요? 탭하여 진단 검사를 실행하세요.</string>
+    <string name="doctor_check_battery">배터리 최적화</string>
+    <string name="doctor_check_adb">무선 디버깅</string>
+    <string name="doctor_check_root">루트 액세스</string>
+    <string name="doctor_check_secure_settings">보안 설정</string>
+    <string name="doctor_check_server">白い熊 雫 서버</string>
+    <string name="doctor_check_background">백그라운드 제한</string>
+    <string name="doctor_status_ok">정상</string>
+    <string name="doctor_status_running">실행 중</string>
+    <string name="doctor_status_stopped">중지됨</string>
+    <string name="doctor_status_not_enabled">활성화되지 않음</string>
+    <string name="doctor_status_optimized">최적화됨 (서비스가 종료될 수 있음)</string>
+    <string name="doctor_check_xiaomi_adb">Xiaomi/HyperOS USB 디버깅 (보안 설정)</string>
+    <string name="doctor_status_xiaomi_adb_unknown">개발자 옵션에서 활성화</string>
+    <string name="doctor_tip_xiaomi">Xiaomi/HyperOS: 개발자 옵션에서 "USB Debugging (Security Settings)"을 활성화하세요.</string>
+    <string name="doctor_check_xiaomi_autostart">Xiaomi/HyperOS 자동 시작</string>
+    <string name="doctor_status_xiaomi_autostart_unknown">서비스 유지를 위해 자동 시작 허용</string>
+    <string name="doctor_tip_xiaomi_battery"><b>HyperOS 배터리</b>: 배터리 설정을 열어 白い熊 雫를 <b>제한 없음</b>으로 설정하세요. 이렇게 하지 않으면 HyperOS가 Doze 주기(약 30분)마다 백그라운드 프로세스를 종료합니다.</string>
+    <string name="doctor_check_oppo_permission">ColorOS/OxygenOS 권한 모니터링</string>
+    <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus: 백그라운드 서비스 종료를 방지하기 위해 개발자 옵션에서 "Permission Monitoring"을 비활성화하세요.</string>
+    <string name="doctor_check_oppo_battery">ColorOS/OxygenOS 자동 실행</string>
+    <string name="doctor_status_oppo_battery_unknown">서비스 유지를 위해 자동 실행 활성화</string>
+    <string name="doctor_tip_oppo_battery"><b>ColorOS 자동 실행</b>: 수정을 눌러 배터리 설정을 여세요. <b>자동 실행</b>을 활성화하고 白い熊 雫를 <b>제한 없음</b>으로 설정하면 ColorOS가 백그라운드 서비스를 종료하지 않습니다.</string>
+    <string name="doctor_check_tcl_autostart">TCL 자동 시작</string>
+    <string name="doctor_status_tcl_autostart_unknown">자동 시작 허용 목록에 추가</string>
+    <string name="doctor_tip_tcl_background">TCL: 설정에서 白い熊 雫가 "자동 시작" 및 "높은 백그라운드 전력 소비" 허용 목록에 추가되었는지 확인하세요.</string>
+    <string name="doctor_tip_battery">백그라운드에서 종료되는 것을 방지하기 위해 白い熊 雫의 배터리 최적화를 비활성화하세요.</string>
+    <string name="doctor_tip_background_restricted"><b>백그라운드 제한됨</b>: Android가 白い熊 雫를 백그라운드 제한 모드로 설정했습니다. 앱 정보 → 배터리로 이동하여 제한 없음으로 설정하면 서비스 안정성이 복원됩니다.</string>
+    <string name="doctor_tip_adb">재부팅 후 白い熊 雫가 루트가 아닌 모드에서 시작되려면 무선 디버깅이 활성화되어 있어야 합니다.</string>
+    <string name="doctor_check_local_network">로컬 네트워크 액세스</string>
+    <string name="doctor_tip_local_network"><b>로컬 네트워크 액세스(%1$s)</b>: Android 16/17에서는 무선 디버깅 서비스를 검색하고 연결하기 위해 이 권한이 필요합니다. 이 권한이 없으면 白い熊 雫가 ADB 모드에서 조용히 시작하지 못합니다. 수정을 눌러 권한을 부여하세요.</string>
+    <string name="doctor_button_fix">수정</string>
+    <string name="doctor_check_wallet_integrity">Google Wallet &amp; Play Integrity</string>
+    <string name="doctor_wallet_ok">무결성 통과 (루트 잔여물 없음)</string>
+    <string name="doctor_wallet_risk_tmp_su">보안 위험 (su 바이너리 감지됨)</string>
+    <string name="doctor_wallet_risk_magisk">보안 위험 (Magisk 모킹 활성화됨)</string>
+    <string name="doctor_wallet_risk_busybox">보안 위험 (BusyBox 모킹 활성화됨)</string>
+    <string name="doctor_wallet_risk_spoof">인증 위험 (기기 스푸핑 활성화됨)</string>
+    <string name="doctor_tip_wallet_integrity">Google Wallet &amp; 뱅킹 앱: 감지된 루트 아티팩트 또는 활성화된 Magisk/BusyBox 모킹으로 인해 "Device doesn\'t meet security standards" 오류가 발생합니다. 원터치 수정을 실행하여 su 바이너리를 제거하고 규정 준수를 복원하세요.</string>
+    <!--
+      Three recovery outcomes — shown after the 1-tap wallet fix runs.
+      ROOT:        Shizuku uid=0 — verdict files deleted, immediate recovery expected.
+      ADB_MODE:    Shizuku uid=2000 — can\'t touch GMS data dir; best-effort steps taken.
+      NO_SHIZUKU:  Shizuku wasn\'t running; only unprivileged Wallet stop was possible.
+    -->
+    <string name="doctor_fix_wallet_success">완료되었습니다. 루트로 실행 중 — GMS에서 Play Integrity 판정 파일이 직접 삭제되었습니다. Google Wallet을 열면 즉시 동작합니다.</string>
+    <string name="doctor_fix_wallet_success_adb_mode">완료되었습니다. 白い熊 雫가 ADB 셸 모드에서 실행 중이므로 디스크의 Play Integrity 판정 파일을 삭제할 수 없습니다(GMS의 데이터 디렉토리는 루트만 접근할 수 있습니다).\n\n대신 수행된 작업:\n• DroidGuard 프로세스 종료 (메모리 내 판정 삭제)\n• GMS 중지\n• Play Integrity TTL 재정의 시도 (GMS가 즉시 다시 인증하도록 유도)\n• 새로운 인증 워밍업 요청 (깨끗한 기기로 DroidGuard 재평가 트리거)\n• Wallet 데이터 삭제 (새 nonce로 새 무결성 요청 강제)\n• NFC 결제 라우팅 재확인\n\n지금 Wallet을 열어 보세요 — 즉시 복구될 것입니다. 여전히 차단된 경우 아래 "Play 서비스 데이터 지우기"를 탭하면 즉시 복구가 보장됩니다(그 후 Google에 다시 로그인해야 합니다).</string>
+    <string name="doctor_fix_wallet_success_no_shizuku">완료되었습니다. Shizuku가 실행 중이 아니었으므로 Wallet 자체만 중지할 수 있었습니다 — GMS에 캐시된 Play Integrity 판정은 그대로 남아 있습니다.\n\n판정이 자연스럽게 만료되면 Wallet은 약 1시간 이내에 자동으로 복구됩니다. 즉시 복구하려면 아래 "Play 서비스 데이터 지우기"를 탭하세요(그 후 Google에 다시 로그인해야 합니다).\n\n다음부터 이를 방지하려면 루트 기능을 비활성화하기 전에 Shizuku가 실행 중인지 확인하세요 — 더 철저한 정리가 가능해집니다.</string>
+    <string name="doctor_fix_wallet_failed">루트 바이너리를 자동으로 삭제할 수 없습니다. 아래 ADB 명령을 복사하여 터미널에서 수동으로 제거할 수 있습니다.</string>
+    <string name="doctor_action_clear_gms_cache">Play 서비스 데이터 지우기</string>
+    <string name="doctor_action_open_wallet">Google Wallet 열기</string>
+    <string name="doctor_action_copy_adb_cmd">ADB 명령 복사</string>
+    <string name="doctor_adb_cmd_copied">ADB 정리 명령이 클립보드에 복사되었습니다</string>
+    <string name="su_bridge_cleanup_tmp">/data/local/tmp에서 브릿지 제거</string>
+    <string name="su_bridge_deploy_to_tmp">/data/local/tmp에 브릿지 배포</string>
+    <string name="su_bridge_cleanup_success">/data/local/tmp에서 SU 브릿지를 제거했습니다. Google Wallet 보안이 복원되었습니다.</string>
+    <string name="su_bridge_cleanup_failed">/data/local/tmp에서 SU 브릿지를 제거하지 못했습니다. 白い熊 雫가 실행 중인지 확인하세요.</string>
+    <string name="su_bridge_deploy_success">SU 브릿지가 /data/local/tmp에 배포되었습니다.</string>
+    <string name="su_bridge_warning_wallet_title">Google Wallet 안내</string>
+    <string name="su_bridge_warning_wallet_message">\'su\'를 /data/local/tmp에 배포하거나 Magisk 모킹을 활성화하면 Google Play 서비스에서 Android 루트 감지가 트리거되어 Google Wallet 비접촉 결제가 비활성화됩니다. 언제든지 제거하여 Wallet을 복원할 수 있습니다.</string>
     <!-- Snackbar -->
-    <string name="snackbar_invalid_port">포트는 1~65535 사이여야 합니다.</string>
-    <string name="snackbar_battery_optimization_home">부팅/워치독 시작 시 배터리 최적화를 비활성화해야 제대로 작동합니다.</string>
-    <string name="snackbar_battery_optimization_settings">이 기능을 사용하려면 배터리 최적화를 비활성화하세요.</string>
-    <string name="snackbar_action_fix">고치다</string>
+<string name="snackbar_invalid_port">포트는 1~65535 사이여야 합니다.</string>
+<string name="snackbar_battery_optimization_home">부팅/워치독 시작 시 배터리 최적화를 비활성화해야 제대로 작동합니다.</string>
+<string name="snackbar_battery_optimization_settings">이 기능을 사용하려면 배터리 최적화를 비활성화하세요.</string>
+<string name="snackbar_action_fix">고치다</string>
+    <string name="snackbar_server_version_skew">白い熊 雫가 업데이트되었지만 실행 중인 서비스는 여전히 이전 버전입니다. 연결된 앱이 계속 동작하도록 다시 시작하세요.</string>
+    <string name="snackbar_action_restart">다시 시작</string>
     <!-- Toast -->
-    <string name="toast_no_email_app">이메일 앱을 찾을 수 없습니다</string>
-    <string name="toast_shizuku_already_starting">시즈쿠는 이미 배경에서 시작하고 있습니다</string>
-    <string name="toast_accessibility_tv_only">이 서비스는 TV 기기에서만 지원됩니다.</string>
-    <string name="toast_pairing_timeout">시즈쿠 페어링 서비스가 시간 초과되었다.</string>
+<string name="toast_no_email_app">이메일 앱을 찾을 수 없습니다</string>
+    <string name="toast_app_frozen">앱이 동결되었습니다</string>
+    <string name="toast_app_unfrozen">앱 동결이 해제되었습니다</string>
+    <string name="toast_operation_failed">작업 실패</string>
+    <string name="toast_error_with_message">오류: %1$s</string>
+    <string name="lp_action_freeze_app">앱 동결 (비활성화)</string>
+    <string name="lp_action_unfreeze_app">앱 동결 해제 (활성화)</string>
+    <string name="su_path_preset_applied">SU 경로 프리셋 적용됨: %1$s</string>
+    <string name="su_path_invalid">잘못된 경로입니다. 영문자, 숫자, 슬래시, 밑줄, 점, 하이픈만 사용한 절대 경로(/로 시작)여야 합니다.</string>
+    <string name="stock_shizuku_conflict_title">호환되지 않는 서버 감지됨</string>
+    <string name="stock_shizuku_conflict_description">원본 Shizuku 서버가 백그라운드에서 실행 중입니다. 白い熊 雫와 호환되지 않으며 시작을 차단합니다.</string>
+    <string name="stock_shizuku_conflict_fix_button">충돌 해결</string>
+    <string name="stock_shizuku_conflict_dialog_title">호환되지 않는 서버가 실행 중</string>
+    <string name="stock_shizuku_conflict_dialog_message">원본 Shizuku 서버가 현재 백그라운드에서 실행 중입니다. Android 보안 제약으로 인해 白い熊 雫는 원본 서버와 통신하거나 종료할 수 없습니다.\n\n원본 서버를 종료하려면 기기를 완전히 다시 시작한 후 ADB 또는 루트를 사용해 白い熊 雫를 시작하세요.</string>
+    <string name="stock_shizuku_restarting_via_root">루트를 통해 다시 시작하는 중…</string>
+    <string name="backup_plain_exported">일반 백업이 내보내졌습니다. 이 파일은 암호화되지 않으므로 비공개로 보관하세요.</string>
+    <string name="backup_exported_success">백업이 성공적으로 내보내졌습니다</string>
+    <string name="backup_restored_success">백업이 성공적으로 복원되었습니다</string>
+    <string name="backup_restored_restart_hint">설정이 복원되었습니다. 테마/언어 변경을 적용하려면 다시 시작하세요.</string>
+    <string name="backup_restored_restart_now">다시 시작</string>
+    <string name="backup_menu_search">앱 검색</string>
+    <string name="backup_menu_backup_all">모든 앱 백업</string>
+    <string name="backup_batch_complete">%3$s에 앱 %1$d개를 백업했습니다 (%2$d개 실패)</string>
+    <string name="backup_menu_show_system">시스템 앱 표시</string>
+    <string name="backup_badge_no_backup">백업 없음</string>
+    <string name="backup_failed_generic">백업 실패: %1$s</string>
+    <string name="restore_failed_generic">복원 실패: %1$s</string>
+    <string name="backup_auth_failed">인증 실패 (%1$s)</string>
+<string name="toast_shizuku_already_starting">시즈쿠는 이미 배경에서 시작하고 있습니다</string>
+<string name="toast_accessibility_tv_only">이 자동화는 TLS를 지원하는 TV 또는 Samsung One UI 기기용입니다.</string>
+<string name="toast_pairing_timeout">시즈쿠 페어링 서비스가 시간 초과되었다.</string>
+    <string name="toast_adb_ssl_error">무선 ADB 핸드셰이크에 실패했습니다(SSL 프로토콜 오류). 개발자 옵션에서 \'ADB 키 재설정\'을 사용한 후 다시 시도하세요.</string>
+    <string name="adb_error_ssl_title">연결 오류</string>
+    <string name="adb_error_ssl_message">무선 ADB 핸드셰이크에 실패했습니다(SSL 프로토콜 오류). 이는 일반적으로 ADB 키가 손상되었을 때 발생합니다. 개발자 옵션에서 키를 재설정하시겠습니까?</string>
+    <string name="adb_error_ssl_button_reset">개발자 옵션으로 이동</string>
     <!-- Dark Mode Setting Override -->
-    <string name="dark_theme">주제</string>
-    <string name="dark_theme_off">항상 가볍다</string>
-    <string name="dark_theme_on">항상 어둡다</string>
+<string name="dark_theme">주제</string>
+<string name="dark_theme_off">항상 가볍다</string>
+<string name="dark_theme_on">항상 어둡다</string>
+    <string name="follow_system">시스템 따르기</string>
     <!-- About -->
-    <string name="action_about">정보</string>
-    <string name="about_dialog_button_close">닫다</string>
-    <string name="about_view_source_code"><![CDATA[%s에서 소스코드 보기]]></string>
-    <!-- Start -->
-    <string name="action_start">시즈쿠 시작</string>
-    <!-- Stop -->
-    <string name="action_stop">白い熊 雫 중지</string>
-    <string name="dialog_stop_message">白い熊 雫 서비스가 중지됩니다.</string>
+    <string name="settings_about">정보</string>
+<string name="action_about">정보</string>
+<string name="about_dialog_button_close">닫다</string>
+    <string name="about_view_source_code_title">소스 코드</string>
+<string name="about_view_source_code"><![CDATA[%s에서 소스코드 보기]]></string>
+    <!-- Start/Stop -->
+    <string name="start">시작</string>
+    <string name="stop">중지</string>
+<string name="action_stop">白い熊 雫 중지</string>
+<string name="dialog_stop_message">白い熊 雫 서비스가 중지됩니다.</string>
     <!-- Notification -->
-    <string name="notification_channel_service_status">서비스 시작 상태</string>
-    <string name="notification_service_starting">白い熊 雫 서비스가 시작 중입니다…</string>
-    <string name="notification_service_start_failed">白い熊 雫 서비스를 시작할 수 없습니다.</string>
-    <string name="notification_service_start_no_root">루트 권한을 요청하지 못했습니다.</string>
-    <string name="notification_working">진행 중…</string>
-    <string name="notification_channel_adb_pairing">무선 디버깅 페어링</string>
-    <string name="notification_adb_pairing_input_paring_code">페어링 코드 입력</string>
-    <string name="notification_adb_pairing_searching_for_service_title">페어링 서비스 검색중</string>
-    <string name="notification_adb_pairing_service_found_title">페어링 서비스를 찾았습니다</string>
-    <string name="notification_adb_pairing_stop_searching">검색 중지</string>
-    <string name="notification_adb_pairing_working_title">페어링 진행 중</string>
-    <string name="notification_adb_pairing_succeed_title">페어링 성공</string>
-    <string name="notification_adb_pairing_succeed_text">지금 白い熊 雫 서비스를 시작할 수 있습니다.</string>
-    <string name="notification_adb_pairing_failed_title">페어링 실패</string>
-    <string name="notification_adb_pairing_retry">재시도</string>
+    <string name="notification_channel_automation">자동화</string>
+    <string name="notification_automation_title">자동화가 실행 중입니다</string>
+<string name="notification_channel_service_status">서비스 시작 상태</string>
+<string name="notification_service_starting">白い熊 雫 서비스가 시작 중입니다…</string>
+<string name="notification_service_start_failed">白い熊 雫 서비스를 시작할 수 없습니다.</string>
+<string name="notification_service_start_no_root">루트 권한을 요청하지 못했습니다.</string>
+<string name="notification_working">진행 중…</string>
+<string name="notification_channel_adb_pairing">무선 디버깅 페어링</string>
+<string name="notification_adb_pairing_input_paring_code">페어링 코드 입력</string>
+<string name="notification_adb_pairing_searching_for_service_title">페어링 서비스 검색중</string>
+<string name="notification_adb_pairing_service_found_title">페어링 서비스를 찾았습니다</string>
+<string name="notification_adb_pairing_stop_searching">검색 중지</string>
+<string name="notification_adb_pairing_working_title">페어링 진행 중</string>
+<string name="notification_adb_pairing_succeed_title">페어링 성공</string>
+<string name="notification_adb_pairing_succeed_text">지금 白い熊 雫 서비스를 시작할 수 있습니다.</string>
+<string name="notification_adb_pairing_failed_title">페어링 실패</string>
+<string name="notification_adb_pairing_retry">재시도</string>
+    <string name="notification_auth_missing_title">인증 토큰 필요</string>
+    <string name="notification_auth_missing_message">인텐트에 “auth” 엑스트라를 추가하세요. 앱에서 “View intents”를 탭하면 토큰을 확인할 수 있습니다.</string>
+    <string name="notification_auth_invalid_title">잘못된 인증 토큰</string>
+    <string name="notification_auth_invalid_message">인텐트의 토큰이 앱의 “View intents” 아래에 표시된 토큰과 일치하는지 확인하세요.</string>
     <!-- Permission related, appears in system permission UI -->
-    <string name="permission_label">白い熊 雫에 접근</string>
-    <string name="permission_description">앱이 白い熊 雫를 사용하도록 허용합니다.</string>
-    <string name="permission_warning_template"><![CDATA[<b>%1$s</b>을(를) %2$s에 허용하시겠습니까\?]]></string>
-    <string name="grant_dialog_button_allow_always">항상 허용</string>
-    <string name="grant_dialog_button_deny">"거부"</string>
+<string name="permission_label">白い熊 雫에 접근</string>
+<string name="permission_description">앱이 白い熊 雫를 사용하도록 허용합니다.</string>
+    <string name="permission_label_plus">白い熊 雫(+) 액세스</string>
+    <string name="permission_description_plus">앱이 白い熊 雫(+)를 사용하도록 허용합니다.</string>
+<string name="permission_warning_template"><![CDATA[<b>%1$s</b>을(를) %2$s에 허용하시겠습니까\?]]></string>
+<string name="grant_dialog_button_allow_always">항상 허용</string>
+<string name="grant_dialog_button_deny">"거부"</string>
     <!-- Starter -->
-    <string name="starter">실행기</string>
-    <string name="start_with_root_failed">루트 권한이 부여되지 않았거나 이 기기가 루팅되지 않아서 서비스를 시작할 수 없습니다.</string>
+<string name="starter">실행기</string>
+<string name="start_with_root_failed">루트 권한이 부여되지 않았거나 이 기기가 루팅되지 않아서 서비스를 시작할 수 없습니다.</string>
+    <string name="starter_waiting">서비스를 기다리는 중…</string>
+    <string name="starter_waiting_description">연결 중 — 취소를 탭하여 중지합니다.</string>
+    <string name="starter_retrying">연결을 다시 시도하는 중…\n</string>
+    <string name="starter_retry">다시 시도</string>
+    <string name="adb_error_timeout">서비스가 시간 내에 시작되지 않았습니다. 무선 디버깅이 활성화되어 있는지 확인하고 다시 시도하세요.</string>
+    <string name="adb_error_generic">예상치 못한 오류가 발생했습니다. 다시 시도하세요.</string>
     <!-- WADB Starter -->
-    <string name="wadb_notification_title">시즈쿠 시작…</string>
-    <string name="wadb_notification_wifi_required">진행하기 전에 Wi-Fi 연결을 기다리는 중</string>
-    <string name="wadb_notification_retry">재시도 대기 중</string>
-    <string name="wadb_error_title">부팅 시 시작 중 오류 발생</string>
-    <string name="wadb_error_notify_dev">개발자에게 알리려면 탭하세요.</string>
-    <string name="wadb_permission_error_notification_title">권한 오류</string>
-    <string name="wadb_permission_error_notification_content">白い熊 雫를 부팅 시 시작하려면
+<string name="wadb_notification_title">시즈쿠 시작…</string>
+<string name="wadb_notification_wifi_required">진행하기 전에 Wi-Fi 연결을 기다리는 중</string>
+<string name="wadb_notification_retry">재시도 대기 중</string>
+    <string name="wadb_mdns_blocked_title">mDNS 검색이 계속 실패합니다</string>
+    <string name="wadb_mdns_blocked_text">포트 검색이 계속 시간 초과됩니다. 기기가 멀티캐스트 트래픽을 차단하고 있을 수 있습니다(Vivo/FunTouchOS에서 흔함). Wi-Fi 없이 안정적으로 연결하려면 설정에서 TCP 모드를 활성화해 보세요.</string>
+    <string name="wadb_mdns_switch_tcp_action">TCP 설정 열기</string>
+<string name="wadb_error_title">부팅 시 시작 중 오류 발생</string>
+<string name="wadb_error_notify_dev">개발자에게 알리려면 탭하세요.</string>
+    <string name="wadb_error_cannot_connect">ADB 서비스에 연결할 수 없습니다 — 무선 디버깅이 활성화되어 있는지 확인하세요</string>
+    <string name="wadb_error_discovery_timeout">ADB 검색 시간이 초과되었습니다 — Wi-Fi가 연결되어 있는지 확인하고 다시 시도하세요</string>
+    <string name="wadb_error_ssl_mismatch">SSL/TLS 오류 — 개발자 옵션에서 ADB 키를 취소하고 다시 페어링하세요</string>
+    <string name="wadb_error_not_authorized">무선 디버깅 인증이 필요합니다</string>
+    <string name="wadb_error_generic_short">ADB 연결 실패</string>
+<string name="wadb_permission_error_notification_title">권한 오류</string>
+<string name="wadb_permission_error_notification_content">白い熊 雫를 부팅 시 시작하려면
         WRITE_SECURE_SETTINGS 권한이 필요합니다. 탭하여 권한을 부여하는 방법을 알아보세요.</string>
-    <string name="wadb_notification_channel">ADB 자동 시작 서비스</string>
+<string name="wadb_notification_channel">ADB 자동 시작 서비스</string>
     <!-- Watchdog -->
-    <string name="watchdog_running">워치독이 실행 중입니다</string>
-    <string name="watchdog_turn_off">끄세요</string>
-    <string name="watchdog_shizuku_crashed_title">시즈쿠는 최근에 추락했습니다</string>
-    <string name="watchdog_shizuku_crashed_text">Watchdog이 서비스를 다시 시작했습니다. 향후 충돌을 방지하기 위한 잠재적인 수정
+<string name="watchdog_running">워치독이 실행 중입니다</string>
+<string name="watchdog_turn_off">끄세요</string>
+<string name="watchdog_shizuku_crashed_title">시즈쿠는 최근에 추락했습니다</string>
+<string name="watchdog_shizuku_crashed_text">Watchdog이 서비스를 다시 시작했습니다. 향후 충돌을 방지하기 위한 잠재적인 수정
         사항을 알아보려면 탭하세요.</string>
-    <string name="watchdog_shizuku_crashed_action_turn_off_alerts">알림 끄기</string>
+<string name="watchdog_shizuku_crashed_action_turn_off_alerts">알림 끄기</string>
     <!-- Misc -->
-    <string name="dialog_cannot_open_browser_title">브라우저를 실행할 수 없음</string>
-    <string name="toast_copied_to_clipboard">클립보드에 복사됨</string>
-    <string name="accessibility_service_description">알림이나 분할 화면을 사용할 수 없는 기기(예: Android 14 이상을 실행하는
+<string name="dialog_cannot_open_browser_title">브라우저를 실행할 수 없음</string>
+<string name="toast_copied_to_clipboard">클립보드에 복사됨</string>
+    <string name="accessibility_service_label">白い熊 雫 페어링 도우미</string>
+<string name="accessibility_service_description">알림이나 분할 화면을 사용할 수 없는 기기(예: Android 14 이상을 실행하는
         TV)에 대한 페어링 지원을 제공합니다.\n\n白い熊 雫가 무선 디버깅 페어링 화면에서 페어링 코드를 추출할 수 있도록 합니다. 페어링 코드를 찾으면
         白い熊 雫가 자동으로 비활성화됩니다.</string>
     <!-- Messages for legacy -->
-    <string name="dialog_legacy_not_support_title">%1$s는 최신 白い熊 雫를 지원하지 않음</string>
-    <string name="dialog_legacy_not_support_message"><![CDATA[구형 白い熊 雫는 2019년 3월에 지원이 중단되었습니다. 또한, 구형 白い熊 雫는 새로운 안드로이드 시스템에서 동작하지 않습니다.<p><b>%1$s</b> 개발자에게 업데이트를 문의하세요.]]></string>
-    <string name="dialog_requesting_legacy_title">%1$s가 구형 白い熊 雫를 요청하고 있음</string>
-    <string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b>가 최신 白い熊 雫를 지원하지만, 구형 白い熊 雫를 요청하고 있습니다. 白い熊 雫가 실행 중이지 않아서 발생할 수 있으니 白い熊 雫 앱에서 확인하세요.<p>구형 白い熊 雫는 2019년 3월 부터 지원이 중단되었습니다.]]></string>
-    <string name="dialog_requesting_legacy_button_open_shizuku">白い熊 雫 열기</string>
-    <string name="wadb_notification_attempt_now">지금 시도하세요</string>
+<string name="dialog_legacy_not_support_title">%1$s는 최신 白い熊 雫를 지원하지 않음</string>
+<string name="dialog_legacy_not_support_message"><![CDATA[구형 白い熊 雫는 2019년 3월에 지원이 중단되었습니다. 또한, 구형 白い熊 雫는 새로운 안드로이드 시스템에서 동작하지 않습니다.<p><b>%1$s</b> 개발자에게 업데이트를 문의하세요.]]></string>
+<string name="dialog_requesting_legacy_title">%1$s가 구형 白い熊 雫를 요청하고 있음</string>
+<string name="dialog_requesting_legacy_message"><![CDATA[<b>%1$s</b>가 최신 白い熊 雫를 지원하지만, 구형 白い熊 雫를 요청하고 있습니다. 白い熊 雫가 실행 중이지 않아서 발생할 수 있으니 白い熊 雫 앱에서 확인하세요.<p>구형 白い熊 雫는 2019년 3월 부터 지원이 중단되었습니다.]]></string>
+<string name="dialog_requesting_legacy_button_open_shizuku">白い熊 雫 열기</string>
+<string name="wadb_notification_attempt_now">지금 시도하세요</string>
+    <string name="settings_category_general">일반</string>
+    <string name="settings_category_dark_mode">다크 모드</string>
+    <string name="settings_category_automatic">자동</string>
+    <!-- Settings navigation summaries -->
+    <string name="settings_category_swipe">스와이프 동작</string>
+    <string name="settings_category_long_press">길게 누르기 동작</string>
+    <string name="settings_category_home_cards">홈 카드</string>
+    <string name="settings_category_activity_log">활동 로그</string>
+    <string name="settings_category_database">데이터베이스</string>
+    <string name="settings_category_network">네트워크</string>
+    <string name="settings_category_material_you">Material You</string>
+    <string name="settings_category_language">언어</string>
+    <string name="settings_category_appearance">외관</string>
+    <string name="settings_main_category_capabilities">기능</string>
+    <string name="settings_main_category_personalization">개인 맞춤 설정</string>
+    <string name="settings_main_category_system">시스템</string>
+    <string name="settings_main_nav_feature_hub_title">기능 허브</string>
+    <string name="settings_main_nav_feature_hub_summary">Plus 전용 기능을 관리합니다</string>
+    <string name="settings_main_nav_root_compat_title">루트와 호환성</string>
+    <string name="settings_main_nav_root_compat_summary">ADB 연결, SU 브리지, 루트리스 통합 및 순정 Shizuku 호환성</string>
+    <string name="settings_main_nav_appearance_summary">테마, 모양, 아이콘, 모션, 홈 레이아웃 및 언어</string>
+    <string name="settings_main_nav_app_interactions_title">앱 상호작용</string>
+    <string name="settings_main_nav_app_interactions_summary">제스처, 길게 누르기 동작 및 설치 확인</string>
+    <string name="settings_main_nav_startup_behavior_title">시작 및 동작</string>
+    <string name="settings_main_nav_startup_behavior_summary">부팅 옵션, 워치독, 네트워크, 활동 및 업데이트</string>
+    <string name="settings_main_nav_advanced_diagnostics_title">고급 및 진단</string>
+    <string name="settings_main_nav_advanced_diagnostics_summary">로그, ADB 도구 및 문제 해결</string>
+    <string name="settings_main_nav_about_summary">버전, 라이선스 및 개발자 옵션</string>
+    <string name="settings_accent_violet_applied">미드나잇 바이올렛이 적용되었습니다</string>
+    <string name="settings_accent_green_applied">포레스트 그린이 적용되었습니다</string>
+    <string name="settings_accent_crimson_applied">크림슨 로즈가 적용되었습니다</string>
+    <string name="settings_accent_ocean_applied">딥 오션이 적용되었습니다</string>
+    <string name="settings_accent_amber_applied">앰버 선셋이 적용되었습니다</string>
+    <string name="settings_accent_rose_applied">로즈 페탈이 적용되었습니다</string>
+    <string name="settings_accent_slate_applied">미드나잇 슬레이트가 적용되었습니다</string>
+    <string name="settings_accent_default_applied">스탠다드 블루 (기본값)</string>
+    <string name="fake_adb_pairing_title">가짜 ADB 연결을 허용하시겠습니까?</string>
+    <string name="fake_adb_pairing_message">앱이 Fake Local ADB 서버를 통해 白い熊 雫에 연결하려고 합니다.\n\nRSA 키 지문:\n%1$s</string>
+    <string name="fake_adb_pairing_allow">허용</string>
+    <string name="fake_adb_pairing_deny">거부</string>
+    <string name="settings_category_advanced">고급</string>
+    <string name="settings_nav_behavior_summary">부팅 시 시작, 워치독 및 TCP 모드</string>
+    <string name="settings_nav_shizuku_plus_summary">향상된 API, 셸 인터셉터 등</string>
+    <string name="settings_nav_ui_summary">테마, 색상, 언어</string>
+    <string name="settings_nav_app_management_summary">스와이프 및 길게 누르기 동작</string>
+    <string name="settings_nav_home_summary">표시되는 카드 및 바로 가기</string>
+    <string name="settings_nav_legacy_summary">ADB 프록시, SU 브리지, 루트 호환성</string>
+    <string name="settings_nav_advanced_summary">진단, 로그, 도움말</string>
+    <!-- Accessibility - Content Descriptions -->
+    <string name="accessibility_icon_server_status">서버 상태 아이콘</string>
+    <string name="accessibility_icon_app_management">앱 관리 아이콘</string>
+    <string name="accessibility_icon_terminal">터미널 아이콘</string>
+    <string name="accessibility_icon_adb">ADB 아이콘</string>
+    <string name="accessibility_icon_root">루트 접근 아이콘</string>
+    <string name="accessibility_icon_wireless_adb">무선 ADB 아이콘</string>
+    <string name="accessibility_icon_automation">자동화 아이콘</string>
+    <string name="accessibility_icon_learn_more">자세히 알아보기 아이콘</string>
+    <string name="accessibility_icon_warning">경고 아이콘</string>
+    <string name="accessibility_icon_help">도움말 아이콘</string>
+    <string name="accessibility_icon_drag_handle">드래그하여 순서 변경</string>
+    <string name="accessibility_icon_remove">카드 제거</string>
+    <string name="accessibility_icon_toggle_visibility">카드 표시 전환</string>
+    <string name="accessibility_icon_close">닫기</string>
+    <string name="accessibility_icon_info">정보</string>
+    <string name="accessibility_icon_play">재생</string>
+    <string name="accessibility_icon_settings">설정</string>
+    <string name="accessibility_icon_code">코드</string>
+    <string name="accessibility_icon_open_in_new">새로 열기</string>
+    <string name="accessibility_icon_link">링크</string>
+    <string name="accessibility_icon_restart">다시 시작</string>
+    <string name="accessibility_icon_start">시작</string>
+    <string name="accessibility_button_start">시작 버튼</string>
+    <string name="accessibility_button_restart">다시 시작 버튼</string>
+    <string name="accessibility_button_view_command">명령 보기 버튼</string>
+    <string name="accessibility_button_view_guide">가이드 보기 버튼</string>
+    <string name="accessibility_state_expanded">확장됨</string>
+    <string name="accessibility_state_collapsed">축소됨</string>
+    <string name="accessibility_button_view_intents">인텐트 보기 버튼</string>
+    <string name="accessibility_button_pairing">페어링 버튼</string>
+    <string name="accessibility_button_developer_options">개발자 옵션 버튼</string>
+    <string name="accessibility_button_notification_settings">알림 설정 버튼</string>
+    <string name="accessibility_button_export_files">파일 내보내기 버튼</string>
+    <string name="accessibility_button_activity_log">활동 로그 버튼</string>
+    <string name="accessibility_swipe_right">빠른 동작을 위해 오른쪽으로 스와이프</string>
+    <string name="accessibility_swipe_left">빠른 동작을 위해 왼쪽으로 스와이프</string>
+    <string name="accessibility_action_grant_permission">白い熊 雫 권한 부여</string>
+    <string name="accessibility_action_revoke_permission">白い熊 雫 권한 취소</string>
+    <string name="accessibility_action_open_app">앱 열기</string>
+    <string name="accessibility_action_app_info">앱 정보 설정 열기</string>
+    <string name="accessibility_action_hide_app">목록에서 숨기기</string>
+    <string name="accessibility_action_unhide_app">목록에서 숨기기 해제</string>
+    <string name="accessibility_action_toggle_selection">선택 전환</string>
+    <string name="accessibility_action_expand">확장</string>
+    <string name="accessibility_action_collapse">축소</string>
+    <string name="accessibility_status_running">실행 중</string>
+    <string name="accessibility_status_stopped">중지됨</string>
+    <string name="accessibility_status_error">오류</string>
+    <string name="accessibility_permission_granted">권한이 부여됨</string>
+    <string name="accessibility_permission_denied">권한이 거부됨</string>
+    <!-- Empty State Views -->
+    <string name="empty_state_title_service_starting">시작 중…</string>
+    <string name="empty_state_description_service_starting">白い熊 雫가 시작을 완료할 때까지 기다리는 중입니다. 보통 잠시 걸립니다.</string>
+    <string name="empty_state_title_no_results">검색 결과가 없습니다</string>
+    <string name="empty_state_description_no_results">현재 필터나 검색 조건과 일치하는 앱이 없습니다.</string>
+    <string name="empty_state_title_no_apps">아직 앱이 없습니다</string>
+    <string name="empty_state_description_no_apps">白い熊 雫 권한을 요청했거나 선언한 앱이 여기에 표시됩니다.</string>
+    <string name="empty_state_title_no_home_cards">모든 카드가 숨겨졌습니다</string>
+    <string name="empty_state_description_no_home_cards">홈 화면 카드를 모두 숨겼습니다. 복원하려면 설정으로 이동하세요.</string>
+    <string name="empty_state_action_restore_home_cards">카드 복원</string>
+    <string name="empty_state_title_no_plus_features">모든 기능이 비활성화되었습니다</string>
+    <string name="empty_state_description_no_plus_features">白い熊 雫의 모든 기능을 비활성화했습니다. 기능을 활성화하면 여기에 표시됩니다.</string>
+    <string name="empty_state_title_activity_log_empty">기록된 활동이 없습니다</string>
+    <string name="empty_state_description_activity_log_empty">활동 로깅이 활성화되면 白い熊 雫 API 호출과 이벤트가 여기에 표시됩니다.</string>
+    <string name="empty_state_title_hidden_apps">숨긴 앱이 없습니다</string>
+    <string name="empty_state_description_hidden_apps">관리 목록에서 숨긴 앱이 여기에 표시됩니다.</string>
+    <!-- Settings diagnostics preference (settings_advanced.xml) -->
+    <string name="settings_diagnostics_enabled">설정 진단</string>
+    <string name="settings_diagnostics_enabled_summary">충돌과 이상을 찾기 위해 구성을 선제적으로 검사합니다</string>
+    <!-- Verified install preferences (settings_app_management.xml) -->
+    <string name="settings_verify_apk_local_title">로컬 서명 일치</string>
+    <string name="settings_verify_apk_local_summary">업데이트가 설치된 앱의 서명과 일치하는지 확인합니다. 빠르고 완전 오프라인으로 동작합니다.</string>
+    <string name="settings_verify_apk_fdroid_title">F-Droid / IzzyOnDroid 인덱스</string>
+    <string name="settings_verify_apk_fdroid_summary">신뢰할 수 있는 오픈소스 메타데이터와 로컬에서 APK 해시를 비교합니다.</string>
+    <string name="settings_verify_apk_virustotal_title">VirusTotal 스캔</string>
+    <string name="settings_verify_apk_virustotal_summary">설치 전에 APK 해시를 VirusTotal에 조회합니다. API 키가 필요합니다.</string>
+    <string name="settings_verify_apk_pithus_title">Pithus 위협 인텔리전스</string>
+    <string name="settings_verify_apk_pithus_summary">해시를 Pithus에 조회하여 멀웨어 특성을 탐지합니다.</string>
+    <!-- Custom accent color preference (settings_personalization.xml) -->
+    <string name="settings_custom_accent_title">사용자 지정 강조 색상</string>
+    <!-- AI Bridge feature preference (settings_shizuku_plus.xml) -->
+    <string name="settings_ai_bridge_npu_title">AI 브리지 &amp; NPU</string>
+    <!-- Backup error messages (ShizukuPlusSettingsFragment.kt) -->
+    <string name="backup_error_prefix_backup_failed">백업 실패</string>
+    <string name="backup_error_prefix_restore_failed">복원 실패</string>
+    <string name="backup_error_key_invalidated_backup">이 백업의 암호화 키가 생성된 이후 기기의 화면 잠금이나 생체 인식이 변경되어 설계상 키가 영구적으로 무효화되었습니다. 다시 시도하여 새 키를 생성하세요.</string>
+    <string name="backup_error_key_invalidated_restore">이 백업의 암호화 키가 생성된 이후 기기의 화면 잠금이나 생체 인식이 변경되어 설계상 키가 영구적으로 무효화되었습니다. 이 백업은 더 이상 복호화할 수 없습니다.</string>
+    <string name="backup_error_wrong_install">이 백업을 복호화할 수 없습니다. 다른 白い熊 雫 설치에서 생성된 것으로 보입니다 — 백업은 설치별로 암호화되므로 재설치하거나 앱 데이터를 삭제한 후에는 복원할 수 없습니다.</string>
+    <!-- Update Settings -->
+    <string name="settings_update_category">업데이트</string>
+    <string name="settings_behavior_category_startup">시작 및 복구</string>
+    <string name="settings_behavior_category_network_activity">네트워크 및 활동</string>
+    <string name="settings_advanced_category_diagnostics">진단</string>
+    <string name="settings_advanced_category_adb_tools">ADB 도구</string>
+    <string name="settings_app_management_category_gestures">제스처 및 동작</string>
+    <string name="settings_app_management_category_verified_install">확인된 설치</string>
+    <string name="settings_personalization_category_color_theme">색상 및 테마</string>
+    <string name="settings_personalization_category_shape_style">모양 및 아이콘 스타일</string>
+    <string name="settings_personalization_category_motion_display">모션 및 디스플레이</string>
+    <string name="settings_personalization_category_home_screen">홈 화면</string>
+    <string name="settings_personalization_category_language">언어</string>
+    <string name="settings_plus_category_connectivity">네트워킹 및 연결</string>
+    <string name="settings_plus_category_system_performance">시스템 및 성능</string>
+    <string name="settings_plus_category_security_access">보안 및 액세스</string>
+    <string name="settings_plus_category_backup_restore">백업 및 복원</string>
+    <string name="settings_root_category_adb_connection">ADB 연결</string>
+    <string name="settings_root_category_stock_compat">순정 Shizuku 호환성</string>
+    <string name="settings_root_category_su_bridge">SU 브리지 구성</string>
+    <string name="settings_root_category_rootless_bridges">루트리스 브리지</string>
+    <string name="settings_root_category_mocking">모킹 및 시뮬레이션</string>
+    <string name="settings_root_category_bootloader">부트로더 통합</string>
+    <!-- SU Bridge configuration -->
+    <string name="settings_custom_su_path">사용자 지정 SU 경로</string>
+    <string name="settings_custom_su_path_summary">SU 브리지가 \'su\' 바이너리로 노출하는 경로입니다. 일반적인 위치에서 자동 감지하려면 비워 두세요.</string>
+    <!-- Root modules — Rootless Bridges -->
+    <string name="settings_root_build_prop_redirect">build.prop 리디렉션</string>
+    <string name="settings_root_build_prop_redirect_summary">시스템 빌드 속성 수정을 쓰기 가능한 프록시 파일로 루트리스로 리디렉션합니다</string>
+    <string name="help_root_build_prop_title">build.prop 리디렉션 정보</string>
+    <string name="help_root_build_prop_detail">이 모듈은 원본 build.prop을 사용자가 쓸 수 있는 경로에 자동으로 섀도 복사하고 모든 쓰기를 해당 파일로 리디렉션하여, 트위커가 루트리스로 시스템 값을 안전하게 수정할 수 있도록 합니다.</string>
+    <string name="settings_root_iptables_mocking">방화벽 성공 모킹</string>
+    <string name="settings_root_iptables_mocking_summary">로컬 netfilter 권한이 실패할 때 iptables 규칙을 가로채 성공으로 위장합니다</string>
+    <string name="help_root_iptables_title">방화벽 모킹 정보</string>
+    <string name="help_root_iptables_detail">루트리스 제한으로 실제 규칙을 설정할 수 없을 때 iptables 명령의 실행 성공을 위장하여 방화벽 앱이 계속 동작하도록 합니다.</string>
+    <!-- Root modules — Mocking &amp; Simulation -->
+    <string name="settings_overlay_fs_proxy">OverlayFS 시스템 고스팅</string>
+    <string name="settings_overlay_fs_proxy_summary">[개발자] 루트 앱용으로 가상 오버레이 파일시스템을 원활하게 마운트하여 rw /system을 시뮬레이션합니다. 경고: 실험적 기능입니다.</string>
+    <string name="settings_root_kernel_ghosting">커널 드라이버 고스팅</string>
+    <string name="settings_root_kernel_ghosting_summary">[개발자] 커널 모듈을 실제로 로드하지 않고 insmod/rmmod 커널 명령의 성공을 조용히 시뮬레이션합니다.</string>
+    <string name="settings_root_partition_ghosting">파티션 플래시 고스팅</string>
+    <string name="settings_root_partition_ghosting_summary">[개발자] /dev/block/을 대상으로 하는 \'dd\' 작업을 가로채 위장합니다. ROM 플래셔가 아무 작업도 하지 않으면서 충돌하는 것을 방지합니다.</string>
+    <string name="settings_root_power_ghosting">전원 상태 고스팅</string>
+    <string name="settings_root_power_ghosting_summary">[개발자] reboot, recovery, soft-reboot 명령을 가로채 조용히 무시하여 원치 않는 기기 재시작을 방지합니다.</string>
+    <!-- Bootloader Integration settings -->
+    <string name="settings_bootloader_flash_ota">시스템리스 OTA 플래싱</string>
+    <string name="settings_bootloader_flash_ota_summary">루트나 사용자 지정 리커버리 없이 비활성 슬롯에 OTA 페이로드를 플래시합니다</string>
+    <string name="settings_bootloader_fastbootd">FastbootD 전환</string>
+    <string name="settings_bootloader_fastbootd_summary">白い熊 雫 셸에서 fastbootd 사용자 공간으로 직접 다시 시작합니다</string>
+    <string name="settings_developer_category_debug">디버그 및 진단</string>
+    <string name="settings_plus_category_device_owner_tools">기기 소유자 도구</string>
+    <string name="settings_update_title">업데이트</string>
+    <string name="settings_update_summary">앱 업데이트를 확인하고 자동 업데이트를 구성합니다</string>
+    <!-- Developer Options -->
+    <string name="settings_developer_options">개발자 옵션</string>
+    <string name="settings_developer_options_summary">가상화, 기기 스푸핑 및 실험적 기능</string>
+    <string name="settings_developer_category_virtualization">가상화</string>
+    <string name="settings_developer_category_experimental">실험적</string>
+    <string name="settings_auto_update_title">업데이트 자동 확인</string>
+    <string name="settings_auto_update_summary">앱 시작 시 새 버전을 자동으로 확인합니다</string>
+    <string name="settings_auto_install_title">업데이트 자동 설치</string>
+    <string name="settings_auto_install_summary">업데이트를 자동으로 다운로드하고 설치를 요청합니다 (권한 필요)</string>
+    <string name="settings_update_channel_category">릴리스 채널</string>
+    <string name="settings_update_channel_title">업데이트 채널</string>
+    <string name="update_channel_stable">안정</string>
+    <string name="update_channel_dev">Dev / 사전 릴리스</string>
+    <string name="update_channel_dev_warning_title">Dev 채널로 전환하시겠습니까?</string>
+    <string name="update_channel_dev_warning_message">Dev 릴리스는 최신 커밋으로 빌드되며 버그, 충돌 또는 호환성 손상이 있을 수 있습니다. 새 기능을 조기에 테스트하려는 경우에만 사용하세요.\n\n언제든지 안정 채널로 다시 전환할 수 있습니다.</string>
+    <string name="settings_check_for_update_title">업데이트 확인</string>
+    <string name="settings_check_for_update_summary">새 버전을 수동으로 확인합니다</string>
+    <string name="settings_current_version_title">현재 버전</string>
+    <string name="settings_last_check_title">마지막 확인</string>
+    <string name="update_never_checked">안 함</string>
+    <!-- Update Notifications -->
+    <string name="update_notification_channel">업데이트 알림</string>
+    <string name="update_notification_channel_description">앱 업데이트 다운로드 및 설치에 대한 알림</string>
+    <string name="update_downloading_title">업데이트 다운로드 중</string>
+    <string name="update_downloading_description">白い熊 雫 %1$s 다운로드 중…</string>
+    <string name="update_downloading_progress">%1$s 다운로드 중 - %2$d%%</string>
+    <string name="update_ready_title">설치할 준비가 된 업데이트</string>
+    <string name="update_ready_description">白い熊 雫 %1$s을(를) 설치할 준비가 되었습니다</string>
+    <string name="update_install_now">지금 설치</string>
+    <string name="update_download_failed_title">다운로드 실패</string>
+    <string name="update_download_failed_message">업데이트를 다운로드하지 못했습니다. 다시 시도하세요.</string>
+    <string name="update_download_failed_storage">업데이트를 다운로드할 여유 저장 공간이 부족합니다.</string>
+    <string name="update_download_failed_cannot_resume">다운로드가 중단된 후 재개할 수 없습니다. 다시 시도하세요.</string>
+    <string name="update_download_failed_http">네트워크 오류로 다운로드가 중단되었습니다. 연결을 확인하고 다시 시도하세요.</string>
+    <!-- Migration Dialog -->
+    <string name="migration_dialog_title">중요: 재설치 필요</string>
+    <string name="migration_dialog_message">白い熊 雫의 패키지 ID가 moe.shizuku.privileged.api에서 shiroikuma.shizuku로 변경되었습니다. 이전 버전과 이 버전은 별도의 앱으로 취급되므로 직접 업데이트할 수 없었습니다.\n\n이전 버전에서 설정을 마이그레이션한 후 삭제할 수 있습니다.</string>
+    <string name="migration_dialog_message_root">白い熊 雫의 패키지 ID가 moe.shizuku.privileged.api에서 shiroikuma.shizuku로 변경되었습니다. 이전 버전과 이 버전은 별도의 앱으로 취급되므로 직접 업데이트할 수 없었습니다.\n\n루트 액세스를 사용할 수 있습니다 — 설정 마이그레이션을 탭하여 이전 버전에서 설정을 복사한 후 삭제하세요.</string>
+    <string name="migration_migrate_settings">설정 마이그레이션</string>
+    <string name="migration_uninstall_old">이전 버전 삭제</string>
+    <string name="migration_dismiss">닫기</string>
+    <string name="migration_success_title">설정이 마이그레이션되었습니다</string>
+    <string name="migration_success_message">이전 버전에서 설정이 복사되었습니다. 이제 moe.shizuku.privileged.api를 안전하게 삭제할 수 있습니다.</string>
+    <string name="migration_failure_title">마이그레이션 실패</string>
+    <string name="migration_failure_message">이전 버전에서 설정을 읽을 수 없습니다. 기본 설정을 수동으로 다시 구성해야 할 수 있습니다.\n\n이전 버전은 그래도 안전하게 삭제할 수 있습니다.</string>
+    <string name="migration_no_root_message">루트 액세스를 사용할 수 없어 설정을 자동으로 마이그레이션할 수 없습니다. 기본 설정을 수동으로 다시 구성해야 합니다.\n\n준비가 되면 이전 버전을 삭제할 수 있습니다.</string>
+    <!-- Update Dialogs -->
+    <string name="update_available_title">업데이트 가능</string>
+    <string name="update_available_message">새 버전 %1$s을(를) 다운로드할 수 있습니다.</string>
+    <string name="update_download">다운로드</string>
+    <string name="update_later">나중에</string>
+    <string name="update_release_notes">릴리스 노트</string>
+    <string name="update_up_to_date_title">최신 상태입니다</string>
+    <string name="update_up_to_date_message">이미 최신 버전(%1$s)을 사용 중입니다.</string>
+    <string name="update_error_title">확인 실패</string>
+    <string name="update_error_message">업데이트를 확인할 수 없습니다. 인터넷 연결을 확인하고 다시 시도하세요.\n\nGitHub Releases에서 수동으로 업데이트할 수도 있습니다.</string>
+    <string name="update_last_check_failed">확인 실패 — 필요하면 수동으로 업데이트하세요</string>
+    <string name="update_available_manual_message">버전 %1$s을(를) 사용할 수 있습니다. 자동 다운로드를 사용할 수 없습니다 — 아래를 탭하여 GitHub Releases를 여세요.</string>
+    <string name="update_view_on_github">GitHub에서 보기</string>
+    <string name="update_permission_required_title">권한 필요</string>
+    <string name="update_permission_required_message">자동 설치를 활성화하려면 시스템 설정에서 \"알 수 없는 앱 설치\" 권한을 부여하세요.</string>
+    <string name="update_checking">업데이트 확인 중…</string>
+    <string name="ok">확인</string>
+    <string name="no_file_picker">이 기기에 파일 선택 앱이 없습니다</string>
+    <string name="wadb_notification_discovery_timeout">ADB 포트 검색 시간이 초과되었습니다 — 다시 시도 중…</string>
+    <string name="shell_export_success">파일이 성공적으로 내보내졌습니다</string>
+    <string name="shell_export_failed">내보내기 실패 — 기록할 수 있는 파일이 없습니다</string>
+    <string name="shell_export_partial">%1$d/%2$d 파일이 내보내졌습니다(일부 실패)</string>
+    <!-- Settings backup/restore -->
+    <string name="settings_backup_category">백업 및 복원</string>
+    <string name="settings_export_title">설정 내보내기</string>
+    <string name="settings_export_summary">모든 白い熊 雫 설정을 JSON 파일로 저장합니다</string>
+    <string name="settings_import_title">설정 가져오기</string>
+    <string name="settings_import_summary">이전에 내보낸 JSON 파일에서 설정을 복원합니다</string>
+    <string name="settings_export_success">설정이 성공적으로 내보내졌습니다</string>
+    <string name="settings_export_failed">내보내기 실패</string>
+    <string name="settings_import_success">설정을 가져왔습니다 — 모든 변경사항을 적용하려면 앱을 다시 시작하세요</string>
+    <string name="settings_import_failed">가져오기 실패: 잘못되었거나 호환되지 않는 파일</string>
+    <string name="adb_native_unavailable">이 기기에서는 ADB 페어링을 사용할 수 없습니다</string>
+    <string name="shizuku_not_available">白い熊 雫 서비스를 사용할 수 없습니다</string>
+    <string name="su_bridge_magic_setup_success_global_setting">자동 설정이 완료되었습니다! 시스템 전역 설정이 구성되었습니다.</string>
+    <string name="changelog_title">새로운 기능</string>
+    <string name="changelog_close">닫기</string>
+    <string name="changelog_view_on_github">GitHub에서 보기</string>
+    <string name="changelog_fallback_message">이 업데이트의 릴리스 노트를 불러올 수 없습니다(오프라인일 수 있습니다). 변경 내용을 보려면 \"GitHub에서 보기\"를 탭하세요.</string>
+    <string name="changelog_earlier_releases">이전 릴리스</string>
+    <string name="changelog_version_history">버전 기록</string>
+    <string name="changelog_all_new_updates">모든 새 업데이트 (%d)</string>
+    <string name="changelog_tag_new">새로운</string>
+    <string name="aicore_plus_label">AICore+ 자동화 브리지</string>
+    <string name="aicore_plus_description">白い熊 雫 AICore+ 기능에 필요합니다. AI 기반 자동화를 위한 권한 있는 UI 계층 덤프와 실제 입력 시뮬레이션을 제공합니다. 비밀번호나 개인 데이터를 관찰하지 않습니다.</string>
+    <!-- Common action labels -->
+    <string name="action_clear_all">모두 지우기</string>
+    <string name="action_continue">계속</string>
+    <string name="action_open_github">GitHub</string>
+    <!-- Service Doctor auto-fix -->
+    <string name="service_doctor_fix_phantom_attempted">팬텀 프로세스 제한이 비활성화되었습니다. 필요하면 서비스를 다시 시작하세요.</string>
+    <string name="service_doctor_fix_requires_service">이 수정사항을 자동으로 적용하려면 白い熊 雫가 실행 중이어야 합니다.</string>
+    <string name="service_doctor_fix_failed">자동 수정 실패: %1$s</string>
+    <string name="service_doctor_fix_blocked_samsung">자동 수정이 차단되었습니다 — Samsung 최대 제한(Maximum Restrictions)이 활성화되어 있을 수 있습니다. 자동 차단(Auto Blocker)에서 해당 기능을 비활성화한 후 다시 시도하세요.</string>
+    <string name="service_doctor_fix_blocked_generic">자동 수정이 차단되었습니다 — 기기 제한으로 인해 권한 있는 셸 명령을 실행할 수 없습니다. ADB/OEM 설정을 확인하세요.</string>
+    <!-- ADB Pairing -->
+    <string name="adb_foreground_op_denied">포그라운드 서비스를 시작할 수 없습니다 — START_FOREGROUND 권한이 거부되었습니다. 기기의 앱 권한을 확인하세요.</string>
+    <!-- Update dialog -->
+    <string name="update_no_release_notes">릴리스 노트가 없습니다.</string>
+    <!-- Accessibility service status -->
+    <string name="accessibility_service_monitoring">접근성 서비스 활성화됨: 페어링 코드를 모니터링 중…</string>
+    <!-- Dhizuku Device Owner Setup -->
+    <string name="dhizuku_setup_title">기기 소유자 설정</string>
+    <string name="dhizuku_setup_message">Dhizuku 모드를 사용하려면 白い熊 雫를 기기 소유자로 설정해야 합니다. USB 디버깅이 활성화된 상태에서 ADB를 통해 다음 명령을 한 번 실행하세요:\n\n%1$s\n\n명령을 실행한 후 白い熊 雫를 다시 시작하세요.</string>
+    <string name="dhizuku_setup_copy">명령 복사</string>
+    <string name="dhizuku_setup_copied">명령이 클립보드에 복사되었습니다</string>
+    <string name="dhizuku_status_active">기기 소유자: 활성화됨</string>
+    <string name="dhizuku_status_not_set">기기 소유자가 설정되지 않았습니다 — 설정 방법을 보려면 탭하세요</string>
+    <!-- Clear Device Owner (Issue #237) -->
+    <string name="settings_clear_device_owner">기기 소유자 제거</string>
+    <string name="settings_clear_device_owner_summary">白い熊 雫를 기기 소유자에서 해제합니다. 앱을 제거하거나 다운그레이드하기 전에 필요합니다.</string>
+    <string name="dhizuku_clear_owner_title">기기 소유자를 제거하시겠습니까?</string>
+    <string name="dhizuku_clear_owner_message">白い熊 雫가 기기 소유자에서 제거됩니다. Dhizuku 모드가 비활성화되고, 위임된 기기 소유자 권한에 의존하는 앱들이 접근 권한을 잃게 됩니다.\n\n설정 대화상자에 표시된 ADB 명령을 실행하면 언제든지 기기 소유자를 다시 활성화할 수 있습니다.</string>
+    <string name="dhizuku_clear_owner_confirm">제거</string>
+    <string name="dhizuku_clear_owner_success">기기 소유자 상태가 제거되었습니다. 이제 白い熊 雫를 제거하거나 다운그레이드할 수 있습니다.</string>
+    <string name="dhizuku_clear_owner_failure">기기 소유자 상태를 제거하지 못했습니다. 서비스가 먼저 실행 중이어야 할 수 있습니다.</string>
+    <!-- Pairing fallback (Issue #204) -->
+    <string name="toast_pair_notifications_required">알림이 차단되었습니다 — 수동 페어링을 사용합니다. 개발자 옵션 → 무선 디버깅 → 페어링 코드로 기기 페어링으로 이동하여 코드를 받은 후 여기에 입력하세요.</string>
+    <string name="dialog_notif_permission_title">알림이 필요합니다</string>
+    <string name="dialog_notif_permission_message">페어링 코드는 알림으로 전달됩니다. ADB 페어링을 완료하려면 白い熊 雫가 알림을 표시하도록 허용하세요.</string>
+    <string name="dialog_notif_permission_allow">알림 허용</string>
+    <string name="dialog_notif_permission_manual">수동으로 페어링</string>
+    <string name="dialog_notif_permission_open_settings">설정 열기</string>
+    <string name="dialog_notif_permission_denied">알림 권한이 거부되었습니다. 설정에서 활성화하거나 수동으로 페어링할 수 있습니다.</string>
+    <!-- Remote App DB Sync -->
+    <string name="remote_db_sync_channel_name">앱 데이터베이스 업데이트</string>
+    <!-- Binder Enhancements (Issue #199) -->
+    <string name="settings_binder_firewall">Binder 방화벽</string>
+    <string name="settings_binder_firewall_summary">인증되지 않은 앱의 민감한 시스템 트랜잭션을 감사하고 차단합니다</string>
+    <string name="settings_binder_logging">AIDL 트랜잭션 로깅</string>
+    <string name="settings_binder_logging_summary">디버깅을 위해 프록시된 모든 Binder 트랜잭션을 시스템 로그(Logcat)에 기록합니다</string>
+    <string name="settings_shadow_binder">섀도우 Binder</string>
+    <string name="settings_shadow_binder_summary">시스템 서비스 호출을 가로채고 모의하여 기기 정보나 앱 상태를 숨깁니다</string>
+    <string name="settings_shadow_binder_hidden_packages">숨긴 패키지</string>
+    <string name="settings_shadow_binder_hidden_packages_summary">다른 앱에 숨길 패키지 이름의 쉼표로 구분된 목록입니다. OG Shizuku와 白い熊 雫가 모두 설치되어 있는 경우, 충돌을 방지하기 위해 두 패키지(moe.shizuku.privileged.api, af.shizuku.manager)를 모두 추가하세요.</string>
+    <!-- Automation Engine (Issue #435) -->
+    <string name="settings_automation_trusted_networks">신뢰할 수 있는 네트워크</string>
+    <string name="settings_automation_trusted_networks_summary">쉼표로 구분된 Wi-Fi 네트워크 이름(SSID)입니다. 이러한 네트워크 중 하나에 연결되어 있는 동안 Binder 방화벽이 자동으로 비활성화되고, 다른 모든 네트워크(모바일 데이터 포함)에서는 자동으로 활성화됩니다. 대신 수동으로 제어하려면 비워 두세요.</string>
+    <string name="settings_automation_auto_hide_packages">포그라운드 시 자동 숨기기</string>
+    <string name="settings_automation_auto_hide_packages_summary">열려 있는 동안에만 섀도우 Binder의 숨긴 목록에 자동으로 추가되는 앱으로, 위의 숨긴 패키지 목록에 추가로 적용됩니다. 대신 수동으로 관리하려면 비워 두세요.</string>
+    <plurals name="settings_shadow_binder_hidden_packages_count">
+        <item quantity="one">%d개의 앱 선택됨</item>
+        <item quantity="other">%d개의 앱 선택됨</item>
+    </plurals>
+    <!-- Companion Mode -->
+    <string name="settings_category_companion">컴패니언 모드</string>
+    <string name="settings_companion_mode">컴패니언 카드 표시</string>
+    <string name="settings_companion_mode_summary">기본 白い熊 雫를 빠르게 열 수 있는 카드를 표시합니다. 참고: 한 번에 하나의 白い熊 雫 서비스만 실행할 수 있습니다 — 둘 사이를 전환할 때 사용하세요.</string>
+    <string name="settings_companion_fallback">충돌 시 대체 실행</string>
+    <string name="settings_companion_fallback_summary">3회 연속 충돌 후 충돌 알림에 기본 Shizuku를 여는 옵션을 표시합니다</string>
+    <string name="home_companion_title">기본 Shizuku</string>
+    <string name="home_companion_description">기본 Shizuku가 설치되어 있습니다. 한 번에 하나의 서비스만 실행할 수 있습니다 — 기본 Shizuku가 필요한 앱을 사용할 때 여기를 탭하여 전환하세요.</string>
+    <string name="home_companion_not_installed">기본 Shizuku가 설치되어 있지 않습니다. 대체 수단으로 사용하려면 GitHub에서 설치하세요.</string>
+    <string name="home_companion_open">열기</string>
+    <string name="home_companion_install">설치</string>
+    <string name="watchdog_open_stock_shizuku">기본 Shizuku 열기</string>
+    <string name="settings_live_activity">실시간 활동 알림</string>
+    <string name="settings_live_activity_summary">상태 표시줄에 실시간 서비스 활동을 표시합니다</string>
+    <!-- App picker dialog -->
+    <string name="app_management_empty">앱을 찾을 수 없습니다</string>
+    <string name="app_management_search_hint">앱 검색</string>
+    <!-- Root Compatibility Hub -->
+    <string name="root_hub_title">루트 호환성 허브</string>
+    <string name="root_hub_global_config_title">전역 SU 경로</string>
+    <string name="root_hub_global_config_desc">모든 앱이 이 경로를 사용합니다. 자동 설정을 실행하면 지원되는 앱을 자동으로 구성합니다.</string>
+    <string name="root_hub_setup_all">모두 설정</string>
+    <string name="root_hub_setup_all_success">호환되는 모든 앱에 대해 자동 설정을 시도했습니다.</string>
+    <string name="root_hub_magic_setup_all_summary">白い熊 雫가 %d개의 앱을 구성했습니다!</string>
+    <string name="root_hub_magic_setup_all_no_apps">자동 설정을 지원하는 루트 앱을 찾을 수 없습니다.</string>
+    <string name="root_hub_magic_setup_success">자동 설정 완료! 白い熊 雫가 %s을(를) 구성했습니다.</string>
+    <string name="root_hub_magic_setup_fail">자동 설정에 실패했습니다. 경로를 수동으로 복사해 보세요.</string>
+    <string name="root_hub_path_copied">SU 경로가 클립보드에 복사되었습니다</string>
+    <string name="root_hub_no_export">SU 경로가 설정되지 않았습니다. 먼저 홈 화면에서 白い熊 雫 파일을 내보내세요.</string>
+    <string name="root_hub_device_identity_title">기기 식별 정보</string>
+    <string name="root_hub_device_identity_none">없음 (실제 기기 표시)</string>
+    <string name="root_hub_device_identity_real">실제: %s</string>
+    <string name="root_hub_device_identity_spoofed">스푸핑됨: %s</string>
+    <!-- Home Automation dialog labels -->
+<string name="home_automation_dialog_label_action">행동</string>
+<string name="home_automation_dialog_label_class">수업</string>
+<string name="home_automation_dialog_label_package">패키지</string>
+<string name="home_automation_dialog_label_target">목표</string>
+    <!-- Misc -->
+<string name="action_start">시즈쿠 시작</string>
+<string name="settings_tcp_learn_more">자동화 앱을 사용하여 白い熊 雫를 제어하는 방법에 대해 자세히 알아보세요.</string>
+<string name="settings_help">돕다</string>
+    <string name="settings_adb_category">ADB 관리</string>
+    <!-- APK verification API key strings -->
+    <string name="verify_virustotal_key_title">VirusTotal API 키</string>
+    <string name="verify_virustotal_key_required">VirusTotal 검사를 사용하려면 API 키가 필요합니다</string>
+    <string name="verify_pithus_key_title">Pithus API 키 (선택 사항)</string>
+    <string name="verify_pithus_key_configured">Pithus에 해시를 조회하여 멀웨어 특성을 감지합니다 · API 키가 구성됨</string>
+    <string name="verify_pithus_default_summary">Pithus에 해시를 조회하여 멀웨어 특성을 감지합니다.</string>
+    <string name="verify_api_key_hint">탭하여 API 키 입력</string>
+    <string name="verify_api_key_configured">API 키가 저장됨 · 탭하여 업데이트</string>
+    <string name="verify_get_api_key">API 키 받기</string>
+    <!-- Scripting & Snippets (#11) -->
+    <string name="scripting_title">스크립팅</string>
+    <string name="scripting_summary">권한 있는 셸 스니펫을 저장, 공유, 실행합니다</string>
+    <string name="scripting_empty_title">아직 스니펫이 없습니다</string>
+    <string name="scripting_empty_description">권한 있는 셸 스니펫을 저장하면 白い熊 雫를 통해 언제든지 실행할 수 있습니다.</string>
+    <string name="scripting_add">스니펫 추가</string>
+    <string name="scripting_edit">스니펫 편집</string>
+    <string name="scripting_run">실행</string>
+    <string name="scripting_running">“%1$s” 실행 중…</string>
+    <string name="scripting_no_output">(출력 없음)</string>
+    <string name="scripting_exit_code">종료 코드: %1$d</string>
+    <string name="scripting_copy_output">출력 복사</string>
+    <string name="scripting_output_copied">출력이 클립보드에 복사되었습니다</string>
+    <string name="scripting_title_hint">스니펫 이름</string>
+    <string name="scripting_script_hint">셸 명령어</string>
+    <string name="scripting_title_and_script_required">이름과 스크립트가 모두 필요합니다</string>
+    <string name="scripting_delete_title">스니펫을 삭제하시겠습니까?</string>
+    <string name="scripting_delete_message">“%1$s”이(가) 영구적으로 삭제됩니다.</string>
+    <string name="scripting_delete">삭제</string>
+    <string name="scripting_auto_run_label">서비스 시작 시 자동 실행</string>
+    <string name="scripting_auto_run_badge_desc">서비스 시작 시 자동 실행됩니다</string>
+    <!-- Tasker/Locale automation plugin (#6) -->
+    <string name="automation_plugin_action_label">白い熊 雫 서비스</string>
+    <string name="automation_plugin_action_edit_title">동작 선택</string>
+    <string name="automation_plugin_action_start">白い熊 雫 서비스 시작</string>
+    <string name="automation_plugin_action_stop">白い熊 雫 서비스 중지</string>
+    <string name="automation_plugin_blurb_start">白い熊 雫 서비스를 시작합니다</string>
+    <string name="automation_plugin_blurb_stop">白い熊 雫 서비스를 중지합니다</string>
+    <string name="automation_plugin_condition_label">白い熊 雫 서비스 실행 중</string>
+    <string name="automation_plugin_condition_title">白い熊 雫 서비스 실행 중</string>
+    <string name="automation_plugin_condition_description">이 조건은 白い熊 雫 서비스가 실행 중일 때 충족됩니다.</string>
+    <string name="automation_plugin_condition_blurb">白い熊 雫 서비스가 실행 중입니다</string>
+    <string name="cd_navigate_back">뒤로</string>
+    <string name="cd_settings_search">검색</string>
+    <string name="cd_settings_search_clear">지우기</string>
+    <string name="settings_search_hint">설정 검색…</string>
+    <string name="settings_search_empty_state">설정을 찾을 수 없습니다</string>
+    <!-- Network Firewall automation trusted networks -->
+    <string name="settings_binder_firewall_trusted_networks">신뢰할 수 있는 네트워크</string>
+    <string name="settings_binder_firewall_trusted_networks_summary_none">구성되지 않음 — 방화벽 상태는 수동으로만 제어됩니다</string>
+    <string name="settings_binder_firewall_trusted_networks_summary_one">신뢰할 수 있는 네트워크 1개에서 자동 전환됩니다</string>
+    <string name="settings_binder_firewall_trusted_networks_summary_many">신뢰할 수 있는 네트워크 %d개에서 자동 전환됩니다</string>
+    <string name="binder_firewall_trusted_networks_title">신뢰할 수 있는 네트워크</string>
+    <string name="binder_firewall_trusted_networks_detail">신뢰할 수 있는 네트워크(예: 집 Wi-Fi)에 연결되면 Binder 방화벽이 자동으로 비활성화됩니다. 다른 네트워크에서는 자동으로 다시 활성화됩니다.\n\n각 Wi-Fi SSID를 한 줄에 하나씩 입력하세요. 정확히 일치하는 경우에만 적용됩니다.</string>
+    <string name="binder_firewall_trusted_networks_hint">한 줄에 SSID 하나씩</string>
+    <string name="binder_firewall_trusted_networks_add_current">현재 네트워크 추가</string>
+    <string name="binder_firewall_trusted_networks_save">저장</string>
+    <string name="binder_firewall_trusted_networks_no_ssid">현재 네트워크 이름을 감지할 수 없습니다</string>
+    <string name="binder_firewall_trusted_networks_already_added">"%s"이(가) 이미 목록에 있습니다</string>
+    <!-- Biometric lock -->
+    <string name="biometric_prompt_title">白い熊 雫 잠금 해제</string>
+    <string name="biometric_prompt_subtitle">민감한 설정에 접근하려면 인증하세요</string>
+    <!-- Stealth mode -->
+    <string name="stealth_mode_enable_title">스텔스 모드를 활성화하시겠습니까?</string>
+    <string name="stealth_mode_enable_message">런처에서 앱 아이콘이 제거됩니다.\n\nShizuku 알림에서 계속 앱을 열 수 있습니다. ADB를 통해 스텔스 모드를 비활성화하면 아이콘이 복원됩니다:\n\nadb shell pm enable %1$s/af.shizuku.manager.LauncherAlias</string>
+    <string name="stealth_mode_enable_button">활성화</string>
+    <!-- OTA flash danger dialog -->
+    <string name="ota_flash_danger_title">위험한 실험적 기능</string>
+    <string name="ota_flash_danger_message">시스템리스 OTA 플래싱은 白い熊 雫 셸을 통해 android.os.UpdateEngine을 사용하여 zip 페이로드를 비활성 슬롯에 설치합니다.\n\n위험: 호환되지 않는 페이로드를 플래싱하면 하드 브릭 또는 부트루프가 발생합니다. 이 기능을 활성화하시겠습니까?</string>
+    <string name="ota_flash_danger_confirm">이해했습니다, 활성화</string>
+    <!-- SU path preset picker dialog -->
+    <string name="su_path_preset_dialog_title">SU 경로 프리셋 선택</string>
+    <string name="su_path_preset_default">기본값 (자동 감지)</string>
+    <string name="su_path_preset_custom">사용자 지정 경로…</string>
+    <!-- Device Owner (Dhizuku) toasts -->
+    <string name="dpm_screen_capture_disabled">화면 캡처가 전역적으로 비활성화됨</string>
+    <string name="dpm_screen_capture_enabled">화면 캡처가 활성화됨</string>
+    <string name="dpm_requires_device_owner">실패: 기기 소유자 권한이 필요합니다</string>
+    <string name="dpm_usb_locked">USB 데이터가 잠겼습니다</string>
+    <string name="dpm_usb_unlocked">USB 데이터가 잠금 해제되었습니다</string>
+    <string name="dpm_freeze_failed">동결 실패: %1$s</string>
+    <string name="dpm_freeze_success">%1$d개의 앱이 동결되었습니다</string>
+    <!-- Backup/restore picker dialog -->
+    <string name="backup_export_title">백업 내보내기</string>
+    <string name="backup_type_encrypted">암호화됨 (권장)</string>
+    <string name="backup_type_plain">일반 텍스트 — 재설치 간 테스트용</string>
+    <string name="backup_no_file_manager_save">백업을 저장할 파일 관리자 앱을 찾을 수 없습니다</string>
+    <string name="backup_no_file_manager_open">백업을 열 파일 관리자 앱을 찾을 수 없습니다</string>
+    <!-- Samsung ADB dialog -->
+    <string name="adb_dialog_popup_settings">팝업 설정</string>
+    <!-- Tile service: state subtitles (shown in Samsung OneUI wide tile text area and standard subtitle) -->
+    <string name="tile_subtitle_active">활성</string>
+    <string name="tile_subtitle_starting">시작 중…</string>
+    <string name="tile_subtitle_stopping">중지 중…</string>
+    <string name="tile_subtitle_crashed">충돌됨 · 탭하여 다시 시작</string>
+    <string name="tile_subtitle_tap_to_start">탭하여 시작</string>
+    <!-- Tile service: mode labels -->
+    <string name="tile_mode_root">루트</string>
+    <string name="tile_mode_wifi_adb">WiFi ADB</string>
+    <string name="tile_mode_adb">ADB</string>
+    <!-- Tile service: action labels (tap dialog and long-press options activity) -->
+    <string name="tile_action_start">서비스 시작</string>
+    <string name="tile_action_stop">서비스 중지</string>
+    <string name="tile_action_restart">서비스 다시 시작</string>
+    <string name="tile_action_open_app">앱 열기</string>
+    <!-- Tile service error -->
+    <string name="tile_state_update_failed">白い熊 雫 상태 업데이트 실패: %1$s</string>
+    <string name="tile_open_app_required">무선 디버깅을 시작하거나 페어링하려면 白い熊 雫를 여세요</string>
+    <!-- App Profiles automation activity -->
+    <string name="app_profiles_title">앱 프로필</string>
+    <string name="app_profiles_summary_none">앱별 Binder 방화벽 재정의 없음</string>
+    <string name="app_profiles_summary_count">%1$d개의 앱 재정의가 활성 상태입니다</string>
+    <string name="app_profiles_description">앱별로 Binder 방화벽을 재정의합니다. 칩을 탭하여 전환: 기본값 → 차단 → 허용. AutomationService가 실행 중일 때 적용됩니다.</string>
+    <string name="app_profile_state_default">기본값</string>
+    <string name="app_profile_state_block">차단</string>
+    <string name="app_profile_state_allow">허용</string>
+    <string name="app_profile_search_hint">앱 검색…</string>
+    <string name="app_profile_empty">앱을 찾을 수 없습니다</string>
+    <string name="su_bridge_api36_adb_warning_title">Android 16 ADB 제한</string>
+    <string name="su_bridge_api36_adb_warning_body">ADB 셸 프로세스는 Android 16 이상에서 /data/local/tmp에 쓸 수 없습니다. 대신 Shizuku 파일을 폴더에 내보내세요 — SU 브리지가 해당 내보낸 경로를 사용합니다.</string>
+    <string name="su_bridge_export_files">파일 내보내기…</string>
+    <string name="settings_status_bar_governor_plus_summary">상태 표시줄과 빠른 설정 패널을 제어합니다: 사용자 상호작용 없이 알림창을 접고/펼치며, 확장 잠금을 토글하고, 타일 레이아웃을 관리합니다.</string>
+    <string name="help_status_bar_governor_plus_title">상태 표시줄 제어</string>
+    <string name="help_status_bar_governor_plus_detail">시스템 statusbar 서비스를 통해 상태 표시줄과 빠른 설정 패널에 대한 권한 있는 접근을 제공합니다. 앱과 자동화는 알림창을 접거나 펼치고, 사용자 접근을 막기 위해 확장을 잠그며, 개별 QS 타일을 클릭하고, 전체 타일 목록을 읽거나 다시 쓸 수 있습니다 — 기기 잠금을 해제하거나 사용자 제스처가 필요하지 않습니다.</string>
+    <string name="settings_package_governor_plus_summary">프롬프트 없이 런타임 권한을 부여하거나 취소하고, APK를 자동으로 설치하며, 사용자별로 시스템 앱을 디블로트하고, 데이터 보존과 함께 앱을 일시중지/복원합니다 — 모두 권한 있는 셸 접근을 통해 수행됩니다.</string>
+    <string name="help_package_governor_plus_title">패키지 거버너</string>
+    <string name="help_package_governor_plus_detail">ADB/셸 프로세스에서 사용할 수 있는 권한 있는 패키지 관리 작업을 제공합니다: 런타임 권한 부여/취소(pm grant/revoke), 사용자 범위 시스템 앱 제거(pm uninstall --user 0) 및 복원(pm install-existing), 데이터 보존 앱 일시중지(pm suspend/unsuspend), 자동 권한 부여가 포함된 자동 APK 설치. 이는 실제 루트 액세스 없이 ADB를 통해 Shizuku를 실행하는 모든 기기에서 동작하는 진정한 루트급 기능입니다.</string>
+    <string name="settings_display_tuner_plus_summary">adb shell wm size/density와 동일하게 디스플레이 해상도와 DPI를 재정의합니다 — 앱과 자동화가 스스로 ADB 접근 없이 화면 레이아웃을 조정할 수 있습니다.</string>
+    <string name="help_display_tuner_plus_title">디스플레이 튜너</string>
+    <string name="help_display_tuner_plus_detail">wm 셸 도구를 통해 권한 있는 디스플레이 구성을 제공합니다: 해상도(wm size)와 밀도(wm density)를 실시간으로 재정의하고, 현재값과 물리적 값을 읽으며, 재정의값을 기기 기본값으로 초기화합니다. 앱 레이아웃 문제 수정, 화면 녹화용 특정 종횡비 강제, 데스크톱 모드 조정, 접근성 배율 조정에 유용합니다 — 과거에는 루트 전용 기능이었으나 이제 ADB 셸 프로세스를 통해 사용할 수 있습니다.</string>
+    <!-- App Backup feature -->
+    <string name="home_backup_title">앱 백업</string>
+    <string name="home_backup_summary">루트 없이 앱 데이터를 백업하고 복원합니다</string>
+    <string name="home_backup_summary_with_dir">%1$s에 저장됩니다</string>
+    <string name="backup_activity_title">앱 백업</string>
+    <string name="backup_action_backup">백업</string>
+    <string name="backup_action_restore">복원</string>
+    <string name="backup_restore_complete">%1$s의 외부 데이터를 복원했습니다</string>
+    <string name="backup_action_freeze">동결</string>
+    <string name="backup_action_unfreeze">동결 해제</string>
+    <string name="backup_service_required">Shizuku 서비스가 실행 중이 아닙니다</string>
+    <string name="backup_in_progress">백업 진행 중…</string>
+    <string name="backup_app_complete">%1$s → %2$s 백업됨</string>
+    <string name="backup_app_failed">백업 실패: %1$s</string>
+    <string name="backup_freeze_success">앱이 동결되었습니다</string>
+    <string name="backup_unfreeze_success">앱 동결이 해제되었습니다</string>
+    <string name="dialog_adb_pair_device">지금 이 기기 페어링</string>
+    <string name="dialog_adb_autopair_enabled">✓ 자동 페어링이 활성 상태입니다 — 페어링이 자동으로 확인됩니다</string>
+    <!-- Mode-contextual settings (#433) -->
+    <string name="settings_mode_indicator_adb">ADB 모드에서 실행 중 — 루트 전용 옵션이 숨겨져 있습니다</string>
+    <string name="settings_mode_indicator_root">루트 모드에서 실행 중 — ADB 전용 옵션이 숨겨져 있습니다</string>
+    <!-- Hide backup settings (#461) -->
+    <string name="settings_hide_backup_settings">백업 &amp; 복원 숨기기</string>
+    <string name="settings_hide_backup_settings_summary">기능 허브 설정 화면에서 백업 &amp; 복원 섹션을 제거합니다</string>
+    <!-- Package identity / MDM bypass UI (#469) -->
+    <string name="settings_package_identity_category">패키지 식별 정보</string>
+    <string name="settings_custom_app_label">사용자 지정 앱 라벨</string>
+    <string name="settings_custom_app_label_summary">정보 화면에 표시되는 표시 이름 접미사를 설정합니다. 설치된 패키지 이름은 변경되지 않습니다.</string>
+    <string name="settings_custom_app_label_hint">예: Work, Personal, Alt</string>
+    <string name="package_identity_info_title">패키지 이름 무작위화에 대하여</string>
+    <string name="package_identity_info_detail">MDM 및 기업 루트 감지 시스템은 알려진 패키지 이름(af.shizuku.manager)을 스캔하는 경우가 많습니다. Shevery처럼 진정한 패키지 이름 무작위화를 하려면 빌드 시 APK에 다른 applicationId를 포함해 앱을 다시 설치해야 합니다. 실행 중인 관리자는 스스로 이름을 바꿀 수 없습니다.\n\n로드맵: 향후 "Build-Your-Own" CI 워크플로를 통해 사용자 지정 이름의 APK를 생성할 수 있게 될 예정입니다. 그때까지 이 설정은 표시 라벨만 저장합니다. 지금 당장 MDM 우회를 원하면 스텔스 모드를 사용하여 런처 아이콘을 제거하세요.</string>
+    <string name="settings_package_identity_current">현재 패키지: %1$s</string>
+    <string name="settings_package_identity_roadmap">전체 런타임 이름 변경에는 사용자 지정 빌드가 필요합니다 — issue #469 참조</string>
+    <!-- Device Control card &amp; screen -->
+    <string name="home_device_control_title">기기 제어</string>
+    <string name="home_device_control_summary">연결, 디스플레이, 오디오 및 전원</string>
+    <string name="device_control_section_connectivity">연결</string>
+    <string name="device_control_airplane_mode">비행기 모드</string>
+    <string name="device_control_wifi">Wi-Fi</string>
+    <string name="device_control_bluetooth">Bluetooth</string>
+    <string name="device_control_mobile_data">모바일 데이터</string>
+    <string name="device_control_nfc">NFC</string>
+    <string name="device_control_private_dns">프라이빗 DNS</string>
+    <string name="device_control_dns_off">끔</string>
+    <string name="device_control_dns_auto">자동</string>
+    <string name="device_control_dns_custom">사용자 지정</string>
+    <string name="device_control_dns_hostname_label">DNS 호스트 이름</string>
+    <string name="device_control_dns_apply">적용</string>
+    <string name="device_control_section_display">디스플레이</string>
+    <string name="device_control_auto_brightness">자동 밝기</string>
+    <string name="device_control_brightness">밝기: %1$d</string>
+    <string name="device_control_auto_rotate">자동 회전</string>
+    <string name="device_control_screen_timeout">화면 시간 제한</string>
+    <string name="device_control_section_audio">오디오</string>
+    <string name="device_control_volume_media">미디어 볼륨: %1$d</string>
+    <string name="device_control_volume_ring">벨소리 볼륨: %1$d</string>
+    <string name="device_control_volume_alarm">알람 볼륨: %1$d</string>
+    <string name="device_control_section_system">시스템 외관</string>
+    <string name="device_control_animations">시스템 애니메이션</string>
+    <string name="device_control_font_scale">글꼴 크기: %1$s×</string>
+    <string name="device_control_section_power">전원</string>
+    <string name="device_control_reboot">다시 시작</string>
+    <string name="device_control_reboot_title">기기 다시 시작</string>
+    <string name="device_control_reboot_confirm">기기를 다시 시작하시겠습니까?</string>
+    <string name="device_control_shutdown">종료</string>
+    <string name="device_control_shutdown_title">기기 종료</string>
+    <string name="device_control_shutdown_confirm">기기를 종료하시겠습니까?</string>
+    <string name="nav_back">뒤로</string>
+    <!-- Stealth Mode -->
+    <string name="settings_stealth_mode">스텔스 모드</string>
+    <string name="settings_stealth_mode_summary">앱 패키지 쿼리에서 白い熊 雫와 Shizuku를 숨겨 보안 SDK가 감지하지 못하도록 합니다</string>
+    <string name="help_stealth_mode_title">스텔스 모드</string>
+    <string name="help_stealth_mode_detail">Binder 수준에서 PackageManager 쿼리를 가로채 白い熊 雫 및 Shizuku 패키지에 대해 "설치되지 않음"을 반환합니다. PM을 사용해 루트 도구를 감지하는 앱(뱅킹 앱, DRM 검사)은 이를 찾지 못합니다. 참고: 이는 PackageManager 쿼리에서만 숨기는 것으로, 개발자 모드와 USB 디버깅은 Android 설정을 직접 확인하는 앱에 여전히 표시됩니다.</string>
+    <!-- Per-section corner style options (shared by home card and settings card shape prefs) -->
+    <string name="settings_home_card_shape">홈 카드 모서리</string>
+    <string name="settings_home_card_shape_summary">전역 설정과 독립적으로 홈 화면 카드의 모서리 스타일을 재정의합니다</string>
+    <string name="settings_settings_card_shape">설정 카드 모서리</string>
+    <string name="settings_settings_card_shape_summary">접을 수 있는 설정 섹션 헤더의 모서리 스타일을 재정의합니다</string>
+    <string name="corner_style_global">전역 설정 따르기</string>
+    <string name="corner_style_sharp">샤프 / 플랫</string>
+    <string name="corner_style_rounded">둥글게 (M3)</string>
+    <string name="corner_style_large">크게 둥글게</string>
+    <string name="corner_style_squircle">스쿼클</string>
+    <string name="corner_style_extra_large">초대형 둥글게</string>
+    <!-- Feature Hub experimental category label -->
+    <string name="settings_plus_category_experimental">실험적</string>
+    <!-- Permission Manager card &amp; screen -->
+    <string name="home_permission_manager_title">권한 관리자</string>
+    <string name="home_permission_manager_summary">루트 없이 셸 수준 권한을 모든 앱에 부여합니다</string>
+    <string name="permission_manager_search_hint">앱 검색…</string>
+    <string name="permission_manager_no_apps">앱을 찾을 수 없습니다</string>
+    <string name="permission_manager_no_permissions">선언된 런타임 또는 권한 있는 권한이 없습니다</string>
+    <string name="permission_manager_section_privileged">권한 있는 권한 (셸로 부여 가능)</string>
+    <string name="permission_manager_section_runtime">런타임 권한</string>
+    <string name="permission_manager_privileged_note">이러한 권한은 일반적으로 시스템 또는 루트 앱으로 제한되지만, ADB 셸 프로세스가 부여할 수 있습니다. DUMP, READ_LOGS 또는 유사한 접근이 필요한 백업 앱(Neo Backup, Swift Backup)에 유용합니다.</string>
+    <!-- Home layout simulator accessibility labels (decorative preview widget — a11y toggles) -->
+    <string name="accessibility_sim_toggle_adb">ADB 시작 카드 표시 토글</string>
+    <string name="accessibility_sim_toggle_terminal">터미널 카드 표시 토글</string>
+    <string name="accessibility_sim_toggle_automation">자동화 카드 표시 토글</string>
+    <string name="accessibility_sim_toggle_activity_log">활동 로그 카드 표시 토글</string>
+    <string name="accessibility_sim_toggle_learn_more">자세히 알아보기 카드 표시 토글</string>
 </resources>

@@ -33,6 +33,9 @@ object SettingsBackupManager {
             "auth_token",
             // Device-specific storage URI (path on destination device will differ)
             ShizukuSettings.Keys.KEY_EXPORT_DIR_URI,
+            // Peer settings sync metadata (local timestamps and import state)
+            ShizukuSettings.Keys.KEY_SETTINGS_LAST_MODIFIED,
+            ShizukuSettings.Keys.KEY_PEER_INITIAL_IMPORT_DONE,
         )
 
     fun export(

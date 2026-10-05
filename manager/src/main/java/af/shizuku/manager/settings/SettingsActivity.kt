@@ -86,7 +86,20 @@ class SettingsActivity :
                         }
                     },
                     onContainerCreated = {
-                        if (savedInstanceState == null && supportFragmentManager.findFragmentById(R.id.fragment_container) == null) {
+                        // FM restores the fragment into its internal state during super.onCreate(),
+                        // before the Compose AndroidView container exists. findFragmentById returns
+                        // non-null in that case, but the fragment's view was never created (the
+                        // container wasn't in the hierarchy when FM tried to attach it). Checking
+                        // view == null catches this: the fragment exists in FM's state but has no
+                        // live view, so we replace it to force a fresh attach.
+                        val existing = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                        if (existing == null || existing.view == null) {
+                            supportFragmentManager
+                                .beginTransaction()
+                                .replace(R.id.fragment_container, SettingsFragment())
+                                .commitNow()
+                        }
+                        if (savedInstanceState == null) {
                             // Fork: long-pressing the home settings cog asks for the 白い熊 雫 UI page
                             // directly, so open it instead of the settings root. The root is pushed
                             // underneath first, so Back still lands on Settings rather than exiting.
@@ -95,10 +108,6 @@ class SettingsActivity :
                                     af.shizuku.manager.shiroikuma.ShiroikumaUiFragment.EXTRA_OPEN_SHIROIKUMA_UI,
                                     false,
                                 ) == true
-                            supportFragmentManager
-                                .beginTransaction()
-                                .replace(R.id.fragment_container, SettingsFragment())
-                                .commit()
                             if (openHouseUi) {
                                 supportFragmentManager
                                     .beginTransaction()
@@ -163,8 +172,7 @@ class SettingsActivity :
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
-
-        currentTitle = item.title
+        // Title is updated by the fragment's onResume → updateTitle(); no need to set it here.
     }
 
     override fun onPreferenceStartFragment(
