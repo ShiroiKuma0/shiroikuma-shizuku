@@ -184,6 +184,13 @@ class DhizukuProvider : ContentProvider() {
         arg: String?,
         extras: Bundle?,
     ): Bundle? {
+        // Fork: with Dhizuku mode off, hand out no binder at all. Both binders refuse every
+        // transaction in that state, but Dhizuku-API's init() counts any returned binder as
+        // success and never checks a version — so a Dhizuku-first client (Obtainium's Shizuku
+        // installer plugin, 白い熊 獲得) would bind a dead Dhizuku, read isPermissionGranted() as
+        // false, and report "denied" without ever trying the Shizuku binder it is authorised for.
+        // Returning null makes init() fail, which is what sends those clients on to Shizuku.
+        if (!ShizukuSettings.isDhizukuModeEnabled()) return null
         if ("getBinder" == method) {
             val bundle = Bundle()
             bundle.putBinder("binder", DhizukuV1Binder())

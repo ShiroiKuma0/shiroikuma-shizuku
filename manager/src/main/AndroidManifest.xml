@@ -297,6 +297,19 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- Fork: Dhizuku-API's Dhizuku.requestPermission() target. No android:permission — any
+             Dhizuku client must be able to start it; the uid it names is what gets prompted for. -->
+        <activity
+            android:name=".authorization.DhizukuRequestPermissionActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@style/GrantPermissions">
+            <intent-filter>
+                <action android:name="${applicationId}.action.REQUEST_DHIZUKU_PERMISSION" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".legacy.ShellRequestHandlerActivity"
             android:directBootAware="true"
