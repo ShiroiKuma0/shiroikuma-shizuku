@@ -8,6 +8,24 @@ resets to 1 on each upstream sync. Builds from `13.6.0.r2201.2026-08-01.g14550b5
 `13.6.0.r2246.2026-08-12.g9f2c01e8+001` dot-joined the pin instead and carried no time; builds up to
 `13.6.0.r2195+5` used the older `<upstream version>+<N>` form.
 
+## 13.7.0.r2748+2026-10-05.00-19.gf34eaa8b+003
+
+Same upstream base as `+002` (`r2748`, `f34eaa8b`) — a fork-only fix build.
+
+### Fixes that reach users
+
+- **Dhizuku-first installers now fall through to Shizuku.** With Dhizuku mode off (the default),
+  the Dhizuku provider still handed out a binder that refused every call. Dhizuku-API treats any
+  returned binder as a working Dhizuku, so clients that try Dhizuku first — Obtainium's Shizuku
+  installer, 白い熊 獲得 — read "permission not granted" and failed instantly with "Cancelled",
+  never trying the Shizuku access they were already authorized for. The provider now answers
+  nothing while Dhizuku mode is off, so those clients go straight to Shizuku.
+- **Dhizuku permission requests are answered.** `Dhizuku.requestPermission()` starts
+  `shiroikuma.shizuku.action.REQUEST_DHIZUKU_PERMISSION`, which nothing handled, so every request
+  was denied with no prompt. A new activity handles it: an app already authorized for Shizuku is
+  granted at once, any other gets the usual authorization prompt in the house dialog. Dhizuku and
+  Shizuku share one grant table, so allowing an app here allows it for both.
+
 ## 13.7.0.r2748+2026-10-05.00-19.gf34eaa8b+002
 
 Two upstream syncs since the last published build: `r2702` → `r2715` → `r2748` (`f34eaa8b`,
